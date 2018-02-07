@@ -1,0 +1,90 @@
+group 'com.sdyk.ai'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+mainClassName = 'com.sdyk.ai.crawler.zbj.ServiceWrapper'
+
+applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\""]
+
+
+repositories {
+    maven {
+        url "http://tfelab.org:60002/content/groups/public"
+        credentials {
+            username developer
+            password developer_password
+        }
+    }
+    jcenter()
+    maven {
+        url "http://repo.maven.apache.org/maven2"
+    }
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'http://tfelab.org:60002/content/repositories/releases/') {
+                authentication(userName: deployment, password: deployment_password)
+            }
+            snapshotRepository(url: 'http://tfelab.org:60002/content/repositories/snapshots/') {
+                authentication(userName: deployment, password: deployment_password)
+            }
+        }
+    }
+}
+
+dependencies {
+    compile 'org.tfelab:core:1.0-SNAPSHOT'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    runtime 'mysql:mysql-connector-java:5.1.37'
+}
+
+task copyFiles(group: 'tetra') << {
+    copy {
+        from 'chromedriver'
+        into 'src/main/dist'
+    }
+    copy {
+        from 'cacerts'
+        into 'src/main/dist'
+    }
+    copy {
+        from fileTree('src/main/resources')
+        into 'src/main/dist'
+    }
+    copy {
+        from fileTree('www')
+        into 'src/main/dist/www'
+    }
+}
+
+jar.dependsOn copyFiles
+
+startScripts {
+    doLast {
+        def winScriptFile  = file getWindowsScript()
+        def winFileText = winScriptFile.text
+        winFileText = winFileText.replaceAll('set CLASSPATH=.*', '@rem original CLASSPATH declaration replaced by:\nset CLASSPATH=%APP_HOME%\\\\lib\\\\\\*')
+        winFileText = winFileText.replaceAll('@rem Set local scope', '\n@ping 127.0.0.1 -n 3 >nul\n@rem Set local scope')
+        winScriptFile.text = winFileText
+
+        def unixScriptFile  = file getUnixScript()
+        def unixFileText = unixScriptFile.text
+        unixFileText = unixFileText.replaceAll('APP_NAME', 'sleep 3\nexport DISPLAY=:99\nAPP_NAME')
+        unixScriptFile.text = unixFileText
+    }
+}
