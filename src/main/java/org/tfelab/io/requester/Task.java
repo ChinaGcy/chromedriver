@@ -19,7 +19,6 @@ import org.tfelab.txt.URLUtil;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.*;
 
 import static org.tfelab.io.requester.BasicRequester.autoDecode;
@@ -302,7 +301,7 @@ public class Task {
 	}
 
 
-	public List<Task> postProc() throws Exception {
+	public com.sdyk.ai.crawler.zbj.task.Task postProc() throws Exception {
 		return null;
 	}
 
@@ -472,7 +471,9 @@ public class Task {
 			if(header == null) return true;
 			if(header.get("Content-Type") != null){
 				for(String item: header.get("Content-Type")){
+
 					if((item.contains("application") && !item.contains("json") && !item.contains("xml") && !item.contains("x-javascript"))
+						|| item.contains("application") && item.contains("officedocument")
 						|| item.contains("video")
 						|| item.contains("audio")
 						|| item.contains("image")

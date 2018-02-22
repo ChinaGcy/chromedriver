@@ -4,6 +4,7 @@ import com.sdyk.ai.crawler.zbj.model.Tenderer;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import db.Refacter;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.tfelab.txt.DateFormatUtil;
 
@@ -68,10 +69,16 @@ public class TendererRatingTask extends Task {
 						.getText();
 				tendererRating.maluation_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#evaluation > div > div.panel-content > ul > li:nth-child(" + i + ") > div.evaluation-item-row.evaluation-item-from > span.when"))
 						.getText());
-				tendererRating.pay_timeliness_num = driver.findElement(By.cssSelector("#evaluation > div > div.panel-content > ul > li:nth-child(" + i + ") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-intime > span.stars-group"))
-						.findElements(By.tagName("i")).size();
-				tendererRating.work_happy_num = driver.findElement(By.cssSelector("#evaluation > div > div.panel-content > ul > li:nth-child(" + i + ") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-delight > span.stars-group"))
-						.findElements(By.tagName("i")).size();
+				try {
+					tendererRating.pay_timeliness_num = driver.findElement(By.cssSelector("#evaluation > div > div.panel-content > ul > li:nth-child(" + i + ") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-intime > span.stars-group"))
+							.findElements(By.tagName("i")).size();
+					tendererRating.work_happy_num = driver.findElement(By.cssSelector("#evaluation > div > div.panel-content > ul > li:nth-child(" + i + ") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-delight > span.stars-group"))
+							.findElements(By.tagName("i")).size();
+
+				} catch (NoSuchElementException e) {
+					tendererRating.pay_timeliness_num = 0;
+					tendererRating.work_happy_num = 0;
+				}
 				tendererRating.insert();
 			}
 

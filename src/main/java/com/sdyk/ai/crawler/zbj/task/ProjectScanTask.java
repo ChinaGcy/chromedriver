@@ -31,6 +31,8 @@ public class ProjectScanTask extends Task {
 
 	private static String url_;
 
+	//public static Set<String> set = new HashSet<>();
+
 	public static ProjectScanTask generateTask(String url_, int page, AccountWrapper aw) {
 
 		ProjectScanTask.url_ = url_;
@@ -88,13 +90,15 @@ public class ProjectScanTask extends Task {
 			String url = matcher.group();
 
 			if(!list.contains(url)) {
-
 				list.add(url);
+				/*if (!set.contains(url)) {
+					set.add(url);*/
 				tasks.add(new ProjectTask(url));
+				//}
 			}
 		}
 
-		if (list.size() == 40) {
+		if (list.size() >= 52) {
 
 			Task t = generateTask(url_, ++page, null);
 			if (t != null) {
@@ -115,7 +119,7 @@ public class ProjectScanTask extends Task {
 
 		ChromeDriverAgent agent = (new ChromeDriverWithLogin("zbj.com")).login();
 		Queue<Task> taskQueue = new LinkedList<>();
-		taskQueue.add(ProjectScanTask.generateTask("t-ydyykf",1,null));
+		taskQueue.add(ProjectScanTask.generateTask("t-dhsjzbj",1,null));
 
 		while(!taskQueue.isEmpty()) {
 			Task t = taskQueue.poll();
@@ -123,8 +127,8 @@ public class ProjectScanTask extends Task {
 				try {
 					agent.fetch(t);
 					for (Task t_ : t.postProc(agent.getDriver())) {
-						//taskQueue.add(t_);
-						agent.fetch(t_);
+						taskQueue.add(t_);
+						//agent.fetch(t_);
 					}
 
 				} catch (Exception e) {

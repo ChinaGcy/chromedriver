@@ -6,6 +6,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.tfelab.db.DBName;
 import org.tfelab.db.OrmLiteDaoManager;
+import org.tfelab.json.JSON;
 import org.tfelab.json.JSONable;
 
 import java.sql.SQLException;
@@ -23,10 +24,10 @@ public class Work implements JSONable<Work> {
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String user_id;
 
-	@DatabaseField(dataType = DataType.STRING, width = 16)
+	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String name;
 
-	@DatabaseField(dataType = DataType.STRING, width = 16)
+	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String tenderer_name;
 
 	@DatabaseField(dataType = DataType.STRING, width = 16)
@@ -74,7 +75,7 @@ public class Work implements JSONable<Work> {
 			}
 
 		}catch (SQLException e) {
-			dao.update(this);
+			e.printStackTrace();
 		}
 
 		return false;
@@ -82,6 +83,6 @@ public class Work implements JSONable<Work> {
 
 	@Override
 	public String toJSON() {
-		return null;
+		return JSON.toPrettyJson(this);
 	}
 }

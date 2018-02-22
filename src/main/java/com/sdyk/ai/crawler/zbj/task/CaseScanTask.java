@@ -1,13 +1,17 @@
 package com.sdyk.ai.crawler.zbj.task;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.tfelab.io.requester.account.AccountWrapper;
+import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,17 +22,15 @@ import java.util.regex.Pattern;
  */
 public class CaseScanTask extends Task {
 
+	public static List<String> list = new ArrayList<>();
 
-	public static ProjectScanTask generateTask(String url_, int page, AccountWrapper aw) {
+	//   http://shop.zbj.com/7523816/
+	public static CaseScanTask generateTask(String url_, int page) {
 
-		if(page >= 100) return null;
-
-		String url = url_ + "/servicelist-" + page + "p/.html";
+		String url = url_ + "servicelist-p" + page + ".html";
 
 		try {
-			ProjectScanTask t = new ProjectScanTask(url, page);
-			t.setRequester_class(ChromeDriverRequester.class.getSimpleName());
-			t.setAccount(aw);
+			CaseScanTask t = new CaseScanTask(url, page);
 			return t;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -39,42 +41,82 @@ public class CaseScanTask extends Task {
 		return null;
 	}
 
-
-	public CaseScanTask(String url, String page) throws MalformedURLException, URISyntaxException {
+	public CaseScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
 		super(url);
+		this.setParam("page", page);
 	}
 
 	public List<Task> postProc(WebDriver driver) throws Exception {
+
 		String src = getResponse().getText();
 
-		String webUrl = getUrl();
+		// http://shop.zbj.com/17788555/servicelist-p1.html
+		String webId = this.getUrl().split("/")[3];
 
 		List<Task> tasks = new ArrayList<>();
 
 		int page = this.getParamInt("page");
 
+		if (!src.contains("暂时还没有此类服务！")) {
+			Task t = generateTask("http://shop.zbj.com/" + webId + "/", ++page);
+			if (t != null) {
+				t.setPrior();
+				tasks.add(t);
+			}
+		}
+
 		Pattern pattern = Pattern.compile("http://shop.zbj.com/\\d+/sid-\\d+.html");
 		Matcher matcher = pattern.matcher(src);
-
-		List<String> list = new ArrayList<>();
+		Pattern pattern1 = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
+		Matcher matcher1 = pattern1.matcher(src);
 
 		while (matcher.find()) {
 
 			String url = matcher.group();
 
 			if(!list.contains(url)) {
-
 				list.add(url);
 				tasks.add(new CaseTask(url));
 			}
 		}
 
-		Task t = generateTask(webUrl, ++ page, null);
-		if(t != null) {
-			t.setPrior();
-			tasks.add(t);
+		while (matcher1.find()) {
+
+			String url = matcher1.group();
+
+			if(!list.contains(url)) {
+				list.add(url);
+				tasks.add(new CaseTask(url));
+			}
 		}
 
 		return tasks;
 	}
+
+	public static void main(String[] args) throws Exception {
+
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+
+		Task t = CaseScanTask.generateTask("http://shop.zbj.com/17029968/",1);
+
+		Queue<Task> queue = new LinkedBlockingQueue<>();
+
+		queue.add(t);
+
+		while(!queue.isEmpty()) {
+
+			Task tt = queue.poll();
+
+			agent.fetch(tt);
+
+			for (Task t1 : tt.postProc(agent.getDriver())) {
+				queue.add(t1);
+			}
+
+		}
+
+
+
+	}
+
 }

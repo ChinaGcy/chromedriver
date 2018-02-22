@@ -1,0 +1,1067 @@
+[0.581][INFO]: COMMAND InitSession {
+   "desiredCapabilities": {
+      "browserName": "chrome",
+      "chromeOptions": {
+         "args": [ "--no-sandbox", "--dns-prefetch-disable", "--disable-gpu-watchdog", "--disable-gpu-program-cache", "--disk-cache-dir=/dev/null", "--disk-cache-size=1" ],
+         "detach": true,
+         "extensions": [  ],
+         "prefs": {
+            "profile.default_content_setting_values.notifications": 2
+         }
+      },
+      "loggingPrefs": {
+         "performance": "INFO"
+      },
+      "newCommandTimeout": 120,
+      "platform": "WIN8",
+      "proxy": {
+         "autodetect": false,
+         "class": "org.openqa.selenium.Proxy",
+         "ftpProxy": null,
+         "hCode": 1192281164,
+         "httpProxy": "gu-PC:65008",
+         "noProxy": null,
+         "proxyAutoconfigUrl": null,
+         "proxyType": "MANUAL",
+         "socksPassword": null,
+         "socksProxy": null,
+         "socksUsername": null,
+         "sslProxy": "gu-PC:65008"
+      },
+      "recreateChromeDriverSessions": true,
+      "version": ""
+   }
+}
+[0.586][INFO]: Populating Preferences file: {
+   "alternate_error_pages": {
+      "enabled": false
+   },
+   "autofill": {
+      "enabled": false
+   },
+   "browser": {
+      "check_default_browser": false
+   },
+   "distribution": {
+      "import_bookmarks": false,
+      "import_history": false,
+      "import_search_engine": false,
+      "make_chrome_default_for_user": false,
+      "skip_first_run_ui": true
+   },
+   "dns_prefetching": {
+      "enabled": false
+   },
+   "profile": {
+      "content_settings": {
+         "pattern_pairs": {
+            "https://*,*": {
+               "media-stream": {
+                  "audio": "Default",
+                  "video": "Default"
+               }
+            }
+         }
+      },
+      "default_content_setting_values": {
+         "geolocation": 1,
+         "notifications": 2
+      },
+      "default_content_settings": {
+         "geolocation": 1,
+         "mouselock": 1,
+         "notifications": 1,
+         "popups": 1,
+         "ppapi-broker": 1
+      },
+      "password_manager_enabled": false
+   },
+   "safebrowsing": {
+      "enabled": false
+   },
+   "search": {
+      "suggest_enabled": false
+   },
+   "translate": {
+      "enabled": false
+   }
+}
+[0.588][INFO]: Populating Local State file: {
+   "background_mode": {
+      "enabled": false
+   },
+   "ssl": {
+      "rev_checking": {
+         "enabled": false
+      }
+   }
+}
+[0.631][INFO]: Launching chrome: "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --disable-background-networking --disable-client-side-phishing-detection --disable-default-apps --disable-gpu-program-cache --disable-gpu-watchdog --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --disable-web-resources --disk-cache-dir=/dev/null --disk-cache-size=1 --dns-prefetch-disable --enable-automation --enable-logging --force-fieldtrials=SiteIsolationExtensions/Control --ignore-certificate-errors --load-extension="C:\Users\gu\AppData\Local\Temp\scoped_dir4140_15737\internal" --log-level=0 --metrics-recording-only --no-first-run --no-sandbox --password-store=basic --proxy-server=http=gu-PC:65008;https=gu-PC:65008 --remote-debugging-port=12727 --test-type=webdriver --use-mock-keychain --user-data-dir="C:\Users\gu\AppData\Local\Temp\scoped_dir4140_15951" data:,
+[1.285][INFO]: resolved localhost to ["::1","127.0.0.1"]
+[2.353][INFO]: RESPONSE InitSession {
+   "acceptSslCerts": true,
+   "applicationCacheEnabled": false,
+   "browserConnectionEnabled": false,
+   "browserName": "chrome",
+   "chrome": {
+      "chromedriverVersion": "2.34.522940 (1a76f96f66e3ca7b8e57d503b4dd3bccfba87af1)",
+      "userDataDir": "C:\\Users\\gu\\AppData\\Local\\Temp\\scoped_dir4140_15951"
+   },
+   "cssSelectorsEnabled": true,
+   "databaseEnabled": false,
+   "handlesAlerts": true,
+   "hasTouchScreen": false,
+   "javascriptEnabled": true,
+   "locationContextEnabled": true,
+   "mobileEmulationEnabled": false,
+   "nativeEvents": true,
+   "networkConnectionEnabled": false,
+   "pageLoadStrategy": "normal",
+   "platform": "Windows NT",
+   "rotatable": false,
+   "setWindowRect": true,
+   "takesHeapSnapshot": true,
+   "~~~": "..."
+}
+[2.381][INFO]: COMMAND SetTimeout {
+   "ms": 10000,
+   "type": "script"
+}
+[2.381][INFO]: RESPONSE SetTimeout
+[2.384][INFO]: COMMAND SetTimeout {
+   "ms": 10000,
+   "type": "implicit"
+}
+[2.384][INFO]: RESPONSE SetTimeout
+[2.387][INFO]: COMMAND SetTimeout {
+   "ms": 120000,
+   "type": "page load"
+}
+[2.387][INFO]: RESPONSE SetTimeout
+[2.392][INFO]: COMMAND MaximizeWindow {
+   "windowHandle": "current"
+}
+[2.393][INFO]: resolved localhost to ["::1","127.0.0.1"]
+[3.829][INFO]: RESPONSE MaximizeWindow
+[4.790][INFO]: COMMAND Navigate {
+   "url": "http://zbj.com"
+}
+[4.790][INFO]: Waiting for pending navigations...
+[4.822][INFO]: Done waiting for pending navigations. Status: ok
+[5.915][INFO]: Waiting for pending navigations...
+[13.259][INFO]: Done waiting for pending navigations. Status: ok
+[13.259][INFO]: RESPONSE Navigate
+[13.272][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)"
+}
+[13.272][INFO]: Waiting for pending navigations...
+[13.283][INFO]: Done waiting for pending navigations. Status: ok
+[13.298][INFO]: Waiting for pending navigations...
+[13.301][INFO]: Done waiting for pending navigations. Status: ok
+[13.301][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.9289794211649929-1"
+}
+[13.309][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.9289794211649929-1"
+}
+[13.310][INFO]: Waiting for pending navigations...
+[13.311][INFO]: Done waiting for pending navigations. Status: ok
+[13.322][INFO]: Waiting for pending navigations...
+[13.324][INFO]: Done waiting for pending navigations. Status: ok
+[13.324][INFO]: RESPONSE IsElementDisplayed true
+[13.328][INFO]: COMMAND ClickElement {
+   "id": "0.9289794211649929-1"
+}
+[13.328][INFO]: Waiting for pending navigations...
+[13.331][INFO]: Done waiting for pending navigations. Status: ok
+[13.553][INFO]: Waiting for pending navigations...
+[17.994][INFO]: Done waiting for pending navigations. Status: ok
+[17.994][INFO]: RESPONSE ClickElement
+[17.998][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#username"
+}
+[17.999][INFO]: Waiting for pending navigations...
+[18.113][INFO]: Done waiting for pending navigations. Status: ok
+[18.134][INFO]: Waiting for pending navigations...
+[18.139][INFO]: Done waiting for pending navigations. Status: ok
+[18.139][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-1"
+}
+[18.143][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-1"
+}
+[18.143][INFO]: Waiting for pending navigations...
+[18.145][INFO]: Done waiting for pending navigations. Status: ok
+[18.167][INFO]: Waiting for pending navigations...
+[18.169][INFO]: Done waiting for pending navigations. Status: ok
+[18.169][INFO]: RESPONSE IsElementDisplayed true
+[18.173][INFO]: COMMAND TypeElement {
+   "id": "0.5291086607835385-1",
+   "value": [ "17600668061" ]
+}
+[18.173][INFO]: Waiting for pending navigations...
+[18.174][INFO]: Done waiting for pending navigations. Status: ok
+[18.252][INFO]: Waiting for pending navigations...
+[18.252][INFO]: Done waiting for pending navigations. Status: ok
+[18.252][INFO]: RESPONSE TypeElement
+[18.255][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#password"
+}
+[18.255][INFO]: Waiting for pending navigations...
+[18.256][INFO]: Done waiting for pending navigations. Status: ok
+[18.273][INFO]: Waiting for pending navigations...
+[18.275][INFO]: Done waiting for pending navigations. Status: ok
+[18.275][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-2"
+}
+[18.278][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-2"
+}
+[18.278][INFO]: Waiting for pending navigations...
+[18.279][INFO]: Done waiting for pending navigations. Status: ok
+[18.294][INFO]: Waiting for pending navigations...
+[18.294][INFO]: Done waiting for pending navigations. Status: ok
+[18.294][INFO]: RESPONSE IsElementDisplayed true
+[18.298][INFO]: COMMAND TypeElement {
+   "id": "0.5291086607835385-2",
+   "value": [ "gcy116149" ]
+}
+[18.298][INFO]: Waiting for pending navigations...
+[18.299][INFO]: Done waiting for pending navigations. Status: ok
+[18.364][INFO]: Waiting for pending navigations...
+[18.364][INFO]: Done waiting for pending navigations. Status: ok
+[18.364][INFO]: RESPONSE TypeElement
+[20.384][INFO]: COMMAND GetSource {
+
+}
+[20.387][INFO]: Waiting for pending navigations...
+[20.389][INFO]: Done waiting for pending navigations. Status: ok
+[20.404][INFO]: Waiting for pending navigations...
+[20.406][INFO]: Done waiting for pending navigations. Status: ok
+[20.406][INFO]: RESPONSE GetSource "\u003C!DOCTYPE html>\u003Chtml xmlns=\"http://www.w3.org/1999/xhtml\">\u003Chead autoconcat=\"1\">\n            \u003Cmeta charset=\"utf-8\" />\n            \u003Cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\" />\n   ..."
+[20.432][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_radar_tip_content"
+}
+[20.432][INFO]: Waiting for pending navigations...
+[20.433][INFO]: Done waiting for pending navigations. Status: ok
+[20.450][INFO]: Waiting for pending navigations...
+[20.452][INFO]: Done waiting for pending navigations. Status: ok
+[20.452][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-3"
+}
+[20.458][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-3"
+}
+[20.458][INFO]: Waiting for pending navigations...
+[20.459][INFO]: Done waiting for pending navigations. Status: ok
+[20.471][INFO]: Waiting for pending navigations...
+[20.471][INFO]: Done waiting for pending navigations. Status: ok
+[20.471][INFO]: RESPONSE IsElementDisplayed true
+[20.475][INFO]: COMMAND ClickElement {
+   "id": "0.5291086607835385-3"
+}
+[20.475][INFO]: Waiting for pending navigations...
+[20.476][INFO]: Done waiting for pending navigations. Status: ok
+[20.518][INFO]: Waiting for pending navigations...
+[20.519][INFO]: Done waiting for pending navigations. Status: ok
+[20.519][INFO]: RESPONSE ClickElement
+[20.524][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_slider_button"
+}
+[20.524][INFO]: Waiting for pending navigations...
+[20.524][INFO]: Done waiting for pending navigations. Status: ok
+[20.939][INFO]: Waiting for pending navigations...
+[20.958][INFO]: Done waiting for pending navigations. Status: ok
+[20.959][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-4"
+}
+[20.965][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-4"
+}
+[20.965][INFO]: Waiting for pending navigations...
+[20.968][INFO]: Done waiting for pending navigations. Status: ok
+[20.985][INFO]: Waiting for pending navigations...
+[20.992][INFO]: Done waiting for pending navigations. Status: ok
+[20.992][INFO]: RESPONSE IsElementDisplayed true
+[21.010][INFO]: COMMAND MouseMove {
+   "element": "0.5291086607835385-4"
+}
+[21.010][INFO]: Waiting for pending navigations...
+[21.011][INFO]: Done waiting for pending navigations. Status: ok
+[21.030][INFO]: Waiting for pending navigations...
+[21.032][INFO]: Done waiting for pending navigations. Status: ok
+[21.032][INFO]: RESPONSE MouseMove
+[21.036][INFO]: COMMAND MouseMove {
+   "element": "0.5291086607835385-4"
+}
+[21.036][INFO]: Waiting for pending navigations...
+[21.036][INFO]: Done waiting for pending navigations. Status: ok
+[21.047][INFO]: Waiting for pending navigations...
+[21.048][INFO]: Done waiting for pending navigations. Status: ok
+[21.048][INFO]: RESPONSE MouseMove
+[21.051][INFO]: COMMAND MouseDown {
+
+}
+[21.051][INFO]: Waiting for pending navigations...
+[21.051][INFO]: Done waiting for pending navigations. Status: ok
+[21.055][INFO]: Waiting for pending navigations...
+[21.055][INFO]: Done waiting for pending navigations. Status: ok
+[21.055][INFO]: RESPONSE MouseDown
+[21.058][INFO]: COMMAND MouseMove {
+   "xoffset": 5,
+   "yoffset": 0
+}
+[21.058][INFO]: Waiting for pending navigations...
+[21.059][INFO]: Done waiting for pending navigations. Status: ok
+[21.069][INFO]: Waiting for pending navigations...
+[21.073][INFO]: Done waiting for pending navigations. Status: ok
+[21.073][INFO]: RESPONSE MouseMove
+[21.076][INFO]: COMMAND MouseUp {
+
+}
+[21.076][INFO]: Waiting for pending navigations...
+[21.077][INFO]: Done waiting for pending navigations. Status: ok
+[21.112][INFO]: Waiting for pending navigations...
+[21.114][INFO]: Done waiting for pending navigations. Status: ok
+[21.114][INFO]: RESPONSE MouseUp
+[22.120][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_window"
+}
+[22.120][INFO]: Waiting for pending navigations...
+[22.122][INFO]: Done waiting for pending navigations. Status: ok
+[22.136][INFO]: Waiting for pending navigations...
+[22.137][INFO]: Done waiting for pending navigations. Status: ok
+[22.137][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-5"
+}
+[22.143][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-5"
+}
+[22.144][INFO]: Waiting for pending navigations...
+[22.144][INFO]: Done waiting for pending navigations. Status: ok
+[22.156][INFO]: Waiting for pending navigations...
+[22.157][INFO]: Done waiting for pending navigations. Status: ok
+[22.157][INFO]: RESPONSE IsElementDisplayed true
+[22.161][INFO]: COMMAND Screenshot {
+
+}
+[22.161][INFO]: Waiting for pending navigations...
+[22.162][INFO]: Done waiting for pending navigations. Status: ok
+[22.562][INFO]: Waiting for pending navigations...
+[22.563][INFO]: Done waiting for pending navigations. Status: ok
+[22.563][INFO]: RESPONSE Screenshot "iVBORw0KGgoAAAANSUhEUgAABVYAAAJrCAIAAACEGF+4AAAgAElEQVR4nOzdeXwU9f0/8NdsbpKQQAgBAoQz3AHCJVdQJISgCFSJ2KIFof3SAmq/tV9bpPn1m6It39ZWBattiYB4QNCiAkKIcorcAQKChHBECJCEACGEXLs7vz/23p3P7kyyC8G8ng8fkp39zGc+O..."
+[22.646][INFO]: COMMAND GetElementLocation {
+   "id": "0.5291086607835385-5"
+}
+[22.646][INFO]: Waiting for pending navigations...
+[22.672][INFO]: Done waiting for pending navigations. Status: ok
+[22.678][INFO]: Waiting for pending navigations...
+[22.679][INFO]: Done waiting for pending navigations. Status: ok
+[22.679][INFO]: RESPONSE GetElementLocation {
+   "ceil": {
+
+   },
+   "clone": {
+
+   },
+   "floor": {
+
+   },
+   "round": {
+
+   },
+   "scale": {
+
+   },
+   "toString": {
+
+   },
+   "translate": {
+
+   },
+   "x": 892,
+   "y": 262.984375
+}
+[22.684][INFO]: COMMAND GetElementSize {
+   "id": "0.5291086607835385-5"
+}
+[22.684][INFO]: Waiting for pending navigations...
+[22.685][INFO]: Done waiting for pending navigations. Status: ok
+[22.691][INFO]: Waiting for pending navigations...
+[22.694][INFO]: Done waiting for pending navigations. Status: ok
+[22.694][INFO]: RESPONSE GetElementSize {
+   "ceil": {
+
+   },
+   "clone": {
+
+   },
+   "floor": {
+
+   },
+   "height": 160,
+   "round": {
+
+   },
+   "scale": {
+
+   },
+   "toString": {
+
+   },
+   "width": 260
+}
+[22.700][INFO]: COMMAND GetElementSize {
+   "id": "0.5291086607835385-5"
+}
+[22.700][INFO]: Waiting for pending navigations...
+[22.701][INFO]: Done waiting for pending navigations. Status: ok
+[22.706][INFO]: Waiting for pending navigations...
+[22.711][INFO]: Done waiting for pending navigations. Status: ok
+[22.711][INFO]: RESPONSE GetElementSize {
+   "ceil": {
+
+   },
+   "clone": {
+
+   },
+   "floor": {
+
+   },
+   "height": 160,
+   "round": {
+
+   },
+   "scale": {
+
+   },
+   "toString": {
+
+   },
+   "width": 260
+}
+[22.900][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[22.900][INFO]: Waiting for pending navigations...
+[22.902][INFO]: Done waiting for pending navigations. Status: ok
+[22.919][INFO]: Waiting for pending navigations...
+[22.922][INFO]: Done waiting for pending navigations. Status: ok
+[22.922][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[22.927][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[22.927][INFO]: Waiting for pending navigations...
+[22.930][INFO]: Done waiting for pending navigations. Status: ok
+[22.947][INFO]: Waiting for pending navigations...
+[22.950][INFO]: Done waiting for pending navigations. Status: ok
+[22.950][INFO]: RESPONSE IsElementDisplayed false
+[23.456][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[23.456][INFO]: Waiting for pending navigations...
+[23.458][INFO]: Done waiting for pending navigations. Status: ok
+[23.468][INFO]: Waiting for pending navigations...
+[23.472][INFO]: Done waiting for pending navigations. Status: ok
+[23.472][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[23.478][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[23.478][INFO]: Waiting for pending navigations...
+[23.479][INFO]: Done waiting for pending navigations. Status: ok
+[23.484][INFO]: Waiting for pending navigations...
+[23.485][INFO]: Done waiting for pending navigations. Status: ok
+[23.485][INFO]: RESPONSE IsElementDisplayed false
+[23.993][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[23.993][INFO]: Waiting for pending navigations...
+[23.994][INFO]: Done waiting for pending navigations. Status: ok
+[24.004][INFO]: Waiting for pending navigations...
+[24.006][INFO]: Done waiting for pending navigations. Status: ok
+[24.006][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[24.014][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[24.014][INFO]: Waiting for pending navigations...
+[24.016][INFO]: Done waiting for pending navigations. Status: ok
+[24.023][INFO]: Waiting for pending navigations...
+[24.024][INFO]: Done waiting for pending navigations. Status: ok
+[24.024][INFO]: RESPONSE IsElementDisplayed false
+[24.542][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[24.544][INFO]: Waiting for pending navigations...
+[24.546][INFO]: Done waiting for pending navigations. Status: ok
+[24.562][INFO]: Waiting for pending navigations...
+[24.563][INFO]: Done waiting for pending navigations. Status: ok
+[24.563][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[24.568][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[24.568][INFO]: Waiting for pending navigations...
+[24.569][INFO]: Done waiting for pending navigations. Status: ok
+[24.577][INFO]: Waiting for pending navigations...
+[24.578][INFO]: Done waiting for pending navigations. Status: ok
+[24.578][INFO]: RESPONSE IsElementDisplayed false
+[25.087][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[25.087][INFO]: Waiting for pending navigations...
+[25.091][INFO]: Done waiting for pending navigations. Status: ok
+[25.106][INFO]: Waiting for pending navigations...
+[25.109][INFO]: Done waiting for pending navigations. Status: ok
+[25.109][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[25.114][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[25.114][INFO]: Waiting for pending navigations...
+[25.116][INFO]: Done waiting for pending navigations. Status: ok
+[25.125][INFO]: Waiting for pending navigations...
+[25.127][INFO]: Done waiting for pending navigations. Status: ok
+[25.127][INFO]: RESPONSE IsElementDisplayed false
+[25.639][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[25.639][INFO]: Waiting for pending navigations...
+[25.641][INFO]: Done waiting for pending navigations. Status: ok
+[25.661][INFO]: Waiting for pending navigations...
+[25.665][INFO]: Done waiting for pending navigations. Status: ok
+[25.665][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[25.676][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[25.676][INFO]: Waiting for pending navigations...
+[25.679][INFO]: Done waiting for pending navigations. Status: ok
+[25.686][INFO]: Waiting for pending navigations...
+[25.687][INFO]: Done waiting for pending navigations. Status: ok
+[25.687][INFO]: RESPONSE IsElementDisplayed false
+[26.181][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[26.181][INFO]: Waiting for pending navigations...
+[26.182][INFO]: Done waiting for pending navigations. Status: ok
+[26.190][INFO]: Waiting for pending navigations...
+[26.192][INFO]: Done waiting for pending navigations. Status: ok
+[26.192][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[26.196][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[26.196][INFO]: Waiting for pending navigations...
+[26.197][INFO]: Done waiting for pending navigations. Status: ok
+[26.204][INFO]: Waiting for pending navigations...
+[26.208][INFO]: Done waiting for pending navigations. Status: ok
+[26.208][INFO]: RESPONSE IsElementDisplayed false
+[26.711][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": ".geetest_success_radar_tip_content"
+}
+[26.711][INFO]: Waiting for pending navigations...
+[26.713][INFO]: Done waiting for pending navigations. Status: ok
+[26.718][INFO]: Waiting for pending navigations...
+[26.719][INFO]: Done waiting for pending navigations. Status: ok
+[26.719][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-6"
+}
+[26.722][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-6"
+}
+[26.722][INFO]: Waiting for pending navigations...
+[26.723][INFO]: Done waiting for pending navigations. Status: ok
+[26.730][INFO]: Waiting for pending navigations...
+[26.731][INFO]: Done waiting for pending navigations. Status: ok
+[26.731][INFO]: RESPONSE IsElementDisplayed true
+[26.734][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button"
+}
+[26.734][INFO]: Waiting for pending navigations...
+[26.735][INFO]: Done waiting for pending navigations. Status: ok
+[26.746][INFO]: Waiting for pending navigations...
+[26.749][INFO]: Done waiting for pending navigations. Status: ok
+[26.749][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.5291086607835385-7"
+}
+[26.753][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.5291086607835385-7"
+}
+[26.753][INFO]: Waiting for pending navigations...
+[26.754][INFO]: Done waiting for pending navigations. Status: ok
+[26.767][INFO]: Waiting for pending navigations...
+[26.768][INFO]: Done waiting for pending navigations. Status: ok
+[26.768][INFO]: RESPONSE IsElementDisplayed true
+[26.771][INFO]: COMMAND ClickElement {
+   "id": "0.5291086607835385-7"
+}
+[26.771][INFO]: Waiting for pending navigations...
+[26.772][INFO]: Done waiting for pending navigations. Status: ok
+[26.832][INFO]: Waiting for pending navigations...
+[26.836][INFO]: Done waiting for pending navigations. Status: ok
+[26.836][INFO]: RESPONSE ClickElement
+[27.849][INFO]: COMMAND Navigate {
+   "url": "http://task.zbj.com/12909258/"
+}
+[28.194][INFO]: Waiting for pending navigations...
+[31.414][INFO]: Done waiting for pending navigations. Status: ok
+[31.797][INFO]: Waiting for pending navigations...
+[33.823][INFO]: Done waiting for pending navigations. Status: ok
+[33.823][INFO]: RESPONSE Navigate
+[33.829][INFO]: COMMAND GetSource {
+
+}
+[33.829][INFO]: Waiting for pending navigations...
+[33.836][INFO]: Done waiting for pending navigations. Status: ok
+[33.863][INFO]: Waiting for pending navigations...
+[33.870][INFO]: Done waiting for pending navigations. Status: ok
+[33.871][INFO]: RESPONSE GetSource "\u003C!DOCTYPE html>\u003Chtml xmlns=\"http://www.w3.org/1999/xhtml\">\u003Chead>\n\u003Cmeta charset=\"utf-8\" />\n\u003Cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\" />\n\u003Cmeta name=\"renderer\" content=\"webkit\" />\n..."
+[35.896][INFO]: COMMAND GetSource {
+
+}
+[35.900][INFO]: Waiting for pending navigations...
+[35.900][INFO]: Done waiting for pending navigations. Status: ok
+[35.916][INFO]: Waiting for pending navigations...
+[35.918][INFO]: Done waiting for pending navigations. Status: ok
+[35.918][INFO]: RESPONSE GetSource "\u003C!DOCTYPE html>\u003Chtml xmlns=\"http://www.w3.org/1999/xhtml\">\u003Chead>\n\u003Cmeta charset=\"utf-8\" />\n\u003Cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\" />\n\u003Cmeta name=\"renderer\" content=\"webkit\" />\n..."
+[35.946][INFO]: COMMAND GetSource {
+
+}
+[35.946][INFO]: Waiting for pending navigations...
+[35.958][INFO]: Done waiting for pending navigations. Status: ok
+[35.977][INFO]: Waiting for pending navigations...
+[35.982][INFO]: Done waiting for pending navigations. Status: ok
+[35.983][INFO]: RESPONSE GetSource "\u003C!DOCTYPE html>\u003Chtml xmlns=\"http://www.w3.org/1999/xhtml\">\u003Chead>\n\u003Cmeta charset=\"utf-8\" />\n\u003Cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\" />\n\u003Cmeta name=\"renderer\" content=\"webkit\" />\n..."
+[35.999][INFO]: COMMAND GetUrl {
+
+}
+[35.999][INFO]: Waiting for pending navigations...
+[35.999][INFO]: Done waiting for pending navigations. Status: ok
+[36.001][INFO]: Waiting for pending navigations...
+[36.002][INFO]: Done waiting for pending navigations. Status: ok
+[36.002][INFO]: RESPONSE GetUrl "http://task.zbj.com/12909258/"
+[36.010][INFO]: COMMAND ExecuteScript {
+   "args": [  ],
+   "script": "return document.readyState"
+}
+[36.010][INFO]: Waiting for pending navigations...
+[36.013][INFO]: Done waiting for pending navigations. Status: ok
+[36.015][INFO]: Waiting for pending navigations...
+[36.015][INFO]: Done waiting for pending navigations. Status: ok
+[36.015][INFO]: RESPONSE ExecuteScript "complete"
+[37.018][INFO]: COMMAND GetUrl {
+
+}
+[37.019][INFO]: Waiting for pending navigations...
+[37.021][INFO]: Done waiting for pending navigations. Status: ok
+[37.023][INFO]: Waiting for pending navigations...
+[37.024][INFO]: Done waiting for pending navigations. Status: ok
+[37.024][INFO]: RESPONSE GetUrl "http://task.zbj.com/12909258/"
+[37.027][INFO]: COMMAND ExecuteScript {
+   "args": [  ],
+   "script": "return document.readyState"
+}
+[37.027][INFO]: Waiting for pending navigations...
+[37.029][INFO]: Done waiting for pending navigations. Status: ok
+[37.031][INFO]: Waiting for pending navigations...
+[37.032][INFO]: Done waiting for pending navigations. Status: ok
+[37.032][INFO]: RESPONSE ExecuteScript "complete"
+[37.038][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "body"
+}
+[37.038][INFO]: Waiting for pending navigations...
+[37.039][INFO]: Done waiting for pending navigations. Status: ok
+[37.050][INFO]: Waiting for pending navigations...
+[37.051][INFO]: Done waiting for pending navigations. Status: ok
+[37.051][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-1"
+}
+[37.054][INFO]: COMMAND IsElementDisplayed {
+   "id": "0.7228653227706194-1"
+}
+[37.054][INFO]: Waiting for pending navigations...
+[37.055][INFO]: Done waiting for pending navigations. Status: ok
+[37.065][INFO]: Waiting for pending navigations...
+[37.068][INFO]: Done waiting for pending navigations. Status: ok
+[37.068][INFO]: RESPONSE IsElementDisplayed true
+[37.070][INFO]: COMMAND ExecuteScript {
+   "args": [  ],
+   "script": "return document.readyState"
+}
+[37.071][INFO]: Waiting for pending navigations...
+[37.072][INFO]: Done waiting for pending navigations. Status: ok
+[37.073][INFO]: Waiting for pending navigations...
+[37.074][INFO]: Done waiting for pending navigations. Status: ok
+[37.074][INFO]: RESPONSE ExecuteScript "complete"
+[37.077][INFO]: COMMAND GetUrl {
+
+}
+[37.077][INFO]: Waiting for pending navigations...
+[37.077][INFO]: Done waiting for pending navigations. Status: ok
+[37.079][INFO]: Waiting for pending navigations...
+[37.079][INFO]: Done waiting for pending navigations. Status: ok
+[37.079][INFO]: RESPONSE GetUrl "http://task.zbj.com/12909258/"
+[37.083][INFO]: COMMAND GetSource {
+
+}
+[37.083][INFO]: Waiting for pending navigations...
+[37.084][INFO]: Done waiting for pending navigations. Status: ok
+[37.098][INFO]: Waiting for pending navigations...
+[37.099][INFO]: Done waiting for pending navigations. Status: ok
+[37.099][INFO]: RESPONSE GetSource "\u003C!DOCTYPE html>\u003Chtml xmlns=\"http://www.w3.org/1999/xhtml\">\u003Chead>\n\u003Cmeta charset=\"utf-8\" />\n\u003Cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\" />\n\u003Cmeta name=\"renderer\" content=\"webkit\" />\n..."
+[37.498][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title"
+}
+[37.498][INFO]: Waiting for pending navigations...
+[37.499][INFO]: Done waiting for pending navigations. Status: ok
+[37.514][INFO]: Waiting for pending navigations...
+[37.514][INFO]: Done waiting for pending navigations. Status: ok
+[37.514][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-2"
+}
+[37.517][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-2"
+}
+[37.518][INFO]: Waiting for pending navigations...
+[37.518][INFO]: Done waiting for pending navigations. Status: ok
+[37.537][INFO]: Waiting for pending navigations...
+[37.539][INFO]: Done waiting for pending navigations. Status: ok
+[37.539][INFO]: RESPONSE GetElementText "需求详情"
+[37.543][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > h1"
+}
+[37.543][INFO]: Waiting for pending navigations...
+[37.544][INFO]: Done waiting for pending navigations. Status: ok
+[37.562][INFO]: Waiting for pending navigations...
+[37.563][INFO]: Done waiting for pending navigations. Status: ok
+[37.563][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-3"
+}
+[37.566][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-3"
+}
+[37.566][INFO]: Waiting for pending navigations...
+[37.571][INFO]: Done waiting for pending navigations. Status: ok
+[37.587][INFO]: Waiting for pending navigations...
+[37.589][INFO]: Done waiting for pending navigations. Status: ok
+[37.589][INFO]: RESPONSE GetElementText "以关羽作为动漫卡通形象设计"
+[37.596][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b"
+}
+[37.596][INFO]: Waiting for pending navigations...
+[37.597][INFO]: Done waiting for pending navigations. Status: ok
+[37.613][INFO]: Waiting for pending navigations...
+[37.615][INFO]: Done waiting for pending navigations. Status: ok
+[37.615][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-4"
+}
+[37.621][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-4"
+}
+[37.621][INFO]: Waiting for pending navigations...
+[37.622][INFO]: Done waiting for pending navigations. Status: ok
+[37.642][INFO]: Waiting for pending navigations...
+[37.646][INFO]: Done waiting for pending navigations. Status: ok
+[37.646][INFO]: RESPONSE GetElementText "12909258"
+[37.649][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#utopia_widget_3"
+}
+[37.649][INFO]: Waiting for pending navigations...
+[37.650][INFO]: Done waiting for pending navigations. Status: ok
+[37.671][INFO]: Waiting for pending navigations...
+[37.673][INFO]: Done waiting for pending navigations. Status: ok
+[37.673][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-5"
+}
+[37.675][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-5"
+}
+[37.675][INFO]: Waiting for pending navigations...
+[37.676][INFO]: Done waiting for pending navigations. Status: ok
+[37.697][INFO]: Waiting for pending navigations...
+[37.700][INFO]: Done waiting for pending navigations. Status: ok
+[37.700][INFO]: RESPONSE GetElementText "需求市场 > 漫画设计 > 卡通形象 > 卡通形象设计"
+[37.704][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner"
+}
+[37.704][INFO]: Waiting for pending navigations...
+[37.705][INFO]: Done waiting for pending navigations. Status: ok
+[37.720][INFO]: Waiting for pending navigations...
+[37.723][INFO]: Done waiting for pending navigations. Status: ok
+[37.723][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-6"
+}
+[37.727][INFO]: COMMAND FindChildElement {
+   "id": "0.7228653227706194-6",
+   "using": "class name",
+   "value": "task-detail"
+}
+[37.727][INFO]: Waiting for pending navigations...
+[37.729][INFO]: Done waiting for pending navigations. Status: ok
+[37.741][INFO]: Waiting for pending navigations...
+[37.742][INFO]: Done waiting for pending navigations. Status: ok
+[37.742][INFO]: RESPONSE FindChildElement {
+   "ELEMENT": "0.7228653227706194-7"
+}
+[37.746][INFO]: COMMAND GetElementAttribute {
+   "id": "0.7228653227706194-7",
+   "name": "innerHTML"
+}
+[37.746][INFO]: Waiting for pending navigations...
+[37.747][INFO]: Done waiting for pending navigations. Status: ok
+[37.751][INFO]: Waiting for pending navigations...
+[37.752][INFO]: Done waiting for pending navigations. Status: ok
+[37.752][INFO]: RESPONSE GetElementAttribute "\n\u003Cdiv class=\"task-detail-content content\">\n\u003Cp class=\"title\">具体要求：\u003C/p>\n\n\n\u003Cp class=\"gray-block task-ext\">\n\n\u003Cspan>\n\u003Clabel>您所属的行业是:\u003C/label> IT行业\n\u003C/span>\n\n\u003C/p>\n\n\n\u003Cp class=\"ta..."
+[38.294][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"
+}
+[38.294][INFO]: Waiting for pending navigations...
+[38.296][INFO]: Done waiting for pending navigations. Status: ok
+[38.310][INFO]: Waiting for pending navigations...
+[38.310][INFO]: Done waiting for pending navigations. Status: ok
+[38.310][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-8"
+}
+[38.314][INFO]: COMMAND FindChildElement {
+   "id": "0.7228653227706194-8",
+   "using": "class name",
+   "value": "current"
+}
+[38.314][INFO]: Waiting for pending navigations...
+[38.314][INFO]: Done waiting for pending navigations. Status: ok
+[38.328][INFO]: Waiting for pending navigations...
+[38.329][INFO]: Done waiting for pending navigations. Status: ok
+[38.329][INFO]: RESPONSE FindChildElement {
+   "ELEMENT": "0.7228653227706194-9"
+}
+[38.333][INFO]: COMMAND FindChildElement {
+   "id": "0.7228653227706194-9",
+   "using": "tag name",
+   "value": "p"
+}
+[38.333][INFO]: Waiting for pending navigations...
+[38.334][INFO]: Done waiting for pending navigations. Status: ok
+[38.347][INFO]: Waiting for pending navigations...
+[38.411][INFO]: Done waiting for pending navigations. Status: ok
+[38.411][INFO]: RESPONSE FindChildElement {
+   "ELEMENT": "0.7228653227706194-10"
+}
+[38.416][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-10"
+}
+[38.416][INFO]: Waiting for pending navigations...
+[38.417][INFO]: Done waiting for pending navigations. Status: ok
+[38.430][INFO]: Waiting for pending navigations...
+[38.436][INFO]: Done waiting for pending navigations. Status: ok
+[38.436][INFO]: RESPONSE GetElementText "服务商参与"
+[38.439][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"
+}
+[38.439][INFO]: Waiting for pending navigations...
+[38.440][INFO]: Done waiting for pending navigations. Status: ok
+[38.444][INFO]: Waiting for pending navigations...
+[38.445][INFO]: Done waiting for pending navigations. Status: ok
+[38.445][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-8"
+}
+[38.449][INFO]: COMMAND FindChildElement {
+   "id": "0.7228653227706194-8",
+   "using": "class name",
+   "value": "current"
+}
+[38.449][INFO]: Waiting for pending navigations...
+[38.450][INFO]: Done waiting for pending navigations. Status: ok
+[38.454][INFO]: Waiting for pending navigations...
+[38.455][INFO]: Done waiting for pending navigations. Status: ok
+[38.455][INFO]: RESPONSE FindChildElement {
+   "ELEMENT": "0.7228653227706194-9"
+}
+[38.458][INFO]: COMMAND FindChildElement {
+   "id": "0.7228653227706194-9",
+   "using": "class name",
+   "value": "clock"
+}
+[38.458][INFO]: Waiting for pending navigations...
+[38.459][INFO]: Done waiting for pending navigations. Status: ok
+[38.469][INFO]: Waiting for pending navigations...
+[38.471][INFO]: Done waiting for pending navigations. Status: ok
+[38.471][INFO]: RESPONSE FindChildElement {
+   "ELEMENT": "0.7228653227706194-11"
+}
+[38.475][INFO]: COMMAND GetElementAttribute {
+   "id": "0.7228653227706194-11",
+   "name": "data-difftime"
+}
+[38.475][INFO]: Waiting for pending navigations...
+[38.476][INFO]: Done waiting for pending navigations. Status: ok
+[38.479][INFO]: Waiting for pending navigations...
+[38.480][INFO]: Done waiting for pending navigations. Status: ok
+[38.480][INFO]: RESPONSE GetElementAttribute "91168"
+[38.544][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2)"
+}
+[38.544][INFO]: Waiting for pending navigations...
+[38.546][INFO]: Done waiting for pending navigations. Status: ok
+[38.563][INFO]: Waiting for pending navigations...
+[38.565][INFO]: Done waiting for pending navigations. Status: ok
+[38.565][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-12"
+}
+[38.571][INFO]: COMMAND FindChildElement {
+   "id": "0.7228653227706194-12",
+   "using": "tag name",
+   "value": "b"
+}
+[38.571][INFO]: Waiting for pending navigations...
+[38.572][INFO]: Done waiting for pending navigations. Status: ok
+[38.583][INFO]: Waiting for pending navigations...
+[38.584][INFO]: Done waiting for pending navigations. Status: ok
+[38.584][INFO]: RESPONSE FindChildElement {
+   "ELEMENT": "0.7228653227706194-13"
+}
+[38.588][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-13"
+}
+[38.588][INFO]: Waiting for pending navigations...
+[38.590][INFO]: Done waiting for pending navigations. Status: ok
+[38.603][INFO]: Waiting for pending navigations...
+[38.603][INFO]: Done waiting for pending navigations. Status: ok
+[38.603][INFO]: RESPONSE GetElementText "2018-02-07 14:59"
+[38.611][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info"
+}
+[38.612][INFO]: Waiting for pending navigations...
+[38.612][INFO]: Done waiting for pending navigations. Status: ok
+[38.622][INFO]: Waiting for pending navigations...
+[38.623][INFO]: Done waiting for pending navigations. Status: ok
+[38.623][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-14"
+}
+[38.628][INFO]: COMMAND FindChildElements {
+   "id": "0.7228653227706194-14",
+   "using": "class name",
+   "value": "datanum"
+}
+[38.628][INFO]: Waiting for pending navigations...
+[38.629][INFO]: Done waiting for pending navigations. Status: ok
+[38.642][INFO]: Waiting for pending navigations...
+[38.642][INFO]: Done waiting for pending navigations. Status: ok
+[38.642][INFO]: RESPONSE FindChildElements [ {
+   "ELEMENT": "0.7228653227706194-15"
+} ]
+[38.646][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-15"
+}
+[38.646][INFO]: Waiting for pending navigations...
+[38.649][INFO]: Done waiting for pending navigations. Status: ok
+[38.664][INFO]: Waiting for pending navigations...
+[38.665][INFO]: Done waiting for pending navigations. Status: ok
+[38.665][INFO]: RESPONSE GetElementText "8"
+[38.668][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info"
+}
+[38.668][INFO]: Waiting for pending navigations...
+[38.669][INFO]: Done waiting for pending navigations. Status: ok
+[38.673][INFO]: Waiting for pending navigations...
+[38.674][INFO]: Done waiting for pending navigations. Status: ok
+[38.674][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-14"
+}
+[38.677][INFO]: COMMAND FindChildElements {
+   "id": "0.7228653227706194-14",
+   "using": "class name",
+   "value": "datanum"
+}
+[38.677][INFO]: Waiting for pending navigations...
+[38.678][INFO]: Done waiting for pending navigations. Status: ok
+[38.684][INFO]: Waiting for pending navigations...
+[38.684][INFO]: Done waiting for pending navigations. Status: ok
+[38.684][INFO]: RESPONSE FindChildElements [ {
+   "ELEMENT": "0.7228653227706194-15"
+} ]
+[38.688][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info"
+}
+[38.688][INFO]: Waiting for pending navigations...
+[38.689][INFO]: Done waiting for pending navigations. Status: ok
+[38.693][INFO]: Waiting for pending navigations...
+[38.694][INFO]: Done waiting for pending navigations. Status: ok
+[38.694][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-14"
+}
+[38.697][INFO]: COMMAND FindChildElements {
+   "id": "0.7228653227706194-14",
+   "using": "class name",
+   "value": "datanum"
+}
+[38.697][INFO]: Waiting for pending navigations...
+[38.698][INFO]: Done waiting for pending navigations. Status: ok
+[38.702][INFO]: Waiting for pending navigations...
+[38.703][INFO]: Done waiting for pending navigations. Status: ok
+[38.703][INFO]: RESPONSE FindChildElements [ {
+   "ELEMENT": "0.7228653227706194-15"
+} ]
+[38.706][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-15"
+}
+[38.706][INFO]: Waiting for pending navigations...
+[38.708][INFO]: Done waiting for pending navigations. Status: ok
+[38.713][INFO]: Waiting for pending navigations...
+[38.714][INFO]: Done waiting for pending navigations. Status: ok
+[38.714][INFO]: RESPONSE GetElementText "8"
+[38.716][INFO]: COMMAND FindElement {
+   "using": "css selector",
+   "value": "#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i"
+}
+[38.716][INFO]: Waiting for pending navigations...
+[38.717][INFO]: Done waiting for pending navigations. Status: ok
+[38.727][INFO]: Waiting for pending navigations...
+[38.728][INFO]: Done waiting for pending navigations. Status: ok
+[38.728][INFO]: RESPONSE FindElement {
+   "ELEMENT": "0.7228653227706194-16"
+}
+[38.731][INFO]: COMMAND GetElementText {
+   "id": "0.7228653227706194-16"
+}
+[38.731][INFO]: Waiting for pending navigations...
+[38.732][INFO]: Done waiting for pending navigations. Status: ok
+[38.745][INFO]: Waiting for pending navigations...
+[38.747][INFO]: Done waiting for pending navigations. Status: ok
+[38.747][INFO]: RESPONSE GetElementText "投标中"

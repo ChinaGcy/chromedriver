@@ -68,4 +68,34 @@ public class StringUtilTest {
 		System.err.println(budget);
 	}
 
+	@Test
+	public void testcleanContent() throws Exception {
+		String s = "";
+
+		Set<String> img_urls = new HashSet<>();
+		Set<String> img_urls_a = new HashSet<>();
+
+		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("http://task.zbj.com/12913633/");
+
+		org.tfelab.io.requester.BasicRequester.getInstance().fetch(t);
+
+		Pattern p = Pattern.compile("(?s)<div class=\'describe.+?<div class=\'img-item\'>");
+
+		Matcher m = p.matcher(t.getResponse().getText());
+
+		if(m.find()) {
+			s = StringUtil.cleanContent(m.group(), img_urls, img_urls_a);
+		}
+
+		System.out.println(s);
+		for (String ss : img_urls
+			 ) {
+			System.out.println(ss);
+		}
+		for (String ss : img_urls_a
+				) {
+			System.out.println(ss);
+		}
+	}
+
 }

@@ -18,15 +18,19 @@ public class Account {
 	@DatabaseField(generatedId = true)
 	public int id;
 
+	//使用的网站
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String domain;
 
+	//账户
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String username;
 
+	//密码
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String password;
 
+	//状态（是否可用）
 	@DatabaseField(dataType = DataType.ENUM_STRING)
 	public Status status = Status.Free;
 

@@ -98,6 +98,7 @@ public class BasicRequester extends Requester {
 		Wrapper wrapper = new Wrapper(task);
 		wrapper.run();
 		wrapper.close();
+
 		/*wrapper = null;*/
 	}
 	
@@ -562,6 +563,7 @@ public class BasicRequester extends Requester {
 				task.getResponse().setSrc(bOutStream.toByteArray());
 				
 				if(task.getResponse().isText()) {
+
 					task.getResponse().setText();
 				}
 				

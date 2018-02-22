@@ -1,24 +1,20 @@
 package com.sdyk.ai.crawler.zbj.task;
 
-import com.sdyk.ai.crawler.zbj.Crawler;
-import com.sdyk.ai.crawler.zbj.Helper;
+import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
 import com.sdyk.ai.crawler.zbj.StringUtil;
+import com.sdyk.ai.crawler.zbj.model.Binary;
 import com.sdyk.ai.crawler.zbj.model.Project;
-import com.sdyk.ai.crawler.zbj.model.Tenderer;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.tfelab.db.Refacter;
-import org.tfelab.io.requester.account.AccountWrapper;
-import org.tfelab.io.requester.account.AccountWrapperImpl;
-import org.tfelab.io.requester.chrome.ChromeDriverRequester;
+import org.tfelab.io.requester.BasicRequester;
+import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.txt.DateFormatUtil;
-import reactor.core.support.UUIDUtils;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.sql.Driver;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,11 +36,50 @@ public class ProjectTask extends Task {
 		Project project = new Project(getUrl());
 		List<Task> tasks = new ArrayList<Task>();
 
-		if ((!src.contains("暂时无法查看")) && (!src.contains("您无权查看此任务"))) {
+		if ((!src.contains("无法查看")) && (!src.contains("无权查看")) && (!src.contains("不能查看")) ) {
 
 			String head = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
 
 			if (head.equals("订单详情")) {
+				if (src.contains("<div class=\"banner-task-summary clearfix\">")) {
+					try {
+						project.bidder_num = Integer.parseInt(driver.findElement(By.cssSelector("#anytime-back > div.banner-task-summary.clearfix > div.summary-right > h4:nth-child(2) > em:nth-child(2)"))
+								.getText().replaceAll("个","").replaceAll("名", ""));
+					} catch (NoSuchElementException e) {
+						project.bidder_num = Integer.parseInt(driver.findElement(By.cssSelector("body > div.main.task-details > div.main-con.user-page > div.banner-task-summary.clearfix > div.summary-right.clearfix > h4:nth-child(2) > em:nth-child(2)"))
+								.getText().replaceAll("个","").replaceAll("名", ""));
+					}
+
+					project.bidder_total_num = 0;
+
+				} else {
+
+					if (src.contains("该需求可接受")) {
+
+						project.bidder_total_num = Integer.parseInt(
+
+								driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
+										.findElements(By.tagName("b")).get(0).getText());
+						if (driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
+								.findElements(By.tagName("b")).size() > 1) {
+
+							project.bidder_num = Integer.parseInt(
+									driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
+											.findElements(By.tagName("b")).get(1).getText());
+						} else {
+
+							project.bidder_num = Integer.parseInt(
+									driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
+											.findElements(By.tagName("b")).get(0).getText());
+						}
+					} else {
+
+						project.bidder_total_num = 0;
+						project.bidder_num = 0;
+					}
+
+				}
+
 				/*
 				获取标题
 				 */
@@ -60,13 +95,127 @@ public class ProjectTask extends Task {
 
 
 				/*
-				TODO 需要额外处理图片
+				TODO 需要额外处理图片, 下载
 				 */
 				String description_src = driver.findElement(By.cssSelector("#work-more")).getAttribute("innerHTML").replaceAll("<a.+?>查看全部</a>","");
 
 				Set<String> img_urls = new HashSet<>();
+				Set<String> a_urls = new HashSet<>();
 
-				project.description = StringUtil.cleanContent(description_src, img_urls);
+				String des_src = StringUtil.cleanContent(description_src, img_urls, a_urls);
+
+				//处理图片
+				for (String img : img_urls) {
+
+					if (img.equals("http://t5.zbjimg.com/t5s/common/img/fuwubao/wan-detail.png")) {
+						continue;
+					}
+					try {
+						org.tfelab.io.requester.Task t_ = new org.tfelab.io.requester.Task(img);
+						BasicRequester.getInstance().fetch(t_);
+						String fileName = null;
+						Binary binary = new Binary();
+						binary.src = t_.getResponse().getSrc();
+
+						if (t_.getResponse().getHeader() != null) {
+							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
+									binary.content_type = entry.getValue().toString();
+								}
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
+
+									fileName = entry.getValue().toString()
+											.replaceAll("^.*?filename\\*=utf-8' '", "")
+											.replaceAll("\\].*?$", "");
+									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+
+									if(fileName == null || fileName.length() == 0) {
+
+										fileName = entry.getValue().toString()
+												.replaceAll("^.*?\"", "")
+												.replaceAll("\".*$", "");
+									}
+
+								}
+							}
+						}
+						if(fileName == null) {
+							fileName = t_.getUrl().replaceAll("^.+/", "");
+						}
+						binary.file_name = fileName;
+						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(img));
+						binary.url = project.url;
+						des_src = des_src.replace(img, binary.file_name).replaceAll("&s\\.w=\\d+&s\\.h=\\d+","");
+						binary.insert();
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+				}
+
+				//处理下载
+				for (String a : a_urls) {
+
+					if (!a.contains("key=")) {
+						continue;
+					}
+
+					try {
+						org.tfelab.io.requester.Task t_ =null;
+						if (!a.contains("https")) {
+							String a1 = a.replace("http", "https");
+							t_ = new org.tfelab.io.requester.Task(a1);
+						}else {
+							t_ = new org.tfelab.io.requester.Task(a);
+						}
+						BasicRequester.getInstance().fetch(t_);
+						String fileName = null;
+						Binary binary = new Binary();
+						binary.src = t_.getResponse().getSrc();
+
+						if (t_.getResponse().getHeader() != null) {
+							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
+									binary.content_type = entry.getValue().toString();
+								}
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
+
+									fileName = entry.getValue().toString()
+											.replaceAll("^.*?filename\\*=utf-8' '", "")
+											.replaceAll("\\].*?$", "");
+									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+
+									if(fileName == null || fileName.length() == 0) {
+
+										fileName = entry.getValue().toString()
+												.replaceAll("^.*?\"", "")
+												.replaceAll("\".*$", "");
+									}
+
+								}
+							}
+						}
+						if(fileName == null) {
+							fileName = t_.getUrl().replaceAll("^.+/", "");
+						}
+						binary.file_name = fileName;
+						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(a));
+						binary.url = project.url;
+						des_src = des_src.replace(a, binary.file_name);
+						binary.insert();
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+				}
+
+				project.description = des_src;
 
 				project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
 
@@ -109,29 +258,7 @@ public class ProjectTask extends Task {
 				project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-receiptcon > span.time")).getText());
 
 
-				if (src.contains("该需求可接受")) {
 
-					project.bidder_total_num = Integer.parseInt(
-
-							driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-									.findElements(By.tagName("b")).get(0).getText());
-					if (driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-							.findElements(By.tagName("b")).size() > 1) {
-
-						project.bidder_num = Integer.parseInt(
-								driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-										.findElements(By.tagName("b")).get(1).getText());
-					} else {
-
-						project.bidder_num = Integer.parseInt(
-								driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-										.findElements(By.tagName("b")).get(0).getText());
-					}
-				} else {
-
-					project.bidder_total_num = 0;
-					project.bidder_num = 0;
-				}
 				/*
 				获取招标人id
 				 */
@@ -141,15 +268,13 @@ public class ProjectTask extends Task {
 
 				String ss = links[4].split("_")[2];
 
-				project.tenderer_id = links[1] + links[2] + links[3] + ss;
+				project.tenderer_id = Integer.parseInt(links[1] + links[2] + links[3] + ss)+"";
 
 				project.tenderer_name = driver.findElement(By.cssSelector("#j-content > div > div.user-toltit > dl")).findElement(By.tagName("img")).getAttribute("alt");
 
 				Pattern pattern = Pattern.compile("<div class=\"taskmode-inline\" id=\"reward-all\">\\s+赏金分配：<em class=\"gray6\">(?<rewardType>.+?)</em>");
-
 				Matcher matcher = pattern.matcher(src);
 				if (matcher.find()) {
-
 					project.reward_type = org.tfelab.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 				}
 
@@ -157,18 +282,21 @@ public class ProjectTask extends Task {
 					project.current_status = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
 							.findElement(By.className("modecont")).findElement(By.className("cur"))
 							.findElement(By.tagName("p")).getText().split("2")[0];
-
-					project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
-							.findElement(By.className("modecont")).findElement(By.className("cur"))
-							.findElement(By.className("taskmode-clock")).getAttribute("data-difftime"));
 				} catch (Exception e) {
 					project.current_status = "评价状态";
 				}
 
+				try {
+					project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
+							.findElement(By.className("modecont")).findElement(By.className("cur"))
+							.findElement(By.className("taskmode-clock")).getAttribute("data-difftime"));
+
+				} catch (NoSuchElementException e) { }
+
 				project.trade_type = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix > div.header")).findElement(By.tagName("em")).getText();
 
 				//进入雇主页
-				tasks.add(new TendererTask("http://home.zbj.com/" + project.tenderer_id.substring(1)));
+				//tasks.add(new TendererTask("http://home.zbj.com/" + project.tenderer_id));
 
 			}
 			else if (head.equals("需求详情")) {
@@ -184,10 +312,126 @@ public class ProjectTask extends Task {
 
 				String description_src = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner")).findElement(By.className("task-detail"))
 						.getAttribute("innerHTML").replaceAll("<a.+?>查看全部</a>","")
-						.replaceAll(">\\s+<","><").replaceAll("\\s+<","<").replaceAll(">\\s+",">");
+						.replace(">\\s+<","><").replaceAll("\\s+<","<").replaceAll(">\\s+",">");
 
 				Set<String> img_urls = new HashSet<>();
-				project.description = StringUtil.cleanContent(description_src,img_urls);
+				Set<String> a_urls = new HashSet<>();
+
+				String des_src = StringUtil.cleanContent(description_src, img_urls, a_urls);
+
+				//处理图片
+				for (String img : img_urls) {
+
+					if (img.equals("http://t5.zbjimg.com/t5s/common/img/fuwubao/wan-detail.png")) {
+						continue;
+					}
+					try {
+						org.tfelab.io.requester.Task t_ = new org.tfelab.io.requester.Task(img);
+						BasicRequester.getInstance().fetch(t_);
+						String fileName = null;
+						Binary binary = new Binary();
+						binary.src = t_.getResponse().getSrc();
+
+						if (t_.getResponse().getHeader() != null) {
+							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
+									binary.content_type = entry.getValue().toString();
+								}
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
+
+									fileName = entry.getValue().toString()
+											.replaceAll("^.*?filename\\*=utf-8' '", "")
+											.replaceAll("\\].*?$", "");
+									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+
+									if(fileName == null || fileName.length() == 0) {
+
+										fileName = entry.getValue().toString()
+												.replaceAll("^.*?\"", "")
+												.replaceAll("\".*$", "");
+									}
+
+								}
+							}
+						}
+						if(fileName == null) {
+							fileName = t_.getUrl().replaceAll("^.+/", "");
+						}
+						binary.file_name = fileName;
+						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(img));
+						binary.url = project.url;
+						des_src = des_src.replace(img, binary.file_name).replaceAll("&s\\.w=\\d+&s\\.h=\\d+","");
+						binary.insert();
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+				}
+
+				//处理下载
+				for (String a : a_urls) {
+
+					if (!a.contains("key=")) {
+						continue;
+					}
+
+					try {
+						org.tfelab.io.requester.Task t_ =null;
+						if (!a.contains("https")) {
+							String a1 = a.replace("http", "https");
+							t_ = new org.tfelab.io.requester.Task(a1);
+						}else {
+							t_ = new org.tfelab.io.requester.Task(a);
+						}
+						BasicRequester.getInstance().fetch(t_);
+						String fileName = null;
+						Binary binary = new Binary();
+						binary.src = t_.getResponse().getSrc();
+
+						if (t_.getResponse().getHeader() != null) {
+							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
+									binary.content_type = entry.getValue().toString();
+
+								}
+
+								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
+
+									fileName = entry.getValue().toString()
+											.replaceAll("^.*?filename\\*=utf-8' '", "")
+											.replaceAll("\\].*?$", "");
+									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
+
+									if(fileName == null || fileName.length() == 0) {
+
+										fileName = entry.getValue().toString()
+												.replaceAll("^.*?\"", "")
+												.replaceAll("\".*$", "");
+									}
+
+								}
+							}
+						}
+						if(fileName == null) {
+							fileName = t_.getUrl().replaceAll("^.+/", "");
+						}
+						binary.file_name = fileName;
+						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(a));
+						binary.url = project.url;
+						des_src = des_src.replace(a, binary.file_name);
+						binary.insert();
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+				}
+
+				project.description = des_src;
 
 				project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
 
@@ -234,8 +478,11 @@ public class ProjectTask extends Task {
 				project.current_status = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
 						.findElement(By.className("current")).findElement(By.tagName("p")).getText();
 
-				project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
-						.findElement(By.className("current")).findElement(By.className("clock")).getAttribute("data-difftime"));
+				try {
+					project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
+							.findElement(By.className("current")).findElement(By.className("clock")).getAttribute("data-difftime"));
+				} catch (org.openqa.selenium.NoSuchElementException e) {
+				}
 
 				project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2)"))
 						.findElement(By.tagName("b")).getText());
@@ -284,16 +531,30 @@ public class ProjectTask extends Task {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		Refacter.dropTable(Project.class);
-		Refacter.createTable(Project.class);
-/*
-		AccountWrapper accountWrapper = new AccountWrapperImpl();
 
-		Crawler crawler = Crawler.getInstance();
+		ChromeDriverAgent agent = new ChromeDriverWithLogin("zbj.com").login();
 
-		List<Task> ts = new ArrayList<Task>();
+		Thread.sleep(1000);
+		Task task = new ProjectTask("http://task.zbj.com/12909258/");
 
-		crawler.addTask(ts);*/
+		Queue<Task> taskQueue = new LinkedList<>();
+		taskQueue.add(task);
+		while(!taskQueue.isEmpty()) {
+			Task t = taskQueue.poll();
+			if(t != null) {
+				try {
+					agent.fetch(t);
+					for (Task t_ : t.postProc(agent.getDriver())) {
+						taskQueue.add(t_);
+						//agent.fetch(t_);
+					}
+
+				} catch (Exception e) {
+
+					taskQueue.add(t);
+				}
+			}
+		}
 
 	}
 

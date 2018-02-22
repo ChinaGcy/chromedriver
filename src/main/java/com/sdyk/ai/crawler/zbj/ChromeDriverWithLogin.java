@@ -24,11 +24,11 @@ public class ChromeDriverWithLogin extends Thread {
 
 	private static final Logger logger = LogManager.getLogger(ChromeDriverWithLogin.class.getName());
 
-	public BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
+	public static BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
 
 	public volatile boolean done = false;
 
-	public Set<String> set = new HashSet<>();
+	public static Set<String> set = new HashSet<>();
 
 	public String domain = "zbj.com";
 
@@ -113,9 +113,7 @@ public class ChromeDriverWithLogin extends Thread {
 				try {
 					agent.fetch(t);
 					for (Task t_ : t.postProc(agent.getDriver())) {
-						if (!taskQueue.contains(t_)) {
-							taskQueue.add(t_);
-						}
+						ChromeRequester.getInstance().distribute(t_);
 					}
 				} catch (Exception e) {
 					logger.error("Exception while fetch task. ", e);

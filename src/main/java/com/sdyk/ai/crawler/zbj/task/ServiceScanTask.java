@@ -27,16 +27,12 @@ public class ServiceScanTask extends Task {
 	private static final Logger logger = LogManager.getLogger(ServiceScanTask.class.getName());
 
 
-	public static ServiceScanTask generateTask(int page, AccountWrapper aw) {
+	public static ServiceScanTask generateTask(String tag, int page, AccountWrapper aw) {
 
-		if(page >= 100) return null;
-
-		String url = "http://www.zbj.com/home/pk" + page + ".html";
+		String url = "http://www.zbj.com/" + tag + "/pk" + page + ".html";
 
 		try {
 			ServiceScanTask t = new ServiceScanTask(url, page);
-			t.setRequester_class(ChromeDriverRequester.class.getSimpleName());
-			t.setAccount(aw);
 			return t;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -65,10 +61,8 @@ public class ServiceScanTask extends Task {
 	 * @return
 	 */
 	public List<Task> postProc(WebDriver driver) throws Exception {
-		//System.err.println("1111111111111");
-		String src = getResponse().getText();
 
-		//System.err.println(src);
+		String src = getResponse().getText();
 
 		List<Task> tasks = new ArrayList<>();
 
@@ -84,8 +78,6 @@ public class ServiceScanTask extends Task {
 			String url = "http:" + matcher.group();
 
 			if(!list.contains(url)) {
-				System.err.println(url);
-
 				list.add(url);
 				tasks.add(new ServiceSupplierTask(url));
 			}
@@ -93,13 +85,9 @@ public class ServiceScanTask extends Task {
 
 
 		//判断一页是否有40个数据
-		if (list.size() == 40) {
-
-			Task t = generateTask(++page, null);
-			if (t != null) {
-				t.setPrior();
-				tasks.add(t);
-			}
+		if (list.size() >= 40) {
+			Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40, null);
+			tasks.add(t);
 
 		}
 		logger.info("Task num: {}", tasks.size());
@@ -112,11 +100,11 @@ public class ServiceScanTask extends Task {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		ChromeDriverAgent agent = (new ChromeDriverWithLogin("zbj.com")).login();
+		ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		Queue<Task> taskQueue = new LinkedBlockingQueue<>();
 
-		taskQueue.add(ServiceScanTask.generateTask(1,null));
+		taskQueue.add(ServiceScanTask.generateTask("wdfw",1,null));
 
 		while(!taskQueue.isEmpty()) {
 			Task t = taskQueue.poll();
@@ -134,4 +122,5 @@ public class ServiceScanTask extends Task {
 			}
 		}
 	}
+
 }
