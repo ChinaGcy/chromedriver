@@ -1,6 +1,9 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.sdyk.ai.crawler.zbj.model.Proxy;
+import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
+import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RBlockingQueue;
@@ -14,8 +17,6 @@ import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 import org.tfelab.io.requester.proxy.IpDetector;
 import org.tfelab.io.requester.proxy.ProxyWrapper;
 import org.tfelab.json.JSON;
-import com.sdyk.ai.crawler.zbj.model.Proxy;
-import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import org.tfelab.txt.DateFormatUtil;
 import org.tfelab.util.NetworkUtil;
 
@@ -66,7 +67,7 @@ public class Crawler {
 	private Map<Class<? extends Task>, Distributor<? extends Task>> distributors = new HashMap<>();
 
 	private Crawler() {
-		StatManager.getInstance();
+
 	}
 
 	public boolean tasksDone(Class<? extends Task> clazz) throws InterruptedException {

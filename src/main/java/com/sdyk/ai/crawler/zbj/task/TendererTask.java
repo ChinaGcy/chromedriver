@@ -34,46 +34,62 @@ public class TendererTask extends Task {
 
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+		this.priority = Priority.high;
 	}
 
 	public List<Task> postProc(WebDriver driver) throws ParseException, MalformedURLException, URISyntaxException {
 
-
 		List<Task> tasks = new ArrayList<>();
 
-		String src = getResponse().getText();
+		Tenderer tenderer = new Tenderer(getUrl());
 
-		Tenderer tenderer = new Tenderer();
-
-		TendererRating tendererRating = new TendererRating();
-		tenderer.id = StringUtil.byteArrayToHex(StringUtil.uuid(getUrl()));
-		tenderer.url = getUrl();
 		tenderer.website_id = getUrl().split("com/")[1];
-		tenderer.name = driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-top > div > h2")).getText();
+		tenderer.name = getString(driver,
+				"#utopia_widget_1 > div > div.topinfo-top > div > h2",
+				"");
 		try {
-			tenderer.area = driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-top > div > div > span.location"))
-					.getText();
-		} catch (NoSuchElementException e) {
+			tenderer.area = getString(driver,
+					"#utopia_widget_1 > div > div.topinfo-top > div > div > span.location",
+					"");
+		}
+		catch (NoSuchElementException e) {
 			tenderer.area = "";
 		}
-		tenderer.login_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login"))
+		tenderer.login_time =
+				DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login"))
 				.getText());
-		tenderer.trade_num = Integer.parseInt(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-trade > div.statistics-item-val > strong"))
+
+		tenderer.trade_num =
+				Integer.parseInt(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-trade > div.statistics-item-val > strong"))
 				.getText().replaceAll("-", "0"));
-		tenderer.industry = driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div:nth-child(3) > div.statistics-item-val"))
+
+		tenderer.industry =
+				driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div:nth-child(3) > div.statistics-item-val"))
 				.getText();
-		tenderer.tender_type = driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-time > div.statistics-item-val"))
+
+		tenderer.tender_type =
+				driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-time > div.statistics-item-val"))
 				.getText();
-		tenderer.enterprise_size = driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-scale > div.statistics-item-val"))
+
+		tenderer.enterprise_size =
+				driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-scale > div.statistics-item-val"))
 				.getText();
-		tenderer.description = driver.findElement(By.cssSelector("#utopia_widget_4 > div > div > p")).getText();
-		tenderer.demand_forecast = driver.findElement(By.cssSelector("#utopia_widget_5 > div > div > h5")).getText();
-		tenderer.total_spending = Double.parseDouble(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-pay > div.statistics-item-val > strong"))
+
+		tenderer.description =
+				driver.findElement(By.cssSelector("#utopia_widget_4 > div > div > p")).getText();
+
+		tenderer.demand_forecast =
+				driver.findElement(By.cssSelector("#utopia_widget_5 > div > div > h5")).getText();
+
+		tenderer.total_spending =
+				Double.parseDouble(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-pay > div.statistics-item-val > strong"))
 				.getText().replaceAll(",", ""));
 
+
+		// 添加projectTask
 		tasks.add(TendererOrderTask.generateTask(getUrl(), 1 ,tenderer.website_id));
 
-		//评价任务
+		// 评价任务
 		tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.website_id));
 
 		try {
@@ -82,39 +98,7 @@ public class TendererTask extends Task {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		return tasks;
 	}
 
-	/**
-	 * 测试方法
-	 */
-	public static void main(String[] args) throws Exception {
-
-		//Refacter.dropTable(Tenderer.class);
-		//Refacter.createTable(Tenderer.class);
-		BlockingQueue<Task> queue = new LinkedBlockingQueue<>();
-		Set<String> set = new HashSet<>();
-
-		ChromeDriverAgent agent = new ChromeDriverWithLogin("zbj.com").login(); //future
-		Thread.sleep(1000);
-
-		//Thread.sleep(1000);
-		TendererTask tendererTask = new TendererTask("http://home.zbj.com/13929907");
-		queue.add(tendererTask);
-
-		while (!queue.isEmpty()) {
-			Task t = queue.poll();
-
-			System.err.println(t.getUrl());
-			if (!set.contains(t.getUrl())) {
-				set.add(t.getUrl());
-				agent.fetch(t);
-				for (Task tt : t.postProc(agent.getDriver())) {
-					queue.add(tt);
-				}
-			}
-
-		}
-	}
 }

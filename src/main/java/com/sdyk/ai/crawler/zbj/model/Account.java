@@ -3,12 +3,10 @@ package com.sdyk.ai.crawler.zbj.model;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.DatabaseTable;
 import org.tfelab.db.DBName;
 import org.tfelab.db.OrmLiteDaoManager;
 
-import java.sql.SQLException;
 import java.util.Date;
 
 @DBName(value = "crawler")
@@ -57,6 +55,7 @@ public class Account {
 	}
 
 	public synchronized static Account getAccountByDomain(String domain) throws Exception {
+
 		Dao<Account, String> dao = OrmLiteDaoManager.getDao(Account.class);
 
 		Account account = dao.queryBuilder().limit(1L).

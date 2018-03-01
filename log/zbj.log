@@ -1,9 +1,7 @@
-2018-02-13 13:39:37.377 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:154] init - Init...
-2018-02-13 13:39:37.392 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:166] init - User dir: C:\workspace\crawler-zbj\chrome_user_dir\1770642014
-2018-02-13 13:39:41.500 INFO  [pool-2-thread-1] [org.tfelab.io.requester.chrome.ChromeDriverAgent:259] lambda$init$0 - Create chromedriver done.
-2018-02-13 13:39:41.500 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:310] init - Chrome driver pid:0
-2018-02-13 13:39:42.949 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:331] init - Init ChromeDriverAgent done.
-2018-02-13 13:40:06.970 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent$Wrapper:564] run - http://task.zbj.com/12909258/
-2018-02-13 13:40:16.202 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:981] waitPageLoad - http://task.zbj.com/12909258/, page ready: true
-2018-02-13 13:40:16.913 INFO  [main] [org.tfelab.io.requester.BasicRequester$Wrapper:431] run - https://rms.zhubajie.com/resource/redirect?key=homesite/task/观云长吉祥物要求.docx/origine/d58574ad-247d-4a43-8df8-e1501c6dc7d6
-2018-02-13 13:40:16.926 INFO  [main] [org.tfelab.io.requester.util.CertAutoInstaller:46] <clinit> - Loading KeyStore cacerts...
+2018-03-01 15:52:52.511 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:154] init - Init...
+2018-03-01 15:52:52.511 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:166] init - User dir: C:\workspace\crawler-zbj\chrome_user_dir\1760126453
+2018-03-01 15:52:56.464 INFO  [pool-2-thread-1] [org.tfelab.io.requester.chrome.ChromeDriverAgent:259] lambda$init$0 - Create chromedriver done.
+2018-03-01 15:52:56.464 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:310] init - Chrome driver pid:0
+2018-03-01 15:52:57.870 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:331] init - Init ChromeDriverAgent done.
+2018-03-01 15:52:57.872 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent$Wrapper:564] run - https://www.baidu.com/s?wd=ip
+2018-03-01 15:53:06.711 INFO  [main] [org.tfelab.io.requester.chrome.ChromeDriverAgent:981] waitPageLoad - https://www.baidu.com/s?wd=ip, page ready: true

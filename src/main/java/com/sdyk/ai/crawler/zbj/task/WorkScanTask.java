@@ -38,7 +38,6 @@ public class WorkScanTask extends Task {
 		return null;
 	}
 
-
 	public WorkScanTask(String url, int page, String userId) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("page", page);
@@ -54,14 +53,13 @@ public class WorkScanTask extends Task {
 
 		int page = this.getParamInt("page");
 
-
 		String userId = this.getParamString("userId");
 
 		//http://shop.zbj.com/works/detail-wid-131609.html
 		Pattern pattern = Pattern.compile("http://shop.zbj.com/works/detail-wid-\\d+.html");
 		Matcher matcher = pattern.matcher(src);
-		Pattern pattern1 = Pattern.compile("http://shop.tianpeng.com/works/detail-wid-\\d+.html");
-		Matcher matcher1 = pattern1.matcher(src);
+		Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/works/detail-wid-\\d+.html");
+		Matcher matcher_tp = pattern_tp.matcher(src);
 
 		List<String> list = new ArrayList<>();
 
@@ -74,9 +72,9 @@ public class WorkScanTask extends Task {
 				tasks.add(new WorkTask(url,userId));
 			}
 		}
-		while (matcher1.find()) {
+		while (matcher_tp.find()) {
 
-			String url = matcher1.group();
+			String url = matcher_tp.group();
 
 			if(!list.contains(url)) {
 				list.add(url);
@@ -84,13 +82,9 @@ public class WorkScanTask extends Task {
 			}
 		}
 
-
-		if (list.size() == 12) {
+		if (pageTurning(driver, "body > div.prod-bg.clearfix > div > div.pagination > ul", page)) {
 			//http://shop.zbj.com/18115303/works-p2.html
 			Task t = WorkScanTask.generateTask("http://shop.zbj.com/" + this.getParamString("userId") + "/works", ++page);
-
-
-
 			if (t != null) {
 				t.setPrior();
 				tasks.add(t);
@@ -98,26 +92,5 @@ public class WorkScanTask extends Task {
 		}
 		return tasks;
 	}
-
-	public static void main(String[] args) throws Exception {
-		ChromeDriverAgent agent = new ChromeDriverAgent();
-		Queue<Task> queue = new LinkedBlockingQueue<>();
-
-		queue.add(WorkScanTask.generateTask("http://shop.zbj.com/16123923/", 1));
-
-		while(!queue.isEmpty()) {
-
-			Task t = queue.poll();
-
-			agent.fetch(t);
-
-			for (Task task : t.postProc(agent.getDriver())) {
-
-				queue.add(task);
-			}
-
-		}
-	}
-
 
 }

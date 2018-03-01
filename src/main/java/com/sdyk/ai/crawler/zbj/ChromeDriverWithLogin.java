@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -16,15 +17,18 @@ import org.tfelab.util.FileUtil;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class ChromeDriverWithLogin extends Thread {
 
 	public ChromeDriverAgent agent = new ChromeDriverAgent();
 
+	public static StatManager statManager = StatManager.getInstance();
+
 	private static final Logger logger = LogManager.getLogger(ChromeDriverWithLogin.class.getName());
 
-	public static BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
+	public static PriorityBlockingQueue<Task> taskQueue = new PriorityBlockingQueue<>();
 
 	public volatile boolean done = false;
 
@@ -66,13 +70,16 @@ public class ChromeDriverWithLogin extends Thread {
 		WebElement passwordInput = agent.getElementWait("#password");
 		passwordInput.sendKeys(account.getPassword());
 
-		Thread.sleep(2000);
-
-		// D.等待10S 操作验证码
+		// D. 操作验证码
 		if (agent.getDriver().getPageSource().contains("geetest_radar_tip_content")) {
 
 			// D1
 			agent.getElementWait(".geetest_radar_tip_content").click();
+			Thread.sleep(1000);
+			FileUtil.writeBytesToFile(
+					agent.shoot(".geetest_window"),
+					"geetest1.png"
+			);
 
 			new Actions(agent.getDriver()).dragAndDropBy(agent.getElementWait(".geetest_slider_button"), 5, 0).build().perform();
 
@@ -80,7 +87,7 @@ public class ChromeDriverWithLogin extends Thread {
 
 			FileUtil.writeBytesToFile(
 					agent.shoot(".geetest_window"),
-					"geetest.png"
+					"geetest2.png"
 			);
 
 			WebDriverWait wait = new WebDriverWait(agent.getDriver(), 60);
@@ -90,6 +97,7 @@ public class ChromeDriverWithLogin extends Thread {
 		}
 
 		agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
+		Thread.sleep(1000);
 
 		return agent;
 	}
@@ -109,6 +117,7 @@ public class ChromeDriverWithLogin extends Thread {
 			}
 
 			if (!set.contains(t.getUrl())) {
+				statManager.count();
 				set.add(t.getUrl());
 				try {
 					agent.fetch(t);
@@ -121,14 +130,6 @@ public class ChromeDriverWithLogin extends Thread {
 				}
 
 			}
-			/*while (!queue.isEmpty()) {
-				Task t = queue.poll();
-				agent.fetch(t);
-				for (Task tt : t.postProc(agent.getDriver())) {
-					queue.add(tt);
-				}
-
-			}*/
 
 		}
 	}

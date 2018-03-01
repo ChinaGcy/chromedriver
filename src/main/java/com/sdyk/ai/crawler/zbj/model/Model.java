@@ -1,0 +1,115 @@
+package com.sdyk.ai.crawler.zbj.model;
+
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.sdyk.ai.crawler.zbj.ChromeRequester;
+import com.sdyk.ai.crawler.zbj.util.DBUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.reflections.Reflections;
+import org.tfelab.db.OrmLiteDaoManager;
+import org.tfelab.json.JSON;
+import org.tfelab.json.JSONable;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ *
+ */
+public abstract class Model implements JSONable<Model> {
+
+	private static final Logger logger = LogManager.getLogger(Model.class.getName());
+
+	public static Map<String, Dao> daoMap = new HashMap<>();
+
+	static {
+
+		for (Class<?> clazz : getModelClasses()) {
+			try {
+				Dao dao = OrmLiteDaoManager.getDao(clazz);
+				daoMap.put(clazz.getSimpleName(), dao);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static Set<Class<? extends Model>> getModelClasses() {
+
+		Reflections reflections = new Reflections(Model.class.getPackage().getName());
+
+		Set<Class<? extends Model>> allClasses =
+				reflections.getSubTypesOf(Model.class);
+
+		return allClasses;
+
+	}
+
+	// UUID
+	@DatabaseField(dataType = DataType.STRING, width = 32, id = true)
+	public String id;
+
+	// 当前网站url
+	@DatabaseField(dataType = DataType.STRING, width = 1024, index = true)
+	public String url;
+
+	// 插入时间
+	@DatabaseField(dataType = DataType.DATE)
+	public Date insert_time = new Date();
+
+	// 更新时间
+	@DatabaseField(dataType = DataType.DATE, index = true)
+	public Date update_time = new Date();
+
+	public Model() {}
+
+	/**
+	 * 
+	 * @param url
+	 */
+	public Model(String url) {
+		this.url = url;
+		this.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(
+				url + " " + System.nanoTime()));
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public String toJSON() {
+		return JSON.toJson(this);
+	}
+
+	/**
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean insert() throws Exception{
+
+		Dao dao = daoMap.get(this.getClass().getSimpleName());
+
+		try {
+
+			if (dao.create(this) == 1) {
+				return true;
+			} else {
+				dao.update(this);
+				return false;
+			}
+
+		}
+		catch (SQLException e) {
+			logger.error("Error insert/update model." , e);
+		}
+
+		return false;
+	}
+}

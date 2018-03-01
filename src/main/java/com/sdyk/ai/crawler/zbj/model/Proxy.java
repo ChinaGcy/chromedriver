@@ -20,7 +20,7 @@ import java.util.List;
 
 @DatabaseTable(tableName = "proxies")
 @DBName(value = "china_stock_qs")
-public class Proxy implements ProxyWrapper{
+public class Proxy implements ProxyWrapper {
 
 	private static final Logger logger = LogManager.getLogger(Proxy.class.getName());
 

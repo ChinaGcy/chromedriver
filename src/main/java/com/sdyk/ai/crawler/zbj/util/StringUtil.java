@@ -1,17 +1,21 @@
-package com.sdyk.ai.crawler.zbj;
+package com.sdyk.ai.crawler.zbj.util;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.tfelab.txt.NumberFormatUtil;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtil extends Helper {
+public class StringUtil {
 
 	/**
 	 * 时间转换工具
@@ -50,6 +54,77 @@ public class StringUtil extends Helper {
 			return timeSpanStr;
 		}
 		return "";
+	}
+
+	/**
+	 *
+	 * @param driver
+	 * @param path
+	 * @return
+	 */
+	public static int getBidderTotalNum(WebDriver driver, String path) {
+		return Integer.parseInt(driver.findElement(By.cssSelector(path)).getText());
+	}
+
+	/**
+	 *
+	 * @param driver
+	 * @param path
+	 * @return
+	 */
+	public static int getBidderNum(WebDriver driver, String path, String tag) {
+		if (driver.findElement(By.cssSelector(path)).findElements(By.tagName(tag)).size() > 1) {
+			return Integer.parseInt(driver.findElement(By.cssSelector(path)).findElements(By.tagName(tag)).get(1).getText());
+		}
+		else{
+			return Integer.parseInt(driver.findElement(By.cssSelector(path)).findElements(By.tagName(tag)).get(0).getText());
+		}
+	}
+
+	/**
+	 *获取预算
+	 * @param driver
+	 * @param path
+	 * @param des_src
+	 * @return
+	 */
+	public static double[] budget_all(WebDriver driver, String path, String des_src) {
+		// 1.描述中拿预算
+		double budget_all = StringUtil.detectBudget(des_src);
+		// 2.判断拿到的预算是否为0，如果拿不到就从预算栏中获取预算；拿到预算直接赋值。
+		if (budget_all == 0) {
+
+			// 3.拿到预算栏中的数据
+			String budget = driver.findElement(By.cssSelector(path)).getText();
+
+			// 4.判断格式
+			if (budget.equals("可议价")) {
+				return new double[] {0.00, 0.00};
+			}
+			else if (budget.contains("￥") && budget.contains("-")) {
+
+				String pr = budget.split("￥")[1];
+				String price[] = pr.split("-");
+				return new double[] {Double.parseDouble(price[0]), Double.parseDouble(price[1])};
+			}
+			else if (!budget.contains("￥") && budget.contains("-")) {
+
+				String price[] = budget.split("-");
+				return new double[] {Double.parseDouble(price[0]), Double.parseDouble(price[1])};
+			}
+			else {
+				try {
+					String price = budget.replace("￥", "");
+					return new double[]{Double.parseDouble(price), Double.parseDouble(price)};
+				} catch (Exception e) {
+					return new double[] {0.00, 0.00};
+				}
+			}
+		}
+		else {
+
+			return new double[] {budget_all, budget_all};
+		}
 	}
 
 	/**
@@ -257,8 +332,6 @@ public class StringUtil extends Helper {
 
 		out = out.replaceAll("(?si)</?em>", "");
 
-		//
-
 		out = out.replaceAll("。+", "。");
 
 		out = out.replaceAll("(?i)<wbr.*?>|<br.*?>", "</p><p>");
@@ -332,28 +405,16 @@ public class StringUtil extends Helper {
 		out = out.replaceAll("<\\w+>[\\r\\n\\s ]*</\\w+>", "");
 		out = out.replaceAll("<\\w+>[\\r\\n\\s ]*</\\w+>", "");
 
-//		out = out.replaceAll("(?<=[\u4E00-\u9FA5]) (?=[\u4E00-\u9FA5])", ""); // 中文间空格转化为逗号
-//		out = out.replaceAll(" (?=[\u4E00-\u9FA5])", ""); // 去掉中文前空格
-//		out = out.replaceAll("<p>[^\u4E00-\u9FA5]+?</p>", ""); // 删除没有中文的段落
+		/*out = out.replaceAll("(?<=[\u4E00-\u9FA5]) (?=[\u4E00-\u9FA5])", ""); // 中文间空格转化为逗号
+		out = out.replaceAll(" (?=[\u4E00-\u9FA5])", ""); // 去掉中文前空格
+		out = out.replaceAll("<p>[^\u4E00-\u9FA5]+?</p>", ""); // 删除没有中文的段落*/
 
 		// <p> </p> 标记的补全
 		out = out.replaceAll("(?<=[\u4E00-\u9FA5：])<p>(?=[\u4E00-\u9FA5])", "</p><p>"); // 段落标记的补全
 		out = out.replaceAll("(?<=[\u4E00-\u9FA5：])</p>(?=[\u4E00-\u9FA5])", "</p><p>"); // 段落标记的补全
 
-		//out = out.replaceAll("-{2,}", "：");
-
-//		out = out.replaceAll(
-//				"(http|ftp|https)://([\\w-]+.)+[\\w-]+(/[\\w- \\./\\?%&=]*)?", ""); // 去掉URL
-
 		// 去掉特殊无意义字符
 		out = out.replaceAll("[—§№☆★○●◎⊙◇◆□■△▲※→←]", "");
-//		out = out.replaceAll("[\\[【]", "“");
-//		out = out.replaceAll("[\\]】]", "”");
-
-		//out = out.replaceAll("<p>[\\(（][^<]{0,18}[）\\)]</p>", "<p></p>");
-
-		//out = out.replaceAll("0%0%", "");
-		//out = out.replaceAll("(\\.)+", ".");
 
 		return out;
 	}

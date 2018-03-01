@@ -1,15 +1,10 @@
 package com.sdyk.ai.crawler.zbj.task;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
-import com.sdyk.ai.crawler.zbj.StringUtil;
-import com.sdyk.ai.crawler.zbj.model.Binary;
+import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.db.Refacter;
-import org.tfelab.io.requester.BasicRequester;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
@@ -24,538 +19,401 @@ import java.util.regex.Pattern;
  */
 public class ProjectTask extends Task {
 
+	Project project;
+
+	public enum PageType {
+		OrderDetail, ReqDetail
+	}
 
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+		// 设置优先级
+		this.priority = Priority.high;
 	}
 
-	public List<Task> postProc(WebDriver driver) throws ParseException, URISyntaxException, MalformedURLException {
+	/**
+	 *
+	 * @param driver
+	 * @return
+	 */
+	public List<Task> postProc(WebDriver driver) {
 
-		int i = 1;
 		String src = getResponse().getText();
-		Project project = new Project(getUrl());
-		List<Task> tasks = new ArrayList<Task>();
 
-		if ((!src.contains("无法查看")) && (!src.contains("无权查看")) && (!src.contains("不能查看")) ) {
-
-			String head = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
-
-			if (head.equals("订单详情")) {
-				if (src.contains("<div class=\"banner-task-summary clearfix\">")) {
-					try {
-						project.bidder_num = Integer.parseInt(driver.findElement(By.cssSelector("#anytime-back > div.banner-task-summary.clearfix > div.summary-right > h4:nth-child(2) > em:nth-child(2)"))
-								.getText().replaceAll("个","").replaceAll("名", ""));
-					} catch (NoSuchElementException e) {
-						project.bidder_num = Integer.parseInt(driver.findElement(By.cssSelector("body > div.main.task-details > div.main-con.user-page > div.banner-task-summary.clearfix > div.summary-right.clearfix > h4:nth-child(2) > em:nth-child(2)"))
-								.getText().replaceAll("个","").replaceAll("名", ""));
-					}
-
-					project.bidder_total_num = 0;
-
-				} else {
-
-					if (src.contains("该需求可接受")) {
-
-						project.bidder_total_num = Integer.parseInt(
-
-								driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-										.findElements(By.tagName("b")).get(0).getText());
-						if (driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-								.findElements(By.tagName("b")).size() > 1) {
-
-							project.bidder_num = Integer.parseInt(
-									driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-											.findElements(By.tagName("b")).get(1).getText());
-						} else {
-
-							project.bidder_num = Integer.parseInt(
-									driver.findElement(By.cssSelector("#j-ibid-list > div > div.ibid-total.clearfix"))
-											.findElements(By.tagName("b")).get(0).getText());
-						}
-					} else {
-
-						project.bidder_total_num = 0;
-						project.bidder_num = 0;
-					}
-
-				}
-
-				/*
-				获取标题
-				 */
-				project.title = driver.findElement(By.cssSelector("#ed-tit > div.tctitle.clearfix > h1")).getText();
-
-				project.area = driver.findElement(By.cssSelector("#j-receiptcon > span.ads")).getText();
-
-				project.from_ = driver.findElement(By.cssSelector("#j-receiptcon > a")).getText();
-
-				project.category = driver.findElement(By.cssSelector("body > div.main.task-details > div.grid > ul")).getText();
-
-				project.type = head;
-
-
-				/*
-				TODO 需要额外处理图片, 下载
-				 */
-				String description_src = driver.findElement(By.cssSelector("#work-more")).getAttribute("innerHTML").replaceAll("<a.+?>查看全部</a>","");
-
-				Set<String> img_urls = new HashSet<>();
-				Set<String> a_urls = new HashSet<>();
-
-				String des_src = StringUtil.cleanContent(description_src, img_urls, a_urls);
-
-				//处理图片
-				for (String img : img_urls) {
-
-					if (img.equals("http://t5.zbjimg.com/t5s/common/img/fuwubao/wan-detail.png")) {
-						continue;
-					}
-					try {
-						org.tfelab.io.requester.Task t_ = new org.tfelab.io.requester.Task(img);
-						BasicRequester.getInstance().fetch(t_);
-						String fileName = null;
-						Binary binary = new Binary();
-						binary.src = t_.getResponse().getSrc();
-
-						if (t_.getResponse().getHeader() != null) {
-							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
-									binary.content_type = entry.getValue().toString();
-								}
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
-
-									fileName = entry.getValue().toString()
-											.replaceAll("^.*?filename\\*=utf-8' '", "")
-											.replaceAll("\\].*?$", "");
-									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-
-									if(fileName == null || fileName.length() == 0) {
-
-										fileName = entry.getValue().toString()
-												.replaceAll("^.*?\"", "")
-												.replaceAll("\".*$", "");
-									}
-
-								}
-							}
-						}
-						if(fileName == null) {
-							fileName = t_.getUrl().replaceAll("^.+/", "");
-						}
-						binary.file_name = fileName;
-						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(img));
-						binary.url = project.url;
-						des_src = des_src.replace(img, binary.file_name).replaceAll("&s\\.w=\\d+&s\\.h=\\d+","");
-						binary.insert();
-
-					} catch (Exception e) {
-						e.printStackTrace();
-						continue;
-					}
-				}
-
-				//处理下载
-				for (String a : a_urls) {
-
-					if (!a.contains("key=")) {
-						continue;
-					}
-
-					try {
-						org.tfelab.io.requester.Task t_ =null;
-						if (!a.contains("https")) {
-							String a1 = a.replace("http", "https");
-							t_ = new org.tfelab.io.requester.Task(a1);
-						}else {
-							t_ = new org.tfelab.io.requester.Task(a);
-						}
-						BasicRequester.getInstance().fetch(t_);
-						String fileName = null;
-						Binary binary = new Binary();
-						binary.src = t_.getResponse().getSrc();
-
-						if (t_.getResponse().getHeader() != null) {
-							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
-									binary.content_type = entry.getValue().toString();
-								}
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
-
-									fileName = entry.getValue().toString()
-											.replaceAll("^.*?filename\\*=utf-8' '", "")
-											.replaceAll("\\].*?$", "");
-									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-
-									if(fileName == null || fileName.length() == 0) {
-
-										fileName = entry.getValue().toString()
-												.replaceAll("^.*?\"", "")
-												.replaceAll("\".*$", "");
-									}
-
-								}
-							}
-						}
-						if(fileName == null) {
-							fileName = t_.getUrl().replaceAll("^.+/", "");
-						}
-						binary.file_name = fileName;
-						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(a));
-						binary.url = project.url;
-						des_src = des_src.replace(a, binary.file_name);
-						binary.insert();
-
-					} catch (Exception e) {
-						e.printStackTrace();
-						continue;
-					}
-				}
-
-				project.description = des_src;
-
-				project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
-
-				/**
-				 * 预算处理
-				 */
-				//1.描述中拿预算
-				double budget_all = StringUtil.detectBudget(project.description);
-				//2.判断拿到的预算是否为0，如果拿不到就从预算栏中获取预算；拿到预算直接赋值。
-				if (budget_all == 0) {
-
-					//3.拿到预算栏中的数据
-					String budget = driver.findElement(By.cssSelector("#ed-tit")).findElement(By.className("micon"))
-							.findElement(By.className("money-operate ")).findElement(By.tagName("u")).getText();
-
-					//4.判断格式
-					if (budget.equals("可议价")) {
-
-						project.budget_lb = 0;
-						project.budget_up = 0;
-					} else if (budget.contains("￥") && budget.contains("-")) {
-
-						String pr = budget.split("￥")[1];
-						String price[] = pr.split("-");
-						project.budget_lb = Double.parseDouble(price[0]);
-						project.budget_up = Double.parseDouble(price[1]);
-					} else if (budget.contains("￥")) {
-
-						String price[] = budget.split("￥");
-						project.budget_lb = Double.parseDouble(price[1]);
-						project.budget_up = Double.parseDouble(price[1]);
-					}
-				}
-				else {
-
-					project.budget_up = budget_all;
-					project.budget_lb = budget_all;
-				}
-				//发布时间
-				project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-receiptcon > span.time")).getText());
-
-
-
-				/*
-				获取招标人id
-				 */
-				String link = driver.findElement(By.cssSelector("#j-content > div > div.user-toltit > dl")).findElement(By.tagName("img")).getAttribute("src").split("\\.")[2];
-
-				String[] links = link.split("/");
-
-				String ss = links[4].split("_")[2];
-
-				project.tenderer_id = Integer.parseInt(links[1] + links[2] + links[3] + ss)+"";
-
-				project.tenderer_name = driver.findElement(By.cssSelector("#j-content > div > div.user-toltit > dl")).findElement(By.tagName("img")).getAttribute("alt");
-
-				Pattern pattern = Pattern.compile("<div class=\"taskmode-inline\" id=\"reward-all\">\\s+赏金分配：<em class=\"gray6\">(?<rewardType>.+?)</em>");
-				Matcher matcher = pattern.matcher(src);
-				if (matcher.find()) {
-					project.reward_type = org.tfelab.txt.StringUtil.removeHTML(matcher.group("rewardType"));
-				}
-
-				try {
-					project.current_status = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
-							.findElement(By.className("modecont")).findElement(By.className("cur"))
-							.findElement(By.tagName("p")).getText().split("2")[0];
-				} catch (Exception e) {
-					project.current_status = "评价状态";
-				}
-
-				try {
-					project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
-							.findElement(By.className("modecont")).findElement(By.className("cur"))
-							.findElement(By.className("taskmode-clock")).getAttribute("data-difftime"));
-
-				} catch (NoSuchElementException e) { }
-
-				project.trade_type = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix > div.header")).findElement(By.tagName("em")).getText();
-
-				//进入雇主页
-				//tasks.add(new TendererTask("http://home.zbj.com/" + project.tenderer_id));
-
-			}
-			else if (head.equals("需求详情")) {
-
-				project.type = head;
-
-				project.title = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > h1")).getText();
-
-				project.req_no = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b"))
-						.getText();
-
-				project.category = driver.findElement(By.cssSelector("#utopia_widget_3")).getText();
-
-				String description_src = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner")).findElement(By.className("task-detail"))
-						.getAttribute("innerHTML").replaceAll("<a.+?>查看全部</a>","")
-						.replace(">\\s+<","><").replaceAll("\\s+<","<").replaceAll(">\\s+",">");
-
-				Set<String> img_urls = new HashSet<>();
-				Set<String> a_urls = new HashSet<>();
-
-				String des_src = StringUtil.cleanContent(description_src, img_urls, a_urls);
-
-				//处理图片
-				for (String img : img_urls) {
-
-					if (img.equals("http://t5.zbjimg.com/t5s/common/img/fuwubao/wan-detail.png")) {
-						continue;
-					}
-					try {
-						org.tfelab.io.requester.Task t_ = new org.tfelab.io.requester.Task(img);
-						BasicRequester.getInstance().fetch(t_);
-						String fileName = null;
-						Binary binary = new Binary();
-						binary.src = t_.getResponse().getSrc();
-
-						if (t_.getResponse().getHeader() != null) {
-							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
-									binary.content_type = entry.getValue().toString();
-								}
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
-
-									fileName = entry.getValue().toString()
-											.replaceAll("^.*?filename\\*=utf-8' '", "")
-											.replaceAll("\\].*?$", "");
-									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-
-									if(fileName == null || fileName.length() == 0) {
-
-										fileName = entry.getValue().toString()
-												.replaceAll("^.*?\"", "")
-												.replaceAll("\".*$", "");
-									}
-
-								}
-							}
-						}
-						if(fileName == null) {
-							fileName = t_.getUrl().replaceAll("^.+/", "");
-						}
-						binary.file_name = fileName;
-						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(img));
-						binary.url = project.url;
-						des_src = des_src.replace(img, binary.file_name).replaceAll("&s\\.w=\\d+&s\\.h=\\d+","");
-						binary.insert();
-
-					} catch (Exception e) {
-						e.printStackTrace();
-						continue;
-					}
-				}
-
-				//处理下载
-				for (String a : a_urls) {
-
-					if (!a.contains("key=")) {
-						continue;
-					}
-
-					try {
-						org.tfelab.io.requester.Task t_ =null;
-						if (!a.contains("https")) {
-							String a1 = a.replace("http", "https");
-							t_ = new org.tfelab.io.requester.Task(a1);
-						}else {
-							t_ = new org.tfelab.io.requester.Task(a);
-						}
-						BasicRequester.getInstance().fetch(t_);
-						String fileName = null;
-						Binary binary = new Binary();
-						binary.src = t_.getResponse().getSrc();
-
-						if (t_.getResponse().getHeader() != null) {
-							for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
-									binary.content_type = entry.getValue().toString();
-
-								}
-
-								if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-disposition")) {
-
-									fileName = entry.getValue().toString()
-											.replaceAll("^.*?filename\\*=utf-8' '", "")
-											.replaceAll("\\].*?$", "");
-									fileName = java.net.URLDecoder.decode(fileName, "UTF-8");
-
-									if(fileName == null || fileName.length() == 0) {
-
-										fileName = entry.getValue().toString()
-												.replaceAll("^.*?\"", "")
-												.replaceAll("\".*$", "");
-									}
-
-								}
-							}
-						}
-						if(fileName == null) {
-							fileName = t_.getUrl().replaceAll("^.+/", "");
-						}
-						binary.file_name = fileName;
-						binary.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(a));
-						binary.url = project.url;
-						des_src = des_src.replace(a, binary.file_name);
-						binary.insert();
-
-					} catch (Exception e) {
-						e.printStackTrace();
-						continue;
-					}
-				}
-
-				project.description = des_src;
-
-				project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
-
-				/*
-				获取地点，来源
-				 */
-				Pattern pattern = Pattern.compile("<div class=\"more-info\"><span><i class=\"lbs\"></i>(?<area>.+?)</span><span><i></i>来自：(?<from>.+?)</span></div>");
-				Matcher matcher = pattern.matcher(description_src);
-				if (matcher.find()) {
-					project.area = matcher.group("area");
-					project.from_ = matcher.group("from");
-				}
-				Pattern pattern1 = Pattern.compile("<div class=\"more-info\"><span><i></i>来自：(?<from>.+?)</span></div>");
-				Matcher matcher1 = pattern1.matcher(description_src);
-				if (matcher1.find()) {
-					project.from_ = matcher1.group("from");
-				}
-
-				/**
-				 * 预算处理
-				 */
-				double budget_All = StringUtil.detectBudget(project.description);
-				if (budget_All == 0) {
-					String budget = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe"))
-							.findElement(By.tagName("span")).getText();
-
-					if (budget.contains("￥")) {
-						if (budget.contains("-")) {
-							project.budget_lb = Double.parseDouble(budget.split("￥")[1].split("-")[0]);
-							project.budget_up = Double.parseDouble(budget.split("￥")[1].split("-")[1]);
-						} else {
-							project.budget_lb = Double.parseDouble(budget.split("￥")[1]);
-							project.budget_up = project.budget_lb;
-						}
-					} else {
-						project.budget_up = 0;
-						project.budget_lb = 0;
-					}
-				}
-				else {
-					project.budget_up = budget_All;
-					project.budget_lb = budget_All;
-				}
-				project.current_status = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
-						.findElement(By.className("current")).findElement(By.tagName("p")).getText();
-
-				try {
-					project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
-							.findElement(By.className("current")).findElement(By.className("clock")).getAttribute("data-difftime"));
-				} catch (org.openqa.selenium.NoSuchElementException e) {
-				}
-
-				project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2)"))
-						.findElement(By.tagName("b")).getText());
-
-				/*
-				投标总数与投标人数
-				 */
-				try {
-
-					project.bidder_total_num = Integer.parseInt(
-							driver.findElement(By.cssSelector("#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info"))
-									.findElements(By.className("datanum")).get(0).getText());
-
-					if (driver.findElement(By.cssSelector("#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info"))
-							.findElements(By.className("datanum")).size() > 1) {
-						project.bidder_num = Integer.parseInt(
-								driver.findElement(By.cssSelector("#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info"))
-										.findElements(By.className("datanum")).get(1).getText());
-					} else {
-						project.bidder_num = Integer.parseInt(
-								driver.findElement(By.cssSelector("#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info"))
-										.findElements(By.className("datanum")).get(0).getText());
-					}
-				} catch (Exception e) {
-					project.bidder_num = 0;
-					project.bidder_total_num = 0;
-
-				}
-				project.status = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i"))
-						.getText();
-			}
-
-			try {
-				project.insert();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		try {
+			// 初始化 必须传入url 生成主键id
+			project = new Project(getUrl());
+		} catch (MalformedURLException | URISyntaxException e) {
+			logger.error("Error extract url: {}, ", getUrl(), e);
 		}
 
+		List<Task> tasks = new ArrayList();
+
+		// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
+		// A 无法请求页面内容
+		if (pageAccessible(src)) {
+
+			// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
+			String header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
+
+			// 当header为空时， 重复获取3次，若还为空，抛弃次项目
+			int i = 0 ;
+			while(header == null || header.equals("")) {
+
+				header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
+				if (!(header == null || header.equals(""))) {
+					break;
+				}
+				if (i > 2) {
+					break;
+				}
+				i++;
+			}
+
+			// B1 页面格式1 ：http://task.zbj.com/12954152/
+			if (pageType(header) == PageType.OrderDetail) {
+
+				logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
+
+				pageOne(src, driver, header, tasks);
+
+				try {
+					project.insert();
+				} catch (Exception e) {
+					logger.error("insert error for project", e);
+				}
+			}
+			// B2 页面格式2 ：http://task.zbj.com/12954086/
+			else if (pageType(header) == PageType.ReqDetail) {
+
+				pageTwo(src, driver, header, tasks);
+
+				try {
+					project.insert();
+				} catch (Exception e) {
+					logger.error("insert error for project", e);
+				}
+			}
+
+		}
 		return tasks;
 	}
 
+	/**
+	 * 处理无法访问的页面
+	 * 例：	http://task.zbj.com/9790967/
+	 * 		http://task.zbj.com/11810444/
+	 *
+	 * @param src 页面源
+	 * @return
+	 */
+	public boolean pageAccessible(String src) {
+
+		String reg = "(无法|无权|不能|暂不能在网页|该任务仅限雇主和参与服务商)查看" +
+				"|参数校验错误";
+		Pattern pattern = Pattern.compile(reg);
+		Matcher matcher = pattern.matcher(src);
+		if(matcher.find()) {
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
-	 * 测试方法
+	 * 判断页面格式
+	 * @return
 	 */
-	public static void main(String[] args) throws Exception {
+	public PageType pageType(String type) {
 
+		if (type.contains("订单详情")) {
+			project.type = "订单详情";
+			return PageType.OrderDetail;
+		}
+		else if (type.contains("需求详情")) {
+			project.type = "需求详情";
+			return PageType.ReqDetail;
+		}
 
-		ChromeDriverAgent agent = new ChromeDriverWithLogin("zbj.com").login();
+		// 找不到 header
+		return null;
+	}
 
-		Thread.sleep(1000);
-		Task task = new ProjectTask("http://task.zbj.com/12909258/");
+	/**
+	 * pageone
+	 * 项目状态， 时间
+	 * @param driver
+	 */
+	public void projectStateOne(WebDriver driver) {
 
-		Queue<Task> taskQueue = new LinkedList<>();
-		taskQueue.add(task);
-		while(!taskQueue.isEmpty()) {
-			Task t = taskQueue.poll();
-			if(t != null) {
-				try {
-					agent.fetch(t);
-					for (Task t_ : t.postProc(agent.getDriver())) {
-						taskQueue.add(t_);
-						//agent.fetch(t_);
-					}
-
-				} catch (Exception e) {
-
-					taskQueue.add(t);
-				}
+		try {
+			// 项目状态
+			project.current_status = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
+					.findElement(By.className("modecont")).findElement(By.className("cur"))
+					.findElement(By.tagName("p")).getText().split("2")[0];
+		}
+		catch (Exception e) {
+			// 已经完成
+			project.current_status = "评价状态";
+		}
+		try {
+			try {
+				// 剩余时间
+				project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
+						.findElement(By.className("modecont"))
+						.findElement(By.className("cur"))
+						.findElement(By.className("taskmode-clock"))
+						.getAttribute("data-difftime"));
 			}
+			catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		catch (NoSuchElementException e) {
+			// 无法找到剩余时间
+			project.remaining_time = null;
+		}
+	}
+
+	/**
+	 * pagetwo
+	 * 项目状态， 时间
+	 * @param driver
+	 */
+	public void projectStateTwo(WebDriver driver) {
+
+		try {
+			project.current_status = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
+					.findElement(By.className("current")).findElement(By.tagName("p")).getText();
+		} catch (Exception e) {
+			project.current_status = "评价状态";
+		}
+		// 若无此项，则为空
+		try {
+			try {
+				project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
+						.findElement(By.className("current")).findElement(By.className("clock")).getAttribute("data-difftime"));
+			}
+			catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		catch (org.openqa.selenium.NoSuchElementException e) {
+			project.remaining_time = null;
+		}
+
+		//
+		try {
+			project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2)"))
+					.findElement(By.tagName("b")).getText());
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 *
+	 * @param driver
+	 */
+	public void getTendererIdName(WebDriver driver, String src) {
+
+		String link = driver.findElement(By.cssSelector("#j-content > div > div.user-toltit > dl")).findElement(By.tagName("img")).getAttribute("src").split("\\.")[2];
+
+		String[] links = link.split("/");
+
+		String ss = links[4].split("_")[2];
+
+		project.tenderer_id = Integer.parseInt(links[1] + links[2] + links[3] + ss)+"";
+
+		project.tenderer_name = driver.findElement(By.cssSelector("#j-content > div > div.user-toltit > dl")).findElement(By.tagName("img")).getAttribute("alt");
+
+		Pattern pattern = Pattern.compile("<div class=\"taskmode-inline\" id=\"reward-all\">\\s+赏金分配：<em class=\"gray6\">(?<rewardType>.+?)</em>");
+		Matcher matcher = pattern.matcher(src);
+		if (matcher.find()) {
+			project.reward_type = org.tfelab.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
 
 	}
 
+	/**
+	 *
+	 * @param driver
+	 * @param src
+	 */
+	public void finishProject(WebDriver driver, String src) {
+		// 1 采集时刻投标人数
+		// 1.1 项目已完成
+		if (src.contains("<div class=\"banner-task-summary clearfix\">")) {
+
+			try {
+				project.bidder_num = getInt(driver,
+						"#anytime-back > div.banner-task-summary.clearfix > div.summary-right > h4:nth-child(2) > em:nth-child(2)",
+						"个|名");
+			}
+			catch (NoSuchElementException e) {
+				project.bidder_num = getInt(driver,
+						"body > div.main.task-details > div.main-con.user-page > div.banner-task-summary.clearfix > div.summary-right.clearfix > h4:nth-child(2) > em:nth-child(2)",
+						"个|名");
+			}
+			project.bidder_total_num = project.bidder_num;
+		}
+		// 1.2 项目未完成
+		else {
+
+			if (src.contains("该需求可接受")) {
+				project.bidder_total_num = StringUtil.getBidderTotalNum(driver,
+						"#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(1)");
+
+				project.bidder_num = StringUtil.getBidderNum(driver,
+						"#j-ibid-list > div > div.ibid-total.clearfix",
+						"b");
+			}
+		}
+	}
+
+	/**
+	 * 页面格式1
+	 * 获取信息
+	 * @param src 页面源
+	 * @param driver
+	 * @param head 页面格式
+	 * @param tasks
+	 */
+	public void pageOne(String src, WebDriver driver, String head, List<Task> tasks) {
+
+		// 项目是否可投标，以及投标数量
+		finishProject(driver, src);
+
+		project.title = getString(driver, "#ed-tit > div.tctitle.clearfix > h1", "");
+
+		project.area = getString(driver, "#j-receiptcon > span.ads", "");
+
+		project.origin = getString(driver, "#j-receiptcon > a", "");
+
+		project.category = getString(driver, "body > div.main.task-details > div.grid > ul", "");
+
+		project.type = head;
+
+		// TODO 需要额外处理图片, 下载
+		String description_src = driver.findElement(By.cssSelector("#work-more"))
+				.getAttribute("innerHTML")
+				.replaceAll("<a.+?>查看全部</a>","");
+
+		project.description = download(description_src);
+
+		project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
+
+		// 预算处理  #ed-tit > div.micon > div.fl.money-operate > p > u
+		double[] budget = StringUtil.budget_all(driver,
+				"#ed-tit > div.micon > div.fl.money-operate > p > u",
+				project.description);
+		project.budget_lb = budget[0];
+		project.budget_up = budget[1];
+
+		// 发布时间
+		try {
+			project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-receiptcon > span.time")).getText());
+		}
+		catch (ParseException e) {
+			project.pubdate = null;
+		}
+
+		// 获取招标人id
+		getTendererIdName(driver, src);
+
+		// 项目状态 剩余时间
+		projectStateOne(driver);
+
+		project.trade_type = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix > div.header")).findElement(By.tagName("em")).getText();
+
+		// 进入雇主页
+		try {
+			tasks.add(new TendererTask("http://home.zbj.com/" + project.tenderer_id));
+		} catch (MalformedURLException | URISyntaxException e) {
+			logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+		}
+
+	}
+
+	/**
+	 * 页面格式2
+	 * 数据采取
+	 * @param src
+	 * @param driver
+	 * @param head
+	 * @param tasks
+	 */
+	public void pageTwo(String src, WebDriver driver, String head, List<Task> tasks) {
+
+		project.type = head;
+
+		project.title = getString(driver,
+				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > h1", "");
+
+		project.req_no = getString(driver,
+				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
+
+		project.category = getString(driver,
+				"#utopia_widget_3",
+				"");
+
+		String description_src = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner"))
+				.findElement(By.className("task-detail"))
+				.findElement(By.className("task-detail-content"))
+				.getAttribute("innerHTML").replaceAll("<a.+?>查看全部</a>","")
+				.replace(">\\s+<","><").replaceAll("\\s+<","<").replaceAll(">\\s+",">");
+
+		// 下载
+		project.description = download(description_src);
+
+		project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
+
+
+		// 获取地点，来源
+		Pattern pattern = Pattern.compile("<div class=\"more-info\"><span><i class=\"lbs\"></i>(?<area>.+?)</span><span><i></i>来自：(?<from>.+?)</span></div>");
+		Matcher matcher = pattern.matcher(description_src);
+		if (matcher.find()) {
+			project.area = matcher.group("area");
+			project.origin = matcher.group("from");
+		}
+
+		Pattern pattern_origin = Pattern.compile("<div class=\"more-info\"><span><i></i>来自：(?<from>.+?)</span></div>");
+		Matcher matcher_origin = pattern_origin.matcher(description_src);
+		if (matcher_origin.find()) {
+			project.origin = matcher_origin.group("from");
+		}
+
+		// 预算处理
+		try {
+			double[] budget = StringUtil.budget_all(driver,
+					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe > span:nth-child(1) > b",
+					project.description);
+			project.budget_lb = budget[0];
+			project.budget_up = budget[1];
+
+		}
+		catch (NoSuchElementException e) {
+			project.budget_lb = 0;
+			project.budget_up = 0;
+		}
+
+		// 项目状态，剩余时间
+		projectStateTwo(driver);
+
+		// 投标总数与投标人数
+		try {
+
+			project.bidder_total_num = StringUtil.getBidderTotalNum(driver,
+					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
+			project.bidder_num = StringUtil.getBidderNum(driver,
+					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info",
+					"span");
+		}
+		catch (NoSuchElementException e) {
+		}
+
+		project.status = getString(driver,"#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+
+	}
 }

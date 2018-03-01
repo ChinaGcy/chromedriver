@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
  * 2. 翻页
  */
 public class ServiceScanTask extends Task {
-	private static final Logger logger = LogManager.getLogger(ServiceScanTask.class.getName());
 
+	private static final Logger logger = LogManager.getLogger(ServiceScanTask.class.getName());
 
 	public static ServiceScanTask generateTask(String tag, int page, AccountWrapper aw) {
 
@@ -54,6 +54,7 @@ public class ServiceScanTask extends Task {
 
 		super(url);
 		this.setParam("page", page);
+		this.priority = Priority.low;
 	}
 
 	/**
@@ -83,44 +84,15 @@ public class ServiceScanTask extends Task {
 			}
 		}
 
-
-		//判断一页是否有40个数据
-		if (list.size() >= 40) {
+		// 当前页数
+		int i = (page-1)/40+1;
+		// 翻页
+		if (pageTurning(driver, "#utopia_widget_18 > div.pagination > ul", i)) {
 			Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40, null);
 			tasks.add(t);
-
 		}
 		logger.info("Task num: {}", tasks.size());
 
 		return tasks;
 	}
-
-	/**
-	 * 测试方法
-	 */
-	public static void main(String[] args) throws Exception {
-
-		ChromeDriverAgent agent = new ChromeDriverAgent();
-
-		Queue<Task> taskQueue = new LinkedBlockingQueue<>();
-
-		taskQueue.add(ServiceScanTask.generateTask("wdfw",1,null));
-
-		while(!taskQueue.isEmpty()) {
-			Task t = taskQueue.poll();
-			if(t != null) {
-				try {
-					agent.fetch(t);
-					for (Task t_ : t.postProc(agent.getDriver())) {
-						taskQueue.add(t_);
-					}
-
-				} catch (Exception e) {
-					logger.error("Exception while fetch task. ", e);
-					taskQueue.add(t);
-				}
-			}
-		}
-	}
-
 }

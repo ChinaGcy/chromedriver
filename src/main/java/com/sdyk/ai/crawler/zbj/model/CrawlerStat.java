@@ -4,14 +4,14 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.zbj.Crawler;
 import org.tfelab.db.DBName;
 import org.tfelab.db.OrmLiteDaoManager;
-import com.sdyk.ai.crawler.zbj.Crawler;
 
 import java.util.Date;
 
+@DBName(value = "crawler")
 @DatabaseTable(tableName = "crawler_stats")
-@DBName(value = "china_stock_qs")
 public class CrawlerStat {
 
 	@DatabaseField(dataType = DataType.DATE, canBeNull = false, id = true)
@@ -39,5 +39,4 @@ public class CrawlerStat {
 
 		return false;
 	}
-
 }

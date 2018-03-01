@@ -4,6 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.jdbc.DataSourceConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.sdyk.ai.crawler.zbj.model.Model;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
@@ -120,7 +121,9 @@ public class Refacter {
 	 * @throws SQLException
 	 */
 	public static void dropTables(Set<Class<? extends Object>> classes) throws SQLException {
+
 		for (Class<?> clazz : classes) {
+
 			logger.trace("Dropping {}...", clazz.getName());
 			ConnectionSource source;
 			
@@ -143,14 +146,26 @@ public class Refacter {
 		}
 	}
 
-	public static void initDao(Set<Class<? extends Object>> classes) {
+	/**
+	 *
+	 * @param classes
+	 */
+	public static void initDao(Set<Class<? extends Model>> classes) {
 
 		for (Class<?> clazz : classes) {
+
+			if(clazz.getSimpleName().equals("Model")) continue;
+
 			try {
 
+				logger.info("Init DAO for Class: {}", clazz.getSimpleName());
+
 				Dao dao = OrmLiteDaoManager.getDao(clazz);
-				Field field = clazz.getField("dao");
+
+				Field field = clazz.getDeclaredField("dao");
 				field.set(null, dao);
+
+				/*logger.info(dao.getDataClass());*/
 
 			} catch (NoSuchFieldException e) {
 				logger.error(e);
@@ -161,5 +176,4 @@ public class Refacter {
 			}
 		}
 	}
-
 }

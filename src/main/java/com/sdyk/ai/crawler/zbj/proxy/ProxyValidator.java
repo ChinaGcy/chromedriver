@@ -1,12 +1,13 @@
 package com.sdyk.ai.crawler.zbj.proxy;
 
-import com.sdyk.ai.crawler.zbj.Crawler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tfelab.io.requester.BasicRequester.ConnectionBuilder;
 import org.tfelab.io.requester.proxy.IpDetector;
 import org.tfelab.io.requester.proxy.ProxyWrapper;
 import org.tfelab.io.requester.proxy.ProxyWrapperImpl;
+import org.tfelab.util.NetworkUtil;
+
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +20,8 @@ import java.util.concurrent.*;
 public class ProxyValidator {
 	
 	protected static ProxyValidator instance;
+
+	public static String Local_IP = NetworkUtil.getLocalIp();
 	
 	public static ProxyValidator getInstance() {
 		
@@ -273,7 +276,7 @@ public class ProxyValidator {
 	 */
 	public Task validate(ProxyWrapper pw, Type type, String url) {
 		
-		Task task = new Task(type, pw, url, Crawler.LOCAL_IP);
+		Task task = new Task(type, pw, url, Local_IP);
 		
 		final ExecutorService executor = Executors.newSingleThreadExecutor();
 		final Future<?> future = executor.submit(task);
@@ -312,7 +315,11 @@ public class ProxyValidator {
 			return false;
 		}
 	}
-	
+
+	/**
+	 *
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		ProxyWrapper pw = new ProxyWrapperImpl("10.0.0.18", 60103, "tfelab", "TfeLAB2@15");
 		Task task = ProxyValidator.getInstance().validate(pw, Type.TestAlive, null);

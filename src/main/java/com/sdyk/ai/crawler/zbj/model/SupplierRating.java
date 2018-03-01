@@ -14,17 +14,14 @@ import java.util.Date;
 
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "service_rating")
-public class SupplierRating implements JSONable<SupplierRating>{
-
-	@DatabaseField(id = true, width = 16)
-	public String id;
+public class SupplierRating extends Model{
 
 	// 服务商id
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String service_supplier_id;
 
 	// 雇主姓名
-	@DatabaseField(dataType = DataType.STRING, width = 32)
+	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String tenderer_name;
 
 	// 雇主id
@@ -35,17 +32,17 @@ public class SupplierRating implements JSONable<SupplierRating>{
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String project_url;
 
-	//雇主id
+	// 雇主id
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String tenderer_id;
 
-	//项目花费
+	// 项目花费
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public double spend;
 
-	//描述
+	// 描述
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String descaption;
+	public String description;
 
 	// 评价标签
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
@@ -55,35 +52,9 @@ public class SupplierRating implements JSONable<SupplierRating>{
 	@DatabaseField(dataType = DataType.DATE)
 	public Date rating_time;
 
-	@DatabaseField(dataType = DataType.DATE)
-	public Date insert_time = new Date();
+	public SupplierRating() {}
 
-	@DatabaseField(dataType = DataType.DATE)
-	public Date update_time = new Date();
-
-
-	/**
-	 * 插入
-	 * @return
-	 * @throws Exception
-	 */
-	public boolean insert() throws Exception{
-
-		Dao<SupplierRating, String> dao = OrmLiteDaoManager.getDao(SupplierRating.class);
-		try {
-			if (dao.create(this) == 1) {
-				return true;
-			}
-
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
-
-
-	@Override
-	public String toJSON() {
-		return JSON.toPrettyJson(this);
+	public SupplierRating(String url) {
+		super(url);
 	}
 }

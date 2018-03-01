@@ -19,120 +19,105 @@ import java.util.Date;
 
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "projects")
-public class Project implements JSONable<Project> {
+public class Project extends Model {
 
-	@DatabaseField(dataType = DataType.STRING, width = 32, id = true)
-	public String id;
-
-	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String domain; // 原网站 domain
-
+	// 原网站 domain
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String url; //原网站链接
+	public String domain;
 
+	// 名称
 	@DatabaseField(dataType = DataType.STRING, width = 64)
-	public String title; //名称
+	public String title;
 
+	// 需求号
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String req_no; // 需求号
+	public String req_no;
 
-	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String area; // 地点
+	// 地点
+	@DatabaseField(dataType = DataType.STRING, width = 32)
+	public String area;
 
-	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String from_; // 来自
+	// 来自
+	@DatabaseField(dataType = DataType.STRING, width = 32)
+	public String origin;
 
+	// 定位到栏目大类
 	@DatabaseField(dataType = DataType.STRING, width = 64)
-	public String category; //定位到栏目大类
+	public String category;
 
+	// 小标题
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String tags; //tag 小标题
+	public String tags;
 
-	@DatabaseField(dataType = DataType.STRING, width = 10240)
-	public String description; //项目描述
+	// 项目描述
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
+	public String description;
 
+	// 预算下限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_lb; //预算下限
+	public double budget_lb;
 
+	// 预算上限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_up; //预算上限
+	public double budget_up;
 
+	// 工期
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int time_limit; //工期
+	public int time_limit;
 
+	// 交易模式
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String trade_type; //交易模式
+	public String trade_type;
 
+	// 当前状态
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String current_status; //当前状态
+	public String current_status;
 
+	// 剩余时间
 	@DatabaseField(dataType = DataType.DATE)
-	public Date remaining_time; //剩余时间
+	public Date remaining_time;
 
+	// 发布时间
 	@DatabaseField(dataType = DataType.DATE)
-	public Date pubdate; //发布时间
+	public Date pubdate;
 
+	// 可接受投标数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int bidder_total_num; // 可接受投标数
+	public int bidder_total_num = 0;
 
+	// 采集时刻可投标人数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int bidder_num; // 采集时刻投标人数
+	public int bidder_num = 0;
 
+	// 招标人ID
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String tenderer_id; //招标人ID
+	public String tenderer_id;
 
+	// 招标人名称
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String tenderer_name; //招标人名称
+	public String tenderer_name;
 
+	// 项目状态：招募，开发中，已交付
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String status; // 项目状态：招募，开发中，已交付
+	public String status;
 
+	// 类型
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String type; //类型
+	public String type;
 
+	// 客户评价数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int rate_num; //客户评价数
+	public int rate_num;
 
+	// 赏金分配
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String reward_type; //赏金分配
-
-	@DatabaseField(dataType = DataType.DATE)
-	public Date insert_time = new Date(); //采集入库时间
-
-	@DatabaseField(dataType = DataType.DATE)
-	public Date update_time = new Date(); //采集更新时间
+	public String reward_type;
 
 	public Project() {}
 
 	public Project(String url) throws MalformedURLException, URISyntaxException {
-		this.id = StringUtil.byteArrayToHex(StringUtil.uuid(url));
+		super(url);
 		this.domain = URLUtil.getRootDomainName(URLUtil.getDomainName(url));
-		this.url = url;
 		this.req_no = url.split("/")[3];
-	}
-
-	/**
-	 * 插入
-	 * @return
-	 * @throws Exception
-	 */
-	public boolean insert() throws Exception{
-
-		Dao<Project, String> dao = OrmLiteDaoManager.getDao(Project.class);
-		try {
-			if (dao.create(this) == 1) {
-				return true;
-			}
-
-		}catch (SQLException e) {
-			dao.update(this);
-		}
-
-		return false;
-	}
-
-	@Override
-	public String toJSON() {
-		return JSON.toPrettyJson(this);
 	}
 }

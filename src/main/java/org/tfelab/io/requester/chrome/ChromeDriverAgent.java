@@ -319,8 +319,8 @@ public class ChromeDriverAgent {
 			driver.manage().timeouts().pageLoadTimeout(120, TimeUnit.SECONDS);
 
 			// Set Dimension
-			//Dimension d = new Dimension(1024, 600);
-			Dimension d = new Dimension(380, 600);
+			Dimension d = new Dimension(1024, 600);
+			//Dimension d = new Dimension(380, 600);
 			//driver.manage().window().setSize(d);
 			driver.manage().window().maximize();
 

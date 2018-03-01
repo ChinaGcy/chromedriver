@@ -14,21 +14,14 @@ import java.util.Date;
 
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "service_suppliers")
-public class ServiceSupplier implements JSONable<ServiceSupplier> {
-
-	@DatabaseField(id = true, width = 32)
-	public String id;
+public class ServiceSupplier extends Model {
 
 	// 来源网站
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String website_id;
 
-	// 原网站链接
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String url;
-
 	// 名字
-	@DatabaseField(dataType = DataType.STRING, width = 16)
+	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String name;
 
 	// 团队/个人
@@ -53,7 +46,7 @@ public class ServiceSupplier implements JSONable<ServiceSupplier> {
 
 	// 擅长领域
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String expertises;
+	public String expertise;
 
 	// 擅长技能
 	@DatabaseField(dataType = DataType.STRING, width = 128)
@@ -61,15 +54,15 @@ public class ServiceSupplier implements JSONable<ServiceSupplier> {
 
 	//服务质量
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public Double service_quality;
+	public double service_quality;
 
-	//服务速度
+	// 服务速度
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public Double service_speed;
+	public double service_speed;
 
-	//服务态度
+	// 服务态度
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public Double service_attitude;
+	public double service_attitude;
 
 	// 平台项目数
 	@DatabaseField(dataType = DataType.INTEGER)
@@ -100,7 +93,7 @@ public class ServiceSupplier implements JSONable<ServiceSupplier> {
 	public float credit;
 
 	// 电话
-	@DatabaseField(dataType = DataType.STRING, width = 32)
+	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String cellphone;
 
 	// qq
@@ -147,11 +140,11 @@ public class ServiceSupplier implements JSONable<ServiceSupplier> {
 	@DatabaseField(dataType = DataType.FLOAT)
 	public float rating;
 
-	//雇主推荐
+	// 雇主推荐
 	@DatabaseField(dataType = DataType.INTEGER)
 	public int recommendation_num;
 
-	//收藏量
+	// 收藏量
 	@DatabaseField(dataType = DataType.INTEGER)
 	public int collection_num;
 
@@ -167,31 +160,9 @@ public class ServiceSupplier implements JSONable<ServiceSupplier> {
 	@DatabaseField(dataType = DataType.INTEGER)
 	public int bad_rating_num;
 
-	@DatabaseField(dataType = DataType.DATE)
-	public Date insert_time = new Date();
+	public ServiceSupplier() {}
 
-	@DatabaseField(dataType = DataType.DATE)
-	public Date update_time = new Date();
-
-	public ServiceSupplier() { }
-
-
-	public boolean insert() throws Exception {
-
-		Dao<ServiceSupplier, String> dao = OrmLiteDaoManager.getDao(ServiceSupplier.class);
-		try {
-			if (dao.create(this) == 1) {
-				return true;
-			}
-
-		}catch (SQLException e) {
-			dao.update(this);
-		}
-
-		return false;
-	}
-	@Override
-	public String toJSON() {
-		return JSON.toPrettyJson(this);
+	public ServiceSupplier(String url) {
+		super(url);
 	}
 }

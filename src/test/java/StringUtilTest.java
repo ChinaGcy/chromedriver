@@ -1,17 +1,7 @@
-import com.gargoylesoftware.htmlunit.javascript.host.Reflect;
+import com.sdyk.ai.crawler.zbj.util.StringUtil;
 
-import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.zbj.StringUtil;
-import com.sdyk.ai.crawler.zbj.model.Account;
-
-import db.OrmLiteDaoManager;
-import db.Refacter;
 import org.junit.Test;
-import org.tfelab.txt.DateFormatUtil;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Proxy;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -41,7 +31,7 @@ public class StringUtilTest {
 	@Test
 	public void testcleanHTML() {
 
-		String str = StringUtil.cleanContent(text_1,null);
+		String str = StringUtil.cleanContent(text_1,null, null);
 		System.err.println(str);
 	}
 
@@ -96,6 +86,10 @@ public class StringUtilTest {
 				) {
 			System.out.println(ss);
 		}
+	}
+	@Test
+	public void systemTest() {
+		System.err.println(System.nanoTime());
 	}
 
 }

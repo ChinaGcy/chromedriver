@@ -19,102 +19,84 @@ import java.util.Date;
  */
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "tenderers")
-public class Tenderer implements JSONable<Tenderer> {
+public class Tenderer extends Model {
 
-	@DatabaseField(id = true, width = 32)
-	public String id;
-
+	// 原网站id
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String website_id; // 原网站id
+	public String website_id;
 
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String url; //原网站链接
+	// 名字
+	@DatabaseField(dataType = DataType.STRING, width = 64)
+	public String name;
 
-	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String name; //名字
-
+	// 地点
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String area; //地点
+	public String area;
 
+	// 最近登录时间
 	@DatabaseField(dataType = DataType.DATE)
-	public Date login_time; //最近登录时间
+	public Date login_time;
 
+	// 交易次数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int trade_num; //交易次数
+	public int trade_num;
 
+	// 所在行业
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String industry; //所在行业
+	public String industry;
 
+	// 雇主类型
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String tender_type; //雇主类型
+	public String tender_type;
 
+	// 企业规模
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String enterprise_size; //企业规模
+	public String enterprise_size;
 
-	@DatabaseField(dataType = DataType.STRING, width = 10240)
-	public String description; //雇主介绍描述
+	// 雇主介绍描述
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
+	public String description;
 
-	@DatabaseField(dataType = DataType.STRING, width = 10240)
-	public String demand_forecast; //需求预测
+	// 需求预测
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
+	public String demand_forecast;
 
+	// 总消费
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double total_spending; //总消费
+	public double total_spending;
 
+	// 总项目数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int total_project_num; //总项目数
+	public int total_project_num;
 
+	// 总雇佣人数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int total_hires; //总雇佣人数
+	public int total_hires;
 
+	// 注册时间
 	@DatabaseField(dataType = DataType.DATE)
-	public Date register_time; //注册时间
+	public Date register_time;
 
+	// 好评数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int good_rating_num; //好评数
+	public int good_rating_num;
 
+	// 评价数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int rating_num; //评价数
+	public int rating_num;
 
+	// 等级
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String grade; //等级
+	public String grade;
 
+	// 用户积分
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int credit; //用户积分
+	public int credit;
 
-	@DatabaseField(dataType = DataType.DATE)
-	public Date insert_time = new Date(); //采集入库时间
-
-	@DatabaseField(dataType = DataType.DATE)
-	public Date update_time = new Date(); //采集更新时间
-
-	public Tenderer() {
-
-	}
+	public Tenderer() {}
 
 	public Tenderer(String url) {
-		this.url = url.split("\\?")[0];
-
-	}
-
-	public boolean insert() throws Exception {
-
-		Dao<Tenderer, String> dao = OrmLiteDaoManager.getDao(Tenderer.class);
-		try {
-			if (dao.create(this) == 1) {
-				return true;
-			}
-
-		}catch (SQLException e) {
-			e.printStackTrace();
-			//dao.update(this);
-		}
-
-		return false;
-	}
-
-	@Override
-	public String toJSON() {
-		return JSON.toPrettyJson(this);
+		super(url);
 	}
 }
 

@@ -1,16 +1,10 @@
-import com.sdyk.ai.crawler.zbj.StringUtil;
-import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import org.openqa.selenium.By;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.util.FileUtil;
 
-import java.io.FileFilter;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 public class ShootText {
 
@@ -24,8 +18,8 @@ public class ShootText {
 				.findElement(By.cssSelector("#utopia_widget_5 > div > div > div.serviceShop-right.fr > div.serviceShop-body.j-serviceShop-scroll > ul")).getAttribute("innerHTML");
 
 		Set<String> img_urls = new HashSet<>();
-
-		String s = StringUtil.cleanContent(description_src, img_urls);
+		Set<String> a_urls = new HashSet<>();
+		String s = StringUtil.cleanContent(description_src, img_urls, a_urls);
 
 
 		int x =0;

@@ -1,20 +1,13 @@
 package com.sdyk.ai.crawler.zbj.task;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
-import com.sdyk.ai.crawler.zbj.Crawler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.db.Refacter;
-import org.tfelab.io.requester.BasicRequester;
 import org.tfelab.io.requester.account.AccountWrapper;
-import org.tfelab.io.requester.account.AccountWrapperImpl;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.security.PrivateKey;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,8 +24,13 @@ public class ProjectScanTask extends Task {
 
 	private static String url_;
 
-	//public static Set<String> set = new HashSet<>();
-
+	/**
+	 * 生成项目翻页采集任务
+	 * @param url_
+	 * @param page
+	 * @param aw
+	 * @return
+	 */
 	public static ProjectScanTask generateTask(String url_, int page, AccountWrapper aw) {
 
 		ProjectScanTask.url_ = url_;
@@ -66,6 +64,9 @@ public class ProjectScanTask extends Task {
 
 		super(url);
 		this.setParam("page", page);
+
+		// 设置优先级
+		priority = Priority.low;
 	}
 
 	/**
@@ -89,17 +90,18 @@ public class ProjectScanTask extends Task {
 
 			String url = matcher.group();
 
+			// 去重
 			if(!list.contains(url)) {
 				list.add(url);
-				/*if (!set.contains(url)) {
-					set.add(url);*/
 				tasks.add(new ProjectTask(url));
-				//}
 			}
 		}
 
-		if (list.size() >= 52) {
-
+		// TODO 此处判断翻页存在巨大问题   已解决
+		// TODO 注意 当列表无数据时，使用WebDriver会报错
+		if (pageTurning(driver,
+				"body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul",
+				page)) {
 			Task t = generateTask(url_, ++page, null);
 			if (t != null) {
 				t.setPrior();
@@ -108,34 +110,6 @@ public class ProjectScanTask extends Task {
 		}
 
 		logger.info("Task num: {}", tasks.size());
-
 		return tasks;
-	}
-
-	/**
-	 * 测试方法
-	 */
-	public static void main(String[] args) throws Exception {
-
-		ChromeDriverAgent agent = (new ChromeDriverWithLogin("zbj.com")).login();
-		Queue<Task> taskQueue = new LinkedList<>();
-		taskQueue.add(ProjectScanTask.generateTask("t-dhsjzbj",1,null));
-
-		while(!taskQueue.isEmpty()) {
-			Task t = taskQueue.poll();
-			if(t != null) {
-				try {
-					agent.fetch(t);
-					for (Task t_ : t.postProc(agent.getDriver())) {
-						taskQueue.add(t_);
-						//agent.fetch(t_);
-					}
-
-				} catch (Exception e) {
-					logger.error("Exception while fetch task. ", e);
-					taskQueue.add(t);
-				}
-			}
-		}
 	}
 }

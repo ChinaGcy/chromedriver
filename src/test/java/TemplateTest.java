@@ -1,4 +1,4 @@
-import com.sdyk.ai.crawler.zbj.StringUtil;
+import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import org.junit.Test;
 import org.tfelab.io.requester.BasicRequester;
 import org.tfelab.io.requester.Task;

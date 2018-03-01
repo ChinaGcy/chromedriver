@@ -1,22 +1,13 @@
 package com.sdyk.ai.crawler.zbj;
 
-import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.task.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.ServiceScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.tfelab.common.Configs;
-import org.tfelab.io.requester.Requester;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ChromeRequester {
 
@@ -25,7 +16,7 @@ public class ChromeRequester {
 	private static final Logger logger = LogManager.getLogger(ChromeRequester.class.getName());
 
 	//开启线程数
-	private int agentCount = 3;
+	private int agentCount = 10;
 
 	public String domain = "zbj.com";
 
@@ -96,6 +87,8 @@ public class ChromeRequester {
 
 	}
 
+
+
 	/**
 	 *
 	 * @param args
@@ -133,15 +126,17 @@ public class ChromeRequester {
 		agent.close();*/
 
 		// B. 登录账号
+
+		/*StatManager.getInstance().count();*/
 		ChromeRequester chromeRequester = ChromeRequester.getInstance();
 
-		chromeRequester.distribute(ProjectScanTask.generateTask("t-wdfw", 1, null));
+		chromeRequester.distribute(ProjectScanTask.generateTask("t-yxtg", 1, null));
 
-		chromeRequester.distribute(ProjectScanTask.generateTask("t-dhsjzbj", 1, null));
-		chromeRequester.distribute(ProjectScanTask.generateTask("t-gongyesj", 1, null));
-		chromeRequester.distribute(ServiceScanTask.generateTask("video", 1, null));
-		chromeRequester.distribute(ServiceScanTask.generateTask("dhmh", 1, null));
-		chromeRequester.distribute(ServiceScanTask.generateTask("rcsc", 1, null));
+		//chromeRequester.distribute(ServiceScanTask.generateTask("yxgjrj", 1, null));
+		//chromeRequester.distribute(ProjectScanTask.generateTask("t-xswbzbj", 1, null));
+		//chromeRequester.distribute(ServiceScanTask.generateTask("dhmh", 1, null));
+		//chromeRequester.distribute(ProjectScanTask.generateTask("t-gongyesj", 1, null));
+		//chromeRequester.distribute(ServiceScanTask.generateTask("rcsc", 1, null));
 
 	/*	// C. 添加任务
 		if(list.size() >= list1.size()) {

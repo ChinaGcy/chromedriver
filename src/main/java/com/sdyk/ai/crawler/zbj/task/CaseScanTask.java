@@ -37,7 +37,6 @@ public class CaseScanTask extends Task {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-
 		return null;
 	}
 
@@ -57,6 +56,7 @@ public class CaseScanTask extends Task {
 
 		int page = this.getParamInt("page");
 
+		// 判断是否翻页
 		if (!src.contains("暂时还没有此类服务！")) {
 			Task t = generateTask("http://shop.zbj.com/" + webId + "/", ++page);
 			if (t != null) {
@@ -65,11 +65,13 @@ public class CaseScanTask extends Task {
 			}
 		}
 
+		// 获取猪八戒， 天蓬网的服务地址
 		Pattern pattern = Pattern.compile("http://shop.zbj.com/\\d+/sid-\\d+.html");
 		Matcher matcher = pattern.matcher(src);
-		Pattern pattern1 = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
-		Matcher matcher1 = pattern1.matcher(src);
+		Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
+		Matcher matcher_tp = pattern_tp.matcher(src);
 
+		// 猪八戒url
 		while (matcher.find()) {
 
 			String url = matcher.group();
@@ -80,9 +82,10 @@ public class CaseScanTask extends Task {
 			}
 		}
 
-		while (matcher1.find()) {
+		// 天蓬网url
+		while (matcher_tp.find()) {
 
-			String url = matcher1.group();
+			String url = matcher_tp.group();
 
 			if(!list.contains(url)) {
 				list.add(url);
@@ -92,31 +95,4 @@ public class CaseScanTask extends Task {
 
 		return tasks;
 	}
-
-	public static void main(String[] args) throws Exception {
-
-		ChromeDriverAgent agent = new ChromeDriverAgent();
-
-		Task t = CaseScanTask.generateTask("http://shop.zbj.com/17029968/",1);
-
-		Queue<Task> queue = new LinkedBlockingQueue<>();
-
-		queue.add(t);
-
-		while(!queue.isEmpty()) {
-
-			Task tt = queue.poll();
-
-			agent.fetch(tt);
-
-			for (Task t1 : tt.postProc(agent.getDriver())) {
-				queue.add(t1);
-			}
-
-		}
-
-
-
-	}
-
 }
