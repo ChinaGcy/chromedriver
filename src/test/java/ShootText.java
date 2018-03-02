@@ -27,7 +27,7 @@ public class ShootText {
 			try {
 				agent.getDriver().get(i);
 
-				byte[] a = agent.shoot("body > img");
+				byte[] a = agent.shoot("body > img", agent.getDriver());
 
 				FileUtil.writeBytesToFile(a, "baidu"+ x +".png");
 

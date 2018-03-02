@@ -49,7 +49,8 @@ uploadArchives {
 
 dependencies {
     compile 'org.tfelab:core:1.0-SNAPSHOT'
-    compile 'org.openpnp:opencv:3.4.1'
+
+    compile 'org.openpnp:opencv:3.4.0'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
 

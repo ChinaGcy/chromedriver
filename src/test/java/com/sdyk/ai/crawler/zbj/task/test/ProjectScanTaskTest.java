@@ -1,11 +1,13 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
+
 import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
 import com.sdyk.ai.crawler.zbj.task.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.junit.Test;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -15,6 +17,7 @@ public class ProjectScanTaskTest {
 	@Test
 	public void testProjectScanTest() {
 
+		// 并发量
 		StatManager statManager = StatManager.getInstance();
 
 		try {
