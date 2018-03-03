@@ -1,10 +1,9 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
+import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import com.sdyk.ai.crawler.zbj.task.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.util.DBUtil;
 import db.Refacter;
 import org.junit.Test;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
@@ -23,7 +22,7 @@ public class ProjectTaskTest {
 
 		ChromeDriverAgent agent = null;
 		try {
-			agent = new ChromeDriverWithLogin("zbj.com").login();
+			agent = new ChromeDriverLoginWrapper("zbj.com").login();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -67,7 +66,7 @@ public class ProjectTaskTest {
 
 		ChromeDriverAgent agent = null;
 		try {
-			agent = new ChromeDriverWithLogin("zbj.com").login();
+			agent = new ChromeDriverLoginWrapper("zbj.com").login();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

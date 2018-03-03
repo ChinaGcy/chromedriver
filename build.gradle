@@ -53,6 +53,10 @@ dependencies {
 
     compile name: 'opencv-341'
 
+    // https://mvnrepository.com/artifact/com.1stleg/jnativehook
+    compile group: 'com.1stleg', name: 'jnativehook', version: '2.1.0'
+
+
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
 

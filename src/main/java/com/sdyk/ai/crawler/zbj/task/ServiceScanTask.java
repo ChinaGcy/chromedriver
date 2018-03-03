@@ -1,21 +1,14 @@
 package com.sdyk.ai.crawler.zbj.task;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.tfelab.io.requester.account.AccountWrapper;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**

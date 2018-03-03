@@ -1,9 +1,7 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.task.ProjectScanTask;
-import com.sdyk.ai.crawler.zbj.task.ServiceScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,7 +18,7 @@ public class ChromeRequester {
 
 	public String domain = "zbj.com";
 
-	private List<ChromeDriverWithLogin> agents = new LinkedList<>();
+	private List<ChromeDriverLoginWrapper> agents = new LinkedList<>();
 
 	/**
 	 * 单例模式
@@ -48,7 +46,7 @@ public class ChromeRequester {
 
 		for(int i=0; i<agentCount; i++) {
 
-			ChromeDriverWithLogin agent = new ChromeDriverWithLogin(domain);
+			ChromeDriverLoginWrapper agent = new ChromeDriverLoginWrapper(domain);
 
 			try {
 
@@ -67,10 +65,10 @@ public class ChromeRequester {
 	 *
 	 * @return
 	 */
-	private ChromeDriverWithLogin getDriverWithShortestQueue() {
+	private ChromeDriverLoginWrapper getDriverWithShortestQueue() {
 		int size = Integer.MAX_VALUE;
-		ChromeDriverWithLogin agent_ = null;
-		for(ChromeDriverWithLogin agent : agents) {
+		ChromeDriverLoginWrapper agent_ = null;
+		for(ChromeDriverLoginWrapper agent : agents) {
 			if(agent.taskQueue.size() < size) {
 				size = agent.taskQueue.size();
 				agent_ = agent;
@@ -82,7 +80,7 @@ public class ChromeRequester {
 
 	public void distribute(Task task) {
 
-		ChromeDriverWithLogin agent = this.getDriverWithShortestQueue();
+		ChromeDriverLoginWrapper agent = this.getDriverWithShortestQueue();
 		agent.taskQueue.add(task);
 
 	}

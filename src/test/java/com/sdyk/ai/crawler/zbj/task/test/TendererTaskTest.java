@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
+import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.TendererTask;
 import org.junit.Test;
@@ -8,8 +8,6 @@ import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class TendererTaskTest {
@@ -24,7 +22,7 @@ public class TendererTaskTest {
 		PriorityBlockingQueue<Task> queue = new PriorityBlockingQueue<>();
 		Set<String> set = new HashSet<>();
 
-		ChromeDriverAgent agent = new ChromeDriverWithLogin("zbj.com").login(); //future
+		ChromeDriverAgent agent = new ChromeDriverLoginWrapper("zbj.com").login(); //future
 		Thread.sleep(1000);
 
 		TendererTask tendererTask = new TendererTask("http://home.zbj.com/15087337");

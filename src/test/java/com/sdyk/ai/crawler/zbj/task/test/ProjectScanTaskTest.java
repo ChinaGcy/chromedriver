@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
+import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.task.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
@@ -21,7 +21,7 @@ public class ProjectScanTaskTest {
 		StatManager statManager = StatManager.getInstance();
 
 		try {
-			ChromeDriverAgent agent = (new ChromeDriverWithLogin("zbj.com")).login();
+			ChromeDriverAgent agent = (new ChromeDriverLoginWrapper("zbj.com")).login();
 			Queue<Task> taskQueue = new LinkedList<>();
 			taskQueue.add(ProjectScanTask.generateTask("t-dhsjzbj", 1, null));
 

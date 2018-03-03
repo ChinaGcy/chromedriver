@@ -12,6 +12,11 @@ public class OpenCVUtil {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
 
+	static class Coordinate {
+		public int x;
+		public int y;
+	}
+
 	/**
 	 * 最终获取位移
 	 * @param geetest1_path
@@ -263,7 +268,3 @@ public class OpenCVUtil {
 }
 
 
-class Coordinate {
-	public int x;
-	public int y;
-}

@@ -1,25 +1,15 @@
 package com.sdyk.ai.crawler.zbj.task;
 
-import com.j256.ormlite.stmt.ThreadLocalSelectArg;
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
 import com.sdyk.ai.crawler.zbj.model.ServiceSupplier;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.tfelab.db.Refacter;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.txt.StringUtil;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ServiceSupplierTask extends Task {
 

@@ -1,10 +1,16 @@
 package org.tfelab.io.requester.chrome;
 
 import com.typesafe.config.Config;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import net.lightbody.bmp.client.ClientUtil;
+import net.lightbody.bmp.filters.RequestFilter;
+import net.lightbody.bmp.filters.ResponseFilter;
 import net.lightbody.bmp.mitm.manager.ImpersonatingMitmManager;
 import net.lightbody.bmp.proxy.auth.AuthType;
+import net.lightbody.bmp.util.HttpMessageContents;
+import net.lightbody.bmp.util.HttpMessageInfo;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -129,6 +135,13 @@ public class ChromeDriverAgent {
 		return pids;
 	}
 
+	public void addProxyRequestFilter(RequestFilter requestFilter) {
+		bmProxy.addRequestFilter(requestFilter);
+	}
+
+	public void addProxyResponseFilter(ResponseFilter responseFilter) {
+		bmProxy.addResponseFilter(responseFilter);
+	}
 	/**
 	 * 测试 Xvfb 服务是否运行
 	 */

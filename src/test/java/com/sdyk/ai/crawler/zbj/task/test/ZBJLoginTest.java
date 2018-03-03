@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
+import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
 import org.junit.Test;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 
@@ -8,7 +8,7 @@ public class ZBJLoginTest {
 
 	@Test
 	public void zbjLoginTest() throws Exception {
-		ChromeDriverAgent agent = (new ChromeDriverWithLogin("zbj.com")).login();
+		ChromeDriverAgent agent = (new ChromeDriverLoginWrapper("zbj.com")).login();
 
 
 	}

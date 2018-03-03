@@ -1,31 +1,16 @@
 package com.sdyk.ai.crawler.zbj.task;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverWithLogin;
 import com.sdyk.ai.crawler.zbj.model.Tenderer;
-import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.tfelab.db.Refacter;
-import org.tfelab.io.requester.Requester;
-import org.tfelab.io.requester.account.AccountWrapper;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 import org.tfelab.txt.DateFormatUtil;
-import org.tfelab.txt.StringUtil;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 雇主详情
