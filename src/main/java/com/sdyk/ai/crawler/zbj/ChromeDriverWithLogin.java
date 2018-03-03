@@ -21,8 +21,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class ChromeDriverWithLogin extends Thread {
 
-
-
 	public ChromeDriverAgent agent = new ChromeDriverAgent();
 
 	public static StatManager statManager = StatManager.getInstance();
