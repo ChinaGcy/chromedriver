@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.tracking.MouseEventTracker;
+import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
