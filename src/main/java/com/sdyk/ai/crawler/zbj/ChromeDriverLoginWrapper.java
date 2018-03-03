@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.model.Account;
+import com.sdyk.ai.crawler.zbj.mouse.MouseEventSimulator;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
@@ -12,6 +13,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import org.tfelab.json.JSON;
 import org.tfelab.util.FileUtil;
 
 import java.awt.*;
@@ -102,43 +104,23 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// 生成位移
 			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
 
-			Robot bot = new Robot();
-			/*GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);*/
-
 			MouseEventTracker tracker = null;
 
 			if(automaticByPassGeeTest) {
 
 				// 移动滑块
 				// TODO 寻找更好的模拟方法
-				GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 1000, 1000);
-				bot.mousePress(InputEvent.BUTTON1_MASK);
-				GeeTestUtil.mouseGlide(bot, 926, 552, 926 + offset, 552, 1000, 1000);
-				bot.mouseRelease(InputEvent.BUTTON1_MASK);
+				MouseEventTracker m = JSON.fromJson(
+						FileUtil.readFileByLines("mouse_movements/1520071433378.txt"),
+						MouseEventTracker.class
+				);
 
-				// 不识别
-				/*new Actions(agent.getDriver())
-						.dragAndDropBy(agent.getElementWait(".geetest_slider_button"), offset, 0)
-						.build().perform();*/
-
-				// 鼠标点击事件
-				/*int xOff = 920;
-				robot.mouseMove(xOff, 550);
-
-				Thread.sleep(1000);
-
-				robot.mousePress(InputEvent.BUTTON1_MASK);
-
-				Thread.sleep(1000);
-				for(int index = 1; index <= offset; index++) {
-					robot.mouseMove(++xOff, 550);
-					Thread.sleep(10);
-				}
-				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);*/
+				new MouseEventSimulator(m).simulate(offset);
 
 			} else {
 
 				tracker = new MouseEventTracker();
+				tracker.start();
 
 			}
 
@@ -232,7 +214,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 			}
 		});*/
 
-		ChromeDriverAgent agent = driverWrapper.login(false);
+		ChromeDriverAgent agent = driverWrapper.login(true);
 
 	}
 }

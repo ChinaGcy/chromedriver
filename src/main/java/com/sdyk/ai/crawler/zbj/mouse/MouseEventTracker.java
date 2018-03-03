@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.zbj.mouse;
 
-import com.sdyk.ai.crawler.zbj.model.Model;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jnativehook.GlobalScreen;
@@ -23,13 +22,13 @@ public class MouseEventTracker implements JSONable {
 
 	private static final String serPath = "mouse_movements/";
 
-	private static final Logger logger = LogManager.getLogger(Model.class.getName());
+	private static final Logger logger = LogManager.getLogger(MouseEventTracker.class.getName());
 
 	transient long lastTs = System.currentTimeMillis();
 
 	transient MouseListener listener;
 
-	public ArrayList<Action> movements = new ArrayList();
+	public ArrayList<Action> actions = new ArrayList();
 
 	@Override
 	public String toJSON() {
@@ -70,29 +69,29 @@ public class MouseEventTracker implements JSONable {
 
 		public void nativeMousePressed(NativeMouseEvent e) {
 			//logger.info("Mouse Pressed: " + e.getButton());
-			MouseEventTracker.this.movements.add(
-					new Action(Action.Type.Press, 0, 0,
+			MouseEventTracker.this.actions.add(
+					new Action(Action.Type.Press, e.getX(), e.getY(),
 							System.currentTimeMillis() - MouseEventTracker.this.lastTs));
 		}
 
 		public void nativeMouseReleased(NativeMouseEvent e) {
 			//logger.info("Mouse Released: " + e.getButton());
-			MouseEventTracker.this.movements.add(
-					new Action(Action.Type.Release, 0, 0,
+			MouseEventTracker.this.actions.add(
+					new Action(Action.Type.Release, e.getX(), e.getY(),
 							System.currentTimeMillis() - MouseEventTracker.this.lastTs));
 			MouseEventTracker.this.stop();
 		}
 
 		public void nativeMouseMoved(NativeMouseEvent e) {
 			//logger.info("Mouse Moved: " + e.getX() + ", " + e.getY());
-			MouseEventTracker.this.movements.add(
+			MouseEventTracker.this.actions.add(
 					new Action(Action.Type.Move, e.getX(), e.getY(),
 							System.currentTimeMillis() - MouseEventTracker.this.lastTs));
 		}
 
 		public void nativeMouseDragged(NativeMouseEvent e) {
 			//logger.info("Mouse Dragged: " + e.getX() + ", " + e.getY());
-			MouseEventTracker.this.movements.add(
+			MouseEventTracker.this.actions.add(
 					new Action(Action.Type.Drag, e.getX(), e.getY(),
 							System.currentTimeMillis() - MouseEventTracker.this.lastTs));
 		}
@@ -102,7 +101,9 @@ public class MouseEventTracker implements JSONable {
 	 *
 	 * @throws AWTException
 	 */
-	public MouseEventTracker() throws AWTException {
+	public MouseEventTracker() {}
+
+	public void start() {
 
 		try {
 			java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GlobalScreen.class.getPackage().getName());
@@ -119,6 +120,7 @@ public class MouseEventTracker implements JSONable {
 		// Add the appropriate listeners.
 		GlobalScreen.addNativeMouseListener(listener);
 		GlobalScreen.addNativeMouseMotionListener(listener);
+
 	}
 
 	/**
