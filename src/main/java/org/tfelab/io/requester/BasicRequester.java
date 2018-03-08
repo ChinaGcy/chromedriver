@@ -84,7 +84,6 @@ public class BasicRequester extends Requester {
 	 *
 	 */
 	private BasicRequester() {
-
 		cookiesHolderManager = new CookiesHolderManager();
 	}
 	
@@ -98,14 +97,12 @@ public class BasicRequester extends Requester {
 		Wrapper wrapper = new Wrapper(task);
 		wrapper.run();
 		wrapper.close();
-
-		/*wrapper = null;*/
 	}
 	
 	/**
 	 * 异步请求
 	 * @param task
-	 * @param timeout 可以手工设定延迟
+	 * @param timeout 可以手工设定超时时间
 	 */
 	public void fetch(Task task, long timeout) {
 
@@ -139,12 +136,17 @@ public class BasicRequester extends Requester {
 	 */
 	public static InputStream decompress_stream(InputStream input) {
 
-		PushbackInputStream pb = new PushbackInputStream(input, 2); //we need a pushbackstream to look ahead
+		// 使用 PushbackInputStream 进行预查
+		PushbackInputStream pb = new PushbackInputStream(input, 2);
 
 		byte[] signature = new byte[2];
+
 		try {
-			pb.read(signature);//read the signature
-			pb.unread(signature); //push back the signature to the stream
+			// 读取 signature
+			pb.read(signature);
+			// 放回 signature
+			pb.unread(signature);
+
 		} catch (IOException e) {
 			logger.warn(e.toString());
 		}
@@ -163,6 +165,7 @@ public class BasicRequester extends Requester {
 	}
 
 	/**
+	 * 读取 ContentType 中的 charset 设定
 	 * Parse out a charset from a content type headers.
 	 *
 	 * @param contentType e.g. "text/html; charset=EUC-JP"
@@ -184,23 +187,20 @@ public class BasicRequester extends Requester {
 
 	/**
 	 * 文本内容自动解码方法
-	 * @param src
-	 * @param firstEncode
-	 * @return
-	 * @throws UnsupportedEncodingException
+	 * @param src 输入内容
+	 * @param preferredEncoding 优先编码
+	 * @return 返回解码后的结果
+	 * @throws UnsupportedEncodingException 异常
 	 */
-	public static String autoDecode(byte[] src, String firstEncode) throws UnsupportedEncodingException {
+	public static String autoDecode(byte[] src, String preferredEncoding) throws UnsupportedEncodingException {
 		
 		String text;
-		
-		/**
-		 * firstEncode != null
-		 */
-		if(firstEncode != null){
+
+		if(preferredEncoding != null){
 			
-			logger.trace("charset detected = {}", firstEncode);
+			logger.trace("charset detected = {}", preferredEncoding);
 			try {
-				text = new String(src, firstEncode);
+				text = new String(src, preferredEncoding);
 			} catch (UnsupportedEncodingException err) {
 				logger.trace("decoding using {}", "utf-8");
 				text = new String(src, "utf-8");
@@ -222,6 +222,7 @@ public class BasicRequester extends Requester {
 					//src = new String(srcBin);
 					logger.info("decoding error: {}", ignored.getMessage());
 				}
+
 			} else {
 				
 				UniversalDetector detector = new UniversalDetector(null);
@@ -245,12 +246,10 @@ public class BasicRequester extends Requester {
 		
 		try {
 			text = ChineseChar.unicode2utf8(text);
-		} catch (Exception e){
-			logger.error("Error convert unicode to utf8", e);
-		} catch (Error e){
+		} catch (Exception | Error e){
 			logger.error("Error convert unicode to utf8", e);
 		}
-		
+
 		return text;
 	}
 	
@@ -263,6 +262,36 @@ public class BasicRequester extends Requester {
 	public static class ConnectionBuilder {
 		
 		HttpURLConnection conn;
+
+		public ConnectionBuilder(String url, ProxyWrapper pw)  throws MalformedURLException, IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException {
+
+			if (pw != null) {
+
+				Authenticator.setDefault(new ProxyAuthenticator(pw.getUsername(), pw.getPassword()));
+
+				conn = (HttpURLConnection) new URL(url).openConnection(pw.toProxy());
+
+				if (pw.needAuth()) {
+					conn.setRequestProperty("Proxy-Switch-Ip","yes");
+					String headerKey = "Proxy-Authorization";
+					conn.addRequestProperty(headerKey, pw.getAuthenticationHeader());
+				}
+
+			} else {
+				conn = (HttpURLConnection) new URL(url).openConnection();
+			}
+
+			if(url.matches("^https.+?$"))
+				((HttpsURLConnection) conn).setSSLSocketFactory(CertAutoInstaller.getSSLFactory());
+
+			conn.setConnectTimeout(CONNECT_TIMEOUT);
+
+			conn.setReadTimeout(READ_TIMEOUT);
+
+			conn.setDoOutput(true);
+
+			conn.setRequestMethod("GET");
+		}
 		
 		/**
 		 * 
@@ -275,7 +304,7 @@ public class BasicRequester extends Requester {
 		 * @throws NoSuchAlgorithmException 
 		 * @throws KeyManagementException 
 		 */
-		public ConnectionBuilder(String url, ProxyWrapper pw) throws MalformedURLException, IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException {
+		public ConnectionBuilder(String url, ProxyWrapper pw, String method) throws MalformedURLException, IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException {
 			
 			if (pw != null) {
 
@@ -301,6 +330,12 @@ public class BasicRequester extends Requester {
 			conn.setReadTimeout(READ_TIMEOUT);
 			
 			conn.setDoOutput(true);
+
+			conn.setRequestMethod(method);
+
+			if(method.equals("POST")) {
+				conn.setDoInput(true);
+			}
 			
 		}
 		
@@ -448,7 +483,8 @@ public class BasicRequester extends Requester {
 					headers = HeaderBuilder.build(task.getUrl(), cookies, task.getRef());
 				}
 				
-				ConnectionBuilder connBuilder = new ConnectionBuilder(task.getUrl(), task.getProxyWrapper());
+				ConnectionBuilder connBuilder =
+						new ConnectionBuilder(task.getUrl(), task.getProxyWrapper(), task.getRequestMethod());
 				connBuilder.withHeader(headers);
 				connBuilder.withPostData(task.getPost_data());
 				conn = connBuilder.build();
@@ -472,7 +508,7 @@ public class BasicRequester extends Requester {
 						
 						CertAutoInstaller.installCert(task.getDomain(), URLUtil.getPort(task.getUrl()));
 						// 重新获取
-						connBuilder = new ConnectionBuilder(task.getUrl(), task.getProxyWrapper());
+						connBuilder = new ConnectionBuilder(task.getUrl(), task.getProxyWrapper(), task.getRequestMethod());
 						connBuilder.withHeader(headers);
 						connBuilder.withPostData(task.getPost_data());
 						conn = connBuilder.build();
