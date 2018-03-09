@@ -92,7 +92,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// D1
 			// 点击识别框
 			agent.getElementWait(".geetest_radar_tip_content").click();
-			Thread.sleep(2000);
+			Thread.sleep(3000);
 
 			// 截图1
 			FileUtil.writeBytesToFile(

@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
+import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.task.ServiceSupplierTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.junit.Test;
@@ -25,6 +26,12 @@ public class ServiceSupplierTest {
 
 		while(!taskQueue.isEmpty()) {
 			Task t = taskQueue.poll();
+			Proxy pw_ = new Proxy();
+			pw_.host = "118.190.83.89";
+			pw_.port = 59998;
+			pw_.username = "tfelab";
+			pw_.password = "TfeLAB2@15";
+			t.setProxyWrapper(pw_);
 			if(t != null) {
 				try {
 					agent.fetch(t);

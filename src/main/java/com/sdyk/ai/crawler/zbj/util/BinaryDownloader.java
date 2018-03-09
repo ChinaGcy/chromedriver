@@ -77,6 +77,8 @@ public class BinaryDownloader {
 
 				if (binary.file_name.length() < 128) {
 
+					System.err.println(binary.toJSON());
+
 					binary.insert();
 
 					logger.info(" Download done: {}.", url);

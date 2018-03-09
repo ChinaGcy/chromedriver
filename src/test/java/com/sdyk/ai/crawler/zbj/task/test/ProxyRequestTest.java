@@ -23,7 +23,7 @@ public class ProxyRequestTest {
 		pw.port = 60103;*/
 
 		Proxy pw_ = new Proxy();
-		pw_.host = "118.190.83.89";
+		pw_.host = "114.215.70.14";
 		pw_.port = 59998;
 		pw_.username = "tfelab";
 		pw_.password = "TfeLAB2@15";

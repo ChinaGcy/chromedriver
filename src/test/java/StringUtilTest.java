@@ -1,23 +1,30 @@
+import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 
 import org.junit.Test;
+import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtilTest {
 
-	String text_1 = "<div class=\"det-middle-content\">\n" +
-			"                            <ul class=\"middle-content-ul\">\n" +
-			"                                                                    <li class=\"middle-content-head\"><strong>客户名称：</strong>李先生</li>\n" +
-			"                                \n" +
-			"                                                                    <li class=\"middle-content-head\">\n" +
-			"                                        <strong>类型：</strong>\n" +
-			"                                                                                    企业宣传片                                                                            </li>\n" +
-			"                                                            </ul>\n" +
-			"                                                    </div>";
+	String text_1 ="<div class=\"det-left fl\">\n" +
+			"                        <h2 class=\"det-left-title\">设计方案：<pre>宅大侠古风卡通形象设计</pre></h2>\n" +
+			"\n" +
+			"\n" +
+			"                                                    <div class=\"case-file-container\">\n" +
+			"                                                                    <div class=\"case-file pic\">\n" +
+			"                                        <img data-original=\"http://homesitetask.zbjimg.com/homesite/task/宅大侠释义.jpg/origine/e514bc8f-768e-4796-875f-7359b31f049b?imageMogr2/format/webp\" src=\"http://homesitetask.zbjimg.com/homesite/task/宅大侠释义.jpg/origine/e514bc8f-768e-4796-875f-7359b31f049b?imageMogr2/format/webp\" class=\"det-left-img\" alt=\"宅大侠古风卡通形象设计1\" style=\"display: block;\">\n" +
+			"                                    </div>\n" +
+			"                                                                                                </div>\n" +
+			"                        \n" +
+			"                        <p class=\"det-left-foot\"></p>\n" +
+			"                    </div>";
 	/**
 	 * 测试清洗HTML标签
 	 */
@@ -31,7 +38,7 @@ public class StringUtilTest {
 	@Test
 	public void testcleanHTML() {
 
-		String str = StringUtil.cleanContent(text_1,null, null);
+		String str = StringUtil.cleanContent(text_1,null, null, null);
 		System.err.println(str);
 	}
 
@@ -58,23 +65,63 @@ public class StringUtilTest {
 		System.err.println(budget);
 	}
 
+	/**
+	 * 本地测试
+	 */
+	@Test
+	public void localCleanContent() {
+		String s = "";
+		Set<String> img_urls = new HashSet<>();
+		Set<String> img_urls_a = new HashSet<>();
+		List<String> fileName = new ArrayList<>();
+
+		s = StringUtil.cleanContent(text_1, img_urls, img_urls_a, fileName);
+		System.out.println(s);
+		for (String ss : img_urls
+				) {
+			System.out.println("1--"+ss);
+		}
+
+		for (String ss : img_urls_a
+				) {
+			System.out.println("2--"+ss);
+		}
+
+		for (String ss : fileName
+				) {
+			System.out.println("3--"+ss);
+		}
+	}
+
+	/**
+	 * 猪八戒测试
+	 * @throws Exception
+	 */
 	@Test
 	public void testcleanContent() throws Exception {
 		String s = "";
 
 		Set<String> img_urls = new HashSet<>();
 		Set<String> img_urls_a = new HashSet<>();
+		List<String> fileName = new ArrayList<>();
+
+		ChromeDriverAgent agent = null;
+		try {
+			agent = new ChromeDriverLoginWrapper("zbj.com").login();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("http://task.zbj.com/12913633/");
 
-		org.tfelab.io.requester.BasicRequester.getInstance().fetch(t);
+		agent.fetch(t);
 
 		Pattern p = Pattern.compile("(?s)<div class=\'describe.+?<div class=\'img-item\'>");
 
 		Matcher m = p.matcher(t.getResponse().getText());
 
 		if(m.find()) {
-			s = StringUtil.cleanContent(m.group(), img_urls, img_urls_a);
+			s = StringUtil.cleanContent(m.group(), img_urls, img_urls_a, fileName);
 		}
 
 		System.out.println(s);

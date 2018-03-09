@@ -3,7 +3,9 @@ import org.openqa.selenium.By;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.util.FileUtil;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class ShootText {
@@ -19,7 +21,8 @@ public class ShootText {
 
 		Set<String> img_urls = new HashSet<>();
 		Set<String> a_urls = new HashSet<>();
-		String s = StringUtil.cleanContent(description_src, img_urls, a_urls);
+		List<String> fileName = new ArrayList<>();
+		String s = StringUtil.cleanContent(description_src, img_urls, a_urls, fileName);
 
 
 		int x =0;

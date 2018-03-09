@@ -128,11 +128,12 @@ public class ChromeRequester {
 		ChromeRequester chromeRequester = ChromeRequester.getInstance();
 
 
-		chromeRequester.distribute(ProjectScanTask.generateTask("t-rcsc", 1, null));
+		/*chromeRequester.distribute(ProjectScanTask.generateTask("t-rcsc", 1, null));
 		chromeRequester.distribute(ServiceScanTask.generateTask("rlzy", 1, null));
 		chromeRequester.distribute(ProjectScanTask.generateTask("t-yxtg", 1, null));
 		chromeRequester.distribute(ServiceScanTask.generateTask("yxtg", 1, null));
 		chromeRequester.distribute(ProjectScanTask.generateTask("t-xswbzbj", 1, null));
+		*/
 		chromeRequester.distribute(ServiceScanTask.generateTask("dhmh", 1, null));
 		/*chromeRequester.distribute(ProjectScanTask.generateTask("t-gongyesj", 1, null));
 		chromeRequester.distribute(ServiceScanTask.generateTask("rcsc", 1, null));

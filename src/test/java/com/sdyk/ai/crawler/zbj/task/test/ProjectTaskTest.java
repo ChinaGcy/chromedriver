@@ -36,7 +36,7 @@ public class ProjectTaskTest {
 		try {
 			// 页面格式2 ： http://task.zbj.com/12909258/
 
-			task = new ProjectTask("http://task.zbj.com/12897928/");
+			task = new ProjectTask("http://task.zbj.com/12913633/");
 		} catch (MalformedURLException | URISyntaxException e) {
 			e.printStackTrace();
 		}

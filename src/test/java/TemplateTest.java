@@ -21,6 +21,8 @@ public class TemplateTest {
 
 		Set<String> img_urlsa = new HashSet<>();
 
+		List<String> fileName_a = new ArrayList<>();
+
 		Task t = new Task("http://task.zbj.com/12913633/");
 
 		BasicRequester.getInstance().fetch(t);
@@ -30,7 +32,7 @@ public class TemplateTest {
 		Matcher m = p.matcher(t.getResponse().getText());
 
 		if(m.find()) {
-			s = StringUtil.cleanContent(m.group(), img_urls, img_urlsa);
+			s = StringUtil.cleanContent(m.group(), img_urls, img_urlsa, fileName_a);
 		}
 
 		//System.out.println(s.replaceAll("//rms\\.zhubajie.com//resource/redirect\\?key=homesite/task/%E7%BD%91%E7%AB%99%E5%BC%80%E5%8F%91-1_206.xlsx/origine/f76f7652-1708-47e3-8e2b-caacecf365b9",""));
