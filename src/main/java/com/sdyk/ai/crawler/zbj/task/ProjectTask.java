@@ -49,6 +49,16 @@ public class ProjectTask extends Task {
 
 		List<Task> tasks = new ArrayList();
 
+		if (src.contains("操作失败请稍后重试")) {
+			try {
+				tasks.add(new ProjectTask(getUrl()));
+				return tasks;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
 		// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 		// A 无法请求页面内容
 		if (pageAccessible(src)) {
@@ -56,7 +66,7 @@ public class ProjectTask extends Task {
 			// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
 			String header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
 
-			// 当header为空时， 重复获取3次，若还为空，抛弃次项目
+			/*// 当header为空时， 重复获取3次，若还为空，抛弃次项目
 			int i = 0 ;
 			while(header == null || header.equals("")) {
 
@@ -68,7 +78,7 @@ public class ProjectTask extends Task {
 					break;
 				}
 				i++;
-			}
+			}*/
 
 			// B1 页面格式1 ：http://task.zbj.com/12954152/
 			if (pageType(header) == PageType.OrderDetail) {
@@ -94,6 +104,7 @@ public class ProjectTask extends Task {
 					logger.error("insert error for project", e);
 				}
 			}
+
 
 		}
 		return tasks;
@@ -198,7 +209,7 @@ public class ProjectTask extends Task {
 				e.printStackTrace();
 			}
 		}
-		catch (org.openqa.selenium.NoSuchElementException e) {
+		catch (NoSuchElementException e) {
 			project.remaining_time = null;
 		}
 

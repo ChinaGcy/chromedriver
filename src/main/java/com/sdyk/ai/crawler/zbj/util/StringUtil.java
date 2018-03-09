@@ -167,7 +167,11 @@ public class StringUtil {
 		return 0;
 	}
 
-
+	/**
+	 *
+	 * @param src
+	 * @return
+	 */
 	public static double detectBudget(String src) {
 
 		String patternStr = ".*预算.{0,6} *(:|：)? *(?<T>\\d+ *(亿|千万|百万|万|千|百|w|W|k|K)?)(元|块)?.*";
@@ -192,7 +196,7 @@ public class StringUtil {
 	 * @param extraUrls_a
 	 * @return
 	 */
-	public static String cleanContent(String in, Set<String> extraUrls_img, Set<String> extraUrls_a){
+	public static String cleanContent(String in, Set<String> extraUrls_img, Set<String> extraUrls_a, List<String> fileName_a){
 
 		String out = "<p>" + in + "</p>";
 
@@ -226,6 +230,9 @@ public class StringUtil {
 		out = out.replaceAll(">\\s+", ">");
 		out = out.replaceAll("\\s+<", "<");
 
+		// 去掉i标签
+		out = out.replaceAll("<i.+?></i>", "");
+
 		// 去掉<a>标签
 		//out = out.replaceAll("(?si)<a.*?>|</a>", "");
 
@@ -257,25 +264,45 @@ public class StringUtil {
 		}
 
 		// 清洗 a 标签，只保留 href 属性
-		matcher = Pattern.compile("(?si)<a.*?>").matcher(out);
-		List<String> as = new ArrayList<String>();
+		// TODO 应该只清洗附件类型
+		// TODO 附件改名 a 标签中的title属性
+		matcher = Pattern.compile("(?si)<a.*?>下载").matcher(out);
+		List<String> as = new ArrayList<>();
+
 		while(matcher.find()){
 
-			String imgUrl = matcher.group().replaceAll("^.*?href=['\"]?", "").replaceAll("[ \"'>].*?$", "");
-			if(imgUrl.length()>10) {
-				extraUrls_a.add(imgUrl);
-				as.add("<a href=\"" + imgUrl + "\">");
+			String attachmentUrl = matcher.group().replaceAll("^.*?href=['\"]?", "").replaceAll("[ \"'>].*?$", "");
+
+			if(attachmentUrl.length() > 10) {
+				extraUrls_a.add(attachmentUrl);
+				as.add("<a href=\"" + attachmentUrl + "\">下载");
 			} else {
 				as.add("");
 			}
 		}
 
-		matcher = Pattern.compile("(?si)<a.*?>").matcher(out);
+		// 去除<a><img></img></a> 这种格式的a标签
+		matcher = Pattern.compile("(?si)<a.*?><img src").matcher(out);
 		int a = 0;
-		while(matcher.find()){
-			out1 = out1.replace(matcher.group(), as.get(a));
+		while (matcher.find()) {
+			out1 = out1.replace(matcher.group(), "<img src").replace("></a>", ">");
 			a++;
 		}
+
+		// 获取 title的值给fileName
+		matcher = Pattern.compile("(?si)<a.*?title=\"(?<T>.+?)\">下载").matcher(out1);
+		while (matcher.find()) {
+			fileName_a.add(matcher.group("T"));
+		}
+
+		// 将a标签替换
+		matcher = Pattern.compile("(?si)<a.*?>下载").matcher(out1);
+		int b = 0;
+		while (matcher.find()) {
+			out1 = out1.replace(matcher.group(), as.get(b));
+			b++;
+		}
+
 
 		// 去掉分页特殊文字
 		out = out1.replaceAll("(?i)(上一页(\\d)*)|(下一页)", "");

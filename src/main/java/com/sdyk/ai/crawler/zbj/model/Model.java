@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -112,4 +114,17 @@ public abstract class Model implements JSONable<Model> {
 
 		return false;
 	}
+
+	public static String rewriteBinaryUrl(String src) {
+
+		Pattern p = Pattern.compile("(?<=href=\")[\\w\\d]{32}");
+		Matcher m = p.matcher(src);
+
+		while(m.find()) {
+			src = src.replace(m.group(), "/binary/" + m.group());
+		}
+
+		return src;
+	}
+
 }

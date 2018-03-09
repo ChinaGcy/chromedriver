@@ -45,7 +45,7 @@ public class Case extends Model {
 	public String tags;
 
 	// 描述
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String description;
 
 	// 周期

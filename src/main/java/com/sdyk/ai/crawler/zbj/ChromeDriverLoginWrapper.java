@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.model.Account;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventSimulator;
+import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
@@ -13,7 +13,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.json.JSON;
+import org.tfelab.io.requester.proxy.ProxyWrapper;
 import org.tfelab.util.FileUtil;
 
 import java.awt.*;
@@ -62,7 +62,16 @@ public class ChromeDriverLoginWrapper extends Thread {
 	public ChromeDriverAgent login(boolean automaticByPassGeeTest) throws Exception {
 
 		// A.打开网页
-		agent.getDriver().get("http://"+account.getDomain());
+		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("http://"+account.getDomain());
+
+		// agent.getDriver().get("http://"+account.getDomain());
+		/*Proxy pw_ = new Proxy();
+		pw_.host = "118.190.83.89";
+		pw_.port = 59998;
+		pw_.username = "tfelab";
+		pw_.password = "TfeLAB2@15";
+		t.setProxyWrapper(pw_);*/
+		agent.fetch(t);
 
 		// B. 点击登录链接
 		WebElement w = agent.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
@@ -94,7 +103,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// 点击滑块
 			new Actions(agent.getDriver()).dragAndDropBy(agent.getElementWait(".geetest_slider_button"), 5, 0).build().perform();
 
-			Thread.sleep(2000);
+			Thread.sleep(5000);
 			// 截图2
 			FileUtil.writeBytesToFile(
 					agent.shoot(".geetest_window"),
@@ -104,23 +113,43 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// 生成位移
 			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
 
+			Robot bot = new Robot();
+			/*GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);*/
+
 			MouseEventTracker tracker = null;
 
 			if(automaticByPassGeeTest) {
 
 				// 移动滑块
 				// TODO 寻找更好的模拟方法
-				MouseEventTracker m = JSON.fromJson(
-						FileUtil.readFileByLines("mouse_movements/1520071433378.txt"),
-						MouseEventTracker.class
-				);
+				GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 1000, 1000);
+				bot.mousePress(InputEvent.BUTTON1_MASK);
+				GeeTestUtil.mouseGlide(bot, 926, 552, 926 + offset, 552, 1000, 1000);
+				bot.mouseRelease(InputEvent.BUTTON1_MASK);
 
-				new MouseEventSimulator(m).simulate(offset);
+				// 不识别
+				/*new Actions(agent.getDriver())
+						.dragAndDropBy(agent.getElementWait(".geetest_slider_button"), offset, 0)
+						.build().perform();*/
+
+				// 鼠标点击事件
+				/*int xOff = 920;
+				robot.mouseMove(xOff, 550);
+
+				Thread.sleep(1000);
+
+				robot.mousePress(InputEvent.BUTTON1_MASK);
+
+				Thread.sleep(1000);
+				for(int index = 1; index <= offset; index++) {
+					robot.mouseMove(++xOff, 550);
+					Thread.sleep(10);
+				}
+				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);*/
 
 			} else {
 
 				tracker = new MouseEventTracker();
-				tracker.start();
 
 			}
 
@@ -152,6 +181,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 			Task t = null;
 			try {
 				t = taskQueue.take();
+				/*Proxy pw_ = new Proxy();
+				pw_.host = "118.190.83.89";
+				pw_.port = 59998;
+				pw_.username = "tfelab";
+				pw_.password = "TfeLAB2@15";
+				t.setProxyWrapper(pw_);
+*/
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -214,7 +250,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 			}
 		});*/
 
-		ChromeDriverAgent agent = driverWrapper.login(true);
+		ChromeDriverAgent agent = driverWrapper.login(false);
 
 	}
 }

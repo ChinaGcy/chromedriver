@@ -29,33 +29,34 @@ public class CaseTask extends Task {
 
 		String src = getResponse().getText();
 
-		ca = new Case(getUrl());
+		if (!src.contains("此服务审核未通过")) {
+			ca = new Case(getUrl());
 
-		if (!getUrl().contains("http://shop.tianpeng.com")) {
-			// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
+			if (!getUrl().contains("http://shop.tianpeng.com")) {
+				// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
+				try {
+					pageOne(src, driver);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
+				pageTwo(src, driver);
+			}
+			// 以下是两个页面共有的信息
+			// 二进制文件下载
+			String description_src = driver.findElement(By.cssSelector("#J-description")).getAttribute("innerHTML");
 			try {
-				pageOne(src, driver);
+				ca.description = download(description_src);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		else {
-			// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
-			pageTwo(src, driver);
-		}
-		// 以下是两个页面共有的信息
-		// 二进制文件下载
-		String description_src = driver.findElement(By.cssSelector("#J-description")).getAttribute("innerHTML");
-		try {
-			ca.description = download(description_src);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
-		try {
-			ca.insert();
-		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				ca.insert();
+			} catch (Exception e) {
+				logger.error("insert for Case error", "e");
+			}
 		}
 
 		return new ArrayList<Task>();
@@ -120,6 +121,7 @@ public class CaseTask extends Task {
 				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2",
 				"");
 
+		// body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong
 		ca.cycle = getString(driver,
 				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong",
 				"");

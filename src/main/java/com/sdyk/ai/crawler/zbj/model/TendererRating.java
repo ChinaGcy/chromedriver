@@ -40,7 +40,7 @@ public class TendererRating extends Model {
 	public String maluation_tag;
 
 	// 评价内容
-	@DatabaseField(dataType = DataType.STRING, width = 128)
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String maluation;
 
 	// 付款及时度(0-5)

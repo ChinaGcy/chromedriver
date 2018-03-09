@@ -11,10 +11,7 @@ import org.openqa.selenium.WebElement;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class Task extends org.tfelab.io.requester.Task implements Comparable<Task> {
 
@@ -85,10 +82,15 @@ public abstract class Task extends org.tfelab.io.requester.Task implements Compa
 
 		Set<String> img_urls = new HashSet<>();
 		Set<String> a_urls = new HashSet<>();
-		String des_src = StringUtil.cleanContent(description_src, img_urls, a_urls);
-		String des_img = BinaryDownloader.download(des_src, img_urls, getUrl());
-		String des_a = BinaryDownloader.download(des_img, a_urls, getUrl());
-		return des_a;
+		List<String> fileName = new ArrayList<>();
+		String des_src = StringUtil.cleanContent(description_src, img_urls, a_urls, fileName);
+		if (img_urls.size() != 0 ) {
+			des_src = BinaryDownloader.download(des_src, img_urls, getUrl(), null);
+		}
+		if (a_urls.size() != 0) {
+			des_src = BinaryDownloader.download(des_src, a_urls, getUrl(),fileName);
+		}
+		return des_src;
 	}
 
 	/**

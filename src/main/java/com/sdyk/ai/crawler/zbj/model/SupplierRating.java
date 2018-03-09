@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 @DBName(value = "crawler")
-@DatabaseTable(tableName = "service_rating")
+@DatabaseTable(tableName = "service_ratings")
 public class SupplierRating extends Model{
 
 	// 服务商id
@@ -25,11 +25,11 @@ public class SupplierRating extends Model{
 	public String tenderer_name;
 
 	// 雇主id
-	@DatabaseField(dataType = DataType.STRING, width = 32)
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String tenderer_url;
 
 	// 项目地址
-	@DatabaseField(dataType = DataType.STRING, width = 32)
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String project_url;
 
 	// 雇主id
@@ -41,11 +41,11 @@ public class SupplierRating extends Model{
 	public double spend;
 
 	// 描述
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String description;
 
 	// 评价标签
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String  tags;
 
 	// 客户评价时间

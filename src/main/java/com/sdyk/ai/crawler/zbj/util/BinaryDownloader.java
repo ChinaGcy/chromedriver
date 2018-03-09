@@ -26,7 +26,7 @@ public class BinaryDownloader {
 	 * 3. 相对路径
 	 * 4. 完整路径
 	 */
-	public static String download(String des_src, Set<String> urls, String context_url) {
+	public static String download(String des_src, Set<String> urls, String context_url, List<String> fileName_a) {
 
 		// 处理下载
 		for (String url : urls) {
@@ -58,14 +58,21 @@ public class BinaryDownloader {
 				}
 
 				t_ = new org.tfelab.io.requester.Task(url);
+
 				Binary binary = new Binary(url);
 
 				BasicRequester.getInstance().fetch(t_);
 
 				binary.src = t_.getResponse().getSrc();
 
-				binary.file_name = getFileName(t_, binary, url);
-
+				// 当为图片或者下载的数量与fileName数量不一致则通过header获取 否则直接复制
+				if (fileName_a == null || fileName_a.size() ==0 || urls.size() != fileName_a.size()) {
+					binary.file_name = getFileName(t_, binary, url);
+				}else {
+					for (String name : fileName_a) {
+						binary.file_name = name;
+					}
+				}
 				des_src = des_src.replace(oldUrl, binary.id);
 
 				if (binary.file_name.length() < 128) {

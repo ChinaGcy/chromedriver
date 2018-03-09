@@ -77,15 +77,15 @@ public class ServiceSupplierTask extends Task {
 
 		// 获取店铺流量
 		if (src.contains("店铺流量")) {
+			// body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div:nth-child(5) > div.my-home > p > b:nth-child(5)
 			List<WebElement> we = driver.findElement(By.cssSelector("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left")).findElements(By.className("part"));
 			for (WebElement web : we) {
-				if (web.getText().contains("店铺流量")) {
+				if (web.getText().contains("店铺流量") && web.getText().contains("收藏量")) {
 					serviceSupplier.collection_num = Integer
 							.parseInt(web.findElements(By.className("orange")).get(2).getText());
 				}
 			}
 		}
-
 	}
 
 	/**

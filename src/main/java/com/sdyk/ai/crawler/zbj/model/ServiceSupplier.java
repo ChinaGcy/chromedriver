@@ -33,7 +33,7 @@ public class ServiceSupplier extends Model {
 	public String location;
 
 	// 描述
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String description;
 
 	// 团队成员数量

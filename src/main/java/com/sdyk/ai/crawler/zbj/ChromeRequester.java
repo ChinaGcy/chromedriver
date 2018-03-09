@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.task.ProjectScanTask;
+import com.sdyk.ai.crawler.zbj.task.ServiceScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +15,7 @@ public class ChromeRequester {
 	private static final Logger logger = LogManager.getLogger(ChromeRequester.class.getName());
 
 	//开启线程数
-	private int agentCount = 10;
+	private int agentCount = 4;
 
 	public String domain = "zbj.com";
 
@@ -85,8 +86,6 @@ public class ChromeRequester {
 
 	}
 
-
-
 	/**
 	 *
 	 * @param args
@@ -128,14 +127,16 @@ public class ChromeRequester {
 		/*StatManager.getInstance().count();*/
 		ChromeRequester chromeRequester = ChromeRequester.getInstance();
 
+
+		chromeRequester.distribute(ProjectScanTask.generateTask("t-rcsc", 1, null));
+		chromeRequester.distribute(ServiceScanTask.generateTask("rlzy", 1, null));
 		chromeRequester.distribute(ProjectScanTask.generateTask("t-yxtg", 1, null));
-
-		//chromeRequester.distribute(ServiceScanTask.generateTask("yxgjrj", 1, null));
-		//chromeRequester.distribute(ProjectScanTask.generateTask("t-xswbzbj", 1, null));
-		//chromeRequester.distribute(ServiceScanTask.generateTask("dhmh", 1, null));
-		//chromeRequester.distribute(ProjectScanTask.generateTask("t-gongyesj", 1, null));
-		//chromeRequester.distribute(ServiceScanTask.generateTask("rcsc", 1, null));
-
+		chromeRequester.distribute(ServiceScanTask.generateTask("yxtg", 1, null));
+		chromeRequester.distribute(ProjectScanTask.generateTask("t-xswbzbj", 1, null));
+		chromeRequester.distribute(ServiceScanTask.generateTask("dhmh", 1, null));
+		/*chromeRequester.distribute(ProjectScanTask.generateTask("t-gongyesj", 1, null));
+		chromeRequester.distribute(ServiceScanTask.generateTask("rcsc", 1, null));
+*/
 	/*	// C. 添加任务
 		if(list.size() >= list1.size()) {
 			for (int i = 0; i < list.size(); i++) {

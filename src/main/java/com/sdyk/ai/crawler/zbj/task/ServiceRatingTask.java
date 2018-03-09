@@ -99,7 +99,6 @@ public class ServiceRatingTask extends Task{
 
 		serviceRating.project_url = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a"))
 				.getAttribute("href");
-		serviceRating.id = serviceRating.project_url.split("/")[3];
 
 		serviceRating.tenderer_name = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit"))
 				.getText().split("成交价格：")[0];
