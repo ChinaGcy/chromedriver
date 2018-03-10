@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.util;
 
 import com.sdyk.ai.crawler.zbj.model.Binary;
 import com.sdyk.ai.crawler.zbj.model.Model;
+import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +57,8 @@ public class BinaryDownloader {
 				else if (url.contains("http:")) {
 					url = url.replace("http:", "https:");
 				}
+
+
 
 				t_ = new org.tfelab.io.requester.Task(url);
 

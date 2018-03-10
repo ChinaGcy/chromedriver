@@ -305,7 +305,7 @@ public class BasicRequester extends Requester {
 		 * @throws KeyManagementException 
 		 */
 		public ConnectionBuilder(String url, ProxyWrapper pw, String method) throws MalformedURLException, IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, CertificateException {
-			
+
 			if (pw != null) {
 
 				Authenticator.setDefault(new ProxyAuthenticator(pw.getUsername(), pw.getPassword()));
@@ -321,7 +321,7 @@ public class BasicRequester extends Requester {
 			} else {
 				conn = (HttpURLConnection) new URL(url).openConnection();
 			}
-			
+
 			if(url.matches("^https.+?$"))
 				((HttpsURLConnection) conn).setSSLSocketFactory(CertAutoInstaller.getSSLFactory());
 			
@@ -482,9 +482,10 @@ public class BasicRequester extends Requester {
 				} else {
 					headers = HeaderBuilder.build(task.getUrl(), cookies, task.getRef());
 				}
-				
+
 				ConnectionBuilder connBuilder =
 						new ConnectionBuilder(task.getUrl(), task.getProxyWrapper(), task.getRequestMethod());
+
 				connBuilder.withHeader(headers);
 				connBuilder.withPostData(task.getPost_data());
 				conn = connBuilder.build();

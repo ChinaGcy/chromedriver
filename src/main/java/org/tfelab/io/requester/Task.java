@@ -138,6 +138,7 @@ public class Task {
 		domain = URLUtil.getDomainName(url);
 		this.response = new Response();
 		this.id = StringUtil.MD5(url + System.nanoTime());
+		this.request_method = RequestMethod.GET;
 	}
 	
 	/**
@@ -155,6 +156,13 @@ public class Task {
 		
 		this.response = new Response();
 		this.id = StringUtil.MD5(url + post_data + System.nanoTime());
+
+		if(post_data != null && post_data.length() > 0) {
+			this.request_method = RequestMethod.POST;
+		} else {
+			this.request_method = RequestMethod.GET;
+		}
+
 	}
 	
 	/**
@@ -176,6 +184,12 @@ public class Task {
 		
 		this.response = new Response();
 		this.id = StringUtil.MD5(url + post_data + cookies + System.nanoTime());
+
+		if(post_data != null && post_data.length() > 0) {
+			this.request_method = RequestMethod.POST;
+		} else {
+			this.request_method = RequestMethod.GET;
+		}
 	}
 
 	/**
@@ -199,6 +213,12 @@ public class Task {
 
 		this.response = new Response();
 		this.id = StringUtil.MD5(url + post_data + cookies + System.nanoTime());
+
+		if(post_data != null && post_data.length() > 0) {
+			this.request_method = RequestMethod.POST;
+		} else {
+			this.request_method = RequestMethod.GET;
+		}
 	}
 
 	public String getId() {

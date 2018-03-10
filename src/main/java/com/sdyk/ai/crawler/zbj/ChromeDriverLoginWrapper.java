@@ -65,12 +65,12 @@ public class ChromeDriverLoginWrapper extends Thread {
 		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("http://"+account.getDomain());
 
 		// agent.getDriver().get("http://"+account.getDomain());
-		/*Proxy pw_ = new Proxy();
+		Proxy pw_ = new Proxy();
 		pw_.host = "118.190.83.89";
 		pw_.port = 59998;
 		pw_.username = "tfelab";
 		pw_.password = "TfeLAB2@15";
-		t.setProxyWrapper(pw_);*/
+		t.setProxyWrapper(pw_);
 		agent.fetch(t);
 
 		// B. 点击登录链接
@@ -92,7 +92,8 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// D1
 			// 点击识别框
 			agent.getElementWait(".geetest_radar_tip_content").click();
-			Thread.sleep(3000);
+
+			/*Thread.sleep(3000);
 
 			// 截图1
 			FileUtil.writeBytesToFile(
@@ -114,7 +115,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
 
 			Robot bot = new Robot();
-			/*GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);*/
+			*//*GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);*//*
 
 			MouseEventTracker tracker = null;
 
@@ -128,12 +129,12 @@ public class ChromeDriverLoginWrapper extends Thread {
 				bot.mouseRelease(InputEvent.BUTTON1_MASK);
 
 				// 不识别
-				/*new Actions(agent.getDriver())
+				*//*new Actions(agent.getDriver())
 						.dragAndDropBy(agent.getElementWait(".geetest_slider_button"), offset, 0)
-						.build().perform();*/
+						.build().perform();*//*
 
 				// 鼠标点击事件
-				/*int xOff = 920;
+				*//*int xOff = 920;
 				robot.mouseMove(xOff, 550);
 
 				Thread.sleep(1000);
@@ -145,13 +146,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 					robot.mouseMove(++xOff, 550);
 					Thread.sleep(10);
 				}
-				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);*/
+				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);*//*
 
 			} else {
 
 				tracker = new MouseEventTracker();
 
-			}
+			}*/
 
 			// 等待识别
 			WebDriverWait wait = new WebDriverWait(agent.getDriver(), 60);
@@ -159,9 +160,9 @@ public class ChromeDriverLoginWrapper extends Thread {
 					ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
 			));
 
-			if(tracker != null) {
+			/*if(tracker != null) {
 				tracker.serializeMovements();
-			}
+			}*/
 
 		}
 
@@ -181,13 +182,12 @@ public class ChromeDriverLoginWrapper extends Thread {
 			Task t = null;
 			try {
 				t = taskQueue.take();
-				/*Proxy pw_ = new Proxy();
+				Proxy pw_ = new Proxy();
 				pw_.host = "118.190.83.89";
 				pw_.port = 59998;
 				pw_.username = "tfelab";
 				pw_.password = "TfeLAB2@15";
 				t.setProxyWrapper(pw_);
-*/
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
