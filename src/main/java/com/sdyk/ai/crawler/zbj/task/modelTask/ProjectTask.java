@@ -1,5 +1,6 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import org.openqa.selenium.By;

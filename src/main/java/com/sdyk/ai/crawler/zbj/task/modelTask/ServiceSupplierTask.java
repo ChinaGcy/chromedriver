@@ -1,6 +1,9 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.model.ServiceSupplier;
+import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.task.scanTask.CaseScanTask;
+import com.sdyk.ai.crawler.zbj.task.scanTask.WorkScanTask;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;

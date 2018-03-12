@@ -1,5 +1,6 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.WebDriver;
 
 import java.net.MalformedURLException;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TendererOrderTask extends Task{
+public class TendererOrderTask extends Task {
 
 	public static TendererOrderTask generateTask(String url, int page, String webId) {
 

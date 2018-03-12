@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.task.ServiceScanTask;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,5 +1,7 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.task.modelTask.ServiceSupplierTask;
+import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -16,9 +18,7 @@ import java.util.regex.Pattern;
  * 1. 找到url
  * 2. 翻页
  */
-public class ServiceScanTask extends Task {
-
-	private static final Logger logger = LogManager.getLogger(ServiceScanTask.class.getName());
+public class ServiceScanTask extends ScanTask {
 
 	public static ServiceScanTask generateTask(String tag, int page, AccountWrapper aw) {
 
@@ -84,6 +84,7 @@ public class ServiceScanTask extends Task {
 			Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40, null);
 			tasks.add(t);
 		}
+
 		logger.info("Task num: {}", tasks.size());
 
 		return tasks;

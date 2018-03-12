@@ -1,17 +1,13 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.scanTask;
 
-import org.openqa.selenium.By;
+import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
+import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.io.requester.account.AccountWrapper;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +16,7 @@ import java.util.regex.Pattern;
  * 1. 找到url
  * 2. 翻页
  */
-public class CaseScanTask extends Task {
+public class CaseScanTask extends ScanTask {
 
 	public static List<String> list = new ArrayList<>();
 
@@ -57,7 +53,7 @@ public class CaseScanTask extends Task {
 		int page = this.getParamInt("page");
 
 		// 判断是否翻页
-		if (!src.contains("暂时还没有此类服务！")) {
+		if (!src.contains("暂时还没有此类服务！") && backtrace) {
 			Task t = generateTask("http://shop.zbj.com/" + webId + "/", ++page);
 			if (t != null) {
 				t.setPrior();

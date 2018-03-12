@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
+import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
 import org.junit.Test;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 

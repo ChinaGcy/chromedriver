@@ -20,6 +20,8 @@ public abstract class Task extends org.tfelab.io.requester.Task implements Compa
 	// 优先级
 	public Priority priority = Priority.middle;
 
+	public boolean needLogin = false;
+
 	public enum Priority {
 		low,
 		middle,
@@ -93,28 +95,6 @@ public abstract class Task extends org.tfelab.io.requester.Task implements Compa
 		return des_src;
 	}
 
-	/**
-	 * 判断是否为最大页数
-	 * @param driver
-	 * @param path
-	 * @param page
-	 * @return
-	 */
-	public boolean pageTurning(WebDriver driver, String path, int page) {
-
-		try {
-			List<WebElement> pageList = driver.findElement(
-					By.cssSelector(path))
-					.findElements(By.tagName("li"));
-			// 获取最大页数
-			int maxPage = Integer.parseInt(pageList.get(pageList.size() - 2).getText());
-
-			return maxPage > page;
-
-		} catch (NoSuchElementException e) {
-			return false;
-		}
-	}
 
 	/**
 	 * 优先级比较

@@ -1,12 +1,11 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 
 import com.sdyk.ai.crawler.zbj.model.SupplierRating;
+import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.db.Refacter;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
@@ -14,10 +13,8 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class ServiceRatingTask extends Task{
+public class ServiceRatingTask extends Task {
 
 	SupplierRating serviceRating;
 

@@ -294,7 +294,7 @@ public class ChromeDriverAgent {
 				executor.shutdown();
 				
 				try {
-					future.get(15000, TimeUnit.MILLISECONDS);
+					future.get(30000, TimeUnit.MILLISECONDS);
 				}
 				catch (TimeoutException | InterruptedException | ExecutionException e){
 					
@@ -329,12 +329,13 @@ public class ChromeDriverAgent {
 			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 			
 			// 这个值要设置的比较大 否则会出现 org.openqa.selenium.TimeoutException: timeout: cannot determine loading status
-			driver.manage().timeouts().pageLoadTimeout(120, TimeUnit.SECONDS);
+			driver.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
 
 			// Set Dimension
 			//Dimension d = new Dimension(1024, 600);
 			//Dimension d = new Dimension(380, 600);
 			//driver.manage().window().setSize(d);
+			// TODO 记录此处的报错信息 和 报错时的上下文信息
 			driver.manage().window().maximize();
 
 			Random r = new Random();
@@ -886,9 +887,11 @@ public class ChromeDriverAgent {
 			InetSocketAddress upstreamProxyAddress = new InetSocketAddress(pw.getHost(), pw.getPort());
 			bmProxy.setChainedProxy(upstreamProxyAddress);
 			bmProxy.chainedProxyAuthorization(pw.getUsername(), pw.getPassword(), AuthType.BASIC);
-		} else {
-			bmProxy.setChainedProxy(upstreamProxy.getListenAddress());
 		}
+		// TODO 当Task没有代理设定时，不改变当前浏览器代理设定
+		/*else {
+			bmProxy.setChainedProxy(upstreamProxy.getListenAddress());
+		}*/
 	}
 
 	/**

@@ -1,5 +1,7 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
+import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -18,9 +20,7 @@ import java.util.regex.Pattern;
  * 2. 找到url
  * 3. 翻页
  */
-public class ProjectScanTask extends Task {
-
-	private static final Logger logger = LogManager.getLogger(ProjectScanTask.class.getName());
+public class ProjectScanTask extends ScanTask {
 
 	private static String url_;
 
@@ -97,7 +97,7 @@ public class ProjectScanTask extends Task {
 			}
 		}
 
-		// TODO 此处判断翻页存在巨大问题   已解决
+		// TODO 此处判断翻页存在巨大问题 已解决
 		// TODO 注意 当列表无数据时，使用WebDriver会报错
 		if (pageTurning(driver,
 				"body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul",

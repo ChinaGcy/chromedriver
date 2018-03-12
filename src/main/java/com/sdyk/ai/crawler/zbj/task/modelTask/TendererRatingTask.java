@@ -1,9 +1,7 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.sdyk.ai.crawler.zbj.model.Tenderer;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
-import com.sdyk.ai.crawler.zbj.util.StringUtil;
-import db.Refacter;
+import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -15,8 +13,6 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 雇主评价

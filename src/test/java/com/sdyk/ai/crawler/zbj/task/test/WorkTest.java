@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.task.WorkScanTask;
+import com.sdyk.ai.crawler.zbj.task.scanTask.WorkScanTask;
 import org.junit.Test;
 import org.tfelab.io.requester.BasicRequester;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;

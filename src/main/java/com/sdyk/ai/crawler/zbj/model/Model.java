@@ -3,8 +3,6 @@ package com.sdyk.ai.crawler.zbj.model;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
-import com.sdyk.ai.crawler.zbj.ChromeRequester;
-import com.sdyk.ai.crawler.zbj.util.DBUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;

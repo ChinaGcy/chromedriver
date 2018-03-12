@@ -1,23 +1,17 @@
-package com.sdyk.ai.crawler.zbj;
+package com.sdyk.ai.crawler.zbj.requester;
 
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.io.requester.proxy.ProxyWrapper;
-import org.tfelab.util.FileUtil;
 
-import java.awt.*;
-import java.awt.event.InputEvent;
 import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -25,8 +19,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class ChromeDriverLoginWrapper extends Thread {
 
 	public ChromeDriverAgent agent = new ChromeDriverAgent();
-
-	public static StatManager statManager = StatManager.getInstance();
 
 	private static final Logger logger = LogManager.getLogger(ChromeDriverLoginWrapper.class.getName());
 
@@ -36,44 +28,37 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 	public static Set<String> set = new HashSet<>();
 
-	public String domain = "zbj.com";
+	/**
+	 *
+	 * @param domain
+	 */
+	public ChromeDriverLoginWrapper(String domain) {}
 
-	public Account account;
-
-	public ChromeDriverLoginWrapper(String domain) {
-
-		this.domain = domain;
-
-		try {
-
-			account = Account.getAccountByDomain(domain);
-			account.status = Account.Status.Occupied;
-			// TODO update account
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	/**
+	 *
+	 * @param pw
+	 * @return
+	 * @throws Exception
+	 */
+	public ChromeDriverAgent login(Account account, Proxy pw) throws Exception {
+		return login(account, pw,true);
 	}
 
-	public ChromeDriverAgent login() throws Exception {
-		return login(true);
-	}
-
-	public ChromeDriverAgent login(boolean automaticByPassGeeTest) throws Exception {
+	/**
+	 *
+	 * @param pw
+	 * @param automaticByPassGeeTest
+	 * @return
+	 * @throws Exception
+	 */
+	public ChromeDriverAgent login(Account account, Proxy pw, boolean automaticByPassGeeTest) throws Exception {
 
 		// A.打开网页
 		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("http://"+account.getDomain());
-
-		// agent.getDriver().get("http://"+account.getDomain());
-		Proxy pw_ = new Proxy();
-		pw_.host = "118.190.83.89";
-		pw_.port = 59998;
-		pw_.username = "tfelab";
-		pw_.password = "TfeLAB2@15";
-		t.setProxyWrapper(pw_);
+		t.setProxyWrapper(pw);
 		agent.fetch(t);
 
-		// B. 点击登录链接
+		// B.点击登录链接
 		WebElement w = agent.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
 		w.click();
 
@@ -86,7 +71,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 		Thread.sleep(1000);
 
 
-		// D. 操作验证码
+		// D.操作验证码
 		if (agent.getDriver().getPageSource().contains("geetest_radar_tip_content")) {
 
 			// D1
@@ -173,7 +158,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 	}
 
 	/**
-	 *
+	 *运行线程
 	 */
 	public void run() {
 
@@ -182,24 +167,24 @@ public class ChromeDriverLoginWrapper extends Thread {
 			Task t = null;
 			try {
 				t = taskQueue.take();
-				Proxy pw_ = new Proxy();
-				pw_.host = "118.190.83.89";
-				pw_.port = 59998;
-				pw_.username = "tfelab";
-				pw_.password = "TfeLAB2@15";
-				t.setProxyWrapper(pw_);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
+			// 判断是否任务重复执行
 			if (!set.contains(t.getUrl())) {
-				statManager.count();
 				set.add(t.getUrl());
 				try {
+					// 执行任务
 					agent.fetch(t);
+					// 每分钟执行的Task数
+					StatManager.getInstance().count();
+
 					for (Task t_ : t.postProc(agent.getDriver())) {
+						// 添加任务
 						ChromeRequester.getInstance().distribute(t_);
 					}
+
 				} catch (Exception e) {
 					logger.error("Exception while fetch task. ", e);
 					taskQueue.add(t);
@@ -208,49 +193,5 @@ public class ChromeDriverLoginWrapper extends Thread {
 			}
 
 		}
-	}
-
-	/**
-	 * 测试
-	 * @param args
-	 * @throws Exception
-	 */
-	public static void main(String[] args) throws Exception {
-
-		ChromeDriverLoginWrapper driverWrapper = new ChromeDriverLoginWrapper("zbj.com");
-
-		/*driverWrapper.agent.addProxyRequestFilter(new RequestFilter() {
-			@Override
-			public HttpResponse filterRequest(HttpRequest request, HttpMessageContents contents, HttpMessageInfo messageInfo) {
-
-
-				if (messageInfo.getOriginalUrl().endsWith("/some-endpoint-to-intercept")) {
-
-					// retrieve the existing message contents as a String or, for binary contents, as a byte[]
-					String messageContents = contents.getTextContents();
-
-					// do some manipulation of the contents
-					String newContents = messageContents.replaceAll("original-string", "my-modified-string");
-
-					// replace the existing content by calling setTextContents() or setBinaryContents()
-					contents.setTextContents(newContents);
-				}
-
-				// in the request filter, you can return an HttpResponse object to "short-circuit" the request
-				return null;
-			}
-		});
-
-		driverWrapper.agent.addProxyResponseFilter(new ResponseFilter() {
-			@Override
-			public void filterResponse(HttpResponse response, HttpMessageContents contents, HttpMessageInfo messageInfo) {
-				if (true) {
-					contents.setTextContents("This message body will appear in all responses!");
-				}
-			}
-		});*/
-
-		ChromeDriverAgent agent = driverWrapper.login(false);
-
 	}
 }

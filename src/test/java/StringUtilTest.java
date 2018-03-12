@@ -1,4 +1,4 @@
-import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
+import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 
 import org.junit.Test;

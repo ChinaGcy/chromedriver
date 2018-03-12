@@ -1,17 +1,13 @@
-package com.sdyk.ai.crawler.zbj.task;
+package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.task.modelTask.WorkTask;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.io.requester.account.AccountWrapper;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.io.requester.chrome.ChromeDriverRequester;
 
-import javax.management.Query;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
@@ -19,7 +15,7 @@ import java.util.regex.Pattern;
  * 1. 找到url
  * 2. 翻页
  */
-public class WorkScanTask extends Task {
+public class WorkScanTask extends ScanTask {
 
 	public static WorkScanTask generateTask(String url_, int page) {
 
@@ -72,6 +68,7 @@ public class WorkScanTask extends Task {
 				tasks.add(new WorkTask(url,userId));
 			}
 		}
+
 		while (matcher_tp.find()) {
 
 			String url = matcher_tp.group();

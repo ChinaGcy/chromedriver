@@ -1,5 +1,5 @@
-import com.sdyk.ai.crawler.zbj.ChromeDriverLoginWrapper;
-import com.sdyk.ai.crawler.zbj.task.ProjectScanTask;
+import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
