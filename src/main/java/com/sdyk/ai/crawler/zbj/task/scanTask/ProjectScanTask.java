@@ -35,6 +35,7 @@ public class ProjectScanTask extends ScanTask {
 
 		ProjectScanTask.url_ = url_;
 
+
 		if(page >= 100) return null;
 
 		String url = "http://task.zbj.com/" + url_ + "/p" + page + "s5.html";
