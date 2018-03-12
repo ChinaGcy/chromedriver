@@ -216,8 +216,8 @@ public class Proxy implements ProxyWrapper {
 		QueryBuilder<Proxy, String> queryBuilder = dao.queryBuilder();
 		Proxy ac = queryBuilder.limit(1L).orderBy("use_cnt", true)
 				.where().eq("group", group)
-				.and().eq("enable", true)
-				.and().eq("status", Status.NORMAL)
+				.and().eq("enable", 1)
+				.and().eq("status", 1L)
 				.queryForFirst();
 
 		if (ac == null) {

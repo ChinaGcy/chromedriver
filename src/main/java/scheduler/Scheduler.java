@@ -42,18 +42,25 @@ public class Scheduler {
 		ChromeRequester chromeRequester =  ChromeRequester.getInstance();
 
 		ProjectScanTask p = null;
-		try {
-			p = new ProjectScanTask("http://task.zbj.com/s5.html?o=7",1);
 
-			// 设置不翻页
-			p.backtrace = false;
+		while (true) {
+			try {
+				p = new ProjectScanTask("http://task.zbj.com/s5.html?o=7", 1);
 
-		} catch (MalformedURLException | URISyntaxException e) {
-			e.printStackTrace();
+				// 设置不翻页
+				p.backtrace = false;
+
+			} catch (MalformedURLException | URISyntaxException e) {
+				e.printStackTrace();
+			}
+			chromeRequester.distribute(p);
+
+			try {
+				Thread.sleep(5 * 60 * 1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-
-		chromeRequester.distribute(p);
-
 	}
 
 	public static void main(String[] args) {

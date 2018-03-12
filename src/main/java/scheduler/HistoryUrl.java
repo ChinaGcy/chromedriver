@@ -9,6 +9,9 @@ import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 获取
+ */
 public class HistoryUrl {
 
 	/**
@@ -17,11 +20,11 @@ public class HistoryUrl {
 	 */
 	public static List<String> getTaskUrl() {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		List<String> list_task = new ArrayList<>();
+
+		/*ChromeDriverAgent agent = new ChromeDriverAgent();
 		// A. 获取所有地址
 		agent.getDriver().get("http://task.zbj.com/xuqiu/");
-		List<String> list_task = new ArrayList<>();
-		List<String> list_service = new ArrayList<>();
 
 		// A1 需求
 		// http://task.zbj.com/t-pxfw/
@@ -31,7 +34,18 @@ public class HistoryUrl {
 			for (WebElement ww : w.findElements(By.tagName("a"))) {
 				list_task.add(ww.getAttribute("href").split("/")[3]);
 			}
-		}
+		}*/
+		list_task.add("t-yxtg");
+		list_task.add("t-rlzy");
+		list_task.add("t-rcsc");
+		list_task.add("t-zrfw");
+		list_task.add("t-wxptkf");
+		list_task.add("t-xswbzbj");
+		list_task.add("t-yxgjrj");
+		list_task.add("t-paperwork");
+		list_task.add("t-sign");
+		list_task.add("t-xxtg");
+
 		return list_task;
 	}
 
@@ -41,14 +55,30 @@ public class HistoryUrl {
 	 */
 	public static List<String> getServiceUrl() {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
 		List<String> list_service = new ArrayList<>();
+
+		/*ChromeDriverAgent agent = new ChromeDriverAgent();
 		agent.getDriver().get("http://www.zbj.com/home/p.html");
 		List<WebElement> li1 = agent.getDriver().findElement(By.cssSelector("#utopia_widget_5 > div.clearfix.category-list > ul"))
 				.findElements(By.tagName("li"));
 		for (WebElement w : li1) {
 			list_service.add(w.findElement(By.tagName("a")).getAttribute("href").split("/")[3]);
-		}
+		}*/
+		list_service.add("yxtg");
+		list_service.add("paperwork");
+		list_service.add("rcsc");
+		list_service.add("sign");
+		list_service.add("xxtg");
+		list_service.add("rlzy");
+		list_service.add("wxptkf");
+		list_service.add("yxgjrj");
+		list_service.add("zrfw");
+		list_service.add("xswbzbj");
+
+
+
+
+
 
 		return list_service;
 	}

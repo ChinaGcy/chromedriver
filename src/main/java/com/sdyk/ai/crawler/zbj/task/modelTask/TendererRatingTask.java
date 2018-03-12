@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * 雇主评价
  */
-public class TendererRatingTask extends Task {
+public class TendererRatingTask extends ScanTask {
 
 	TendererRating tendererRating;
 

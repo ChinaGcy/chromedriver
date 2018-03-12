@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.model.SupplierRating;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -14,7 +15,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceRatingTask extends Task {
+public class ServiceRatingTask extends ScanTask {
 
 	SupplierRating serviceRating;
 
