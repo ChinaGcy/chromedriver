@@ -11,10 +11,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tfelab.db.DBName;
 import org.tfelab.db.OrmLiteDaoManager;
+import org.tfelab.db.Refacter;
 import org.tfelab.io.requester.proxy.ProxyWrapper;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyValidator;
 
 import java.net.InetSocketAddress;
+import java.sql.Ref;
 import java.util.Date;
 import java.util.List;
 
@@ -57,7 +59,7 @@ public class Proxy implements ProxyWrapper {
 	@DatabaseField(dataType = DataType.LONG, canBeNull = false)
 	public long use_cnt = 0;
 
-	@DatabaseField(dataType = DataType.ENUM_INTEGER, width = 2, canBeNull = false)
+	@DatabaseField(dataType = DataType.ENUM_STRING, width = 16, canBeNull = false)
 	public Status status = Status.NORMAL;
 
 	@DatabaseField(dataType = DataType.BOOLEAN, canBeNull = false, defaultValue = "true")
@@ -153,9 +155,9 @@ public class Proxy implements ProxyWrapper {
 
 		List<Proxy> existProxys = dao.queryBuilder()
 				.where()
-				.eq("Host", host)
+				.eq("host", host)
 				.and()
-				.eq("Client_Port", port)
+				.eq("port", port)
 				.and()
 				.eq("username", username)
 				.and()
@@ -216,14 +218,15 @@ public class Proxy implements ProxyWrapper {
 		QueryBuilder<Proxy, String> queryBuilder = dao.queryBuilder();
 		Proxy ac = queryBuilder.limit(1L).orderBy("use_cnt", true)
 				.where().eq("group", group)
-				.and().eq("enable", 1)
-				.and().eq("status", 1L)
+				.and().eq("enable", true)
+				.and().eq("status", Status.NORMAL)
 				.queryForFirst();
 
 		if (ac == null) {
 			throw new Exception("Proxy not available.");
 		} else {
 			ac.use_cnt ++;
+			ac.status = Status.INVALID;
 			ac.update(); // 并发错误
 			return ac;
 		}
@@ -345,6 +348,6 @@ public class Proxy implements ProxyWrapper {
 				e.printStackTrace();
 			}
 		}
-
 	}
+
 }

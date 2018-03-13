@@ -17,10 +17,10 @@ import java.util.regex.Pattern;
  */
 public class WorkScanTask extends ScanTask {
 
-	public static WorkScanTask generateTask(String url_, int page) {
+	public static WorkScanTask generateTask(String header, int page) {
 
-		String url = url_ + "works-p" + page + ".html";
-		String userId = url_.split("/")[3];
+		String url = header + "works-p" + page + ".html";
+		String userId = header.split("/")[3];
 
 		try {
 			WorkScanTask t = new WorkScanTask(url, page, userId);

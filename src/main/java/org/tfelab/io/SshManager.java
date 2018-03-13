@@ -208,7 +208,7 @@ public class SshManager {
 			Host host = new Host(hs, 22, "root", "L37rpq8M");
 			host.connect();
 
-			String output = host.exec("jps | grep Crawler | awk '{print $1}' | xargs kill -9");
+			String output = host.exec("jps | grep OldCrawler | awk '{print $1}' | xargs kill -9");
 			System.err.println(output);
 
 			host.upload("build/libs/musical-sharing-1.0-SNAPSHOT.jar", "/opt/muse/musical-sharing-1.0-SNAPSHOT/lib");

@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
  */
 public class ServiceScanTask extends ScanTask {
 
-	public static ServiceScanTask generateTask(String tag, int page, AccountWrapper aw) {
+	public static ServiceScanTask generateTask(String channel, int page, AccountWrapper aw) {
 
-		String url = "http://www.zbj.com/" + tag + "/pk" + page + ".html";
+		String url = "http://www.zbj.com/" + channel + "/pk" + page + ".html";
 
 		try {
 			ServiceScanTask t = new ServiceScanTask(url, page);

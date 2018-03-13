@@ -22,7 +22,7 @@ public class ProjectTaskTest {
 
 		ChromeDriverAgent agent = null;
 		try {
-			agent = new ChromeDriverLoginWrapper("zbj.com").login();
+			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -66,7 +66,7 @@ public class ProjectTaskTest {
 
 		ChromeDriverAgent agent = null;
 		try {
-			agent = new ChromeDriverLoginWrapper("zbj.com").login();
+			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

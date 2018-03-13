@@ -9,7 +9,7 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-mainClassName = 'com.sdyk.ai.crawler.zbj.ServiceWrapper'
+mainClassName = 'com.sdyk.ai.crawler.zbj.ChromeRequester'
 
 applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\""]
 
@@ -56,6 +56,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.1stleg/jnativehook
     compile group: 'com.1stleg', name: 'jnativehook', version: '2.1.0'
 
+    // https://mvnrepository.com/artifact/it.sauronsoftware.cron4j/cron4j
+    compile group: 'it.sauronsoftware.cron4j', name: 'cron4j', version: '2.2.5'
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'

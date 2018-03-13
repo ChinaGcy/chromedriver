@@ -107,7 +107,7 @@ public class StringUtilTest {
 
 		ChromeDriverAgent agent = null;
 		try {
-			agent = new ChromeDriverLoginWrapper("zbj.com").login();
+			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

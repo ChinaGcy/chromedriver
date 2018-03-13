@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.requester;
 
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
@@ -19,16 +20,16 @@ public class ChromeRequester {
 	private static final Logger logger = LogManager.getLogger(ChromeRequester.class.getName());
 
 	// 开启线程数，开启几个ChromeDriver
-	private int agentCount = 4;
+	public static int agentCount = 4;
 
 	public String domain = "zbj.com";
 
-	//
 	private List<ChromeDriverLoginWrapper> agents = new LinkedList<>();
+
+	public static Set<String> urls = new HashSet<>();
 
 	/**
 	 * 单例模式
-	 *
 	 * @return
 	 */
 	public static ChromeRequester getInstance() {
@@ -38,6 +39,7 @@ public class ChromeRequester {
 			synchronized (ChromeRequester.class) {
 				if (instance == null) {
 					instance = new ChromeRequester();
+
 				}
 			}
 		}
@@ -48,8 +50,7 @@ public class ChromeRequester {
 	/**
 	 *
 	 */
-	private ChromeRequester() {
-
+	public ChromeRequester() {
 
 		for(int i=0; i<agentCount; i++) {
 
@@ -57,7 +58,7 @@ public class ChromeRequester {
 
 			try {
 
-				// 登录
+				// 在agent初始化后设置代理，并制定登录操作
 				agent.login(Account.getAccountByDomain(domain), Proxy.getValidProxy("aliyun"));
 
 				// 执行任务
@@ -77,8 +78,11 @@ public class ChromeRequester {
 	 * @return
 	 */
 	private ChromeDriverLoginWrapper getDriverWithShortestQueue() {
+
 		int size = Integer.MAX_VALUE;
+
 		ChromeDriverLoginWrapper agent_ = null;
+
 		for(ChromeDriverLoginWrapper agent : agents) {
 			if(agent.taskQueue.size() < size) {
 				size = agent.taskQueue.size();
@@ -95,7 +99,26 @@ public class ChromeRequester {
 	 */
 	public void distribute(Task task) {
 
-		ChromeDriverLoginWrapper agent = this.getDriverWithShortestQueue();
-		agent.taskQueue.add(task);
+		if(!urls.contains(task.getUrl())) {
+
+			ChromeDriverLoginWrapper agent = this.getDriverWithShortestQueue();
+			agent.taskQueue.add(task);
+
+		}
+	}
+
+	/**
+	 * Scantask 执行中添加相同的url
+	 * @param task
+	 * @return
+	 */
+	public boolean ignore(Task task) {
+
+		if(task instanceof ScanTask && urls.contains(task.getUrl())) {
+
+			return false;
+		}
+
+		return true;
 	}
 }

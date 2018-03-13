@@ -22,7 +22,7 @@ public class TendererTaskTest {
 		PriorityBlockingQueue<Task> queue = new PriorityBlockingQueue<>();
 		Set<String> set = new HashSet<>();
 
-		ChromeDriverAgent agent = new ChromeDriverLoginWrapper("zbj.com").login(); //future
+		ChromeDriverAgent agent = new ChromeDriverLoginWrapper("zbj.com").login(null,null); //future
 		Thread.sleep(1000);
 
 		TendererTask tendererTask = new TendererTask("http://home.zbj.com/15087337");

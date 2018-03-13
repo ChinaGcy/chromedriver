@@ -21,9 +21,9 @@ public class CaseScanTask extends ScanTask {
 	public static List<String> list = new ArrayList<>();
 
 	//   http://shop.zbj.com/7523816/
-	public static CaseScanTask generateTask(String url_, int page) {
+	public static CaseScanTask generateTask(String header, int page) {
 
-		String url = url_ + "servicelist-p" + page + ".html";
+		String url = header + "servicelist-p" + page + ".html";
 
 		try {
 			CaseScanTask t = new CaseScanTask(url, page);

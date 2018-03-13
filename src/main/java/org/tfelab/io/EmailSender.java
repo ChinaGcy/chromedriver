@@ -72,7 +72,7 @@ public class EmailSender {
 		props.setProperty("mail.smtps.auth", "true");
 		
 		/*
-		If set to false, the QUIT command is sent and the connection is immediately closed. If set 
+		If urls to false, the QUIT command is sent and the connection is immediately closed. If urls
 		to true (the default), causes the transport to wait for the response to the QUIT command.
 		
 		ref :   http://java.sun.com/products/javamail/javadocs/com/sun/mail/smtp/package-summary.html

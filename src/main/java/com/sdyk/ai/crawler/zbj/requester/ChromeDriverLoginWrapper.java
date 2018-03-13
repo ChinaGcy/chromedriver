@@ -12,8 +12,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 
-import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
+
+import static com.sdyk.ai.crawler.zbj.requester.ChromeRequester.urls;
 
 
 public class ChromeDriverLoginWrapper extends Thread {
@@ -22,11 +23,11 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 	private static final Logger logger = LogManager.getLogger(ChromeDriverLoginWrapper.class.getName());
 
-	public static PriorityBlockingQueue<Task> taskQueue = new PriorityBlockingQueue<>();
+	public PriorityBlockingQueue<Task> taskQueue = new PriorityBlockingQueue<>();
 
 	public volatile boolean done = false;
 
-	public static Set<String> set = new HashSet<>();
+	public Proxy proxy;
 
 	/**
 	 *
@@ -41,6 +42,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 	 * @throws Exception
 	 */
 	public ChromeDriverAgent login(Account account, Proxy pw) throws Exception {
+
 		return login(account, pw,true);
 	}
 
@@ -172,8 +174,8 @@ public class ChromeDriverLoginWrapper extends Thread {
 			}
 
 			// 判断是否任务重复执行
-			if (!set.contains(t.getUrl())) {
-				set.add(t.getUrl());
+			if (!urls.contains(t.getUrl())) {
+
 				try {
 					// 执行任务
 					agent.fetch(t);
@@ -184,6 +186,8 @@ public class ChromeDriverLoginWrapper extends Thread {
 						// 添加任务
 						ChromeRequester.getInstance().distribute(t_);
 					}
+
+					urls.add(t.getUrl());
 
 				} catch (Exception e) {
 					logger.error("Exception while fetch task. ", e);

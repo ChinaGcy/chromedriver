@@ -20,8 +20,6 @@ public abstract class Task extends org.tfelab.io.requester.Task implements Compa
 	// 优先级
 	public Priority priority = Priority.middle;
 
-	public boolean needLogin = false;
-
 	public enum Priority {
 		low,
 		middle,

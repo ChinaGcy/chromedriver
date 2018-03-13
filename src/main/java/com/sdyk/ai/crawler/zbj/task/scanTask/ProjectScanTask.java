@@ -2,8 +2,6 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.tfelab.io.requester.account.AccountWrapper;
 import org.tfelab.io.requester.chrome.ChromeDriverRequester;
@@ -22,23 +20,22 @@ import java.util.regex.Pattern;
  */
 public class ProjectScanTask extends ScanTask {
 
-	private static String url_;
+	private static String channel;
 
 	/**
 	 * 生成项目翻页采集任务
-	 * @param url_
+	 * @param channel
 	 * @param page
 	 * @param aw
 	 * @return
 	 */
-	public static ProjectScanTask generateTask(String url_, int page, AccountWrapper aw) {
+	public static ProjectScanTask generateTask(String channel, int page, AccountWrapper aw) {
 
-		ProjectScanTask.url_ = url_;
-
+		ProjectScanTask.channel = channel;
 
 		if(page >= 100) return null;
 
-		String url = "http://task.zbj.com/" + url_ + "/p" + page + "s5.html";
+		String url = "http://task.zbj.com/" + channel + "/p" + page + "s5.html?o=7";
 
 		try {
 			ProjectScanTask t = new ProjectScanTask(url, page);
@@ -103,7 +100,7 @@ public class ProjectScanTask extends ScanTask {
 		if (pageTurning(driver,
 				"body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul",
 				page)) {
-			Task t = generateTask(url_, ++page, null);
+			Task t = generateTask(channel, ++page, null);
 			if (t != null) {
 				t.setPrior();
 				tasks.add(t);

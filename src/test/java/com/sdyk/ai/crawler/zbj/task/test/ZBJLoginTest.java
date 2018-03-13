@@ -8,7 +8,7 @@ public class ZBJLoginTest {
 
 	@Test
 	public void zbjLoginTest() throws Exception {
-		ChromeDriverAgent agent = (new ChromeDriverLoginWrapper("zbj.com")).login();
+		ChromeDriverAgent agent = (new ChromeDriverLoginWrapper("zbj.com")).login(null, null);
 
 
 	}

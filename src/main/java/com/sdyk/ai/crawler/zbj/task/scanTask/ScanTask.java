@@ -51,7 +51,7 @@ public abstract class ScanTask extends Task{
 
 			return maxPage > page;
 
-		} catch (NoSuchElementException e) {
+		} catch (NoSuchElementException | ArrayIndexOutOfBoundsException e) {
 			return false;
 		}
 	}

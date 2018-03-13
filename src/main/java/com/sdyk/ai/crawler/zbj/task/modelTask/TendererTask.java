@@ -41,9 +41,14 @@ public class TendererTask extends Task {
 		catch (NoSuchElementException e) {
 			tenderer.area = "";
 		}
-		tenderer.login_time =
-				DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login"))
-				.getText());
+		try {
+			tenderer.login_time =
+					DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login"))
+							.getText());
+		} catch (NoSuchElementException e) {
+			tenderer.login_time = null;
+		}
+
 
 		tenderer.trade_num =
 				Integer.parseInt(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-trade > div.statistics-item-val > strong"))
