@@ -23,7 +23,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 	private static final Logger logger = LogManager.getLogger(ChromeDriverLoginWrapper.class.getName());
 
-	public static PriorityBlockingQueue<Task> taskQueue = new PriorityBlockingQueue<>();
+	public PriorityBlockingQueue<Task> taskQueue = new PriorityBlockingQueue<>();
 
 	public volatile boolean done = false;
 

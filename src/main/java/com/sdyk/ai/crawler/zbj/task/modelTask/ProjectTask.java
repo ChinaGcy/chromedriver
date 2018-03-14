@@ -71,11 +71,6 @@ public class ProjectTask extends Task {
 				header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
 
 			} catch (NoSuchElementException e) {
-				try {
-					tasks.add(new ProjectTask(getUrl()));
-				} catch (MalformedURLException | URISyntaxException e1) {
-					e1.printStackTrace();
-				}
 				return tasks;
 			}
 
