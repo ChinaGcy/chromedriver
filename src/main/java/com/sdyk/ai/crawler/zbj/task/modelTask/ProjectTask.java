@@ -64,8 +64,20 @@ public class ProjectTask extends Task {
 		// A 无法请求页面内容
 		if (pageAccessible(src)) {
 
-			// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-			String header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
+
+			String header;
+			try {
+				// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
+				header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
+
+			} catch (NoSuchElementException e) {
+				try {
+					tasks.add(new ProjectTask(getUrl()));
+				} catch (MalformedURLException | URISyntaxException e1) {
+					e1.printStackTrace();
+				}
+				return tasks;
+			}
 
 			/*// 当header为空时， 重复获取3次，若还为空，抛弃次项目
 			int i = 0 ;

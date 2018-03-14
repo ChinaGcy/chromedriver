@@ -56,5 +56,4 @@ public abstract class ScanTask extends Task{
 		}
 	}
 
-
 }

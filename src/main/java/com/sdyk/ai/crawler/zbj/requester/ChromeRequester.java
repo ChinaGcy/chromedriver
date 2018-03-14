@@ -20,7 +20,7 @@ public class ChromeRequester {
 	private static final Logger logger = LogManager.getLogger(ChromeRequester.class.getName());
 
 	// 开启线程数，开启几个ChromeDriver
-	public static int agentCount = 4;
+	public static int agentCount = 7;
 
 	public String domain = "zbj.com";
 

@@ -329,7 +329,7 @@ public class ChromeDriverAgent {
 			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 			
 			// 这个值要设置的比较大 否则会出现 org.openqa.selenium.TimeoutException: timeout: cannot determine loading status
-			driver.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
+			driver.manage().timeouts().pageLoadTimeout(300, TimeUnit.SECONDS);
 
 			// Set Dimension
 			//Dimension d = new Dimension(1024, 600);
