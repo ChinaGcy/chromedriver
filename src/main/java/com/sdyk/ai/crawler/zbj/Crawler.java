@@ -4,6 +4,7 @@ import com.sdyk.ai.crawler.zbj.requester.ChromeRequester;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
 import it.sauronsoftware.cron4j.Scheduler;
 import org.apache.logging.log4j.LogManager;
 import org.tfelab.io.requester.proxy.IpDetector;
@@ -82,7 +83,7 @@ public class Crawler {
 
 		if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
-				ScanTask t = ProjectScanTask.generateTask(channel, 1, null);
+				ScanTask t = ServiceScanTask.generateTask(channel, 1, null);
 				t.backtrace = backtrace;
 				tasks.add(t);
 			}
