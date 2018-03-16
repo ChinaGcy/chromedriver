@@ -16,14 +16,14 @@ public class ProxyRequestTest {
 	@Test
 	public void testRequestByProxy() throws MalformedURLException, URISyntaxException {
 
-		Task t = new Task("https://www.baidu.com/s?wd=ip");
+		Task t = new Task("https://zbj.com");
 
 		/*Proxy pw = new Proxy();
 		pw.host = "scisaga.net";
 		pw.port = 60103;*/
 
 		Proxy pw_ = new Proxy();
-		pw_.host = "114.215.70.14";
+		pw_.host = "118.190.133.34";
 		pw_.port = 59998;
 		pw_.username = "tfelab";
 		pw_.password = "TfeLAB2@15";
@@ -35,6 +35,11 @@ public class ProxyRequestTest {
 		ChromeDriverAgent agent_ = new ChromeDriverAgent();
 		t.setProxyWrapper(pw_);
 		agent_.fetch(t);
+		try {
+			Thread.sleep(10*60*1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 	}
 }

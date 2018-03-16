@@ -4,8 +4,9 @@ import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import db.Refacter;
+
 import org.junit.Test;
+import org.tfelab.db.Refacter;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;

@@ -87,8 +87,13 @@ public class WorkTask extends Task {
 				.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
 
 		// 价格
-		work.pricee = Double.parseDouble(driver.findElement(By.cssSelector("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content"))
-				.getText().split("￥")[1]);
+		if(driver.findElement(By.cssSelector("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content"))
+				.getText().contains("面议")) {
+			work.pricee = 0.00;
+		} else {
+			work.pricee = Double.parseDouble(driver.findElement(By.cssSelector("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content"))
+					.getText().split("￥")[1]);
+		}
 	}
 
 	/**
