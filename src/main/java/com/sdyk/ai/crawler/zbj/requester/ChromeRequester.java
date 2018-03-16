@@ -103,6 +103,7 @@ public class ChromeRequester {
 
 			ChromeDriverLoginWrapper agent = this.getDriverWithShortestQueue();
 			agent.taskQueue.add(task);
+			urls.add(task.getUrl());
 
 		}
 	}
