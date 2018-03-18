@@ -10,19 +10,34 @@ import java.awt.event.InputEvent;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * 基于Tracker序列化记录，模拟苏杭表操作
+ */
 public class MouseEventSimulator {
 
 	private static final Logger logger = LogManager.getLogger(MouseEventTracker.class.getName());
 
+	//
 	MouseEventTracker tracker;
+
+	// 用于模拟鼠标操作
 	Robot bot;
 
+	/**
+	 *
+	 * @param tracker
+	 * @throws AWTException
+	 */
 	public MouseEventSimulator(MouseEventTracker tracker) throws AWTException {
 
 		this.tracker = tracker;
 		bot = new Robot();
 	}
 
+	/**
+	 *
+	 * @param offset
+	 */
 	public void simulate(int offset) {
 
 		offset = offset + ThreadLocalRandom.current().nextInt(-4, 4 + 1);
@@ -47,13 +62,20 @@ public class MouseEventSimulator {
 
 		for(MouseEventTracker.Action action : this.tracker.actions) {
 
+			// 按下鼠标左键
 			if(action.type.equals(MouseEventTracker.Action.Type.Press)) {
 				bot.mousePress(InputEvent.BUTTON1_MASK);
-			} else if(action.type.equals(MouseEventTracker.Action.Type.Release)) {
+			}
+			// 释放鼠标左键
+			else if(action.type.equals(MouseEventTracker.Action.Type.Release)) {
 				bot.mouseRelease(InputEvent.BUTTON1_MASK);
-			} else if(action.type.equals(MouseEventTracker.Action.Type.Move)) {
+			}
+			// 移动鼠标
+			else if(action.type.equals(MouseEventTracker.Action.Type.Move)) {
 				bot.mouseMove(action.x, action.y);
-			} else {
+			}
+			//
+			else {
 				bot.mouseMove(p1[0] + (int) Math.round ((action.x-p1[0]) * scale),
 						p1[1] + (int) Math.round ((action.y-p1[1]) * scale));
 			}
@@ -62,14 +84,30 @@ public class MouseEventSimulator {
 		}
 	}
 
-	public static void main(String[] args) throws AWTException {
+	public void procActions() {
 
-		MouseEventTracker m = JSON.fromJson(
-				FileUtil.readFileByLines("mouse_movements/1520069499746.txt"),
-				MouseEventTracker.class
-		);
+		long ts = 0;
 
-		new MouseEventSimulator(m).simulate(100);
+		for(MouseEventTracker.Action action : this.tracker.actions) {
+
+			// 按下鼠标左键
+			if(action.type.equals(MouseEventTracker.Action.Type.Press)) {
+				bot.mousePress(InputEvent.BUTTON1_MASK);
+			}
+			// 释放鼠标左键
+			else if(action.type.equals(MouseEventTracker.Action.Type.Release)) {
+				bot.mouseRelease(InputEvent.BUTTON1_MASK);
+			}
+			// 移动鼠标
+			else if(action.type.equals(MouseEventTracker.Action.Type.Move)) {
+				bot.mouseMove(action.x, action.y);
+			}
+			// 拖拽
+			else {
+				bot.mouseMove(action.x, action.y);
+			}
+			bot.delay((int) (action.time - ts));
+			ts = action.time;
+		}
 	}
-
 }
