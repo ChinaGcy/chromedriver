@@ -93,7 +93,6 @@ public abstract class Task extends org.tfelab.io.requester.Task implements Compa
 		return des_src;
 	}
 
-
 	/**
 	 * 优先级比较
 	 * @param another

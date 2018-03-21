@@ -1,6 +1,10 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.tfelab.io.requester.BasicRequester;
 import org.tfelab.io.requester.Task;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
@@ -45,6 +49,17 @@ public class ChromeDriverTest {
 		}
 
 		System.err.println(t_.getResponse().getSrc().length);
+	}
+
+	@Test
+	public void openTwoPage() {
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		WebDriver webDriver = agent.getDriver();
+		webDriver.get("https://www.baidu.com/s?wd=ip");
+		webDriver.findElement(By.cssSelector("#\\31 > h3 > a")).sendKeys(Keys.CONTROL +"t");
+		/*Actions actionOpenLinkInNewTab = new Actions(webDriver);
+
+		actionOpenLinkInNewTab.keyDown(Keys.CONTROL).sendKeys("t").keyUp(Keys.CONTROL).perform();*/
 	}
 
 }

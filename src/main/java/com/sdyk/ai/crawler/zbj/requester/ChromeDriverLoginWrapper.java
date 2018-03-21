@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.requester;
 
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
+import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import org.tfelab.io.requester.proxy.IpDetector;
+import org.tfelab.util.NetworkUtil;
 
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -21,9 +24,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 	public ChromeDriverAgent agent = new ChromeDriverAgent();
 
+	public static String LOCAL_IP = IpDetector.getIp() + " :: " + NetworkUtil.getLocalIp();
+
 	private static final Logger logger = LogManager.getLogger(ChromeDriverLoginWrapper.class.getName());
 
 	public PriorityBlockingQueue<Task> taskQueue = new PriorityBlockingQueue<>();
+
+	public long startTime = System.currentTimeMillis();
 
 	public volatile boolean done = false;
 
@@ -80,9 +87,9 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// 点击识别框
 			agent.getElementWait(".geetest_radar_tip_content").click();
 
-			/*Thread.sleep(3000);
+			Thread.sleep(3000);
 
-			// 截图1
+			/*// 截图1
 			FileUtil.writeBytesToFile(
 					agent.shoot(".geetest_window"),
 					"geetest/geetest1.png"
@@ -102,11 +109,11 @@ public class ChromeDriverLoginWrapper extends Thread {
 			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
 
 			Robot bot = new Robot();
-			*//*GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);*//*
+			GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);*/
 
 			MouseEventTracker tracker = null;
 
-			if(automaticByPassGeeTest) {
+			/*if(false) {
 
 				// 移动滑块
 				// TODO 寻找更好的模拟方法
@@ -116,12 +123,12 @@ public class ChromeDriverLoginWrapper extends Thread {
 				bot.mouseRelease(InputEvent.BUTTON1_MASK);
 
 				// 不识别
-				*//*new Actions(agent.getDriver())
+				new Actions(agent.getDriver())
 						.dragAndDropBy(agent.getElementWait(".geetest_slider_button"), offset, 0)
-						.build().perform();*//*
+						.build().perform();
 
 				// 鼠标点击事件
-				*//*int xOff = 920;
+				int xOff = 920;
 				robot.mouseMove(xOff, 550);
 
 				Thread.sleep(1000);
@@ -133,7 +140,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 					robot.mouseMove(++xOff, 550);
 					Thread.sleep(10);
 				}
-				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);*//*
+				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
 			} else {
 
@@ -147,9 +154,9 @@ public class ChromeDriverLoginWrapper extends Thread {
 					ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
 			));
 
-			/*if(tracker != null) {
+			if(tracker != null) {
 				tracker.serializeMovements();
-			}*/
+			}
 
 		}
 
@@ -168,34 +175,29 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 			Task t = null;
 			try {
+
 				t = taskQueue.take();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			// 判断是否任务重复执行
-			if (!urls.contains(t.getUrl())) {
+			try {
+				// 执行任务
+				agent.fetch(t);
+				// 每分钟执行的Task数
+				StatManager.getInstance().count();
 
-				try {
-					// 执行任务
-					agent.fetch(t);
-					// 每分钟执行的Task数
-					StatManager.getInstance().count();
-
-					for (Task t_ : t.postProc(agent.getDriver())) {
-						// 添加任务
-						ChromeRequester.getInstance().distribute(t_);
-					}
-
-					urls.add(t.getUrl());
-
-				} catch (Exception e) {
-					logger.error("Exception while fetch task. ", e);
-					taskQueue.add(t);
+				for (Task t_ : t.postProc(agent.getDriver())) {
+					// 添加任务
+					ChromeRequester.getInstance().distribute(t_);
 				}
 
-			}
+				urls.add(t.getUrl());
 
+			} catch (Exception e) {
+				logger.error("Exception while fetch task. ", e);
+				taskQueue.add(t);
+			}
 		}
 	}
 }

@@ -30,7 +30,7 @@ public class CaseTask extends Task {
 
 		String src = getResponse().getText();
 
-		if (!src.contains("此服务审核未通过")) {
+		if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
 			ca = new Case(getUrl());
 
 			if (!getUrl().contains("http://shop.tianpeng.com")) {
