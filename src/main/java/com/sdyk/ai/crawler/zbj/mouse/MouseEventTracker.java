@@ -78,32 +78,35 @@ public class MouseEventTracker implements JSONable {
 	 */
 	class MouseListener implements NativeMouseInputListener {
 
+		// 鼠标点击
 		public void nativeMouseClicked(NativeMouseEvent e) {
-			//logger.info("Mouse Clicked: " + e.getClickCount());
+			/*logger.info("Mouse Clicked: " + e.getClickCount());*/
 		}
 
+		// 鼠标左键按下
 		public void nativeMousePressed(NativeMouseEvent e) {
 
-			//logger.info("Mouse Pressed: " + e.getButton());
+			/*logger.info("Mouse Pressed: " + e.getButton());*/
 			pressed = true;
 			MouseEventTracker.this.actions.add(
 					new Action(Action.Type.Press, e.getX(), e.getY(),
 							System.currentTimeMillis() - MouseEventTracker.this.lastTs));
 		}
 
+		// 鼠标左键释放
 		public void nativeMouseReleased(NativeMouseEvent e) {
 
-			//logger.info("Mouse Released: " + e.getButton());
+			/*logger.info("Mouse Released: " + e.getButton());*/
 			MouseEventTracker.this.actions.add(
 					new Action(Action.Type.Release, e.getX(), e.getY(),
 							System.currentTimeMillis() - MouseEventTracker.this.lastTs));
 			MouseEventTracker.this.stop();
 		}
 
+		// 鼠标移动
 		public void nativeMouseMoved(NativeMouseEvent e) {
 
-			//logger.info("Mouse Moved: " + e.getX() + ", " + e.getY());
-
+			/*logger.info("Mouse Moved: " + e.getX() + ", " + e.getY());*/
 			if(pressed) {
 				MouseEventTracker.this.actions.add(
 						new Action(Action.Type.Move, e.getX(), e.getY(),
@@ -111,10 +114,10 @@ public class MouseEventTracker implements JSONable {
 			}
 		}
 
+		// 鼠标拖拽
 		public void nativeMouseDragged(NativeMouseEvent e) {
 
-			//logger.info("Mouse Dragged: " + e.getX() + ", " + e.getY());
-
+			/*logger.info("Mouse Dragged: " + e.getX() + ", " + e.getY());*/
 			if(pressed) {
 				MouseEventTracker.this.actions.add(
 						new Action(Action.Type.Drag, e.getX(), e.getY(),

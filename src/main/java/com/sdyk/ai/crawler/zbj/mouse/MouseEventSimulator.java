@@ -110,4 +110,8 @@ public class MouseEventSimulator {
 			ts = action.time;
 		}
 	}
+
+	public static void transformData() {
+
+	}
 }

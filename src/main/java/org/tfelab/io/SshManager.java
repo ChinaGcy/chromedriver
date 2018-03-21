@@ -196,16 +196,12 @@ public class SshManager {
 	public static void main(String[] args) throws Exception {
 
 		String[] hosts = {
-				"118.190.83.89",
-				"118.190.44.184",
-				"118.190.133.34",
-				"114.215.70.14",
-				"114.215.45.48"
+				"118.190.83.89"
 		};
 
 		for(String hs : hosts) {
 
-			Host host = new Host(hs, 22, "root", "L37rpq8M");
+			Host host = new Host(hs, 22, "root", "");
 			host.connect();
 
 			String output = host.exec("jps | grep OldCrawler | awk '{print $1}' | xargs kill -9");
