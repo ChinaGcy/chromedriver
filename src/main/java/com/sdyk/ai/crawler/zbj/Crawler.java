@@ -19,8 +19,6 @@ public class Crawler {
 
 	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Crawler.class.getName());
 
-	public static String LOCAL_IP = IpDetector.getIp() + " :: " + NetworkUtil.getLocalIp();
-
 	protected static Crawler instance;
 
 	public static Crawler getInstance() {
@@ -79,6 +77,7 @@ public class Crawler {
 			ScanTask t = ProjectScanTask.generateTask(channel, 1, null);
 			t.backtrace = backtrace;
 			tasks.add(t);
+			System.out.println("PROJECT:" + channel);
 		}
 
 		if (backtrace == true) {
@@ -86,6 +85,7 @@ public class Crawler {
 				ScanTask t = ServiceScanTask.generateTask(channel, 1, null);
 				t.backtrace = backtrace;
 				tasks.add(t);
+				System.out.println("SERVICE:" + channel);
 			}
 		}
 
@@ -139,10 +139,12 @@ public class Crawler {
 
 		if (args.length == 1 && args[0].equals("H")){
 			// 获取历史数据
+			System.out.println("历史数据");
 			Crawler.getInstance().getHistoricalData();
 		}
 		else {
 			// 监控数据
+			System.out.println("监控数据");
 			Crawler.getInstance().monitor();
 		}
 	}

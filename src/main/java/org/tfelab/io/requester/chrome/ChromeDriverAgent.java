@@ -142,6 +142,7 @@ public class ChromeDriverAgent {
 	public void addProxyResponseFilter(ResponseFilter responseFilter) {
 		bmProxy.addResponseFilter(responseFilter);
 	}
+
 	/**
 	 * 测试 Xvfb 服务是否运行
 	 */
@@ -241,6 +242,9 @@ public class ChromeDriverAgent {
 			options.addArguments("--disable-gpu-program-cache");
 			options.addArguments("--disk-cache-dir=/dev/null");
 			options.addArguments("--disk-cache-size=1");
+			// 解决Selenium最大化报错问题
+			options.addArguments("--start-maximized");
+
 			options.setExperimentalOption("prefs", prefs);
 			options.setExperimentalOption("detach", true);
 
@@ -336,7 +340,8 @@ public class ChromeDriverAgent {
 			//Dimension d = new Dimension(380, 600);
 			//driver.manage().window().setSize(d);
 			// TODO 记录此处的报错信息 和 报错时的上下文信息
-			driver.manage().window().maximize();
+
+			//driver.manage().window().maximize();
 
 			Random r = new Random();
 			Point p = new Point(60 * r.nextInt(10), 40 * r.nextInt(10));
