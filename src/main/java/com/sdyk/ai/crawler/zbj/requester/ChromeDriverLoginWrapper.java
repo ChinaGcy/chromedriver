@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.requester;
 
+import com.sdyk.ai.crawler.zbj.GeeTestUtil;
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
@@ -15,6 +16,7 @@ import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.io.requester.proxy.IpDetector;
 import org.tfelab.util.NetworkUtil;
 
+import java.awt.event.InputEvent;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import static com.sdyk.ai.crawler.zbj.requester.ChromeRequester.urls;
@@ -113,9 +115,9 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 			MouseEventTracker tracker = null;
 
-			/*if(false) {
+			if(false) {
 
-				// 移动滑块
+				/*// 移动滑块
 				// TODO 寻找更好的模拟方法
 				GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 1000, 1000);
 				bot.mousePress(InputEvent.BUTTON1_MASK);
@@ -140,13 +142,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 					robot.mouseMove(++xOff, 550);
 					Thread.sleep(10);
 				}
-				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);*/
 
 			} else {
 
 				tracker = new MouseEventTracker();
 
-			}*/
+			}
 
 			// 等待识别
 			WebDriverWait wait = new WebDriverWait(agent.getDriver(), 60);

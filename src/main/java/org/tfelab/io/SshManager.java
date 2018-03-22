@@ -196,21 +196,28 @@ public class SshManager {
 	public static void main(String[] args) throws Exception {
 
 		String[] hosts = {
-				"118.190.83.89"
+				"47.106.71.20"
 		};
 
 		for(String hs : hosts) {
 
-			Host host = new Host(hs, 22, "root", "");
+			Host host = new Host(hs, 22, "root", "SDYK315pr");
 			host.connect();
 
-			String output = host.exec("jps | grep OldCrawler | awk '{print $1}' | xargs kill -9");
+			/*String output = host.exec("jps | grep OldCrawler | awk '{print $1}' | xargs kill -9");
+			System.err.println(output);*/
+
+			host.upload("squid.sh", "/root");
+
+			String output = host.exec("chmod +x squid.sh");
 			System.err.println(output);
 
-			host.upload("build/libs/musical-sharing-1.0-SNAPSHOT.jar", "/opt/muse/musical-sharing-1.0-SNAPSHOT/lib");
-
-			output = host.exec("cd /opt/muse/musical-sharing-1.0-SNAPSHOT && nohup bin/musical-sharing &");
+			// 先更新，再执行
+			host.exec("apt update");
+			output = host.exec("./squid.sh");
 			System.err.println(output);
+
+
 		}
 	}
 }
