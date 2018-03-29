@@ -78,6 +78,58 @@ public class MouseMovementTest {
 		MouseEventTracker.removePreMoveActions(trackerList);
 	}
 
+
+	@Test
+	public void generateData() {
+
+		List<MouseEventTracker> trackerList = new ArrayList<>();
+
+		File folder = new File("mouse_movements");
+		File[] listOfFiles = folder.listFiles();
+
+		for (int i = 0; i < listOfFiles.length; i++) {
+
+			if (listOfFiles[i].isFile()) {
+
+				System.out.println("File " + listOfFiles[i].getPath());
+
+				MouseEventTracker m = JSON.fromJson(
+						FileUtil.readFileByLines(listOfFiles[i].getPath()),
+						MouseEventTracker.class
+				);
+
+				trackerList.add(m);
+
+			} else if (listOfFiles[i].isDirectory()) {
+				// System.out.println("Directory " + listOfFiles[i].getName());
+			}
+		}
+
+		String all = "{";
+
+		for(MouseEventTracker t : trackerList) {
+
+			String output = "{";
+
+			int y0 = 0;
+			long t0 = 0;
+
+			for(MouseEventTracker.Action a : t.actions) {
+
+				if(y0 == 0) y0=a.y;
+				if(t0 == 0) t0=a.time;
+				output += "{" + (a.time-t0) + ", " + (a.y-y0) +"}, ";
+			}
+
+			output = output.substring(0,output.length()-2) + "}";
+
+			all += output + ", ";
+		}
+
+		all = all.substring(0,all.length()-2) + "}";
+		System.err.println(all);
+	}
+
 	@Test
 	public void SimulateActions() throws AWTException {
 
