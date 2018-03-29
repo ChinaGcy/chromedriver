@@ -16,6 +16,7 @@ public class AliyunService {
 	// 初始化
 	public static DefaultProfile profile = DefaultProfile.getProfile(regionId, key, secret);
 	public static IAcsClient client = new DefaultAcsClient(profile);
+
 	/**
 	 * 增加服务器
 	 */
@@ -35,14 +36,13 @@ public class AliyunService {
 		createInstance.setPassword("SDYK315pr");
 		// 按时间计费
 		createInstance.setInternetChargeType("PayByTraffic");
-
+		// 带宽
 		createInstance.setInternetMaxBandwidthOut(100);
 
 		// 发起请求
 		try {
 			CreateInstanceResponse response = client.getAcsResponse(createInstance);
 			String serviceid = response.getInstanceId();
-			getIP(serviceid);
 			return serviceid;
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -51,7 +51,7 @@ public class AliyunService {
 	}
 
 	/**
-	 * 设置公网ip，运行中，已停止
+	 * 设置公网ip，运行中
 	 * @param ServiceId
 	 * @return
 	 */

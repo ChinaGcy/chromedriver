@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
@@ -33,13 +35,21 @@ public class ProjectTask extends Task {
 	}
 
 	/**
-	 *
 	 * @param driver
 	 * @return
 	 */
 	public List<Task> postProc(WebDriver driver) {
 
 		String src = getResponse().getText();
+		List<Task> tasks = new ArrayList();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		try {
 			// 初始化 必须传入url 生成主键id
@@ -48,22 +58,18 @@ public class ProjectTask extends Task {
 			logger.error("Error extract url: {}, ", getUrl(), e);
 		}
 
-		List<Task> tasks = new ArrayList();
 
 		if (src.contains("操作失败请稍后重试")) {
 			try {
 				tasks.add(new ProjectTask(getUrl()));
 				return tasks;
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (URISyntaxException e) {
+			} catch (MalformedURLException | URISyntaxException e) {
 				e.printStackTrace();
 			}
 		}
 		// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 		// A 无法请求页面内容
 		if (pageAccessible(src)) {
-
 
 			String header;
 			try {
@@ -73,20 +79,6 @@ public class ProjectTask extends Task {
 			} catch (NoSuchElementException e) {
 				return tasks;
 			}
-
-			/*// 当header为空时， 重复获取3次，若还为空，抛弃次项目
-			int i = 0 ;
-			while(header == null || header.equals("")) {
-
-				header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
-				if (!(header == null || header.equals(""))) {
-					break;
-				}
-				if (i > 2) {
-					break;
-				}
-				i++;
-			}*/
 
 			// B1 页面格式1 ：http://task.zbj.com/12954152/
 			if (pageType(header) == PageType.OrderDetail) {
@@ -112,8 +104,6 @@ public class ProjectTask extends Task {
 					logger.error("insert error for project", e);
 				}
 			}
-
-
 		}
 		return tasks;
 	}
@@ -135,7 +125,6 @@ public class ProjectTask extends Task {
 		if(matcher.find()) {
 			return false;
 		}
-
 		return true;
 	}
 

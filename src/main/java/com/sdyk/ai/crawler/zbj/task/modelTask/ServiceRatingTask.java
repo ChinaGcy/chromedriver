@@ -1,7 +1,9 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.SupplierRating;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.By;
@@ -41,10 +43,23 @@ public class ServiceRatingTask extends ScanTask {
 		this.setParam("page", page);
 	}
 
-
+	/**
+	 *
+	 * @param driver
+	 * @return
+	 */
 	public List<Task> postProc(WebDriver driver) {
 
+		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		int page = this.getParamInt("page");
 

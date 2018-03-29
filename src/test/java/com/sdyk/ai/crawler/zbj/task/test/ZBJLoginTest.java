@@ -28,7 +28,6 @@ public class ZBJLoginTest {
 		tracker.serializeMovements();
 		agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
 
-
 		agent.close();
 	}
 }

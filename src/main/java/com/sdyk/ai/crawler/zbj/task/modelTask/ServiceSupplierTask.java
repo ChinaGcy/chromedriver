@@ -1,6 +1,8 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.ServiceSupplier;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.WorkScanTask;
@@ -29,6 +31,14 @@ public class ServiceSupplierTask extends Task {
 
 		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<Task>();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		serviceSupplier = new ServiceSupplier(getUrl());
 

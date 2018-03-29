@@ -13,18 +13,18 @@ import java.util.regex.Pattern;
 
 public class StringUtilTest {
 
-	String text_1 ="<div class=\"det-left fl\">\n" +
-			"                        <h2 class=\"det-left-title\">设计方案：<pre>宅大侠古风卡通形象设计</pre></h2>\n" +
-			"\n" +
-			"\n" +
-			"                                                    <div class=\"case-file-container\">\n" +
-			"                                                                    <div class=\"case-file pic\">\n" +
-			"                                        <img data-original=\"http://homesitetask.zbjimg.com/homesite/task/宅大侠释义.jpg/origine/e514bc8f-768e-4796-875f-7359b31f049b?imageMogr2/format/webp\" src=\"http://homesitetask.zbjimg.com/homesite/task/宅大侠释义.jpg/origine/e514bc8f-768e-4796-875f-7359b31f049b?imageMogr2/format/webp\" class=\"det-left-img\" alt=\"宅大侠古风卡通形象设计1\" style=\"display: block;\">\n" +
-			"                                    </div>\n" +
-			"                                                                                                </div>\n" +
-			"                        \n" +
-			"                        <p class=\"det-left-foot\"></p>\n" +
-			"                    </div>";
+	String text_1 ="<div class=\"taskinfo-title\"><i></i><span>任务需求</span></div>\n" +
+			"                        <div class=\"task-info-content\">\n" +
+			"                            <p>装修公司（高档整装）核心优势关注环保，品牌这两个字</p><p>（容易记忆，琅琅上口，接地气点最好，要么当下流行的词语或有关于重庆历史文化与重庆接地气的名字）</p><p><br></p><p>要求可以注册。</p>                        </div>\n" +
+			"                                                                                                                        <div class=\"taskinfo-title\">\n" +
+			"                                        <i></i>\n" +
+			"                                        <span>需求补充</span>\n" +
+			"                                                                                    <font class=\"font12 c396 f_l ml_10 mt_10 pt_5\">2018-03-27 10:52:31 客服审核通过</font>\n" +
+			"                                                                            </div>\n" +
+			"                                    <div class=\"clearfix pt_10 pb_10 font14 c666\">\n" +
+			"                                        取名字要求.装修公司（高档整装）.核心优势工艺领先.关注环保.品牌就两个字（容易记忆.琅琅上口.针对全国市场.接地气点最好.要么当下流行的词语或有点历史的词语）                                    </div>\n" +
+			"                                                                                                                                    <div class=\"task-info-tipsy mt_10\">温馨提示：请不要轻信需要交钱（报名费、抵押金之类）才能承接的任务。如有遇到请第一时间联系客服。</div>\n" +
+			"                        <div class=\"clear\"></div>";
 	/**
 	 * 测试清洗HTML标签
 	 */

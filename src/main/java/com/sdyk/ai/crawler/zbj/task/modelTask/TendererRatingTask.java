@@ -1,6 +1,8 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.By;
@@ -46,12 +48,19 @@ public class TendererRatingTask extends ScanTask {
 
 	public List<Task> postProc(WebDriver driver) {
 
+		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		// 防止数据为空
 		if (!driver.findElement(By.cssSelector("#evaluation > div > div")).getText().contains("该雇主还未收到过评价")) {
-
-			String src = getResponse().getText();
 
 			int page = this.getParamInt("page");
 

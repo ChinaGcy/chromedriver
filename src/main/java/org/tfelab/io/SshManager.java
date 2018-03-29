@@ -3,11 +3,11 @@ package org.tfelab.io;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.Session;
+import ch.ethz.ssh2.StreamGobbler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -79,7 +79,7 @@ public class SshManager {
 	/**
 	 *
 	 */
-	static class Host {
+	public static class Host {
 		
 		public String ip;
 		public int port;
@@ -141,15 +141,15 @@ public class SshManager {
 				Session sess = conn.openSession();
 				sess.execCommand(cmd + "\n");
 
-//				InputStream stdout = new StreamGobbler(sess.getStdout());
-//				BufferedReader in = new BufferedReader(new InputStreamReader(stdout));
-//
-//				String line = null;
-//
-//				while ((line = in.readLine()) != null) {
-//					output += line + "\n";
-//				}
-//				in.close();
+				InputStream stdout = new StreamGobbler(sess.getStdout());
+				BufferedReader in = new BufferedReader(new InputStreamReader(stdout));
+
+				String line = null;
+
+				while ((line = in.readLine()) != null) {
+					output += line + "\n";
+				}
+				in.close();
 				sess.close();
 
 				return output;

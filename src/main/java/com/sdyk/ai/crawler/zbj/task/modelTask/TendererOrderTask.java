@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.WebDriver;
@@ -39,6 +41,14 @@ public class TendererOrderTask extends ScanTask {
 
 		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		int op_page = this.getParamInt("page");
 

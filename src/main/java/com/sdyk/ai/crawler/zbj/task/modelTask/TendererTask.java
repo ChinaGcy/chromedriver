@@ -1,6 +1,8 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.Tenderer;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -25,7 +27,16 @@ public class TendererTask extends Task {
 
 	public List<Task> postProc(WebDriver driver) throws ParseException, MalformedURLException, URISyntaxException {
 
+		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		Tenderer tenderer = new Tenderer(getUrl());
 

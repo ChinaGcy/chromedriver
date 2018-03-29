@@ -8,6 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -16,6 +17,8 @@ import java.util.*;
 public abstract class Task extends org.tfelab.io.requester.Task implements Comparable<Task> {
 
 	public static final Logger logger = LogManager.getLogger(Task.class.getName());
+
+	public ChromeDriverAgent agent;
 
 	// 优先级
 	public Priority priority = Priority.middle;
@@ -72,6 +75,12 @@ public abstract class Task extends org.tfelab.io.requester.Task implements Compa
 
 	public static double getDouble(WebDriver driver, String path, String... clean) {
 		return Double.parseDouble(getString(driver, path, clean));
+	}
+
+	public void setAgent(ChromeDriverAgent agent) { this.agent = agent; }
+
+	public ChromeDriverAgent getAgent() {
+		return agent;
 	}
 
 	/**

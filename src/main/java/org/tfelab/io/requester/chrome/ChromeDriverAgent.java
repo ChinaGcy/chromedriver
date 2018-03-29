@@ -1,16 +1,12 @@
 package org.tfelab.io.requester.chrome;
 
 import com.typesafe.config.Config;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import net.lightbody.bmp.client.ClientUtil;
 import net.lightbody.bmp.filters.RequestFilter;
 import net.lightbody.bmp.filters.ResponseFilter;
 import net.lightbody.bmp.mitm.manager.ImpersonatingMitmManager;
 import net.lightbody.bmp.proxy.auth.AuthType;
-import net.lightbody.bmp.util.HttpMessageContents;
-import net.lightbody.bmp.util.HttpMessageInfo;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +14,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.openqa.selenium.*;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -683,8 +678,18 @@ public class ChromeDriverAgent {
 		while(wrapper.needRestart && wrapper.retryCount < RETRY_LIMIT || wrapper.retryCount == 0) {
 			
 			if(wrapper.needRestart) {
+
 				this.close();
 				this.init();
+				// 超时重新登录
+				/*ChromeDriverLoginWrapper chromeDriverLoginWrapper = new ChromeDriverLoginWrapper("zbj.com");
+				try {
+					chromeDriverLoginWrapper.login(Account.getAccountByDomain("zbj.com")
+							, com.sdyk.ai.crawler.zbj.model.Proxy.getValidProxy("aliyun"));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}*/
+
 			}
 			
 			task.setException(null);

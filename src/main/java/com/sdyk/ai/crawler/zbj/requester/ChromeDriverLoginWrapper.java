@@ -81,7 +81,6 @@ public class ChromeDriverLoginWrapper extends Thread {
 		passwordInput.sendKeys(account.getPassword());
 		Thread.sleep(1000);
 
-
 		// D.操作验证码
 		if (agent.getDriver().getPageSource().contains("geetest_radar_tip_content")) {
 
@@ -89,9 +88,9 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// 点击识别框
 			agent.getElementWait(".geetest_radar_tip_content").click();
 
-			Thread.sleep(3000);
+			/*Thread.sleep(3000);
 
-			/*// 截图1
+			// 截图1
 			FileUtil.writeBytesToFile(
 					agent.shoot(".geetest_window"),
 					"geetest/geetest1.png"
@@ -111,13 +110,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
 
 			Robot bot = new Robot();
-			GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);*/
+			GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);
 
 			MouseEventTracker tracker = null;
 
 			if(false) {
 
-				/*// 移动滑块
+				// 移动滑块
 				// TODO 寻找更好的模拟方法
 				GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 1000, 1000);
 				bot.mousePress(InputEvent.BUTTON1_MASK);
@@ -142,13 +141,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 					robot.mouseMove(++xOff, 550);
 					Thread.sleep(10);
 				}
-				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);*/
+				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
 			} else {
 
 				tracker = new MouseEventTracker();
 
-			}
+			}*/
 
 			// 等待识别
 			WebDriverWait wait = new WebDriverWait(agent.getDriver(), 60);
@@ -156,9 +155,9 @@ public class ChromeDriverLoginWrapper extends Thread {
 					ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
 			));
 
-			if(tracker != null) {
+			/*if(tracker != null) {
 				tracker.serializeMovements();
-			}
+			}*/
 
 		}
 
@@ -184,6 +183,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 			}
 
 			try {
+				t.setAgent(agent);
 				// 执行任务
 				agent.fetch(t);
 				// 每分钟执行的Task数

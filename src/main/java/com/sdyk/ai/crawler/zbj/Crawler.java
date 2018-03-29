@@ -137,6 +137,8 @@ public class Crawler {
 	 */
 	public static void main(String[] args) {
 
+
+
 		if (args.length == 1 && args[0].equals("H")){
 			// 获取历史数据
 			System.out.println("历史数据");

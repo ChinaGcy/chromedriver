@@ -1,12 +1,8 @@
 package com.sdyk.ai.crawler.zbj;
 
-import com.sdyk.ai.crawler.zbj.model.Binary;
-import com.sdyk.ai.crawler.zbj.model.TendererRating;
-import com.sdyk.ai.crawler.zbj.model.Work;
 import com.sdyk.ai.crawler.zbj.route.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tfelab.io.server.MsgTransformer;
 
 import static spark.Spark.get;
 import static spark.Spark.port;

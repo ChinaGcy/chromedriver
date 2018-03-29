@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Case;
@@ -29,6 +31,15 @@ public class CaseTask extends Task {
 	public List<Task> postProc(WebDriver driver) {
 
 		String src = getResponse().getText();
+		List<Task> tasks = new ArrayList();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
 			ca = new Case(getUrl());

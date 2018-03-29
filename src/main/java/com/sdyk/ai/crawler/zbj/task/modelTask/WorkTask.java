@@ -1,9 +1,10 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.Work;
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.txt.StringUtil;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -28,6 +29,15 @@ public class WorkTask extends Task {
 	public List<Task> postProc(WebDriver driver) {
 
 		String src = getResponse().getText();
+		List<Task> tasks = new ArrayList<>();
+
+		// 判断是否被禁
+		try {
+			ProxyReplace.proxyWork(src, this);
+		} catch (IpException e) {
+			ProxyReplace.replace(this);
+			return tasks;
+		}
 
 		work = new Work(getUrl());
 
@@ -46,7 +56,7 @@ public class WorkTask extends Task {
 		} catch (Exception e) {
 			logger.error("insert error for Work", e);
 		}
-		return new ArrayList<Task>();
+		return tasks;
 	}
 
 	/**
