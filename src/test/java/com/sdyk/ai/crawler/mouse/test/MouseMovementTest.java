@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.mouse.test;
 
+import com.sdyk.ai.crawler.zbj.mouse.Action;
+import com.sdyk.ai.crawler.zbj.mouse.MouseEventModeler;
 import com.sdyk.ai.crawler.zbj.mouse.MouseEventSimulator;
 import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
 import org.junit.Test;
@@ -45,76 +47,49 @@ public class MouseMovementTest {
 	}
 
 	@Test
-	public void modifyRecord() throws InterruptedException {
+	public void transformData() {
 
-		/*MouseEventTracker m = JSON.fromJson(
-				FileUtil.readFileByLines("mouse_movements/1520069499746.txt"),
-				MouseEventTracker.class
-		);*/
-
-		List<MouseEventTracker> trackerList = new ArrayList<>();
-
-		File folder = new File("mouse_movements");
+		File folder = new File(MouseEventTracker.serPath);
 		File[] listOfFiles = folder.listFiles();
 
 		for (int i = 0; i < listOfFiles.length; i++) {
 
 			if (listOfFiles[i].isFile()) {
 
-				System.out.println("File " + listOfFiles[i].getPath());
+				System.err.println("File: " + listOfFiles[i].getPath());
 
-				MouseEventTracker m = JSON.fromJson(
-						FileUtil.readFileByLines(listOfFiles[i].getPath()),
-						MouseEventTracker.class
-				);
+				String src = FileUtil.readFileByLines(listOfFiles[i].getPath());
 
-				trackerList.add(m);
+				src = src.replaceAll("(?s)\\{.+?actions\": ", "");
+
+				src = src.replaceAll("(?s)\\r?\\n\\}$","");
+
+				src = src.replaceAll("(?<=\\n)  ", "");
+
+				FileUtil.writeBytesToFile(src.getBytes(), listOfFiles[i].getPath());
 
 			} else if (listOfFiles[i].isDirectory()) {
-				// System.out.println("Directory " + listOfFiles[i].getName());
+				System.err.println("Directory: " + listOfFiles[i].getName());
 			}
 		}
-
-		MouseEventTracker.removePreMoveActions(trackerList);
 	}
 
 
 	@Test
 	public void generateData() {
 
-		List<MouseEventTracker> trackerList = new ArrayList<>();
-
-		File folder = new File("mouse_movements");
-		File[] listOfFiles = folder.listFiles();
-
-		for (int i = 0; i < listOfFiles.length; i++) {
-
-			if (listOfFiles[i].isFile()) {
-
-				System.out.println("File " + listOfFiles[i].getPath());
-
-				MouseEventTracker m = JSON.fromJson(
-						FileUtil.readFileByLines(listOfFiles[i].getPath()),
-						MouseEventTracker.class
-				);
-
-				trackerList.add(m);
-
-			} else if (listOfFiles[i].isDirectory()) {
-				// System.out.println("Directory " + listOfFiles[i].getName());
-			}
-		}
+		List<List<Action>> actions = MouseEventModeler.loadData();
 
 		String all = "{";
 
-		for(MouseEventTracker t : trackerList) {
+		for(List<Action> as : actions) {
 
 			String output = "{";
 
 			int y0 = 0;
 			long t0 = 0;
 
-			for(MouseEventTracker.Action a : t.actions) {
+			for(Action a : as) {
 
 				if(y0 == 0) y0=a.y;
 				if(t0 == 0) t0=a.time;
@@ -127,18 +102,17 @@ public class MouseMovementTest {
 		}
 
 		all = all.substring(0,all.length()-2) + "}";
+
 		System.err.println(all);
 	}
 
 	@Test
 	public void SimulateActions() throws AWTException {
 
-		MouseEventTracker m = JSON.fromJson(
-			FileUtil.readFileByLines("mouse_movements/1521357776022_6a62fed3-55ad-44d6-8ce8-205c6514dc9b.txt"),
-			MouseEventTracker.class
-		);
 
-		new MouseEventSimulator(m).simulate(100);
+		new MouseEventSimulator(
+				MouseEventModeler.loadData("mouse_movements/1521357776022_6a62fed3-55ad-44d6-8ce8-205c6514dc9b.txt")
+		).simulate(100);
 	}
 
 }

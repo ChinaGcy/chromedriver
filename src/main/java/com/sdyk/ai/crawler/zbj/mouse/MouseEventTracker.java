@@ -20,56 +20,24 @@ import java.util.logging.Level;
 /**
  * 记录鼠标操作工具类
  */
-public class MouseEventTracker implements JSONable {
-
+public class MouseEventTracker {
 
 	private static final Logger logger = LogManager.getLogger(MouseEventTracker.class.getName());
 
 	// 记录文件夹路径
-	private static final String serPath = "mouse_movements/";
+	public static final String serPath = "mouse_movements/";
 
 	// 上一次操作时间
-	transient long lastTs = System.currentTimeMillis();
+	private long lastTs = System.currentTimeMillis();
 
 	// 事件监听器
-	transient MouseListener listener;
+	private MouseListener listener;
 
-	transient volatile boolean pressed = false;
+	private volatile boolean pressed = false;
 
-	// 储存时间列表
-	public List<Action> actions = new ArrayList();
+	// 储存事件列表
+	public List<Action> actions = new ArrayList<>();
 
-	@Override
-	public String toJSON() {
-		return JSON.toPrettyJson(this);
-	}
-
-	/**
-	 * 定义鼠标操作事件类型
-	 */
-	public static class Action implements JSONable, Serializable {
-
-		public static enum Type {
-			Press, Release, Move, Drag
-		}
-
-		public Type type;
-		public int x;
-		public int y;
-		public long time;
-
-		public Action(Type type, int x, int y, long time) {
-			this.type = type;
-			this.x = x;
-			this.y = y;
-			this.time = time;
-		}
-
-		@Override
-		public String toJSON() {
-			return JSON.toJson(this);
-		}
-	}
 
 	/**
 	 * 继承 NativeMouseInputListener
@@ -179,35 +147,10 @@ public class MouseEventTracker implements JSONable {
 		try {
 
 			String path = serPath + System.currentTimeMillis() + "_" + UUID.randomUUID().toString() + ".txt";
-
-			FileUtil.writeBytesToFile(this.toJSON().getBytes(), path);
+			FileUtil.writeBytesToFile(JSON.toPrettyJson(this.actions).getBytes(), path);
 
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * 对鼠标左键按下之前的时间进行清理
-	 * @param trackerList
-	 */
-	public static void removePreMoveActions(List<MouseEventTracker> trackerList) {
-
-		for(MouseEventTracker tracker : trackerList) {
-
-			List<Action> actions = new ArrayList<>();
-
-			for(Action action : tracker.actions) {
-
-				if(! action.type.equals(Action.Type.Move)) {
-					actions.add(action);
-				}
-			}
-
-			tracker.actions = actions;
-
-			tracker.serializeMovements();
+			logger.error("Error serialize mouse actions.");
 		}
 	}
 }
