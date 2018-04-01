@@ -32,8 +32,6 @@ public class MouseEventModeler {
 
 	private static final Logger logger = LogManager.getLogger(MouseEventModeler.class.getName());
 
-	List<MouseEventTracker> trackerList = new ArrayList<>();
-
 	List<Model> models = new ArrayList<>();
 
 	/**
@@ -73,6 +71,19 @@ public class MouseEventModeler {
 			dy = to.y - from.y;
 			v_x = Fraction.getFraction(dx, dt);
 			v_y = Fraction.getFraction(dy, dt);
+		}
+
+		/**
+		 *
+		 * @param dx
+		 * @param dy
+		 * @param dt
+		 * @param flat_phase
+		 */
+		public Step (int dx, int dy, int dt, boolean flat_phase) {
+			v_x = Fraction.getFraction(dx, dt);
+			v_y = Fraction.getFraction(dy, dt);
+			this.flat_phase = flat_phase;
 		}
 
 		/**
@@ -170,22 +181,24 @@ public class MouseEventModeler {
 		List<Step> steps = new ArrayList<>();
 
 		// 平滑阶段的索引，只包含非边缘点
-		List<Integer> flat_step_indices = new ArrayList<>();
+		List<Step> flat_steps = new ArrayList<>();
 		// 非平滑阶段索引
-		List<Integer> non_flat_step_indices = new ArrayList<>();
+		List<Step> non_flat_steps = new ArrayList<>();
 
 		// 总时间，总x方向长度，总y方向长度
 		long t_sum = 0;
 		int x_sum, y_sum = 0;
 
 		// 可支持的 x 拓展范围
-		int[] x_span = new int[2];
+		int x_sum_ub, x_sum_lb = 0;
 
 		/**
 		 *
 		 * @param actions
 		 */
 		public Model(List<Action> actions) {
+
+			logger.info("Init model...");
 
 			// 根据actions 生成 steps
 			for(int i=1; i<actions.size(); i++) {
@@ -201,6 +214,10 @@ public class MouseEventModeler {
 				}
 			}
 
+			// 计算 x_sum_ub x_sum_lb
+			x_sum_ub = x_sum + 10;
+			x_sum_lb = x_sum > 20? x_sum - 10: x_sum;
+
 			// 遍历 steps 找到 平滑拖拽阶段
 			for(int i=0; i < steps.size() - 2; i++) {
 				if(steps.get(i).dt == 8
@@ -212,7 +229,7 @@ public class MouseEventModeler {
 				}
 			}
 
-			// 初始化平滑step的索引 和 非平滑step的索引
+			// 初始化 平滑step 和 非平滑step的索引
 			for(int i=0; i < steps.size(); i++) {
 
 				if(steps.get(i).flat_phase) {
@@ -224,27 +241,76 @@ public class MouseEventModeler {
 						steps.get(i).flat_phase_edge = true;
 					} else {
 						// 只包含非边缘点
-						flat_step_indices.add(i);
+						flat_steps.add(steps.get(i));
 					}
 				} else {
-					non_flat_step_indices.add(i);
+					non_flat_steps.add(steps.get(i));
 				}
 			}
 		}
 
 		/**
-		 * 将总轨迹 +1 px
+		 * 变形
 		 *
-		 * A. 随机找到一个平滑阶段中step（时间间隔8ms），速度 + 0.125 px/ms
+		 * 需要根据具体的变形像素数决定策略
 		 *
-		 * B. 在已有的平滑阶段中增加一个step，速度为 0.125 px/ms
+		 * @param px
 		 */
-		public void expand() {
+		public void morph(int px) throws Exception {
 
+			logger.info("Morph: {}px", px);
+
+			// 拉伸情况
+			if (px > 0 && px <= x_sum_ub - x_sum) {
+
+				int px_to_stretch = px;
+
+				while (px_to_stretch > 0) {
+
+					int seed = new Random().nextInt(2);
+
+					// 在已有的平滑阶段中增加一个step
+					if(seed == 0) {
+
+						// 随机生成这个step所位移的像素
+						int new_seed = new Random().nextInt(px_to_stretch) + 1;
+
+						addOneStepToFlatPhase(new_seed);
+
+						px_to_stretch -= new_seed;
+
+					// 随机找到一个平滑阶段中step（时间间隔8ms），速度 + 0.125 px/ms Aka. 1px
+					} else {
+						Step step = getRandomFlatStep(false);
+						step.addOnePixel();
+						px_to_stretch --;
+					}
+
+				}
+
+			}
+			// 压缩情况
+			else if (px < 0 && px <= x_sum - x_sum_lb) {
+
+				for(int i=0; i<px; i++) {
+					Step step = getRandomFlatStep(true);
+					step.subtractOnePixel();
+				}
+
+			}
+			// Do nothing.
+			else if (px == 0) {
+			}
+			else {
+				throw new MorphException();
+			}
+
+			// 不改变总x位移进行轨迹变换
+			mutation();
 		}
 
 		/**
-		 * 找到一个随机平滑阶段
+		 * 随机找到一个平滑Step
 		 * @param hasVelocity 该阶段是否有速度
 		 *                    没有速度的平滑阶段无法减少速度，不能用于轨迹压缩
 		 * @return 随机找到的平滑阶段
@@ -253,8 +319,8 @@ public class MouseEventModeler {
 
 			Step step = null;
 			int search_count = 0;
-			while (step == null && search_count < 3) {
-				int rnd = new Random().nextInt(flat_step_indices.size());
+			while (step == null && search_count < 5) {
+				int rnd = new Random().nextInt(flat_steps.size());
 				step = steps.get(rnd);
 				if(step.dx == 0 && hasVelocity) step = null;
 			}
@@ -262,8 +328,58 @@ public class MouseEventModeler {
 			return step;
 		}
 
+		/**
+		 * 在平滑阶段插入一个 Step
+		 * 1. 先随机找到一个平滑Step(i)
+		 * 2. 获取Step(i) 和 Step(i+1) 的速度，此时 Step(i+1) 也是一个平滑 Step（由于索引的设定）
+		 * 3. 在Step(i) Step(i+1) 中间插入一个Step*，Step*的速度为：
+		 *     1/8 px/ms 的整倍数，根据实际增加像素数决定
+		 *
+		 * TODO 新增加的Step* 其速度应该与相邻Step 存在一定关系
+		 */
+		public void addOneStepToFlatPhase(int px) throws Exception {
+
+			logger.info("Add one step into flat phase.");
+
+			Step step = getRandomFlatStep(false);
+
+			if(step == null) {
+				throw new NoFlatPhaseStepException();
+			}
+			else {
+
+				int i = flat_steps.indexOf(step);
+
+				// 构建新的step
+				int dt = 8;
+				int dx = px;
+				int dy = step.dy;
+
+				Step new_step = new Step(dx, dy, dt, true);
+
+				// 插入new_step
+				flat_steps.add(i+1, new_step);
+
+				i = steps.indexOf(step);
+				steps.add(i+1, new_step);
+			}
+		}
+
+		/**
+		 * 随机选取 1/3 的 non_flat_phase的step
+		 * 进行 mutation
+		 */
 		public void mutation() {
 
+			logger.info("Random mutation.");
+
+			int[] mutation_indices = new Random()
+					.ints(0, non_flat_steps.size())
+					.distinct().limit((int)Math.ceil(non_flat_steps.size() * 0.33)).toArray();
+
+			for(int i : mutation_indices) {
+				non_flat_steps.get(i).mutation();
+			}
 		}
 
 		/**
@@ -272,17 +388,16 @@ public class MouseEventModeler {
 		 */
 		public List<Action> buildActions() {
 
+			logger.info("Build actions...");
+
 			List<Action> actions = new ArrayList<>();
 
 			return actions;
 		}
 
-	}
+		public class NoFlatPhaseStepException extends Exception {}
 
-	/**
-	 * 找到属于平滑阶段的Actions
-	 */
-	public void findFlatPhase(List<Action> actions) {
+		public class MorphException extends Exception {}
 
 	}
 
