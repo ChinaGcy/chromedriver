@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.zbj;
 
+import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxypool.ZBJProxyWrapper;
 import com.sdyk.ai.crawler.zbj.requester.ChromeRequester;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
@@ -38,16 +40,16 @@ public class Crawler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-			"t-yxtg",
-			"t-rlzy",
-			"t-rcsc",
-			"t-zrfw",
 			"t-wxptkf",
 			"t-xswbzbj",
 			"t-yxgjrj",
 			"t-paperwork",
 			"t-sign",
-			"t-xxtg"
+			"t-xxtg",
+			"t-yxtg",
+			"t-rlzy",
+			"t-rcsc",
+			"t-zrfw"
 	};
 
 	// 服务商频道参数
@@ -80,14 +82,14 @@ public class Crawler {
 			System.out.println("PROJECT:" + channel);
 		}
 
-		if (backtrace == true) {
+		/*if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
 				ScanTask t = ServiceScanTask.generateTask(channel, 1, null);
 				t.backtrace = backtrace;
 				tasks.add(t);
 				System.out.println("SERVICE:" + channel);
 			}
-		}
+		}*/
 
 		return tasks;
 	}
@@ -137,12 +139,29 @@ public class Crawler {
 	 */
 	public static void main(String[] args) {
 
-
-
 		if (args.length == 1 && args[0].equals("H")){
 			// 获取历史数据
 			System.out.println("历史数据");
 			Crawler.getInstance().getHistoricalData();
+
+		}else if (args.length == 1 && args[0].equals("P")){
+			while(true) {
+				if (ZBJProxyWrapper.tag == 1) {
+					ZBJProxyWrapper proxyWapper = new ZBJProxyWrapper();
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						logger.error("proxy pool error", e);
+					}
+					try {
+						String[] a = proxyWapper.getProxy(proxyWapper);
+						ProxyReplace.map.put(a[0], a[1]);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					ZBJProxyWrapper.tag = 0;
+				}
+			}
 		}
 		else {
 			// 监控数据

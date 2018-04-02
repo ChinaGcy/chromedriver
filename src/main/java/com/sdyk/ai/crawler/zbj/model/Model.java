@@ -75,8 +75,7 @@ public abstract class Model implements JSONable<Model> {
 	 */
 	public Model(String url) {
 		this.url = url;
-		this.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(
-				url + " " + System.nanoTime()));
+		this.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(url));
 	}
 
 	/**
@@ -97,20 +96,18 @@ public abstract class Model implements JSONable<Model> {
 		Dao dao = daoMap.get(this.getClass().getSimpleName());
 
 		try {
-
-			if (dao.create(this) == 1) {
+			dao.create(this);
+			return true;
+		} catch (SQLException e) {
+			System.out.println("update data !");
+			if (dao.update(this) == 1) {
+				System.out.println("OK!");
 				return true;
-			} else {
-				dao.update(this);
+			}else {
+				logger.error("insert update error {}", e);
 				return false;
 			}
-
 		}
-		catch (SQLException e) {
-			logger.error("Error insert/update model." , e);
-		}
-
-		return false;
 	}
 
 	public static String rewriteBinaryUrl(String src) {

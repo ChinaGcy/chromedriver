@@ -21,7 +21,7 @@ public class ZBJProxyWrapper {
 		// 开启服务器
 		AliyunService.startService(proxyWapper.serviceId);
 		try {
-			Thread.sleep(60*1000);
+			Thread.sleep(70*1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

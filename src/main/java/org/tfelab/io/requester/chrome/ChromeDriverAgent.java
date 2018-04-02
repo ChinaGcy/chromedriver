@@ -1,5 +1,7 @@
 package org.tfelab.io.requester.chrome;
 
+import com.sdyk.ai.crawler.zbj.model.Account;
+import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
 import com.typesafe.config.Config;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import net.lightbody.bmp.client.ClientUtil;
@@ -35,6 +37,7 @@ import org.tfelab.io.requester.proxy.ProxyWrapper;
 import org.tfelab.io.requester.util.DocumentSettleCondition;
 import org.tfelab.txt.URLUtil;
 import org.tfelab.util.EnvUtil;
+import sun.management.resources.agent;
 
 import javax.imageio.ImageIO;
 import java.awt.Rectangle;
@@ -108,6 +111,9 @@ public class ChromeDriverAgent {
 	private int usageCount = 0; // 使用次数记录
 
 	private BrowserMobProxyServer bmProxy; // 代理出口
+
+	private Account account;
+	private com.sdyk.ai.crawler.zbj.model.Proxy proxy;
 
 	/**
 	 *
@@ -679,17 +685,27 @@ public class ChromeDriverAgent {
 			
 			if(wrapper.needRestart) {
 
-				this.close();
-				this.init();
-				// 超时重新登录
-				/*ChromeDriverLoginWrapper chromeDriverLoginWrapper = new ChromeDriverLoginWrapper("zbj.com");
-				try {
-					chromeDriverLoginWrapper.login(Account.getAccountByDomain("zbj.com")
-							, com.sdyk.ai.crawler.zbj.model.Proxy.getValidProxy("aliyun"));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}*/
+				if (account == null) {
+					try {
+						account = Account.getAccountByDomain("zbj.com");
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				if (proxy == null) {
+					try {
+						proxy = com.sdyk.ai.crawler.zbj.model.Proxy.getValidProxy("aliyun");
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 
+				this.close();
+				// 重启chromedriver
+				this.init();
+
+				// 超时重新登录
+				loginRestart();
 			}
 			
 			task.setException(null);
@@ -905,6 +921,34 @@ public class ChromeDriverAgent {
 	}
 
 	/**
+	 * 设置账户
+	 * @param account
+	 */
+	public void setAccount(Account account) {
+		this.account = account;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public Account getAccount() {
+		return this.account;
+	}
+
+	/**
+	 * 设置代理
+	 * @param proxy
+	 */
+	public void setzbjProxy(com.sdyk.ai.crawler.zbj.model.Proxy proxy){
+		this.proxy = proxy;
+	}
+
+	public com.sdyk.ai.crawler.zbj.model.Proxy getProxy() {
+		return proxy;
+	}
+
+	/**
 	 * 管理Cookie
 	 * @param domain	域名
 	 * @param url 		URL
@@ -966,7 +1010,8 @@ public class ChromeDriverAgent {
 	 * @throws SocketException
 	 */
 	public void getUrl(String url, String postData) throws InterruptedException, SocketException {
-		
+
+		System.err.println(url);
 		driver.get(url);
 		
 		// Bypass 验证
@@ -992,7 +1037,7 @@ public class ChromeDriverAgent {
 	 * @param url
 	 * @throws Exception
 	 */
-	public void waitPageLoad(String url) throws Exception {
+	public void waitPageLoad(String url) {
 		
 		DocumentSettleCondition<WebElement> settleCondition = new DocumentSettleCondition<WebElement>(
 			ExpectedConditions.visibilityOfElementLocated(By.cssSelector("body")));
@@ -1021,6 +1066,123 @@ public class ChromeDriverAgent {
 			driver.switchTo().defaultContent();
 		}*/
 		return src;
+	}
+
+	public void loginRestart() {
+
+		Task t = null;
+		try {
+			t = new Task("http://"+account.getDomain());
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		t.setProxyWrapper(proxy);
+		this.fetch(t);
+
+		// B.点击登录链接
+		WebElement w = this.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
+		w.click();
+
+		// C.输入账号密码
+		WebElement usernameInput = this.getElementWait("#username");
+		usernameInput.sendKeys(account.getUsername());
+
+		WebElement passwordInput = this.getElementWait("#password");
+		passwordInput.sendKeys(account.getPassword());
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		// D.操作验证码
+		if (this.getDriver().getPageSource().contains("geetest_radar_tip_content")) {
+
+			// D1
+			// 点击识别框
+			this.getElementWait(".geetest_radar_tip_content").click();
+
+			/*Thread.sleep(3000);
+
+			// 截图1
+			FileUtil.writeBytesToFile(
+					agent.shoot(".geetest_window"),
+					"geetest/geetest1.png"
+			);
+
+			// 点击滑块
+			new Actions(agent.getDriver()).dragAndDropBy(agent.getElementWait(".geetest_slider_button"), 5, 0).build().perform();
+
+			Thread.sleep(5000);
+			// 截图2
+			FileUtil.writeBytesToFile(
+					agent.shoot(".geetest_window"),
+					"geetest/geetest2.png"
+			);
+
+			// 生成位移
+			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
+
+			Robot bot = new Robot();
+			GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);
+
+			MouseEventTracker tracker = null;
+
+			if(false) {
+
+				// 移动滑块
+				// TODO 寻找更好的模拟方法
+				GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 1000, 1000);
+				bot.mousePress(InputEvent.BUTTON1_MASK);
+				GeeTestUtil.mouseGlide(bot, 926, 552, 926 + offset, 552, 1000, 1000);
+				bot.mouseRelease(InputEvent.BUTTON1_MASK);
+
+				// 不识别
+				new Actions(agent.getDriver())
+						.dragAndDropBy(agent.getElementWait(".geetest_slider_button"), offset, 0)
+						.build().perform();
+
+				// 鼠标点击事件
+				int xOff = 920;
+				robot.mouseMove(xOff, 550);
+
+				Thread.sleep(1000);
+
+				robot.mousePress(InputEvent.BUTTON1_MASK);
+
+				Thread.sleep(1000);
+				for(int index = 1; index <= offset; index++) {
+					robot.mouseMove(++xOff, 550);
+					Thread.sleep(10);
+				}
+				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+			} else {
+
+				tracker = new MouseEventTracker();
+
+			}*/
+
+			// 等待识别
+			WebDriverWait wait = new WebDriverWait(this.getDriver(), 60);
+			wait.until(ExpectedConditions.or(
+					ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
+			));
+
+			/*if(tracker != null) {
+				tracker.serializeMovements();
+			}*/
+
+		}
+
+		this.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

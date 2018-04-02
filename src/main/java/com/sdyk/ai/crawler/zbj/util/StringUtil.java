@@ -231,11 +231,9 @@ public class StringUtil {
 		out = out.replaceAll(">\\s+", ">");
 		out = out.replaceAll("\\s+<", "<");
 
-		System.err.println(out);
 		// 去掉i标签
 		out = out.replaceAll("<i.*?></i>", "");
 
-		System.err.println(out);
 		// 去掉<a>标签
 		//out = out.replaceAll("(?si)<a.*?>|</a>", "");
 
@@ -244,8 +242,6 @@ public class StringUtil {
 		out = out.replaceAll("javascript:.+?(?=['\" ])", "");
 
 		String out1 = out;
-
-
 
 		// 清洗 img 标签，只保留 src 属性
 		Matcher matcher = Pattern.compile("(?si)<img.*?>").matcher(out);

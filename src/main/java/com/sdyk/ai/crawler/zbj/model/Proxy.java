@@ -14,6 +14,7 @@ import org.tfelab.db.OrmLiteDaoManager;
 import org.tfelab.db.Refacter;
 import org.tfelab.io.requester.proxy.ProxyWrapper;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyValidator;
+import org.tfelab.json.JSON;
 
 import java.net.InetSocketAddress;
 import java.sql.Ref;
@@ -326,7 +327,7 @@ public class Proxy implements ProxyWrapper {
 	 */
 	@Override
 	public String toJSON() {
-		return null;
+		return JSON.toJson(this);
 	}
 
 	/**

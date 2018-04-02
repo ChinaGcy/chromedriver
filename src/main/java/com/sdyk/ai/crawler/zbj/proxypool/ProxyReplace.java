@@ -21,13 +21,15 @@ public class ProxyReplace {
 	 */
 	public static void replace(Task task) {
 
-		// TODO 直接生成代理,存到库中后在拿
 		try {
-			task.setProxyWrapper(Proxy.getValidProxy("aliyun"));
+			Proxy proxy = Proxy.getValidProxy("aliyun");
+			task.setProxyWrapper(proxy);
+			task.agent.setzbjProxy(proxy);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+		// TODO 直接生成代理,存到库中后在拿
 		task.getAgent().fetch(task);
 
 		try {

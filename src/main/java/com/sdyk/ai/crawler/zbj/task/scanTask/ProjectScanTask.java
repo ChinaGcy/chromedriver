@@ -79,19 +79,17 @@ public class ProjectScanTask extends ScanTask {
 
 		int page = this.getParamInt("page");
 
-		Pattern pattern = Pattern.compile("http://task.zbj.com/\\d+/");
+		Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
 		Matcher matcher = pattern.matcher(src);
 
 		List<String> list = new ArrayList<>();
 
 		while (matcher.find()) {
-
 			String url = matcher.group();
-
 			// 去重
 			if(!list.contains(url)) {
 				list.add(url);
-				tasks.add(new ProjectTask(url));
+				tasks.add(new ProjectTask("http://"+url));
 			}
 		}
 

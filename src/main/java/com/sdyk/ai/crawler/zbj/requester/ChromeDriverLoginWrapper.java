@@ -36,8 +36,6 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 	public volatile boolean done = false;
 
-	public Proxy proxy;
-
 	/**
 	 *
 	 * @param domain
@@ -163,7 +161,8 @@ public class ChromeDriverLoginWrapper extends Thread {
 
 		agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
 		Thread.sleep(1000);
-
+		agent.setzbjProxy(pw);
+		agent.setAccount(account);
 		return agent;
 	}
 
@@ -202,4 +201,5 @@ public class ChromeDriverLoginWrapper extends Thread {
 			}
 		}
 	}
+
 }
