@@ -33,6 +33,49 @@ public class MouseEventModeler {
 
 	List<Model> models = new ArrayList<>();
 
+	Map<Integer, List<Model>> range_models = new HashMap<>();
+
+	/**
+	 * 初始化
+	 */
+	public MouseEventModeler() {
+
+		for(List<Action> actions : loadData()) {
+			Model model = new Model(actions);
+			for(int i=model.x_sum_lb; i<=model.x_sum_ub; i++) {
+				if(!range_models.containsKey(i)) {
+					range_models.put(i, new ArrayList<Model>());
+				}
+				range_models.get(i).add(model);
+			}
+		}
+	}
+
+	/**
+	 * 返回指定px的 action 列表
+	 * @param px
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Action> getActions(int px) throws Exception {
+
+		List<Action> actions = null;
+
+		if(range_models.get(px) != null) {
+
+			int seed = new Random().nextInt(range_models.get(px).size());
+			Model model = range_models.get(px).get(seed);
+
+			int dx = px - model.x_sum;
+			model.morph(dx);
+			return model.buildActions();
+		} else {
+			throw new NoSuitableModelException();
+		}
+	}
+
+	public class NoSuitableModelException extends Exception {}
+
 	/**
 	 * Step 刻画两个Actions之间的过程
 	 */
@@ -55,12 +98,12 @@ public class MouseEventModeler {
 		boolean flat_phase_edge = false;
 
 		/**
-		 * 构建一个Step
+		 * 通过 Actions 构建 Step
 		 * @param from 起始事件
 		 * @param to 终止事件
 		 * @throws Exception 起始时间和终止时间的时间差为0时 抛出异常
 		 */
-		public Step (Action from, Action to) throws Exception {
+		Step (Action from, Action to) throws Exception {
 
 			dt = (int) (to.time - from.time);
 			if(dt == 0) {
@@ -73,13 +116,16 @@ public class MouseEventModeler {
 		}
 
 		/**
-		 *
-		 * @param dx
-		 * @param dy
-		 * @param dt
-		 * @param flat_phase
+		 * 通过具体参数 构建 Step
+		 * @param dx x位移
+		 * @param dy y位移
+		 * @param dt 时间
+		 * @param flat_phase 是否为平滑阶段
 		 */
-		public Step (int dx, int dy, int dt, boolean flat_phase) {
+		Step (int dx, int dy, int dt, boolean flat_phase) {
+			this.dx = dx;
+			this.dy = dy;
+			this.dt = dt;
 			v_x = Fraction.getFraction(dx, dt);
 			v_y = Fraction.getFraction(dy, dt);
 			this.flat_phase = flat_phase;
@@ -88,7 +134,7 @@ public class MouseEventModeler {
 		/**
 		 * Add 1px
 		 */
-		public void addOnePixel() {
+		void addOnePixel() {
 			// 限平滑阶段 t = 8ms
 			if(flat_phase) {
 				v_x = v_x.add(Fraction.getFraction(1, 8));
@@ -105,7 +151,7 @@ public class MouseEventModeler {
 		/**
 		 * Subtract 1px
 		 */
-		public void subtractOnePixel() {
+		void subtractOnePixel() {
 			// 限平滑阶段 && X方向速度 > 0
 			// t = 8ms
 			if(flat_phase && v_x.doubleValue() > 0) {
@@ -127,7 +173,7 @@ public class MouseEventModeler {
 		 * 保证Step期间总位移不变，但轨迹特征在可控范围内随机变化
 		 * dt' * v' = dt * v
 		 */
-		public void mutation() {
+		void mutation() {
 
 			// 限非平滑阶段，阶段时间为10ms以上
 			if(!flat_phase && dt > 10) {
@@ -205,7 +251,7 @@ public class MouseEventModeler {
 		TreeMap<Integer, List<Step>> dx_to_flat_steps = new TreeMap<>();
 
 		/**
-		 *
+		 * 初始化
 		 * @param actions
 		 */
 		public Model(List<Action> actions) {
@@ -279,6 +325,7 @@ public class MouseEventModeler {
 		 * @param step 新生成 step
 		 */
 		private void addStepIntoDxMap(Step step) {
+
 			int dx = step.dx;
 			if (!dx_to_flat_steps.containsKey(dx)) {
 				dx_to_flat_steps.put(dx, new ArrayList<>());
@@ -291,20 +338,20 @@ public class MouseEventModeler {
 		 *
 		 * 需要根据具体的变形像素数决定策略
 		 *
-		 * @param px 需要变形的像素数
+		 * @param dx 需要变形的像素数
 		 */
-		public void morph(int px) throws Exception {
+		public void morph(int dx) throws Exception {
 
-			logger.info("Morph: {}px", px);
+			logger.info("Morph: {}px", dx);
 
 			// A 拉伸情况
-			if (px > 0 && px <= x_sum_ub - x_sum) {
+			if (dx > 0 && dx <= x_sum_ub - x_sum) {
 
 				logger.info("\tStretching...");
 
-				int px_to_stretch = px;
+				int px_stretch = dx;
 
-				while (px_to_stretch > 0) {
+				while (px_stretch > 0) {
 
 					int seed = new Random().nextInt(2);
 
@@ -312,11 +359,13 @@ public class MouseEventModeler {
 					if(seed == 0) {
 
 						// 随机生成这个step所位移的像素
-						int new_seed = new Random().nextInt(px_to_stretch) + 1;
+						int new_seed = new Random().nextInt(px_stretch) + 1;
+
+						logger.info("\tInsert new step with {}px", new_seed);
 
 						addOneStepToFlatPhase(new_seed);
 
-						px_to_stretch -= new_seed;
+						px_stretch -= new_seed;
 
 					// 随机找到一个平滑阶段中step（时间间隔8ms），速度 + 0.125 px/ms Aka. 1px
 					}
@@ -337,16 +386,16 @@ public class MouseEventModeler {
 						x_sum_ub = x_sum + 10;
 						x_sum_lb = x_sum > 20? x_sum - 10: x_sum;
 
-						px_to_stretch --;
+						px_stretch --;
 					}
 
 				}
 
 			}
 			// B 压缩情况
-			else if (px < 0 && px >= x_sum - x_sum_lb) {
+			else if (dx < 0 && dx >= x_sum_lb - x_sum) {
 
-				for(int i=0; i<px; i++) {
+				for(int i=0; i<-dx; i++) {
 
 					Step step = getRandomFlatStep(true);
 
@@ -367,7 +416,8 @@ public class MouseEventModeler {
 
 			}
 			// C Do nothing.
-			else if (px == 0) {
+			else if (dx == 0) {
+				logger.info("\tX not change.");
 			}
 			else {
 				throw new MorphException();
@@ -383,7 +433,7 @@ public class MouseEventModeler {
 		 *                    没有速度的平滑阶段无法减少速度，不能用于轨迹压缩
 		 * @return 随机找到的平滑阶段
 		 */
-		public Step getRandomFlatStep(boolean hasVelocity) {
+		Step getRandomFlatStep(boolean hasVelocity) {
 
 			Step step = null;
 			int search_count = 0;
@@ -391,6 +441,7 @@ public class MouseEventModeler {
 				int rnd = new Random().nextInt(flat_steps.size());
 				step = steps.get(rnd);
 				if(step.dx == 0 && hasVelocity) step = null;
+				search_count ++;
 			}
 
 			return step;
@@ -405,7 +456,7 @@ public class MouseEventModeler {
 		 *
 		 * 新增加的Step* 其速度应该与相邻Step 存在一定关系
 		 */
-		public void addOneStepToFlatPhase(int px) throws Exception {
+		void addOneStepToFlatPhase(int px) throws Exception {
 
 			logger.info("Add one step into flat phase, {}px.", px);
 
@@ -489,7 +540,7 @@ public class MouseEventModeler {
 		 * 随机选取 1/3 的 non_flat_phase的step
 		 * 进行 mutation
 		 */
-		public void mutation() {
+		void mutation() {
 
 			logger.info("Random mutation...");
 
@@ -514,8 +565,7 @@ public class MouseEventModeler {
 		}
 
 		/**
-		 * 平滑阶段的最大速度 1/8的倍数
-		 * @return
+		 * @return 平滑阶段最大x像素位移
 		 */
 		private int getFlatPhaseMaxPx() {
 
@@ -523,8 +573,7 @@ public class MouseEventModeler {
 		}
 
 		/**
-		 * 平滑阶段的最小速度 1/8的倍数
-		 * @return
+		 * @return 平滑阶段最小x像素位移
 		 */
 		private int getFlatPhaseMinPx() {
 
@@ -537,7 +586,7 @@ public class MouseEventModeler {
 		 * @param searchUp 逐步增加px搜索
 		 * @return
 		 */
-		public Step getCloseByStepByPx(int px, boolean searchUp) {
+		Step getCloseByStepByPx(int px, boolean searchUp) {
 
 			int px_ = px;
 
@@ -563,10 +612,10 @@ public class MouseEventModeler {
 
 		/**
 		 * 根据指定位移，随机找一个Step
-		 * @param px
+		 * @param px 位移
 		 * @return
 		 */
-		public Step getStepByPx(int px) {
+		Step getStepByPx(int px) {
 
 			Step step = null;
 
@@ -583,7 +632,7 @@ public class MouseEventModeler {
 
 		/**
 		 * 通过steps重新构建actions
-		 * @return
+		 * @return actions 列表
 		 */
 		public List<Action> buildActions() throws ModelNoInitException {
 
@@ -597,34 +646,39 @@ public class MouseEventModeler {
 			Action a0 = new Action(Action.Type.Press, x_init, y_init, t0);
 			actions.add(a0);
 
+			int c_x = a0.x;
+			int c_y = a0.y;
+			long c_t = a0.time;
+
 			// 遍历Step 生成Action
 			for(Step step : steps) {
-				Action a = new Action(Action.Type.Drag,
-						a0.x + step.dx,
-						a0.y + step.dy,
-						a0.time + step.dt);
+
+				c_x += step.dx;
+				c_y += step.dy;
+				c_t += step.dt;
+
+				Action a = new Action(Action.Type.Drag, c_x, c_y, c_t);
 				actions.add(a);
 			}
-
 
 			actions.get(actions.size()-1).type = Action.Type.Release;
 
 			return actions;
 		}
 
-		public class NoFlatPhaseStepException extends Exception {}
+		class NoFlatPhaseStepException extends Exception {}
 
-		public class MorphException extends Exception {}
+		class MorphException extends Exception {}
 
-		public class NoSuitableOffsetStepException extends Exception {}
+		class NoSuitableOffsetStepException extends Exception {}
 
-		public class ModelNoInitException extends Exception {}
+		class ModelNoInitException extends Exception {}
 
 	}
 
 	/**
 	 * 对鼠标左键按下之前的事件进行清理
-	 * @param actions
+	 * @param actions 清理后的actions
 	 */
 	public static void removePreMoveActions(List<Action> actions) {
 
@@ -714,18 +768,6 @@ public class MouseEventModeler {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		List<Action> actions = loadData("mouse_movements/1521357776022_6a62fed3-55ad-44d6-8ce8-205c6514dc9b.txt");
 
-		Model model = new Model(actions);
-
-		String output = toMathematicaListStr(model.buildActions());
-
-		FileUtil.writeBytesToFile(output.getBytes(), "original_actions.txt");
-
-		model.morph(10);
-
-		output = toMathematicaListStr(model.buildActions());
-
-		FileUtil.writeBytesToFile(output.getBytes(), "new_actions.txt");
 	}
 }
