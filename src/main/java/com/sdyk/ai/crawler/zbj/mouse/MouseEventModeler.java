@@ -135,35 +135,28 @@ public class MouseEventModeler {
 		 * Add 1px
 		 */
 		void addOnePixel() {
-			// 限平滑阶段 t = 8ms
+			// 限平滑阶段
 			if(flat_phase) {
-				v_x = v_x.add(Fraction.getFraction(1, 8));
 
-				// TODO 此处可能没有意义，有可能会导致轨迹发生显著变化
-				if(dy > 0) {
-					v_y = v_y.add(Fraction.getFraction(1, 8));
-				}
-				dx = (int) Math.round(v_x.doubleValue() * dt);
-				dy = (int) Math.round(v_y.doubleValue() * dt);
+				dx = dx + 1;
+				v_x = Fraction.getFraction(dx, dt);
+				v_y = Fraction.getFraction(dy, dt);
 			}
 		}
 
 		/**
 		 * Subtract 1px
 		 */
-		void subtractOnePixel() {
+		boolean subtractOnePixel() {
 			// 限平滑阶段 && X方向速度 > 0
-			// t = 8ms
-			if(flat_phase && v_x.doubleValue() > 0) {
-				v_x = v_x.subtract(Fraction.getFraction(1, 8));
+			if(flat_phase && dx > 0) {
 
-				// TODO 此处可能没有意义，有可能会导致轨迹发生显著变化
-				if(dy > 0) {
-					v_y = v_y.subtract(Fraction.getFraction(1, 8));
-				}
-				dx = (int) Math.round(v_x.doubleValue() * dt);
-				dy = (int) Math.round(v_y.doubleValue() * dt);
+				dx = dx - 1;
+				v_x = Fraction.getFraction(dx, dt);
+				v_y = Fraction.getFraction(dy, dt);
+				return true;
 			}
+			return false;
 		}
 
 		/**
@@ -182,7 +175,7 @@ public class MouseEventModeler {
 				double f = generator.nextDouble() * 0.4 - 0.2;
 
 				dt = (int) (dt * (1 + f));
-				if(dt < 8) dt = 8;
+				if(dt < 7) dt = 7;
 				v_x = Fraction.getFraction(dx, dt);
 				v_y = Fraction.getFraction(dy, dt);
 			}
@@ -284,9 +277,9 @@ public class MouseEventModeler {
 
 			// B. 遍历 steps 找到 平滑拖拽阶段
 			for(int i=0; i < steps.size() - 2; i++) {
-				if(steps.get(i).dt == 8
-						&& steps.get(i + 1).dt == 8
-						&& steps.get(i + 2).dt == 8) {
+				if(steps.get(i).dt <= 8
+						&& steps.get(i + 1).dt <= 8
+						&& steps.get(i + 2).dt <= 8) {
 					steps.get(i).flat_phase = true;
 					steps.get(i + 1).flat_phase = true;
 					steps.get(i + 2).flat_phase = true;
@@ -308,7 +301,6 @@ public class MouseEventModeler {
 						flat_steps.add(steps.get(i));
 
 						// C2. 创建平滑阶段的时速度索引
-						int dx = steps.get(i).dx;
 						addStepIntoDxMap(steps.get(i));
 					}
 
@@ -402,8 +394,8 @@ public class MouseEventModeler {
 					// 更改统计信息 Part 1
 					y_sum -= step.dy;
 
-					step.subtractOnePixel();
-					logger.info("\tSubtract 1px: {}", step.toJSON());
+					logger.info("\tbefore: {}", step.toJSON());
+					logger.info("\tSubtract 1px: {}, {}", step.subtractOnePixel(), step.toJSON());
 
 					// 更改统计信息 Part 2
 					x_sum -= 1;
@@ -439,7 +431,7 @@ public class MouseEventModeler {
 			int search_count = 0;
 			while (step == null && search_count < 5) {
 				int rnd = new Random().nextInt(flat_steps.size());
-				step = steps.get(rnd);
+				step = flat_steps.get(rnd);
 				if(step.dx == 0 && hasVelocity) step = null;
 				search_count ++;
 			}

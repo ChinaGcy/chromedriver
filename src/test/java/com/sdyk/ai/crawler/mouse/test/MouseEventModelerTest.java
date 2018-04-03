@@ -22,7 +22,7 @@ public class MouseEventModelerTest {
 
 		FileUtil.writeBytesToFile(output.getBytes(), "original_actions.txt");
 
-		model.morph(10);
+		model.morph(-10);
 
 		output = toMathematicaListStr(model.buildActions());
 
