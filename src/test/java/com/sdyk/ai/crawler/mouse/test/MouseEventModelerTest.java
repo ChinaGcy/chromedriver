@@ -36,8 +36,14 @@ public class MouseEventModelerTest {
 		MouseEventModeler modeler = new MouseEventModeler();
 
 		for(int i=40; i<=200; i++) {
-			String output = toMathematicaListStr(modeler.getActions(i));
-			FileUtil.writeBytesToFile(output.getBytes(), "new_actions/" + i + ".txt");
+
+			try {
+				MouseEventModeler.logger.info(i);
+				String output = toMathematicaListStr(modeler.getActions(i));
+				FileUtil.writeBytesToFile(output.getBytes(), "new_actions/" + i + ".txt");
+			} catch (Exception e){
+				e.printStackTrace();
+			}
 		}
 	}
 }

@@ -29,11 +29,11 @@ import java.lang.reflect.Type;
  */
 public class MouseEventModeler {
 
-	private static final Logger logger = LogManager.getLogger(MouseEventModeler.class.getName());
+	public static final Logger logger = LogManager.getLogger(MouseEventModeler.class.getName());
 
 	private List<Model> models = new ArrayList<>();
 
-	private Map<Integer, List<Model>> range_models = new HashMap<>();
+	public Map<Integer, List<Model>> range_models = new HashMap<>();
 
 	/**
 	 * 初始化
@@ -45,6 +45,10 @@ public class MouseEventModeler {
 			Model model = new Model(actions);
 
 			models.add(model);
+
+			if(model.x_sum == 47) {
+
+			}
 
 			for(int i=model.x_sum_lb; i<=model.x_sum_ub; i++) {
 
@@ -72,8 +76,13 @@ public class MouseEventModeler {
 			Model model = range_models.get(px).get(seed);
 
 			int dx = px - model.x_sum;
-			model.morph(dx);
+
+			// TODO 复制这个Model 而不应该修改原始Model
+			Model model_ = new Model(model.actions);
+			model_.morph(dx);
+
 			return model.buildActions();
+
 		} else {
 			throw new NoSuitableModelException();
 		}
@@ -162,7 +171,15 @@ public class MouseEventModeler {
 
 				v_x = Fraction.getFraction(dx, dt);
 				v_y = Fraction.getFraction(dy, dt);
-			} else {
+			}
+			else if(flat_phase && dx < 0) {
+				dx = dx - 1;
+				dy = dx != 0 ? (int) Math.round(dy*(dx-1)/dx) : 0;
+
+				v_x = Fraction.getFraction(dx, dt);
+				v_y = Fraction.getFraction(dy, dt);
+			}
+			else {
 				logger.warn(this.toJSON());
 				throw new StepCannotSubtractException();
 			}
@@ -240,6 +257,8 @@ public class MouseEventModeler {
 
 		boolean init = false;
 
+		List<Action> actions = new ArrayList<>();
+
 		// 事件间间隔
 		List<Step> steps = new ArrayList<>();
 
@@ -250,10 +269,10 @@ public class MouseEventModeler {
 
 		// 总时间，总x方向长度，总y方向长度
 		long t_sum = 0;
-		int x_sum, y_sum = 0;
+		public int x_sum, y_sum = 0;
 
 		// 可支持的 x 拓展范围
-		int x_sum_ub, x_sum_lb = 0;
+		public int x_sum_ub, x_sum_lb = 0;
 
 		// 基于位移的平滑阶段索引，用于根据位移找到对应的平滑阶段
 		TreeMap<Integer, List<Step>> dx_to_flat_steps = new TreeMap<>();
@@ -265,6 +284,8 @@ public class MouseEventModeler {
 		public Model(List<Action> actions) {
 
 			logger.info("Init model...");
+
+			this.actions = actions;
 
 			// A. 根据actions 生成 steps
 			for(int i=1; i<actions.size(); i++) {
@@ -434,7 +455,7 @@ public class MouseEventModeler {
 				logger.info("\tX not change.");
 			}
 			else {
-				logger.warn("");
+				logger.warn("x_sum_ub:{}, x_sum_lb:{}", x_sum_ub, x_sum_lb);
 				throw new MorphException();
 			}
 
