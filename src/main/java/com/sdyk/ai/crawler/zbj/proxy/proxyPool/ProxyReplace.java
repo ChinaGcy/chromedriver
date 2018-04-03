@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.zbj.proxypool;
+package com.sdyk.ai.crawler.zbj.proxy.proxyPool;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.Proxy;

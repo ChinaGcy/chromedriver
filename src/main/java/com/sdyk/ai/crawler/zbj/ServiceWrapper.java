@@ -30,38 +30,38 @@ public class ServiceWrapper {
 
 		port(port);
 
-		// project
+		// 需求
 		get("/project/:id", ProjectRoute.getProjectById, new ModelMsgTransformer());
 
 		get("/projects/:page", ProjectRoute.getProjects, new ModelMsgTransformer());
 
-		// binary
+		// 下载文件
 		get("/binarys/:id", BinaryRoute.getBinaryForId, new ModelMsgTransformer());
 
-		// tenderer
+		// 雇主
 		get("/tenderer/:id", TendererRoute.getTendererById, new ModelMsgTransformer());
 
 		get("/tenderers/:page", TendererRoute.getTenderers, new ModelMsgTransformer());
 
-		// tendererRating
+		// 雇主评价
 		get("/tenderer/:tendererid/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());
 
-		// serviceSupplier
+		// 服务商
 		get("/servicesupplier/:id", ServiceSupplierRoute.getServiceById, new ModelMsgTransformer());
 
 		get("/servicesuppliers/:page", ServiceSupplierRoute.getServiceSuppliers, new ModelMsgTransformer());
 
-		// serviceSupplier_case
+		// 服务商案例
 		get("/servicesupplier/case/:id", CaseRoute.getCaseById, new ModelMsgTransformer());
 
 		get("/servicesupplier/:userid/cases/:page", CaseRoute.getCases, new ModelMsgTransformer());
 
-		// serviceSupplier_work
+		// 服务商服务
 		get("/servicesupplier/work/:id", WorkRoute.getWorkById, new ModelMsgTransformer());
 
 		get("/servicesupplier/:userid/works/:page", WorkRoute.getWorks, new ModelMsgTransformer());
 
-		// serviceSupplier_rating
+		// 服务商评价
 		get("/servicesupplier/:servicesupplierid/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());
 
 	}

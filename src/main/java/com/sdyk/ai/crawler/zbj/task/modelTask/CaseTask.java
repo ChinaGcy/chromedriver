@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
-import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Case;
@@ -44,7 +44,7 @@ public class CaseTask extends Task {
 		if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
 			ca = new Case(getUrl());
 
-			if (!getUrl().contains("http://shop.tianpeng.com")) {
+			if (!getUrl().contains("https://shop.tianpeng.com")) {
 				// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
 				try {
 					pageOne(src, driver);

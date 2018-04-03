@@ -1,19 +1,18 @@
 package com.sdyk.ai.crawler.zbj;
 
-import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
-import com.sdyk.ai.crawler.zbj.proxypool.ZBJProxyWrapper;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ZBJProxyWrapper;
 import com.sdyk.ai.crawler.zbj.requester.ChromeRequester;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
-import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
 import it.sauronsoftware.cron4j.Scheduler;
 import org.apache.logging.log4j.LogManager;
-import org.tfelab.io.requester.proxy.IpDetector;
-import org.tfelab.util.NetworkUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static spark.route.HttpMethod.get;
 
@@ -40,30 +39,51 @@ public class Crawler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-			"t-wxptkf",
-			"t-xswbzbj",
-			"t-yxgjrj",
+			"t-pxfw",
+			"t-consult",
 			"t-paperwork",
+			"t-ppsj",
 			"t-sign",
+			"t-ad",
+			"t-dhsjzbj",
+			"t-video",
+			"t-xcpzzzbj",
+			"t-uisheji",
+			"t-rjkf",
+			"t-ydyykf",
+			"t-wzkf",
+			"t-vrthreed",
+			"t-hkaifa",
+			"t-zhjjfazbjzbj",
+			"t-wxptkf",
+			"t-dianlu",
 			"t-xxtg",
 			"t-yxtg",
-			"t-rlzy",
-			"t-rcsc",
-			"t-zrfw"
+
 	};
 
 	// 服务商频道参数
 	public static String[] service_supplier_channels = {
-			"yxtg",
+			"pxfw",
+			"consult",
 			"paperwork",
-			"rcsc",
+			"ppsj",
 			"sign",
-			"xxtg",
-			"rlzy",
+			"ad",
+			"dhsjzbj",
+			"video",
+			"xcpzzzbj",
+			"uisheji",
+			"rjkf",
+			"ydyykf",
+			"wzkf",
+			"vrthreed",
+			"hkaifa",
+			"zhjjfazbjzbj",
 			"wxptkf",
-			"yxgjrj",
-			"zrfw",
-			"xswbzbj"
+			"dianlu",
+			"xxtg",
+			"yxtg",
 	};
 
 	/**

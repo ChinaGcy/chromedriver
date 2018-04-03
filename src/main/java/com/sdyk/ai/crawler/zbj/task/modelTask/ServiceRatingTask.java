@@ -3,7 +3,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.SupplierRating;
-import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.By;
@@ -89,7 +89,7 @@ public class ServiceRatingTask extends ScanTask {
 
 		// 翻页
 		if (pageTurning(driver, "#userlist > div.pagination > ul", page)) {
-			Task task = generateTask("http://shop.zbj.com/evaluation/evallist-uid-"+ getUrl().split("-")[2] +"-type-1-isLazyload-0-page-", ++page);
+			Task task = generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ getUrl().split("-")[2] +"-type-1-isLazyload-0-page-", ++page);
 			tasks.add(task);
 		}
 
@@ -108,7 +108,7 @@ public class ServiceRatingTask extends ScanTask {
 				.getAttribute("src").split("/");
 		serviceRating.tenderer_id = ss[3].substring(1)+ss[4]+ss[5]+ss[6].split("_")[2].split(".jpg")[0];
 
-		serviceRating.tenderer_url = "http://home.zbj.com/" + serviceRating.tenderer_id;
+		serviceRating.tenderer_url = "https://home.zbj.com/" + serviceRating.tenderer_id;
 
 		serviceRating.project_url = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a"))
 				.getAttribute("href");

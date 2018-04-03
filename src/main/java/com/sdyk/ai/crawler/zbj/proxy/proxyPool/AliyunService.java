@@ -1,12 +1,9 @@
-package com.sdyk.ai.crawler.zbj.proxypool;
+package com.sdyk.ai.crawler.zbj.proxy.proxyPool;
 
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.ecs.model.v20140526.*;
 import com.aliyuncs.profile.DefaultProfile;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AliyunService {
 

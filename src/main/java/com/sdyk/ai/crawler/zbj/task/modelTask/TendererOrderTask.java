@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
-import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.WebDriver;
@@ -67,7 +67,7 @@ public class TendererOrderTask extends ScanTask {
 		}
 		if (pageTurning(driver, "#order > div > div.pagination-wrapper > div > ul", op_page)) {
 			// 翻页
-			Task t = generateTask("http://home.zbj.com/"
+			Task t = generateTask("https://home.zbj.com/"
 					+ this.getParamString("webId"), ++op_page, this.getParamString("webId"));
 			if (t != null) {
 				t.setPrior();

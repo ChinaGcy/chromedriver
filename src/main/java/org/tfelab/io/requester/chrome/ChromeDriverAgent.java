@@ -37,7 +37,6 @@ import org.tfelab.io.requester.proxy.ProxyWrapper;
 import org.tfelab.io.requester.util.DocumentSettleCondition;
 import org.tfelab.txt.URLUtil;
 import org.tfelab.util.EnvUtil;
-import sun.management.resources.agent;
 
 import javax.imageio.ImageIO;
 import java.awt.Rectangle;
@@ -328,10 +327,10 @@ public class ChromeDriverAgent {
 			logger.info("Chrome driver pid:{}", pid);
 
 			// 设置脚本运行超时参数
-			driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+			driver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
 
 			// 设置等待超时参数
-			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+			driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 			
 			// 这个值要设置的比较大 否则会出现 org.openqa.selenium.TimeoutException: timeout: cannot determine loading status
 			driver.manage().timeouts().pageLoadTimeout(300, TimeUnit.SECONDS);
@@ -590,11 +589,11 @@ public class ChromeDriverAgent {
 				//String cookies = ChromeDriverAgent.this.handleCookie(task.getDomain(), task.getUrl(), task.getCookies());
 
 				ChromeDriverAgent.this.getUrl(task.getUrl(), task.getPost_data());
-				
-				ChromeDriverAgent.this.waitPageLoad(task.getUrl());
-						
+
+				//ChromeDriverAgent.this.waitPageLoad(task.getUrl());
+
 				// 正常解析到页面
-				if(!driver.getCurrentUrl().matches("^data:.+?")) {
+				/*if(!driver.getCurrentUrl().matches("^data:.+?")) {
 
 					boolean actionResult = true;
 					for(ChromeDriverAction action : task.getActions()) {
@@ -610,7 +609,7 @@ public class ChromeDriverAgent {
 					if(task.isShoot_screen()) {
 						task.getResponse().setScreenshot(driver.getScreenshotAs(OutputType.BYTES));
 					}
-				}
+				}*/
 				
 				// save cookies
 				//String newCookies = ChromeDriverAgent.this.getNewCookies(task.getDomain(), cookies);
@@ -621,30 +620,30 @@ public class ChromeDriverAgent {
 			 * 需要重启
 			 */
 			catch (NoSuchWindowException e) {
-				logger.error(e);
+				/*logger.error(e);
 				task.setException(e);
-				needRestart = true;
+				needRestart = true;*/
 			}
 			catch (UnreachableBrowserException e) {
-				logger.error(e);
+				/*logger.error(e);
 				task.setException(e);
-				needRestart = true;
+				needRestart = true;*/
 			}
 			/**
 			 * 操作超时，譬如判断页面是否成功加载时候，会抛这个异常
 			 */
 			catch (org.openqa.selenium.TimeoutException e) {
-				logger.error(e);
+				/*logger.error(e);
 				task.setException(e);
-				needRestart = true;
+				needRestart = true;*/
 			}
 			catch (NoSuchSessionException e) {
-				logger.error(e);
+				/*logger.error(e);
 				task.setException(e);
-				needRestart = true;
+				needRestart = true;*/
 			}
 			catch (WebDriverException e) {
-				logger.error(e);
+				/*logger.error(e);
 				task.setException(e);
 				needRestart = true;
 				if(e.getMessage().contains("chrome not reachable") 
@@ -653,11 +652,11 @@ public class ChromeDriverAgent {
 					|| e.getMessage().contains("unexpectedly died")
 				) {
 
-				}
+				}*/
 			}
 			catch (Exception e) {
-				logger.error("Unknown Error.", e);
-				task.setException(e);
+				/*logger.error("Unknown Error.", e);
+				task.setException(e);*/
 			}
 			finally {
 				// TODO
@@ -1011,9 +1010,12 @@ public class ChromeDriverAgent {
 	 */
 	public void getUrl(String url, String postData) throws InterruptedException, SocketException {
 
-		System.err.println(url);
-		driver.get(url);
-		
+		try {
+			driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+			driver.get(url);
+		} catch (org.openqa.selenium.TimeoutException e) {
+			System.out.println(12399658);
+		}
 		// Bypass 验证
 		if(driver.getPageSource().contains("安全检查中")){
 			Thread.sleep(10000);
@@ -1072,7 +1074,7 @@ public class ChromeDriverAgent {
 
 		Task t = null;
 		try {
-			t = new Task("http://"+account.getDomain());
+			t = new Task("https://login.zbj.com/login");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (URISyntaxException e) {
@@ -1082,8 +1084,8 @@ public class ChromeDriverAgent {
 		this.fetch(t);
 
 		// B.点击登录链接
-		WebElement w = this.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
-		w.click();
+		/*WebElement w = this.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
+		w.click();*/
 
 		// C.输入账号密码
 		WebElement usernameInput = this.getElementWait("#username");
