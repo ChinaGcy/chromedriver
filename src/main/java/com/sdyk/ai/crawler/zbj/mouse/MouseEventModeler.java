@@ -16,7 +16,7 @@ import java.lang.reflect.Type;
 /**
  * 对鼠标事件进行建模分析
  * @Author scisaga@gmail.com
- * @Date 2018/3/30
+ * @Date 2018/4/3
  *
  * 1. 加载鼠标事件
  * 2. 对鼠标轨迹进行分析
@@ -31,9 +31,9 @@ public class MouseEventModeler {
 
 	private static final Logger logger = LogManager.getLogger(MouseEventModeler.class.getName());
 
-	List<Model> models = new ArrayList<>();
+	private List<Model> models = new ArrayList<>();
 
-	Map<Integer, List<Model>> range_models = new HashMap<>();
+	private Map<Integer, List<Model>> range_models = new HashMap<>();
 
 	/**
 	 * 初始化
@@ -41,8 +41,13 @@ public class MouseEventModeler {
 	public MouseEventModeler() {
 
 		for(List<Action> actions : loadData()) {
+
 			Model model = new Model(actions);
+
+			models.add(model);
+
 			for(int i=model.x_sum_lb; i<=model.x_sum_ub; i++) {
+
 				if(!range_models.containsKey(i)) {
 					range_models.put(i, new ArrayList<Model>());
 				}
@@ -74,7 +79,7 @@ public class MouseEventModeler {
 		}
 	}
 
-	public class NoSuitableModelException extends Exception {}
+	class NoSuitableModelException extends Exception {}
 
 	/**
 	 * Step 刻画两个Actions之间的过程
@@ -139,6 +144,7 @@ public class MouseEventModeler {
 			if(flat_phase) {
 
 				dx = dx + 1;
+
 				v_x = Fraction.getFraction(dx, dt);
 				v_y = Fraction.getFraction(dy, dt);
 			}
@@ -147,16 +153,19 @@ public class MouseEventModeler {
 		/**
 		 * Subtract 1px
 		 */
-		boolean subtractOnePixel() {
+		void subtractOnePixel() throws StepCannotSubtractException {
 			// 限平滑阶段 && X方向速度 > 0
 			if(flat_phase && dx > 0) {
 
 				dx = dx - 1;
+				dy = dx != 0 ? (int) Math.round(dy*(dx-1)/dx) : 0;
+
 				v_x = Fraction.getFraction(dx, dt);
 				v_y = Fraction.getFraction(dy, dt);
-				return true;
+			} else {
+				logger.warn(this.toJSON());
+				throw new StepCannotSubtractException();
 			}
-			return false;
 		}
 
 		/**
@@ -181,10 +190,16 @@ public class MouseEventModeler {
 			}
 		}
 
+		public enum MutationType {
+			Slower, Faster
+		}
+
 		@Override
 		public String toJSON() {
 			return JSON.toJson(this);
 		}
+
+		public static class StepCannotSubtractException extends Exception {}
 	}
 
 	/**
@@ -336,6 +351,9 @@ public class MouseEventModeler {
 
 			logger.info("Morph: {}px", dx);
 
+			// 用于储存随机挑选的索引
+			Set<Integer> excluded_pool = new HashSet<>();
+
 			// A 拉伸情况
 			if (dx > 0 && dx <= x_sum_ub - x_sum) {
 
@@ -359,10 +377,12 @@ public class MouseEventModeler {
 
 						px_stretch -= new_seed;
 
-					// 随机找到一个平滑阶段中step（时间间隔8ms），速度 + 0.125 px/ms Aka. 1px
+					// 随机找到一个平滑阶段 step，位移增加 1px
 					}
 					else {
-						Step step = getRandomFlatStep(false);
+
+						Step step = getRandomFlatStep(false, excluded_pool);
+						excluded_pool.add(flat_steps.indexOf(step));
 
 						// 更改统计信息 Part 1
 						y_sum -= step.dy;
@@ -389,13 +409,15 @@ public class MouseEventModeler {
 
 				for(int i=0; i<-dx; i++) {
 
-					Step step = getRandomFlatStep(true);
+					Step step = getRandomFlatStep(true, excluded_pool);
+					excluded_pool.add(flat_steps.indexOf(step));
 
 					// 更改统计信息 Part 1
 					y_sum -= step.dy;
 
 					logger.info("\tbefore: {}", step.toJSON());
-					logger.info("\tSubtract 1px: {}, {}", step.subtractOnePixel(), step.toJSON());
+					step.subtractOnePixel();
+					logger.info("\tSubtract 1px: {}, {}", step.toJSON());
 
 					// 更改统计信息 Part 2
 					x_sum -= 1;
@@ -412,11 +434,12 @@ public class MouseEventModeler {
 				logger.info("\tX not change.");
 			}
 			else {
+				logger.warn("");
 				throw new MorphException();
 			}
 
 			// 不改变总x位移进行轨迹变换
-			mutation(); // 不需要修复 dx_to_flat_steps 不需要修复 统计信息
+			mutation(dx); // 不需要修复 dx_to_flat_steps 不需要修复 统计信息
 		}
 
 		/**
@@ -425,16 +448,28 @@ public class MouseEventModeler {
 		 *                    没有速度的平滑阶段无法减少速度，不能用于轨迹压缩
 		 * @return 随机找到的平滑阶段
 		 */
-		Step getRandomFlatStep(boolean hasVelocity) {
+		Step getRandomFlatStep(boolean hasVelocity, Set<Integer> excluded_pool) throws NoFlatPhaseStepException {
 
 			Step step = null;
 			int search_count = 0;
 			while (step == null && search_count < 5) {
-				int rnd = new Random().nextInt(flat_steps.size());
-				step = flat_steps.get(rnd);
+
+				List<Integer> random_poll = new ArrayList<>();
+
+				for (int i=0; i<flat_steps.size(); i++) {
+					if(!excluded_pool.contains(i))
+						random_poll.add(i);
+				}
+
+				int rnd = new Random().nextInt(random_poll.size());
+
+				step = flat_steps.get(random_poll.get(rnd));
+
 				if(step.dx == 0 && hasVelocity) step = null;
 				search_count ++;
 			}
+
+			if(step == null) throw new NoFlatPhaseStepException();
 
 			return step;
 		}
@@ -532,9 +567,9 @@ public class MouseEventModeler {
 		 * 随机选取 1/3 的 non_flat_phase的step
 		 * 进行 mutation
 		 */
-		void mutation() {
+		void mutation(int dx) {
 
-			logger.info("Random mutation...");
+			logger.info("Random mutation... dx:{}", dx);
 
 			int[] mutation_indices = new Random()
 					.ints(0, non_flat_steps.size())
@@ -752,14 +787,5 @@ public class MouseEventModeler {
 		output = output.substring(0, output.length() - 2);
 		output += "}";
 		return output;
-	}
-
-	/**
-	 *
-	 * @param args
-	 */
-	public static void main(String[] args) throws Exception {
-
-
 	}
 }
