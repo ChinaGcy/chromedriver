@@ -89,7 +89,7 @@ public class ProjectScanTask extends ScanTask {
 			// 去重
 			if(!list.contains(url)) {
 				list.add(url);
-				tasks.add(new ProjectTask("http://"+url));
+				tasks.add(new ProjectTask("https://"+url));
 			}
 		}
 

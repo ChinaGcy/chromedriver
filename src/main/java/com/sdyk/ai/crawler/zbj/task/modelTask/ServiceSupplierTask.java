@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.ServiceSupplier;
-import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.WorkScanTask;
@@ -54,7 +54,7 @@ public class ServiceSupplierTask extends Task {
 		}
 
 		// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-		tasks.add(ServiceRatingTask.generateTask("http://shop.zbj.com/evaluation/evallist-uid-"+ serviceSupplier.website_id +"-type-1-page-",1));
+		tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ serviceSupplier.website_id +"-type-1-page-",1));
 		tasks.add(CaseScanTask.generateTask(getUrl(),1));
 		tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
@@ -162,7 +162,7 @@ public class ServiceSupplierTask extends Task {
 	 * @param driver
 	 */
 	public void webPageUcenter(WebDriver driver) {
-		driver.get("http://ucenter.zbj.com/rencai/view/" + getUrl().split("/")[3]);
+		driver.get("https://ucenter.zbj.com/rencai/view/" + getUrl().split("/")[3]);
 
 		try {
 			serviceSupplier.location = driver.findElement(By.cssSelector("#utopia_widget_3 > div.shop-center-tit.clearfix > span.fr.active-address"))

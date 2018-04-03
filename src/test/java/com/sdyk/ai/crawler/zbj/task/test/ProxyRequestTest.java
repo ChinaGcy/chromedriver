@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
 import com.sdyk.ai.crawler.zbj.model.Proxy;
-import com.sdyk.ai.crawler.zbj.proxypool.ZBJProxyWrapper;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ZBJProxyWrapper;
 import org.junit.Test;
 import org.tfelab.io.requester.Task;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;

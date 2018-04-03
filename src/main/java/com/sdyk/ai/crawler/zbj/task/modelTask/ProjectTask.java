@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
-import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
@@ -162,7 +162,7 @@ public class ProjectTask extends Task {
 		}
 		catch (Exception e) {
 			// 已经完成
-			project.current_status = "评价状态";
+			project.current_status = "评价";
 		}
 		try {
 			try {
@@ -191,15 +191,15 @@ public class ProjectTask extends Task {
 	public void projectStateTwo(WebDriver driver) {
 
 		try {
-			project.current_status = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
+			project.current_status = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-blockr > div.timeline > div > div"))
 					.findElement(By.className("current")).findElement(By.tagName("p")).getText();
 		} catch (Exception e) {
-			project.current_status = "评价状态";
+			project.current_status = "评价";
 		}
 		// 若无此项，则为空
 		try {
 			try {
-				project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div"))
+				project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.timeline > div > div"))
 						.findElement(By.className("current")).findElement(By.className("clock")).getAttribute("data-difftime"));
 			}
 			catch (ParseException e) {
@@ -210,9 +210,8 @@ public class ProjectTask extends Task {
 			project.remaining_time = null;
 		}
 
-		//
 		try {
-			project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2)"))
+			project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(2)"))
 					.findElement(By.tagName("b")).getText());
 		}
 		catch (ParseException e) {
@@ -299,6 +298,7 @@ public class ProjectTask extends Task {
 
 		project.origin = getString(driver, "#j-receiptcon > a", "");
 
+		// body > div.main.task-details > div.grid > ul
 		project.category = getString(driver, "body > div.main.task-details > div.grid > ul", "");
 
 		project.type = head;
@@ -337,11 +337,10 @@ public class ProjectTask extends Task {
 
 		// 进入雇主页
 		try {
-			tasks.add(new TendererTask("http://home.zbj.com/" + project.tenderer_id));
+			tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
 		} catch (MalformedURLException | URISyntaxException e) {
 			logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
 		}
-
 	}
 
 	/**
@@ -357,19 +356,19 @@ public class ProjectTask extends Task {
 		project.type = head;
 
 		project.title = getString(driver,
-				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > h1", "");
+				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > h1", "");
 
 		project.req_no = getString(driver,
-				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
+				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
 
 		project.category = getString(driver,
 				"#utopia_widget_3",
 				"");
 
-		String description_src = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner"))
+		String description_src = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content")).findElement(By.className("order-header-block"))
 				.findElement(By.className("task-detail"))
 				.findElement(By.className("task-detail-content"))
-				.getAttribute("innerHTML").replaceAll("<a.+?>查看全部</a>","")
+				.getAttribute("innerHTML").replaceAll("<a.+?>显示全部</a>","")
 				.replace(">\\s+<","><").replaceAll("\\s+<","<").replaceAll(">\\s+",">");
 
 		// 下载
@@ -421,7 +420,12 @@ public class ProjectTask extends Task {
 		catch (NoSuchElementException e) {
 		}
 
-		project.status = getString(driver,"#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+		try {
+			project.status = getString(driver,"#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+
+		} catch (NoSuchElementException e) {
+			System.err.println("status is null");
+		}
 
 	}
 }

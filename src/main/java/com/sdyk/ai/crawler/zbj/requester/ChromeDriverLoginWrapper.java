@@ -18,6 +18,7 @@ import org.tfelab.util.NetworkUtil;
 
 import java.awt.event.InputEvent;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static com.sdyk.ai.crawler.zbj.requester.ChromeRequester.urls;
 
@@ -63,13 +64,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 	public ChromeDriverAgent login(Account account, Proxy pw, boolean automaticByPassGeeTest) throws Exception {
 
 		// A.打开网页
-		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("http://"+account.getDomain());
+		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("https://login.zbj.com/login");
 		t.setProxyWrapper(pw);
 		agent.fetch(t);
 
 		// B.点击登录链接
-		WebElement w = agent.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
-		w.click();
+		/*WebElement w = agent.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
+		w.click();*/
 
 		// C.输入账号密码
 		WebElement usernameInput = agent.getElementWait("#username");
@@ -160,7 +161,6 @@ public class ChromeDriverLoginWrapper extends Thread {
 		}
 
 		agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
-		Thread.sleep(1000);
 		agent.setzbjProxy(pw);
 		agent.setAccount(account);
 		return agent;

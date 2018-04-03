@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
-import com.sdyk.ai.crawler.zbj.proxypool.ProxyReplace;
+import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import org.openqa.selenium.By;
@@ -180,7 +180,7 @@ public class TendererRatingTask extends ScanTask {
 
 			Task t = null;
 			try {
-				t = new TendererRatingTask("http://home.zbj.com/"
+				t = new TendererRatingTask("https://home.zbj.com/"
 						+ this.getParamString("webId"), ++page, this.getParamString("webId"));
 				return t;
 			} catch (MalformedURLException | URISyntaxException e) {

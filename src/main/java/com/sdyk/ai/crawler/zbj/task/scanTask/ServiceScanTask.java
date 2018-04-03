@@ -22,7 +22,7 @@ public class ServiceScanTask extends ScanTask {
 
 	public static ServiceScanTask generateTask(String channel, int page, AccountWrapper aw) {
 
-		String url = "http://www.zbj.com/" + channel + "/pk" + page + ".html";
+		String url = "https://www.zbj.com/" + channel + "/pk" + page + ".html";
 
 		try {
 			ServiceScanTask t = new ServiceScanTask(url, page);
@@ -69,7 +69,7 @@ public class ServiceScanTask extends ScanTask {
 
 		while (matcher.find()) {
 
-			String url = "http:" + matcher.group();
+			String url = "https:" + matcher.group();
 
 			if(!list.contains(url)) {
 				list.add(url);

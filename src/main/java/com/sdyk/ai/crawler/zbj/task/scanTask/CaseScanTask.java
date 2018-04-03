@@ -54,7 +54,7 @@ public class CaseScanTask extends ScanTask {
 
 		// 判断是否翻页
 		if (!src.contains("暂时还没有此类服务！") && backtrace) {
-			Task t = generateTask("http://shop.zbj.com/" + webId + "/", ++page);
+			Task t = generateTask("https://shop.zbj.com/" + webId + "/", ++page);
 			if (t != null) {
 				t.setPrior();
 				tasks.add(t);
