@@ -390,7 +390,8 @@ public class MouseEventModeler {
 					if(seed == 0) {
 
 						// 随机生成这个step所位移的像素
-						int new_seed = new Random().nextInt(px_stretch) + 1;
+						// 插入的新 step 其dx 不应该过大，不能大于 flatPhaseMaxPx + 1
+						int new_seed = new Random().nextInt(getFlatPhaseMaxPx()) + 1;
 
 						logger.info("\tInsert new step with {}px", new_seed);
 
@@ -518,10 +519,16 @@ public class MouseEventModeler {
 			// 根据px 找到合适的插入位置
 			if(px >= getFlatPhaseMaxPx()) {
 
+				logger.info("{}px > flat phase max px.", px);
+
+				/*for(Step i : dx_to_flat_steps.lastEntry().getValue()) {
+					logger.info(steps.indexOf(i));
+				}*/
+
 				// 找到最大位移的 Step
 				List<Step> max_v_steps = dx_to_flat_steps.lastEntry().getValue();
 				int seed = new Random().nextInt(max_v_steps.size());
-				step = steps.get(seed);
+				step = dx_to_flat_steps.lastEntry().getValue().get(seed);
 
 			}
 			else {

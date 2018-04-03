@@ -15,7 +15,7 @@ public class MouseEventModelerTest {
 	public void singleBuildTest() throws Exception {
 
 		List<Action> actions = loadData(
-				"mouse_movements/1521357775962_b556ceac-ce7d-470f-821e-0f142500837f.txt");
+				"mouse_movements/1521357776022_7ee8254c-057c-46f1-8f1a-6bc4cac2be27.txt");
 
 		MouseEventModeler.Model model = new MouseEventModeler.Model(actions);
 
@@ -23,7 +23,7 @@ public class MouseEventModelerTest {
 
 		FileUtil.writeBytesToFile(output.getBytes(), "original_actions.txt");
 
-		model.morph(-10);
+		model.morph(10);
 
 		output = toMathematicaListStr(model.buildActions());
 
