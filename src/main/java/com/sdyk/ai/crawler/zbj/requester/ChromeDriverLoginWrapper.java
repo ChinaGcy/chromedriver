@@ -71,6 +71,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("https://login.zbj.com/login");
 		t.setProxyWrapper(pw);
 		agent.fetch(t);
+		Thread.sleep(5000);
 
 		// C.输入账号密码
 		WebElement usernameInput = agent.getElementWait("#username");
@@ -109,6 +110,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 		agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
 		agent.setzbjProxy(pw);
 		agent.setAccount(account);
+		Thread.sleep(3000);
 		return agent;
 	}
 

@@ -228,7 +228,10 @@ public class ChromeDriverAgent {
 		    capabilities.setCapability("proxy", seleniumProxy);
 		    capabilities.setCapability("recreateChromeDriverSessions", true);
 		    capabilities.setCapability("newCommandTimeout", 120);
-		    
+
+		    // 只加载html的DOM，不会加载js
+			capabilities.setCapability("pageLoadStrategy", "none");
+
 		    Map<String, Object> prefs = new HashMap<String, Object>();
 		    prefs.put("profile.default_content_setting_values.notifications", 2);
 		    
@@ -633,9 +636,9 @@ public class ChromeDriverAgent {
 			 * 操作超时，譬如判断页面是否成功加载时候，会抛这个异常
 			 */
 			catch (org.openqa.selenium.TimeoutException e) {
-				logger.error(e);
+				/*logger.error(e);
 				task.setException(e);
-				needRestart = true;
+				needRestart = true;*/
 			}
 			catch (NoSuchSessionException e) {
 				logger.error(e);
@@ -1037,14 +1040,14 @@ public class ChromeDriverAgent {
 	 */
 	public void waitPageLoad(String url) {
 		
-		DocumentSettleCondition<WebElement> settleCondition = new DocumentSettleCondition<WebElement>(
+		/*DocumentSettleCondition<WebElement> settleCondition = new DocumentSettleCondition<WebElement>(
 			ExpectedConditions.visibilityOfElementLocated(By.cssSelector("body")));
 		
 		new FluentWait<WebDriver>(driver)
-			.withTimeout(15, TimeUnit.SECONDS)
+			.withTimeout(10, TimeUnit.SECONDS)
 			.pollingEvery(settleCondition.getSettleTime(), TimeUnit.MILLISECONDS)
 			.ignoring(WebDriverException.class)
-			.until(settleCondition);
+			.until(settleCondition);*/
 		
 		String readyState = driver.executeScript("return document.readyState").toString();
 		logger.info("{}, page ready: {}", url, readyState.equals("complete"));
