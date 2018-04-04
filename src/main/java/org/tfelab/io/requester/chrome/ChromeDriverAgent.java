@@ -62,20 +62,26 @@ public class ChromeDriverAgent {
 
 	public static final Logger logger = LogManager.getLogger(ChromeDriverAgent.class.getName());
 
-	public static int CONNECT_TIMEOUT;
-	public static int READ_TIMEOUT;
+	// 连接超时时间
+	private static int CONNECT_TIMEOUT;
+
+	// 读取超时时间
+	private static int READ_TIMEOUT;
 
 	/**
 	 * 配置设定
 	 */
 	static {
 
+		/**
+		 * A. 读取配置文件
+		 */
 		Config ioConfig = Configs.getConfig(Requester.class);
 		CONNECT_TIMEOUT = ioConfig.getInt("connectTimeout");
 		READ_TIMEOUT = ioConfig.getInt("readTimeout");
 
 		/**
-		 * 设定chromedriver executable
+		 * B. 设定chromedriver executable
 		 */
 		if (EnvUtil.isHostLinux()) {
 			System.setProperty("webdriver.chrome.driver", Configs.getConfig(Requester.class).getString("chromeDriver"));
@@ -85,34 +91,27 @@ public class ChromeDriverAgent {
 		}
 
 		/**
-		 * Set Log file
+		 * C. Set log file path
 		 */
 		System.setProperty("webdriver.chrome.logfile", "webdriver.chrome.log");
 
 		/**
-		 * Add BouncyCastleProvider, BouncyCastleProvider 主要用于接受特定环境的HTTPS策略
+		 * D. Add BouncyCastleProvider
+		 * 接受特定环境的HTTPS策略
 		 */
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
-	static int RETRY_LIMIT = 3; // 任务重试次数
-	static int USAGE_COUNT_LIMIT = 2000; // 单个chrome的使用次数上限
+	private static List<ChromeDriverAgent> instances = new ArrayList<ChromeDriverAgent>();
 
-	static int upstreamProxyPort = 59019; // 公用upstreaming代理端口号
-	static HttpProxyServer upstreamProxy; // 公用upstreaming代理 由于 BrowserMobProxyServer 的特殊设置, 对没有代理的任务, 指定此代理
-
-	static List<ChromeDriverAgent> instances = new ArrayList<ChromeDriverAgent>();
-
+	// ChromeDriver 句柄
 	private ChromeDriver driver;
+	// Chrome用户文件夹
 	private File userDir;
-	private int pid = 0; // 记录UNIX系统下的pid, 用于强制退出
-	
-	private int usageCount = 0; // 使用次数记录
-
-	private BrowserMobProxyServer bmProxy; // 代理出口
-
-	private Account account;
-	private com.sdyk.ai.crawler.zbj.model.Proxy proxy;
+	// Linux chrome 进程 pid, 用于控制chrome强制退出
+	private int pid = 0;
+	// 代理出口
+	private BrowserMobProxyServer bmProxy;
 
 	/**
 	 *
@@ -122,7 +121,7 @@ public class ChromeDriverAgent {
 	}
 
 	/**
-	 * 获得运行中的chrome pid列表
+	 * 获得运行中的全部chrome pid列表
 	 * @return
 	 */
 	private static List<Integer> getAllRunningPids() {
@@ -135,18 +134,31 @@ public class ChromeDriverAgent {
 		return pids;
 	}
 
+	/**
+	 * MITM 监听
+	 * 对请求信息进行过滤监听
+	 * @param requestFilter
+	 */
 	public void addProxyRequestFilter(RequestFilter requestFilter) {
+		// TODO 应可以在执行时动态设定
 		bmProxy.addRequestFilter(requestFilter);
 	}
 
+	/**
+	 * MITM 监听
+	 * 对请求信息进行过滤监听
+	 * @param responseFilter
+	 */
 	public void addProxyResponseFilter(ResponseFilter responseFilter) {
+		// TODO 应可以在执行时动态设定
 		bmProxy.addResponseFilter(responseFilter);
 	}
 
 	/**
 	 * 测试 Xvfb 服务是否运行
+	 * Linux 环境适用
 	 */
-	public static void checkXvfb() {
+	private static void checkXvfb() {
 
 		List<String> params = new ArrayList<String>();
 		params.add("/etc/init.d/xvfb");
@@ -160,15 +172,50 @@ public class ChromeDriverAgent {
 		}
 	}
 
+	public static enum Flag {
+		MITM
+	}
+
+	// 参数标签
+	public Set<Flag> flags;
+
+	/**
+	 *
+	 * @param proxy
+	 * @return
+	 */
+	public static BrowserMobProxyServer startBMProxy(InetSocketAddress proxy) {
+
+		BrowserMobProxyServer bmProxy = new BrowserMobProxyServer();
+		bmProxy.setConnectTimeout(CONNECT_TIMEOUT, TimeUnit.MILLISECONDS);
+		bmProxy.setRequestTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS);
+
+		/**
+		 * 设定上游代理地址
+		 */
+		if(proxy != null) {
+			bmProxy.setChainedProxy(proxy);
+		}
+
+		bmProxy.setTrustAllServers(true);
+		bmProxy.setMitmManager(ImpersonatingMitmManager.builder().trustAllServers(true).build());
+		bmProxy.start(0); // Use any free port
+
+		return bmProxy;
+	}
+
+	public static class ChromeInitException extends Exception {}
+
 	/**
 	 * 初始化
 	 */
-	public synchronized void init() {
+	public synchronized void init(InetSocketAddress proxy, Flag... flags) throws ChromeInitException {
 			
 		logger.info("Init...");
-		
-		usageCount = 0;
+
 		driver = null;
+		// TODO 整理到wiki
+		this.flags = new HashSet<Flag>(Arrays.asList(flags));
 
 		/**
 		 *
@@ -179,28 +226,6 @@ public class ChromeDriverAgent {
 
 			logger.info("User dir: {}", userDir.getAbsolutePath());
 			instances.add(this);
-
-			/**
-			 * Create Default Upstreaming proxy
-			 */
-			if(upstreamProxy == null) {
-				upstreamProxy = DefaultHttpProxyServer.bootstrap()
-					.withPort(upstreamProxyPort)
-					.withName("ChromeDriverUpstreamProxy")
-					.withConnectTimeout(CONNECT_TIMEOUT)
-					.start();
-			}
-		
-			/**
-			 * Create BrowserMobProxy
-			 */
-			bmProxy = new BrowserMobProxyServer();
-			bmProxy.setConnectTimeout(CONNECT_TIMEOUT, TimeUnit.MILLISECONDS);
-			bmProxy.setRequestTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS);
-			bmProxy.setChainedProxy(upstreamProxy.getListenAddress());
-			bmProxy.setTrustAllServers(true);
-			bmProxy.setMitmManager(ImpersonatingMitmManager.builder().trustAllServers(true).build());
-			bmProxy.start(0); // Use any free port
 
 			/**
 			 * Set up chrome capabilities
@@ -223,15 +248,33 @@ public class ChromeDriverAgent {
 			
 			/*Map<String, Object> perfLogPrefs = new HashMap<String, Object>();
 			perfLogPrefs.put("traceCategories", "browser,devtools.timeline,devtools"); // comma-separated trace categories*/
-			
-			Proxy seleniumProxy = ClientUtil.createSeleniumProxy(bmProxy);
-		    capabilities.setCapability("proxy", seleniumProxy);
+
+			// 设定 Chrome 代理
+			if(proxy != null) {
+
+				Proxy seleniumProxy = null;
+
+				if (this.flags.contains(Flag.MITM)) {
+					bmProxy = startBMProxy(proxy);
+					seleniumProxy = ClientUtil.createSeleniumProxy(bmProxy);
+
+				} else {
+					seleniumProxy = new Proxy();
+					seleniumProxy.setHttpProxy(proxy.toString());
+				}
+
+				capabilities.setCapability("proxy", seleniumProxy);
+			}
+
 		    capabilities.setCapability("recreateChromeDriverSessions", true);
 		    capabilities.setCapability("newCommandTimeout", 120);
 
 		    // 只加载html的DOM，不会加载js
+			// https://stackoverflow.com/questions/43734797/page-load-strategy-for-chrome-driver
+			// TODO 整理到wiki
 			capabilities.setCapability("pageLoadStrategy", "none");
 
+			// 禁用页面提示信息
 		    Map<String, Object> prefs = new HashMap<String, Object>();
 		    prefs.put("profile.default_content_setting_values.notifications", 2);
 		    
@@ -258,16 +301,17 @@ public class ChromeDriverAgent {
 			if (block_image_crx.exists()) {
 				options.addExtensions(new File("chrome_ext/Block-image_v1.0.crx"));
 			}*/
-			
 			capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 			
-			List<Integer> pids = getAllRunningPids();
+			/*List<Integer> pids = getAllRunningPids();*/
 
 			/**
-			 * 循环验证启动Chrome
+			 * 循环验证启动 Chrome
 			 */
-			while(driver == null) {
+			int try_count = 0;
+			while(driver == null && try_count < 3) {
 
+				// TODO 应该使用Future / Promise 框架实现
 				final ExecutorService executor = Executors.newSingleThreadExecutor();
 				final Future<?> future = executor.submit(() -> {
 
@@ -292,6 +336,7 @@ public class ChromeDriverAgent {
 							pid = getPid();
 
 							if(pid == 0) {
+								// Chrome 貌似成功启动，但是没法正常获得pid
 								logger.warn("No valid chromedriver pid dectected, but chromedriver looks fine.");
 							}
 						}
@@ -299,7 +344,10 @@ public class ChromeDriverAgent {
 				});
 
 				executor.shutdown();
-				
+
+				/**
+				 * 在30s内实现启动操作
+				 */
 				try {
 					future.get(30000, TimeUnit.MILLISECONDS);
 				}
@@ -310,7 +358,7 @@ public class ChromeDriverAgent {
 					
 					if(EnvUtil.isHostLinux()) {
 						/**
-						 * 在某种特定情况下，new ChromeDriver hang forever
+						 * 在某种特定情况下，new ChromeDriver() hang forever
 						 * 但chromedriver及相关chrome进程却正常启动了
 						 * 需要终止这些无法控制的进程
 						 */
@@ -325,37 +373,47 @@ public class ChromeDriverAgent {
 				if (!executor.isTerminated()){
 					executor.shutdownNow();
 				}
+
+				try_count ++;
+				if(driver == null && try_count >= 3) {
+					throw new ChromeInitException();
+				}
 			}
 			
-			logger.info("Chrome driver pid:{}", pid);
+			logger.info("New chromedriver pid:{}", pid);
 
 			// 设置脚本运行超时参数
-			driver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+			driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
 
 			// 设置等待超时参数
 			driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 			
-			// 这个值要设置的比较大 否则会出现 org.openqa.selenium.TimeoutException: timeout: cannot determine loading status
+			// 这个值要设置的比较大
+			// 否则会出现 org.openqa.selenium.TimeoutException: timeout: cannot determine loading status
+			// karajan 2018/4/4
 			driver.manage().timeouts().pageLoadTimeout(300, TimeUnit.SECONDS);
-
-			// Set Dimension
-			//Dimension d = new Dimension(1024, 600);
-			//Dimension d = new Dimension(380, 600);
-			//driver.manage().window().setSize(d);
-			// TODO 记录此处的报错信息 和 报错时的上下文信息
-
-			//driver.manage().window().maximize();
-
-			Random r = new Random();
-			Point p = new Point(60 * r.nextInt(10), 40 * r.nextInt(10));
-			//driver.manage().window().setPosition(p);
 			
 			logger.info("Init ChromeDriverAgent done.");
         }
     }
 
+    public void setSize(Dimension dimension) {
+		if(driver != null) {
+			// Dimension dimension = new Dimension(1024, 600);
+			driver.manage().window().setSize(dimension);
+		}
+	}
+
+	public void setPosition(Point startPoint) {
+		if(driver != null) {
+			/*Random r = new Random();
+			Point startPoint = new Point(60 * r.nextInt(10), 40 * r.nextInt(10));*/
+			driver.manage().window().setPosition(startPoint);
+		}
+	}
+
 	/**
-	 * 获取对应 chromedriver 进程 ID
+	 * 获取当前 chromedriver 进程 ID
 	 * @return
 	 */
 	private int getPid() {
@@ -378,7 +436,7 @@ public class ChromeDriverAgent {
 			
 			List<String> result = IOUtils.readLines(p2.getInputStream());
 			List<Integer> pids = new ArrayList<Integer>();
-			List<Integer> p_pids = this.getAllRunningPids();
+			List<Integer> p_pids = getAllRunningPids();
 			
 			for(String str : result) {
 				//logger.info(str);
@@ -416,63 +474,6 @@ public class ChromeDriverAgent {
 	}
 	
 	/**
-	 * 向浏览器注入当前 host 下的 cookies
-	 * @param host
-	 * @param cookies
-	 */
-	private void injectCookie(String host, String cookies) {
-		
-		logger.trace(cookies);
-		
-		String[] cookie_items = cookies.split(";");
-		
-		for(String ci : cookie_items) {
-			
-			ci = ci.trim();
-			String[] kv = ci.split("=", 2);
-			
-			if(kv.length > 1) {
-				
-				logger.trace("[{}]\t{}={}", host, kv[0], kv[1]);
-				//Cookie cookie_ = new Cookie(kv[0], kv[1]);
-				
-				Cookie cookie_ = new Cookie(kv[0], kv[1], "." + URLUtil.getRootDomainName(host), "/", null);
-				/**
-				 * TODO
-				 * 可能会出问题
-				 * 当ChromeDriver未能完全加载时
-				 */
-				driver.manage().addCookie(cookie_);
-			}
-		}
-	}
-
-	/**
-	 * 测试发送POST请求
-	 * 其实完全没必要使用chromedriver发起post请求
-	 * TODO  未测试
-	 * @param url
-	 * @param postData
-	 */
-	private void redirectPost(String url, String postData) {
-		String html = "<form method=post action="+ url +">";
-		
-		String[] items = postData.split("&");
-		for(String item : items) {
-			String[] kv = item.split("=");
-			if(kv.length > 1) {
-				html += "<input type=hidden name=" + kv[0] + " value=" + kv[1] + ">";
-			}
-		}
-		html += "<input id=Pnowl89Xac type=submit name=METHOD value=mysubmitbutton></form>";		
-		
-		String script = "var h1 = document.createElement('div'); " + "h1.innerHTML=\"" + html + "\"; document.body.appendChild(h1)";
-		
-		driver.executeScript(script);
-		driver.findElementById("Pnowl89Xac").submit();
-	}
-	
-	/**
 	 * 找到特定元素
 	 * @param driver
 	 * @param path
@@ -494,7 +495,7 @@ public class ChromeDriverAgent {
 	}
 	
 	/**
-	 * Executes a script on an element
+	 * 在特定元素上执行JavaScript脚本
 	 * @note Really should only be used when the web driver is sucking at exposing
 	 * functionality natively
 	 * @param script The script to execute
@@ -504,13 +505,14 @@ public class ChromeDriverAgent {
 	    ((JavascriptExecutor) driver).executeScript(script, element);
 	}
 
-	/** Executes a script
+	/**
+	 * 执行JavaScript脚本
 	 * @note Really should only be used when the web driver is sucking at exposing
 	 * functionality natively
 	 * @param script The script to execute
 	 */
 	public Object trigger(String script) {
-	    return ((JavascriptExecutor)driver).executeScript(script);
+	    return ((JavascriptExecutor) driver).executeScript(script);
 	}
 
 	/**
@@ -546,9 +548,11 @@ public class ChromeDriverAgent {
 
 		Rectangle rect = new Rectangle(width, height);
 
+		// 先整体截图
 		BufferedImage img = null;
 		img = ImageIO.read(screen);
 
+		// 再根据元素相对位置抠图
 		BufferedImage dest = img.getSubimage(p.getX(), p.getY(), rect.width, rect.height);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ImageIO.write(dest, "png", baos);
@@ -578,6 +582,7 @@ public class ChromeDriverAgent {
 		
 		/**
 		 * 主要任务执行方法
+		 * TODO 应该使用 Future / Promise
 		 */
 		public void run() {
 
@@ -588,8 +593,6 @@ public class ChromeDriverAgent {
 			try {
 				
 				ChromeDriverAgent.this.setProxy(task.getProxyWrapper());
-				
-				//String cookies = ChromeDriverAgent.this.handleCookie(task.getDomain(), task.getUrl(), task.getCookies());
 
 				ChromeDriverAgent.this.getUrl(task.getUrl(), task.getPost_data());
 
@@ -687,27 +690,11 @@ public class ChromeDriverAgent {
 			
 			if(wrapper.needRestart) {
 
-				if (account == null) {
-					try {
-						account = Account.getAccountByDomain("zbj.com");
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				if (proxy == null) {
-					try {
-						proxy = com.sdyk.ai.crawler.zbj.model.Proxy.getValidProxy("aliyun");
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
 
 				this.close();
 				// 重启chromedriver
 				this.init();
 
-				// 超时重新登录
-				loginRestart();
 			}
 			
 			task.setException(null);
@@ -717,12 +704,6 @@ public class ChromeDriverAgent {
 				wrapper.needRestart = true;
 			}
 			wrapper.retryCount ++;
-			this.usageCount ++;
-		}
-		
-		if(this.usageCount > USAGE_COUNT_LIMIT) {
-			this.close();
-			this.init();
 		}
 		
 		wrapper = null;
@@ -771,14 +752,8 @@ public class ChromeDriverAgent {
 			}
 			
 			wrapper.retryCount ++;
-			this.usageCount ++;
 		}
-		
-		if(this.usageCount > USAGE_COUNT_LIMIT) {
-			this.close();
-			this.init();
-		}
-		
+
 		wrapper = null;
 	}
 
@@ -787,12 +762,6 @@ public class ChromeDriverAgent {
 	 * @return
 	 */
 	public synchronized ChromeDriver getDriver() {
-	
-		this.usageCount ++;
-		if(this.usageCount > USAGE_COUNT_LIMIT) {
-			this.close();
-			this.init();
-		}
 
 		return this.driver;
 	}
@@ -922,33 +891,6 @@ public class ChromeDriverAgent {
 		}*/
 	}
 
-	/**
-	 * 设置账户
-	 * @param account
-	 */
-	public void setAccount(Account account) {
-		this.account = account;
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	public Account getAccount() {
-		return this.account;
-	}
-
-	/**
-	 * 设置代理
-	 * @param proxy
-	 */
-	public void setzbjProxy(com.sdyk.ai.crawler.zbj.model.Proxy proxy){
-		this.proxy = proxy;
-	}
-
-	public com.sdyk.ai.crawler.zbj.model.Proxy getProxy() {
-		return proxy;
-	}
 
 	/**
 	 * 管理Cookie
@@ -1069,81 +1011,6 @@ public class ChromeDriverAgent {
 		return src;
 	}
 
-	public void loginRestart() {
-
-		Task t = null;
-		try {
-			t = new Task("https://login.zbj.com/login");
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-		t.setProxyWrapper(proxy);
-		this.fetch(t);
-
-		// C.输入账号密码
-		WebElement usernameInput = this.getElementWait("#username");
-		usernameInput.sendKeys(account.getUsername());
-
-		WebElement passwordInput = this.getElementWait("#password");
-		passwordInput.sendKeys(account.getPassword());
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		// D.操作验证码
-		if (this.getDriver().getPageSource().contains("geetest_radar_tip_content")) {
-
-			// D1
-			// 点击识别框
-			this.getElementWait(".geetest_radar_tip_content").click();
-
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			// D2 生成位移
-			int offset = 0;
-			try {
-				offset = ChromeDriverLoginWrapper.getPicOffset(this);
-			} catch (Exception e) {
-				logger.error("{}", e);
-			}
-
-			try {
-				ChromeDriverLoginWrapper.mouseManipulate(this, offset, 0);
-			} catch (Exception e) {
-				logger.error("{}", e);
-			}
-
-			// D3 等待识别
-			try {
-				WebDriverWait wait = new WebDriverWait(this.getDriver(), 5);
-				wait.until(ExpectedConditions.or(
-						ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
-				));
-			}catch (org.openqa.selenium.TimeoutException e) {
-				// D4 刷新继续验证
-				try {
-					ChromeDriverLoginWrapper.verificationPass(this);
-				} catch (Exception e1) {
-					logger.error("{}", e);
-				}
-			}
-		}
-
-		this.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * 测试方法

@@ -10,6 +10,7 @@ import org.apache.http.HttpHost;
 import org.tfelab.json.JSONable;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 /**
@@ -35,12 +36,13 @@ public interface ProxyWrapper extends JSONable, Serializable {
 	 */
 	public HttpHost toHttpHost();
 
+	public InetSocketAddress getInetSocketAddress();
+
 	/**
 	 * 返回 http 或 https
 	 * @return
 	 */
 	public String getProtocal();
-
 	
 	public String getHost();
 	

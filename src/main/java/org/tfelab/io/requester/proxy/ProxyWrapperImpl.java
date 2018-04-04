@@ -42,7 +42,12 @@ public class ProxyWrapperImpl implements ProxyWrapper {
 	public HttpHost toHttpHost() {
 		return new HttpHost(host, port, getProtocal());
 	}
-	
+
+	@Override
+	public InetSocketAddress getInetSocketAddress() {
+		return new InetSocketAddress(host, port);
+	}
+
 	@Override
 	public String getProtocal() {
 		return isHttps ? "https" : "http";
