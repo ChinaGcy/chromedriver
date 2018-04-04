@@ -91,7 +91,7 @@ public abstract class Model implements JSONable<Model> {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean insert() throws Exception{
+	public boolean insert(){
 
 		Dao dao = daoMap.get(this.getClass().getSimpleName());
 
@@ -100,11 +100,12 @@ public abstract class Model implements JSONable<Model> {
 			return true;
 		} catch (SQLException e) {
 			System.out.println("update data !");
-			if (dao.update(this) == 1) {
+			try {
+				dao.update(this);
 				System.out.println("OK!");
 				return true;
-			}else {
-				logger.error("insert update error {}", e);
+			} catch (SQLException e1) {
+				logger.error("insert update error {}", e1);
 				return false;
 			}
 		}

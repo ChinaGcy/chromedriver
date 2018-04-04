@@ -1,24 +1,28 @@
 package com.sdyk.ai.crawler.zbj.requester;
 
-import com.sdyk.ai.crawler.zbj.GeeTestUtil;
+import com.sdyk.ai.crawler.zbj.OpenCVUtil;
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
+import com.sdyk.ai.crawler.zbj.mouse.Action;
+import com.sdyk.ai.crawler.zbj.mouse.MouseEventModeler;
+import com.sdyk.ai.crawler.zbj.mouse.MouseEventSimulator;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.io.requester.proxy.IpDetector;
+import org.tfelab.util.FileUtil;
 import org.tfelab.util.NetworkUtil;
 
-import java.awt.event.InputEvent;
+import java.awt.*;
+import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import static com.sdyk.ai.crawler.zbj.requester.ChromeRequester.urls;
 
@@ -68,10 +72,6 @@ public class ChromeDriverLoginWrapper extends Thread {
 		t.setProxyWrapper(pw);
 		agent.fetch(t);
 
-		// B.点击登录链接
-		/*WebElement w = agent.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
-		w.click();*/
-
 		// C.输入账号密码
 		WebElement usernameInput = agent.getElementWait("#username");
 		usernameInput.sendKeys(account.getUsername());
@@ -87,77 +87,23 @@ public class ChromeDriverLoginWrapper extends Thread {
 			// 点击识别框
 			agent.getElementWait(".geetest_radar_tip_content").click();
 
-			/*Thread.sleep(3000);
+			Thread.sleep(3000);
 
-			// 截图1
-			FileUtil.writeBytesToFile(
-					agent.shoot(".geetest_window"),
-					"geetest/geetest1.png"
-			);
+			// D2 生成位移
+			int offset = getPicOffset(agent);
 
-			// 点击滑块
-			new Actions(agent.getDriver()).dragAndDropBy(agent.getElementWait(".geetest_slider_button"), 5, 0).build().perform();
+			mouseManipulate(agent, offset, 0);
 
-			Thread.sleep(5000);
-			// 截图2
-			FileUtil.writeBytesToFile(
-					agent.shoot(".geetest_window"),
-					"geetest/geetest2.png"
-			);
-
-			// 生成位移
-			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
-
-			Robot bot = new Robot();
-			GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);
-
-			MouseEventTracker tracker = null;
-
-			if(false) {
-
-				// 移动滑块
-				// TODO 寻找更好的模拟方法
-				GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 1000, 1000);
-				bot.mousePress(InputEvent.BUTTON1_MASK);
-				GeeTestUtil.mouseGlide(bot, 926, 552, 926 + offset, 552, 1000, 1000);
-				bot.mouseRelease(InputEvent.BUTTON1_MASK);
-
-				// 不识别
-				new Actions(agent.getDriver())
-						.dragAndDropBy(agent.getElementWait(".geetest_slider_button"), offset, 0)
-						.build().perform();
-
-				// 鼠标点击事件
-				int xOff = 920;
-				robot.mouseMove(xOff, 550);
-
-				Thread.sleep(1000);
-
-				robot.mousePress(InputEvent.BUTTON1_MASK);
-
-				Thread.sleep(1000);
-				for(int index = 1; index <= offset; index++) {
-					robot.mouseMove(++xOff, 550);
-					Thread.sleep(10);
-				}
-				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-
-			} else {
-
-				tracker = new MouseEventTracker();
-
-			}*/
-
-			// 等待识别
-			WebDriverWait wait = new WebDriverWait(agent.getDriver(), 60);
-			wait.until(ExpectedConditions.or(
-					ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
-			));
-
-			/*if(tracker != null) {
-				tracker.serializeMovements();
-			}*/
-
+			// D3 等待识别
+			try {
+				WebDriverWait wait = new WebDriverWait(agent.getDriver(), 5);
+				wait.until(ExpectedConditions.or(
+						ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
+				));
+			}catch (org.openqa.selenium.TimeoutException e) {
+				// D4 刷新继续验证
+				verificationPass(agent);
+			}
 		}
 
 		agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
@@ -200,6 +146,89 @@ public class ChromeDriverLoginWrapper extends Thread {
 				taskQueue.add(t);
 			}
 		}
+	}
+
+	/**
+	 * 滑块验证
+	 * @param agent
+	 * @throws Exception
+	 */
+	public static void verificationPass(ChromeDriverAgent agent) throws Exception {
+
+		agent.getElementWait("body > div.geetest_fullpage_click.geetest_float.geetest_wind.geetest_slide3 > div.geetest_fullpage_click_wrap > div.geetest_fullpage_click_box > div > div.geetest_panel > div > a.geetest_refresh_1").click();
+
+		try {
+			agent.getElementWait("#password-captcha-box > div.geetest_holder.geetest_wind.geetest_radar_error > div.geetest_btn > div.geetest_radar_btn").click();
+
+		}catch (org.openqa.selenium.TimeoutException e) {
+
+			Thread.sleep(5000);
+
+			int offset = getPicOffset(agent);
+
+			mouseManipulate(agent, offset, 0);
+
+			// 等待识别
+			try {
+				WebDriverWait wait = new WebDriverWait(agent.getDriver(), 5);
+				wait.until(ExpectedConditions.or(
+						ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
+				));
+			} catch (org.openqa.selenium.TimeoutException e1) {
+
+				verificationPass(agent);
+			}
+		}
+
+	}
+
+	/**
+	 * 获取位移
+	 * @param agent
+	 * @return
+	 * @throws Exception
+	 */
+	public static int getPicOffset(ChromeDriverAgent agent) throws Exception {
+		// 截图1
+		FileUtil.writeBytesToFile(
+				agent.shoot(".geetest_window"),
+				"geetest/geetest1.png"
+		);
+
+		// 点击滑块
+		new Actions(agent.getDriver()).dragAndDropBy(agent.getElementWait("body > div.geetest_fullpage_click.geetest_float.geetest_wind.geetest_slide3 > div.geetest_fullpage_click_wrap > div.geetest_fullpage_click_box > div > div.geetest_wrap > div.geetest_slider.geetest_ready > div.geetest_slider_button"), 5, 0).build().perform();
+
+		Thread.sleep(5000);
+		// 截图2
+		FileUtil.writeBytesToFile(
+				agent.shoot(".geetest_window"),
+				"geetest/geetest2.png"
+		);
+		// 生成位移
+		int offset = OpenCVUtil.getOffset("geetest/geetest1.png", "geetest/geetest2.png");
+		return offset;
+	}
+
+	/**
+	 * 鼠标点击移动操作
+	 * @param agent
+	 * @param offset 像素差
+	 * @param error 误差
+	 * @throws Exception
+	 */
+	public static void mouseManipulate( ChromeDriverAgent agent, int offset, int error) throws Exception {
+
+		int x = agent.getElementWait(".geetest_slider_button").getLocation().x + 30;
+		int y = agent.getElementWait(".geetest_slider_button").getLocation().y + 135 ;
+
+		Robot bot = new Robot();
+		bot.mouseMove(x, y);
+
+		List<Action> actions = MouseEventModeler.getInstance().getActions(offset - error);
+
+		MouseEventSimulator simulator = new MouseEventSimulator(actions);
+
+		simulator.procActions();
 	}
 
 }

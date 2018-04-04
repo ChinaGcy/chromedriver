@@ -590,10 +590,10 @@ public class ChromeDriverAgent {
 
 				ChromeDriverAgent.this.getUrl(task.getUrl(), task.getPost_data());
 
-				//ChromeDriverAgent.this.waitPageLoad(task.getUrl());
+				ChromeDriverAgent.this.waitPageLoad(task.getUrl());
 
 				// 正常解析到页面
-				/*if(!driver.getCurrentUrl().matches("^data:.+?")) {
+				if(!driver.getCurrentUrl().matches("^data:.+?")) {
 
 					boolean actionResult = true;
 					for(ChromeDriverAction action : task.getActions()) {
@@ -609,7 +609,7 @@ public class ChromeDriverAgent {
 					if(task.isShoot_screen()) {
 						task.getResponse().setScreenshot(driver.getScreenshotAs(OutputType.BYTES));
 					}
-				}*/
+				}
 				
 				// save cookies
 				//String newCookies = ChromeDriverAgent.this.getNewCookies(task.getDomain(), cookies);
@@ -620,30 +620,30 @@ public class ChromeDriverAgent {
 			 * 需要重启
 			 */
 			catch (NoSuchWindowException e) {
-				/*logger.error(e);
+				logger.error(e);
 				task.setException(e);
-				needRestart = true;*/
+				needRestart = true;
 			}
 			catch (UnreachableBrowserException e) {
-				/*logger.error(e);
+				logger.error(e);
 				task.setException(e);
-				needRestart = true;*/
+				needRestart = true;
 			}
 			/**
 			 * 操作超时，譬如判断页面是否成功加载时候，会抛这个异常
 			 */
 			catch (org.openqa.selenium.TimeoutException e) {
-				/*logger.error(e);
+				logger.error(e);
 				task.setException(e);
-				needRestart = true;*/
+				needRestart = true;
 			}
 			catch (NoSuchSessionException e) {
-				/*logger.error(e);
+				logger.error(e);
 				task.setException(e);
-				needRestart = true;*/
+				needRestart = true;
 			}
 			catch (WebDriverException e) {
-				/*logger.error(e);
+				logger.error(e);
 				task.setException(e);
 				needRestart = true;
 				if(e.getMessage().contains("chrome not reachable") 
@@ -652,11 +652,11 @@ public class ChromeDriverAgent {
 					|| e.getMessage().contains("unexpectedly died")
 				) {
 
-				}*/
+				}
 			}
 			catch (Exception e) {
-				/*logger.error("Unknown Error.", e);
-				task.setException(e);*/
+				logger.error("Unknown Error.", e);
+				task.setException(e);
 			}
 			finally {
 				// TODO
@@ -664,9 +664,9 @@ public class ChromeDriverAgent {
 			}
 		}
 		
-		/*public void close() {
+		public void close() {
 			driver.executeScript("window.stop()");
-		}*/
+		}
 	}
 
 
@@ -1010,12 +1010,8 @@ public class ChromeDriverAgent {
 	 */
 	public void getUrl(String url, String postData) throws InterruptedException, SocketException {
 
-		try {
-			driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
-			driver.get(url);
-		} catch (org.openqa.selenium.TimeoutException e) {
-			System.out.println(12399658);
-		}
+		driver.get(url);
+
 		// Bypass 验证
 		if(driver.getPageSource().contains("安全检查中")){
 			Thread.sleep(10000);
@@ -1083,10 +1079,6 @@ public class ChromeDriverAgent {
 		t.setProxyWrapper(proxy);
 		this.fetch(t);
 
-		// B.点击登录链接
-		/*WebElement w = this.getElementWait("#headerTopWarpV1 > div > div > ul > li.item.J_user-login-status > div > span.text-highlight > a:nth-child(1)");
-		w.click();*/
-
 		// C.输入账号密码
 		WebElement usernameInput = this.getElementWait("#username");
 		usernameInput.sendKeys(account.getUsername());
@@ -1106,77 +1098,40 @@ public class ChromeDriverAgent {
 			// 点击识别框
 			this.getElementWait(".geetest_radar_tip_content").click();
 
-			/*Thread.sleep(3000);
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
-			// 截图1
-			FileUtil.writeBytesToFile(
-					agent.shoot(".geetest_window"),
-					"geetest/geetest1.png"
-			);
+			// D2 生成位移
+			int offset = 0;
+			try {
+				offset = ChromeDriverLoginWrapper.getPicOffset(this);
+			} catch (Exception e) {
+				logger.error("{}", e);
+			}
 
-			// 点击滑块
-			new Actions(agent.getDriver()).dragAndDropBy(agent.getElementWait(".geetest_slider_button"), 5, 0).build().perform();
+			try {
+				ChromeDriverLoginWrapper.mouseManipulate(this, offset, 0);
+			} catch (Exception e) {
+				logger.error("{}", e);
+			}
 
-			Thread.sleep(5000);
-			// 截图2
-			FileUtil.writeBytesToFile(
-					agent.shoot(".geetest_window"),
-					"geetest/geetest2.png"
-			);
-
-			// 生成位移
-			int offset = OpenCVUtil.getOffset("geetest/geetest1.png","geetest/geetest2.png");
-
-			Robot bot = new Robot();
-			GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 10, 10);
-
-			MouseEventTracker tracker = null;
-
-			if(false) {
-
-				// 移动滑块
-				// TODO 寻找更好的模拟方法
-				GeeTestUtil.mouseGlide(bot, 0, 0, 926, 552, 1000, 1000);
-				bot.mousePress(InputEvent.BUTTON1_MASK);
-				GeeTestUtil.mouseGlide(bot, 926, 552, 926 + offset, 552, 1000, 1000);
-				bot.mouseRelease(InputEvent.BUTTON1_MASK);
-
-				// 不识别
-				new Actions(agent.getDriver())
-						.dragAndDropBy(agent.getElementWait(".geetest_slider_button"), offset, 0)
-						.build().perform();
-
-				// 鼠标点击事件
-				int xOff = 920;
-				robot.mouseMove(xOff, 550);
-
-				Thread.sleep(1000);
-
-				robot.mousePress(InputEvent.BUTTON1_MASK);
-
-				Thread.sleep(1000);
-				for(int index = 1; index <= offset; index++) {
-					robot.mouseMove(++xOff, 550);
-					Thread.sleep(10);
+			// D3 等待识别
+			try {
+				WebDriverWait wait = new WebDriverWait(this.getDriver(), 5);
+				wait.until(ExpectedConditions.or(
+						ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
+				));
+			}catch (org.openqa.selenium.TimeoutException e) {
+				// D4 刷新继续验证
+				try {
+					ChromeDriverLoginWrapper.verificationPass(this);
+				} catch (Exception e1) {
+					logger.error("{}", e);
 				}
-				robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-
-			} else {
-
-				tracker = new MouseEventTracker();
-
-			}*/
-
-			// 等待识别
-			WebDriverWait wait = new WebDriverWait(this.getDriver(), 60);
-			wait.until(ExpectedConditions.or(
-					ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
-			));
-
-			/*if(tracker != null) {
-				tracker.serializeMovements();
-			}*/
-
+			}
 		}
 
 		this.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();

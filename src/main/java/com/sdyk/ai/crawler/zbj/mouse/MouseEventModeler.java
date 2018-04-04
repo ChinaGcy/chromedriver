@@ -29,6 +29,27 @@ import java.lang.reflect.Type;
  */
 public class MouseEventModeler {
 
+	protected static MouseEventModeler instance;
+
+	/**
+	 * 单例模式
+	 * @return
+	 */
+	public static MouseEventModeler getInstance() {
+
+		if (instance == null) {
+
+			synchronized (MouseEventModeler.class) {
+				if (instance == null) {
+					instance = new MouseEventModeler();
+
+				}
+			}
+		}
+
+		return instance;
+	}
+
 	public static final Logger logger = LogManager.getLogger(MouseEventModeler.class.getName());
 
 	private List<Model> models = new ArrayList<>();

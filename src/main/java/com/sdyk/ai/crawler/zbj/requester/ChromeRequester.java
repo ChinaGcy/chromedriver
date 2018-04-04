@@ -41,11 +41,9 @@ public class ChromeRequester {
 			synchronized (ChromeRequester.class) {
 				if (instance == null) {
 					instance = new ChromeRequester();
-
 				}
 			}
 		}
-
 		return instance;
 	}
 
