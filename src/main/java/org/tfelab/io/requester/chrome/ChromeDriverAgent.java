@@ -1,7 +1,5 @@
 package org.tfelab.io.requester.chrome;
 
-import com.sdyk.ai.crawler.zbj.model.Account;
-import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
 import com.typesafe.config.Config;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import net.lightbody.bmp.client.ClientUtil;
@@ -13,8 +11,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.littleshoot.proxy.HttpProxyServer;
-import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -25,7 +21,6 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.UnreachableBrowserException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.tfelab.common.Configs;
 import org.tfelab.io.requester.Requester;
@@ -34,7 +29,6 @@ import org.tfelab.io.requester.chrome.action.ChromeDriverAction;
 import org.tfelab.io.requester.chrome.action.ClickAction;
 import org.tfelab.io.requester.cookie.CookiesHolderManager;
 import org.tfelab.io.requester.proxy.ProxyWrapper;
-import org.tfelab.io.requester.util.DocumentSettleCondition;
 import org.tfelab.txt.URLUtil;
 import org.tfelab.util.EnvUtil;
 
@@ -104,6 +98,8 @@ public class ChromeDriverAgent {
 
 	private static List<ChromeDriverAgent> instances = new ArrayList<ChromeDriverAgent>();
 
+	private DesiredCapabilities capabilities;
+
 	// ChromeDriver 句柄
 	private ChromeDriver driver;
 	// Chrome用户文件夹
@@ -116,7 +112,12 @@ public class ChromeDriverAgent {
 	/**
 	 *
 	 */
-	public ChromeDriverAgent() {
+	public ChromeDriverAgent(InetSocketAddress proxy, Flag... flags) throws ChromeInitException {
+
+		this.capabilities = this.buildCapabilities(proxy);
+
+		this.flags = new HashSet<Flag>(Arrays.asList(flags));
+
 		init();
 	}
 
@@ -184,7 +185,7 @@ public class ChromeDriverAgent {
 	 * @param proxy
 	 * @return
 	 */
-	public static BrowserMobProxyServer startBMProxy(InetSocketAddress proxy) {
+	public static BrowserMobProxyServer buildBMProxy(InetSocketAddress proxy) {
 
 		BrowserMobProxyServer bmProxy = new BrowserMobProxyServer();
 		bmProxy.setConnectTimeout(CONNECT_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -204,18 +205,117 @@ public class ChromeDriverAgent {
 		return bmProxy;
 	}
 
+	private DesiredCapabilities buildCapabilities(InetSocketAddress proxy) {
+
+		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+		capabilities.setPlatform(Platform.WIN8);
+
+		/**
+		 * Set no loading images
+		 * 此处代码可能没有效果
+		 */
+		/*Map<String, Object> contentSettings = new HashMap<String, Object>();
+		contentSettings.put("images", 2);
+
+		Map<String, Object> preferences = new HashMap<String, Object>();
+		preferences.put("profile.default_content_settings", contentSettings);
+
+		capabilities.setCapability("chrome.prefs", preferences);*/
+
+		/**
+		 * 设置 chromedriver.exe 日志级别
+		 */
+		LoggingPreferences logPrefs = new LoggingPreferences();
+		logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
+
+		/**
+		 * 设置 Capabilities
+		 */
+		capabilities.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+
+		/*Map<String, Object> perfLogPrefs = new HashMap<String, Object>();
+		perfLogPrefs.put("traceCategories", "browser,devtools.timeline,devtools"); // comma-separated trace categories*/
+
+		/**
+		 * 设定 Chrome 代理
+		 */
+		if(proxy != null) {
+
+			Proxy seleniumProxy = null;
+
+			if (this.flags.contains(Flag.MITM)) {
+
+				this.bmProxy = buildBMProxy(proxy);
+				seleniumProxy = ClientUtil.createSeleniumProxy(bmProxy);
+
+			} else {
+				seleniumProxy = new Proxy();
+				seleniumProxy.setHttpProxy(proxy.toString());
+			}
+
+			capabilities.setCapability("proxy", seleniumProxy);
+		}
+
+		/**
+		 * 设定Session超时后重启动
+		 */
+		capabilities.setCapability("recreateChromeDriverSessions", true);
+		capabilities.setCapability("newCommandTimeout", 120);
+
+		/**
+		 * 只加载html的DOM，不会加载js
+		 * https://stackoverflow.com/questions/43734797/page-load-strategy-for-chrome-driver
+		 * TODO 整理到wiki
+		 */
+		capabilities.setCapability("pageLoadStrategy", "none");
+
+		/**
+		 * 禁用页面提示信息
+ 		 */
+		Map<String, Object> prefs = new HashMap<String, Object>();
+		prefs.put("profile.default_content_setting_values.notifications", 2);
+
+		/**
+		 * ChromeOptions 设定
+		 * 增强Chrome稳定性
+		 */
+		ChromeOptions options = new ChromeOptions();
+		/*options.setExperimentalOption("perfLoggingPrefs", perfLogPrefs);
+		options.addArguments("user-data-dir=" + userDir.getAbsolutePath());*/
+		options.addArguments("--no-sandbox");
+		/*options.addArguments("--start-maximized");*/
+		options.addArguments("--dns-prefetch-disable");
+		options.addArguments("--disable-gpu-watchdog");
+		options.addArguments("--disable-gpu-program-cache");
+		options.addArguments("--disk-cache-dir=/dev/null");
+		options.addArguments("--disk-cache-size=1");
+		// 解决Selenium最大化报错问题
+		options.addArguments("--start-maximized");
+
+		options.setExperimentalOption("prefs", prefs);
+		options.setExperimentalOption("detach", true);
+
+		/**
+		 * 加载禁用图片插件
+		 */
+		/*File block_image_crx = new File("chrome_ext/Block-image_v1.0.crx");
+		if (block_image_crx.exists()) {
+			options.addExtensions(new File("chrome_ext/Block-image_v1.0.crx"));
+		}*/
+		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+
+		return capabilities;
+	}
+
 	public static class ChromeInitException extends Exception {}
 
 	/**
 	 * 初始化
 	 */
-	public synchronized void init(InetSocketAddress proxy, Flag... flags) throws ChromeInitException {
+	public synchronized void init() throws ChromeInitException {
 			
 		logger.info("Init...");
-
 		driver = null;
-		// TODO 整理到wiki
-		this.flags = new HashSet<Flag>(Arrays.asList(flags));
 
 		/**
 		 *
@@ -227,82 +327,6 @@ public class ChromeDriverAgent {
 			logger.info("User dir: {}", userDir.getAbsolutePath());
 			instances.add(this);
 
-			/**
-			 * Set up chrome capabilities
-			 */
-			DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-			capabilities.setPlatform(Platform.WIN8);
-
-			// Set no loading images
-			/*Map<String, Object> contentSettings = new HashMap<String, Object>();
-			contentSettings.put("images", 2);
-
-			Map<String, Object> preferences = new HashMap<String, Object>();
-			preferences.put("profile.default_content_settings", contentSettings);
-
-			capabilities.setCapability("chrome.prefs", preferences);*/
-			
-			LoggingPreferences logPrefs = new LoggingPreferences();
-			logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
-			capabilities.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
-			
-			/*Map<String, Object> perfLogPrefs = new HashMap<String, Object>();
-			perfLogPrefs.put("traceCategories", "browser,devtools.timeline,devtools"); // comma-separated trace categories*/
-
-			// 设定 Chrome 代理
-			if(proxy != null) {
-
-				Proxy seleniumProxy = null;
-
-				if (this.flags.contains(Flag.MITM)) {
-					bmProxy = startBMProxy(proxy);
-					seleniumProxy = ClientUtil.createSeleniumProxy(bmProxy);
-
-				} else {
-					seleniumProxy = new Proxy();
-					seleniumProxy.setHttpProxy(proxy.toString());
-				}
-
-				capabilities.setCapability("proxy", seleniumProxy);
-			}
-
-		    capabilities.setCapability("recreateChromeDriverSessions", true);
-		    capabilities.setCapability("newCommandTimeout", 120);
-
-		    // 只加载html的DOM，不会加载js
-			// https://stackoverflow.com/questions/43734797/page-load-strategy-for-chrome-driver
-			// TODO 整理到wiki
-			capabilities.setCapability("pageLoadStrategy", "none");
-
-			// 禁用页面提示信息
-		    Map<String, Object> prefs = new HashMap<String, Object>();
-		    prefs.put("profile.default_content_setting_values.notifications", 2);
-		    
-			ChromeOptions options = new ChromeOptions();
-			/*options.setExperimentalOption("perfLoggingPrefs", perfLogPrefs);
-			options.addArguments("user-data-dir=" + userDir.getAbsolutePath());*/
-			options.addArguments("--no-sandbox");
-			/*options.addArguments("--start-maximized");*/
-			options.addArguments("--dns-prefetch-disable");
-			options.addArguments("--disable-gpu-watchdog");
-			options.addArguments("--disable-gpu-program-cache");
-			options.addArguments("--disk-cache-dir=/dev/null");
-			options.addArguments("--disk-cache-size=1");
-			// 解决Selenium最大化报错问题
-			options.addArguments("--start-maximized");
-
-			options.setExperimentalOption("prefs", prefs);
-			options.setExperimentalOption("detach", true);
-
-			/**
-			 * 加载禁用图片插件
-			 */
-			/*File block_image_crx = new File("chrome_ext/Block-image_v1.0.crx");
-			if (block_image_crx.exists()) {
-				options.addExtensions(new File("chrome_ext/Block-image_v1.0.crx"));
-			}*/
-			capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-			
 			/*List<Integer> pids = getAllRunningPids();*/
 
 			/**
@@ -398,6 +422,7 @@ public class ChromeDriverAgent {
     }
 
     public void setSize(Dimension dimension) {
+
 		if(driver != null) {
 			// Dimension dimension = new Dimension(1024, 600);
 			driver.manage().window().setSize(dimension);
@@ -405,6 +430,7 @@ public class ChromeDriverAgent {
 	}
 
 	public void setPosition(Point startPoint) {
+
 		if(driver != null) {
 			/*Random r = new Random();
 			Point startPoint = new Point(60 * r.nextInt(10), 40 * r.nextInt(10));*/
@@ -594,7 +620,7 @@ public class ChromeDriverAgent {
 				
 				ChromeDriverAgent.this.setProxy(task.getProxyWrapper());
 
-				ChromeDriverAgent.this.getUrl(task.getUrl(), task.getPost_data());
+				ChromeDriverAgent.this.getUrl(task.getUrl());
 
 				ChromeDriverAgent.this.waitPageLoad(task.getUrl());
 
@@ -616,11 +642,6 @@ public class ChromeDriverAgent {
 						task.getResponse().setScreenshot(driver.getScreenshotAs(OutputType.BYTES));
 					}
 				}
-				
-				// save cookies
-				//String newCookies = ChromeDriverAgent.this.getNewCookies(task.getDomain(), cookies);
-				//task.getResponse().setCookies(newCookies);
-
 			}
 			/**
 			 * 需要重启
@@ -891,7 +912,6 @@ public class ChromeDriverAgent {
 		}*/
 	}
 
-
 	/**
 	 * 管理Cookie
 	 * @param domain	域名
@@ -918,8 +938,6 @@ public class ChromeDriverAgent {
 
 			driver.get(URLUtil.getProtocol(url) + "://" + URLUtil.getDomainName(url) + "/" + UUID.randomUUID().toString());
 			driver.manage().deleteAllCookies();
-			
-			injectCookie(domain, cookie);
 		}
 		
 		return cookie;
@@ -949,11 +967,10 @@ public class ChromeDriverAgent {
 	/**
 	 * 解析URL
 	 * @param url
-	 * @param postData
 	 * @throws InterruptedException
 	 * @throws SocketException
 	 */
-	public void getUrl(String url, String postData) throws InterruptedException, SocketException {
+	public void getUrl(String url) throws InterruptedException, SocketException {
 
 		driver.get(url);
 
@@ -968,10 +985,6 @@ public class ChromeDriverAgent {
 			driver.getPageSource().contains("Gateway Timeout"))
 		{
 			throw new SocketException("Connection to upstream server failed.");
-		}
-		
-		if(postData != null && postData.length() > 0) {
-			redirectPost(url, postData);
 		}
 	}
 	
