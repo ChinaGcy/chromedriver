@@ -1,11 +1,11 @@
 package com.sdyk.ai.crawler.zbj.requester;
 
-import com.sdyk.ai.crawler.zbj.OpenCVUtil;
+import org.tfelab.opencv.OpenCVUtil;
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
-import com.sdyk.ai.crawler.zbj.mouse.Action;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventModeler;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventSimulator;
+import org.tfelab.simulator.mouse.Action;
+import org.tfelab.simulator.mouse.MouseEventModeler;
+import org.tfelab.simulator.mouse.MouseEventSimulator;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
@@ -101,15 +101,13 @@ public class ChromeDriverLoginWrapper extends Thread {
 				wait.until(ExpectedConditions.or(
 						ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".geetest_success_radar_tip_content"))
 				));
-			}catch (org.openqa.selenium.TimeoutException e) {
+			} catch (org.openqa.selenium.TimeoutException e) {
 				// D4 刷新继续验证
 				verificationPass(agent);
 			}
 		}
 
 		agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
-		agent.setzbjProxy(pw);
-		agent.setAccount(account);
 		Thread.sleep(3000);
 		return agent;
 	}
@@ -181,7 +179,6 @@ public class ChromeDriverLoginWrapper extends Thread {
 				verificationPass(agent);
 			}
 		}
-
 	}
 
 	/**

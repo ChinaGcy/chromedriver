@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.zbj.mouse;
+package org.tfelab.simulator.mouse;
 
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.math.Fraction;

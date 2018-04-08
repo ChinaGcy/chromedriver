@@ -1,8 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.model.Account;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
-import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
+import org.tfelab.simulator.mouse.MouseEventTracker;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;

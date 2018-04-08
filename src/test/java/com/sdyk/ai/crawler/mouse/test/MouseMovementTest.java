@@ -1,18 +1,16 @@
 package com.sdyk.ai.crawler.mouse.test;
 
-import com.sdyk.ai.crawler.zbj.mouse.Action;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventModeler;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventSimulator;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventTracker;
+import org.tfelab.simulator.mouse.Action;
+import org.tfelab.simulator.mouse.MouseEventModeler;
+import org.tfelab.simulator.mouse.MouseEventSimulator;
+import org.tfelab.simulator.mouse.MouseEventTracker;
 import org.junit.Test;
 import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.json.JSON;
 import org.tfelab.util.FileUtil;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MouseMovementTest {

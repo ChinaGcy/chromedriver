@@ -1,14 +1,11 @@
-package com.sdyk.ai.crawler.zbj.mouse;
+package org.tfelab.simulator.mouse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tfelab.json.JSON;
-import org.tfelab.util.FileUtil;
 
 import java.util.List;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

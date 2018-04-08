@@ -1,12 +1,11 @@
 package com.sdyk.ai.crawler.mouse.test;
 
-import com.sdyk.ai.crawler.zbj.OpenCVUtil;
-import com.sdyk.ai.crawler.zbj.mouse.Action;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventModeler;
-import com.sdyk.ai.crawler.zbj.mouse.MouseEventSimulator;
+import org.tfelab.opencv.OpenCVUtil;
+import org.tfelab.simulator.mouse.Action;
+import org.tfelab.simulator.mouse.MouseEventModeler;
+import org.tfelab.simulator.mouse.MouseEventSimulator;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -14,10 +13,9 @@ import org.tfelab.io.requester.chrome.ChromeDriverAgent;
 import org.tfelab.util.FileUtil;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.List;
 
-import static com.sdyk.ai.crawler.zbj.mouse.MouseEventModeler.*;
+import static org.tfelab.simulator.mouse.MouseEventModeler.*;
 
 public class MouseEventModelerTest {
 

@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.zbj;
+package org.tfelab.opencv;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;

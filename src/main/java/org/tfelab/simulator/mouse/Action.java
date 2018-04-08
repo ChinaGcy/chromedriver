@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.zbj.mouse;
+package org.tfelab.simulator.mouse;
 
 import org.tfelab.json.JSON;
 import org.tfelab.json.JSONable;

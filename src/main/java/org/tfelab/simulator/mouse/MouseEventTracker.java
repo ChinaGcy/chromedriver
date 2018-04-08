@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.zbj.mouse;
+package org.tfelab.simulator.mouse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,10 +7,8 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.mouse.NativeMouseEvent;
 import org.jnativehook.mouse.NativeMouseInputListener;
 import org.tfelab.json.JSON;
-import org.tfelab.json.JSONable;
 import org.tfelab.util.FileUtil;
 
-import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
