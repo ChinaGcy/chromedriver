@@ -46,10 +46,11 @@ public abstract class ScanTask extends Task{
 			List<WebElement> pageList = driver.findElement(
 					By.cssSelector(path))
 					.findElements(By.tagName("li"));
+
 			// 获取最大页数
 			int maxPage = Integer.parseInt(pageList.get(pageList.size() - 2).getText());
 
-			return maxPage > page;
+			return page < maxPage;
 
 		} catch (NoSuchElementException | ArrayIndexOutOfBoundsException e) {
 			return false;

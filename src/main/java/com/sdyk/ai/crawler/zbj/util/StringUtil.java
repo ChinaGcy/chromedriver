@@ -89,6 +89,7 @@ public class StringUtil {
 	 * @return
 	 */
 	public static double[] budget_all(WebDriver driver, String path, String des_src) {
+
 		// 1.描述中拿预算
 		double budget_all = StringUtil.detectBudget(des_src);
 		// 2.判断拿到的预算是否为0，如果拿不到就从预算栏中获取预算；拿到预算直接赋值。

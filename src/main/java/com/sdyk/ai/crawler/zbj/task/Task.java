@@ -97,7 +97,7 @@ public abstract class Task extends org.tfelab.io.requester.Task implements Compa
 			des_src = BinaryDownloader.download(des_src, img_urls, getUrl(), null);
 		}
 		if (a_urls.size() != 0) {
-			des_src = BinaryDownloader.download(des_src, a_urls, getUrl(),fileName);
+			des_src = BinaryDownloader.download(des_src, a_urls, getUrl(), fileName);
 		}
 		return des_src;
 	}

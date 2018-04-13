@@ -49,7 +49,7 @@ uploadArchives {
 
 dependencies {
 
-    compile 'org.tfelab:core:1.0-SNAPSHOT'
+    compile 'org.tfelab:core:1.1-SNAPSHOT'
 
     compile name: 'opencv-341'
 
