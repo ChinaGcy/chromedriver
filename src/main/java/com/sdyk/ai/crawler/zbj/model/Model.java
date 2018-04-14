@@ -6,9 +6,9 @@ import com.j256.ormlite.field.DatabaseField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
-import org.tfelab.db.OrmLiteDaoManager;
-import org.tfelab.json.JSON;
-import org.tfelab.json.JSONable;
+import one.rewind.db.OrmLiteDaoManager;
+import one.rewind.json.JSON;
+import one.rewind.json.JSONable;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -75,7 +75,7 @@ public abstract class Model implements JSONable<Model> {
 	 */
 	public Model(String url) {
 		this.url = url;
-		this.id = org.tfelab.txt.StringUtil.byteArrayToHex(org.tfelab.txt.StringUtil.uuid(url));
+		this.id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(url));
 	}
 
 	/**

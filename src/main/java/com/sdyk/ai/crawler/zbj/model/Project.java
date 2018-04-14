@@ -4,12 +4,12 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import org.tfelab.db.DBName;
-import org.tfelab.db.OrmLiteDaoManager;
-import org.tfelab.json.JSON;
-import org.tfelab.json.JSONable;
-import org.tfelab.txt.StringUtil;
-import org.tfelab.txt.URLUtil;
+import one.rewind.db.DBName;
+import one.rewind.db.OrmLiteDaoManager;
+import one.rewind.json.JSON;
+import one.rewind.json.JSONable;
+import one.rewind.txt.StringUtil;
+import one.rewind.txt.URLUtil;
 
 import javax.xml.crypto.Data;
 import java.net.MalformedURLException;

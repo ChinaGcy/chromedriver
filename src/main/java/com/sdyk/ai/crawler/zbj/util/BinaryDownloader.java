@@ -6,7 +6,7 @@ import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tfelab.io.requester.BasicRequester;
+import one.rewind.io.requester.BasicRequester;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -44,7 +44,7 @@ public class BinaryDownloader {
 			try {
 
 				String oldUrl = url;
-				org.tfelab.io.requester.Task t_;
+				one.rewind.io.requester.Task t_;
 				// 2.判断地址是否有协议头
 				if (! url.contains("https") && !url.contains("http") && url.contains("//")) {
 					url = "https:" + url;
@@ -60,7 +60,7 @@ public class BinaryDownloader {
 
 
 
-				t_ = new org.tfelab.io.requester.Task(url);
+				t_ = new one.rewind.io.requester.Task(url);
 
 				Binary binary = new Binary(url);
 
@@ -100,7 +100,7 @@ public class BinaryDownloader {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	public static String getFileName(org.tfelab.io.requester.Task t_, Binary binary, String url) throws UnsupportedEncodingException {
+	public static String getFileName(one.rewind.io.requester.Task t_, Binary binary, String url) throws UnsupportedEncodingException {
 
 		String fileName = null;
 

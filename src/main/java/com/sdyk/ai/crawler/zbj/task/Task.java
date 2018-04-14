@@ -8,13 +8,13 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public abstract class Task extends org.tfelab.io.requester.Task implements Comparable<Task> {
+public abstract class Task extends one.rewind.io.requester.Task implements Comparable<Task> {
 
 	public static final Logger logger = LogManager.getLogger(Task.class.getName());
 

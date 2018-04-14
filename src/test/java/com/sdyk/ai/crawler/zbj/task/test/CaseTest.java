@@ -4,7 +4,7 @@ import com.sdyk.ai.crawler.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.junit.Test;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

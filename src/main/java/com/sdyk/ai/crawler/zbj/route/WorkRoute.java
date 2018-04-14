@@ -5,7 +5,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.sdyk.ai.crawler.zbj.ServiceWrapper;
 import com.sdyk.ai.crawler.zbj.model.Model;
 import com.sdyk.ai.crawler.zbj.model.Work;
-import org.tfelab.io.server.Msg;
+import one.rewind.io.server.Msg;
 import spark.*;
 
 import java.util.List;

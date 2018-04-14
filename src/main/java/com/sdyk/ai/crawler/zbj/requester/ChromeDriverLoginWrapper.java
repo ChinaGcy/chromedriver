@@ -1,11 +1,11 @@
 package com.sdyk.ai.crawler.zbj.requester;
 
-import org.tfelab.opencv.OpenCVUtil;
+import one.rewind.opencv.OpenCVUtil;
 import com.sdyk.ai.crawler.zbj.model.Account;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
-import org.tfelab.simulator.mouse.Action;
-import org.tfelab.simulator.mouse.MouseEventModeler;
-import org.tfelab.simulator.mouse.MouseEventSimulator;
+import one.rewind.simulator.mouse.Action;
+import one.rewind.simulator.mouse.MouseEventModeler;
+import one.rewind.simulator.mouse.MouseEventSimulator;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;
@@ -15,10 +15,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.io.requester.proxy.IpDetector;
-import org.tfelab.util.FileUtil;
-import org.tfelab.util.NetworkUtil;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.proxy.IpDetector;
+import one.rewind.util.FileUtil;
+import one.rewind.util.NetworkUtil;
 
 import java.awt.*;
 import java.util.List;
@@ -68,7 +68,7 @@ public class ChromeDriverLoginWrapper extends Thread {
 	public ChromeDriverAgent login(Account account, Proxy pw, boolean automaticByPassGeeTest) throws Exception {
 
 		// A.打开网页
-		org.tfelab.io.requester.Task t = new org.tfelab.io.requester.Task("https://login.zbj.com/login");
+		one.rewind.io.requester.Task t = new one.rewind.io.requester.Task("https://login.zbj.com/login");
 		t.setProxyWrapper(pw);
 		agent.fetch(t);
 		Thread.sleep(5000);

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.txt.NumberFormatUtil;
+import one.rewind.txt.NumberFormatUtil;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class StringUtil {
 		Pattern pattern = Pattern.compile(patternStr);
 
 		Matcher matcher = pattern.matcher(
-				org.tfelab.txt.StringUtil.removeHTML(src));
+				one.rewind.txt.StringUtil.removeHTML(src));
 
 		if(matcher.matches()) {
 			timeSpanStr = matcher.group("T1");
@@ -180,7 +180,7 @@ public class StringUtil {
 		Pattern pattern = Pattern.compile(patternStr);
 
 		Matcher matcher = pattern.matcher(
-				org.tfelab.txt.StringUtil.removeHTML(src));
+				one.rewind.txt.StringUtil.removeHTML(src));
 
 		if(matcher.matches()) {
 

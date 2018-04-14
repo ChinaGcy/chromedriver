@@ -3,8 +3,8 @@ package com.sdyk.ai.crawler.zbj.task.test;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ZBJProxyWrapper;
 import org.junit.Test;
-import org.tfelab.io.requester.Task;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.Task;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

@@ -5,9 +5,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.interactions.Actions;
-import org.tfelab.io.requester.BasicRequester;
-import org.tfelab.io.requester.Task;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.BasicRequester;
+import one.rewind.io.requester.Task;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

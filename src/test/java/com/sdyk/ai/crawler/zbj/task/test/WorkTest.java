@@ -3,8 +3,8 @@ package com.sdyk.ai.crawler.zbj.task.test;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.WorkScanTask;
 import org.junit.Test;
-import org.tfelab.io.requester.BasicRequester;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.BasicRequester;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -42,9 +42,9 @@ public class WorkTest {
 
 	@Test
 	public void testBasicRequester() {
-		org.tfelab.io.requester.Task t = null;
+		one.rewind.io.requester.Task t = null;
 		try {
-			t = new org.tfelab.io.requester.Task("http://www.baidu.com");
+			t = new one.rewind.io.requester.Task("http://www.baidu.com");
 			BasicRequester.getInstance().fetch(t);
 
 		} catch (MalformedURLException e) {

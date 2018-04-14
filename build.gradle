@@ -13,7 +13,6 @@ mainClassName = 'com.sdyk.ai.crawler.zbj.Crawler'
 
 applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\""]
 
-
 repositories {
     maven {
         url "http://tfelab.org:60002/content/groups/public"
@@ -49,7 +48,7 @@ uploadArchives {
 
 dependencies {
 
-    compile 'org.tfelab:core:1.1-SNAPSHOT'
+    compile 'one.rewind:common:1.0-SNAPSHOT'
 
     compile name: 'opencv-341'
 

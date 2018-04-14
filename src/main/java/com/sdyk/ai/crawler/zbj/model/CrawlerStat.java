@@ -4,10 +4,10 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import org.tfelab.db.DBName;
-import org.tfelab.db.OrmLiteDaoManager;
-import org.tfelab.io.requester.proxy.IpDetector;
-import org.tfelab.util.NetworkUtil;
+import one.rewind.db.DBName;
+import one.rewind.db.OrmLiteDaoManager;
+import one.rewind.io.requester.proxy.IpDetector;
+import one.rewind.util.NetworkUtil;
 
 import java.util.Date;
 

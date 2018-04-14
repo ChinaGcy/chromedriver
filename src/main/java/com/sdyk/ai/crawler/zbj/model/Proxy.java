@@ -9,12 +9,12 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tfelab.db.DBName;
-import org.tfelab.db.OrmLiteDaoManager;
-import org.tfelab.db.Refacter;
-import org.tfelab.io.requester.proxy.ProxyWrapper;
+import one.rewind.db.DBName;
+import one.rewind.db.OrmLiteDaoManager;
+import one.rewind.db.Refacter;
+import one.rewind.io.requester.proxy.ProxyWrapper;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyValidator;
-import org.tfelab.json.JSON;
+import one.rewind.json.JSON;
 
 import java.net.InetSocketAddress;
 import java.sql.Ref;

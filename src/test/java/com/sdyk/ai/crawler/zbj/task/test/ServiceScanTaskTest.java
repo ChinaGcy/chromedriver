@@ -5,7 +5,7 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;

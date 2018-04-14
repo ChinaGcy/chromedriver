@@ -3,7 +3,7 @@ package com.sdyk.ai.crawler.zbj.model;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import org.tfelab.db.DBName;
+import one.rewind.db.DBName;
 
 /**
  * 作品描述

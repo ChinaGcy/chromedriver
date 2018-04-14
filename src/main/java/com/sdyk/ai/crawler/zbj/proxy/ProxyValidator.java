@@ -2,11 +2,11 @@ package com.sdyk.ai.crawler.zbj.proxy;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tfelab.io.requester.BasicRequester.ConnectionBuilder;
-import org.tfelab.io.requester.proxy.IpDetector;
-import org.tfelab.io.requester.proxy.ProxyWrapper;
-import org.tfelab.io.requester.proxy.ProxyWrapperImpl;
-import org.tfelab.util.NetworkUtil;
+import one.rewind.io.requester.BasicRequester.ConnectionBuilder;
+import one.rewind.io.requester.proxy.IpDetector;
+import one.rewind.io.requester.proxy.ProxyWrapper;
+import one.rewind.io.requester.proxy.ProxyWrapperImpl;
+import one.rewind.util.NetworkUtil;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedInputStream;

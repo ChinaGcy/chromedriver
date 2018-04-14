@@ -8,7 +8,7 @@ import com.sdyk.ai.crawler.zbj.model.Project;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.txt.DateFormatUtil;
+import one.rewind.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -238,7 +238,7 @@ public class ProjectTask extends Task {
 		Pattern pattern = Pattern.compile("<div class=\"taskmode-inline\" id=\"reward-all\">\\s+赏金分配：<em class=\"gray6\">(?<rewardType>.+?)</em>");
 		Matcher matcher = pattern.matcher(src);
 		if (matcher.find()) {
-			project.reward_type = org.tfelab.txt.StringUtil.removeHTML(matcher.group("rewardType"));
+			project.reward_type = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
 
 	}

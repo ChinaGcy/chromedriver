@@ -4,7 +4,7 @@ import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.requester.ChromeRequester;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import org.tfelab.io.requester.proxy.ProxyWrapper;
+import one.rewind.io.requester.proxy.ProxyWrapper;
 
 import java.util.HashMap;
 import java.util.Map;

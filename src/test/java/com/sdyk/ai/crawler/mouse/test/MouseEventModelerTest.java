@@ -1,21 +1,21 @@
 package com.sdyk.ai.crawler.mouse.test;
 
-import org.tfelab.opencv.OpenCVUtil;
-import org.tfelab.simulator.mouse.Action;
-import org.tfelab.simulator.mouse.MouseEventModeler;
-import org.tfelab.simulator.mouse.MouseEventSimulator;
+import one.rewind.opencv.OpenCVUtil;
+import one.rewind.simulator.mouse.Action;
+import one.rewind.simulator.mouse.MouseEventModeler;
+import one.rewind.simulator.mouse.MouseEventSimulator;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.util.FileUtil;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.util.FileUtil;
 
 import java.awt.*;
 import java.util.List;
 
-import static org.tfelab.simulator.mouse.MouseEventModeler.*;
+import static one.rewind.simulator.mouse.MouseEventModeler.*;
 
 public class MouseEventModelerTest {
 
@@ -47,7 +47,7 @@ public class MouseEventModelerTest {
 
 			try {
 				MouseEventModeler.logger.info(i);
-				String output = toMathematicaListStr(modeler.getActions(i));
+				String output = toMathematicaListStr(modeler.getActions(0, 0, 0));
 
 				FileUtil.writeBytesToFile(output.getBytes(), "new_actions/" + i + ".txt");
 			} catch (Exception e){
@@ -57,12 +57,12 @@ public class MouseEventModelerTest {
 	}
 
 	@Test
-	public void oneModelGenerationTestd() {
+	public void oneModelGenerationTest() {
 
 		try {
 
 			int px = 135;
-			List<Action> actions = MouseEventModeler.getInstance().getActions(px);
+			List<Action> actions = MouseEventModeler.getInstance().getActions(0, 0, px);
 
 			MouseEventSimulator simulator = new MouseEventSimulator(actions);
 
@@ -107,7 +107,7 @@ public class MouseEventModelerTest {
 
 			agent.getElementWait("#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button").click();
 
-			agent.close();
+			agent.stop();
 		}
 	}
 
@@ -188,7 +188,7 @@ public class MouseEventModelerTest {
 		Robot bot = new Robot();
 		bot.mouseMove(x, y);
 
-		List<Action> actions = MouseEventModeler.getInstance().getActions(offset - error);
+		List<Action> actions = MouseEventModeler.getInstance().getActions(0, 0, offset - error);
 
 		MouseEventSimulator simulator = new MouseEventSimulator(actions);
 

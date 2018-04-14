@@ -3,8 +3,8 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.io.requester.account.AccountWrapper;
-import org.tfelab.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.account.AccountWrapper;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

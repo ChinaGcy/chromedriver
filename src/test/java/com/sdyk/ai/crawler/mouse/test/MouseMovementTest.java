@@ -1,12 +1,12 @@
 package com.sdyk.ai.crawler.mouse.test;
 
-import org.tfelab.simulator.mouse.Action;
-import org.tfelab.simulator.mouse.MouseEventModeler;
-import org.tfelab.simulator.mouse.MouseEventSimulator;
-import org.tfelab.simulator.mouse.MouseEventTracker;
+import one.rewind.simulator.mouse.Action;
+import one.rewind.simulator.mouse.MouseEventModeler;
+import one.rewind.simulator.mouse.MouseEventSimulator;
+import one.rewind.simulator.mouse.MouseEventTracker;
 import org.junit.Test;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
-import org.tfelab.util.FileUtil;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.util.FileUtil;
 
 import java.awt.*;
 import java.awt.event.InputEvent;

@@ -6,7 +6,7 @@ import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.junit.Test;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 
 import java.util.LinkedList;

@@ -4,7 +4,7 @@ import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.modelTask.TendererTask;
 import org.junit.Test;
-import org.tfelab.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.util.HashSet;
 import java.util.Set;

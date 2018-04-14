@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RLock;
-import org.tfelab.db.RedissonAdapter;
-import org.tfelab.io.requester.proxy.ProxyWrapper;
+import one.rewind.db.RedissonAdapter;
+import one.rewind.io.requester.proxy.ProxyWrapper;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;

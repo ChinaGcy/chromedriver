@@ -5,7 +5,7 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import org.tfelab.io.requester.account.AccountWrapper;
+import one.rewind.io.requester.account.AccountWrapper;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

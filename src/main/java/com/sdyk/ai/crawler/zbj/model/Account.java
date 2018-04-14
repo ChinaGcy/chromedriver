@@ -4,8 +4,8 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import org.tfelab.db.DBName;
-import org.tfelab.db.OrmLiteDaoManager;
+import one.rewind.db.DBName;
+import one.rewind.db.OrmLiteDaoManager;
 
 import java.util.Date;
 

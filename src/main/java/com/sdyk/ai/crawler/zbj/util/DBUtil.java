@@ -5,7 +5,7 @@ import com.sdyk.ai.crawler.zbj.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
-import org.tfelab.db.Refacter;
+import one.rewind.db.Refacter;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -7,8 +7,8 @@ import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tfelab.io.requester.proxy.IpDetector;
-import org.tfelab.util.NetworkUtil;
+import one.rewind.io.requester.proxy.IpDetector;
+import one.rewind.util.NetworkUtil;
 
 import java.util.*;
 
