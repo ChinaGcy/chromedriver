@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;

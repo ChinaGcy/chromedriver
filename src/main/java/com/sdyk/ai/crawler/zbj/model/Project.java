@@ -1,20 +1,13 @@
 package com.sdyk.ai.crawler.zbj.model;
 
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import one.rewind.db.DBName;
-import one.rewind.db.OrmLiteDaoManager;
-import one.rewind.json.JSON;
-import one.rewind.json.JSONable;
-import one.rewind.txt.StringUtil;
 import one.rewind.txt.URLUtil;
 
-import javax.xml.crypto.Data;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.Date;
 
 @DBName(value = "crawler")

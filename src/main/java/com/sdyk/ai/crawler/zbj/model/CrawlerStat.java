@@ -5,7 +5,7 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import one.rewind.db.DBName;
-import one.rewind.db.OrmLiteDaoManager;
+import one.rewind.db.DaoManager;
 import one.rewind.io.requester.proxy.IpDetector;
 import one.rewind.util.NetworkUtil;
 
@@ -34,7 +34,7 @@ public class CrawlerStat {
 
 	public boolean insert() throws Exception{
 
-		Dao<CrawlerStat, String> dao = OrmLiteDaoManager.getDao(CrawlerStat.class);
+		Dao<CrawlerStat, String> dao = DaoManager.getDao(CrawlerStat.class);
 
 		if (dao.create(this) == 1) {
 			return true;

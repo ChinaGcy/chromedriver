@@ -1,8 +1,6 @@
 package com.sdyk.ai.crawler.zbj;
 
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ZBJProxyWrapper;
-import com.sdyk.ai.crawler.zbj.requester.ChromeRequester;
+import com.sdyk.ai.crawler.zbj.proxy.pool.ZbjProxyWrapper;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
@@ -10,9 +8,7 @@ import it.sauronsoftware.cron4j.Scheduler;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static spark.route.HttpMethod.get;
 
@@ -166,8 +162,8 @@ public class Crawler {
 
 		}else if (args.length == 1 && args[0].equals("P")){
 			while(true) {
-				if (ZBJProxyWrapper.tag == 1) {
-					ZBJProxyWrapper proxyWapper = new ZBJProxyWrapper();
+				if (ZbjProxyWrapper.tag == 1) {
+					ZbjProxyWrapper proxyWapper = new ZbjProxyWrapper();
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
@@ -179,7 +175,7 @@ public class Crawler {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					ZBJProxyWrapper.tag = 0;
+					ZbjProxyWrapper.tag = 0;
 				}
 			}
 		}

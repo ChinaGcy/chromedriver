@@ -1,8 +1,7 @@
 package com.sdyk.ai.crawler;
 
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.AliyunService;
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ZBJProxyWrapper;
+import com.sdyk.ai.crawler.zbj.proxy.pool.AliyunService;
+import com.sdyk.ai.crawler.zbj.proxy.pool.ZbjProxyWrapper;
 import org.junit.Test;
 
 public class AliyunProxyTest {
@@ -12,7 +11,7 @@ public class AliyunProxyTest {
 	 */
 	@Test
 	public void getProxy() throws InterruptedException {
-		ZBJProxyWrapper proxyWapper = new ZBJProxyWrapper();
+		ZbjProxyWrapper proxyWapper = new ZbjProxyWrapper();
 		Thread.sleep(5000);
 		try {
 			String[] a = proxyWapper.getProxy(proxyWapper);

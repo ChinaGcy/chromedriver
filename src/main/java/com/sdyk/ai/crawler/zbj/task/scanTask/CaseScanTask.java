@@ -41,7 +41,7 @@ public class CaseScanTask extends ScanTask {
 		this.setParam("page", page);
 	}
 
-	public List<Task> postProc(WebDriver driver) throws Exception {
+	public List<Task> postProc() throws Exception {
 
 		String src = getResponse().getText();
 
@@ -56,7 +56,7 @@ public class CaseScanTask extends ScanTask {
 		if (!src.contains("暂时还没有此类服务！") && backtrace) {
 			Task t = generateTask("https://shop.zbj.com/" + webId + "/", ++page);
 			if (t != null) {
-				t.setPrior();
+				t.setPriority(Priority.HIGH);
 				tasks.add(t);
 			}
 		}

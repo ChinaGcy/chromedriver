@@ -2,7 +2,6 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.Tenderer;
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;

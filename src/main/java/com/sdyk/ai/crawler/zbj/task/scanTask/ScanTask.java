@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -33,22 +34,21 @@ public abstract class ScanTask extends Task{
 
 	/**
 	 * 判断是否为最大页数
-	 * @param driver
 	 * @param path
 	 * @param page
 	 * @return
 	 */
-	public boolean pageTurning(WebDriver driver, String path, int page) {
+	public boolean pageTurning(String path, int page) {
 
 		if(!backtrace) return false;
 
 		try {
-			List<WebElement> pageList = driver.findElement(
-					By.cssSelector(path))
-					.findElements(By.tagName("li"));
+
+			// div.pagination > ul > li
+			Elements pageList = getResponse().getDoc().select(path);
 
 			// 获取最大页数
-			int maxPage = Integer.parseInt(pageList.get(pageList.size() - 2).getText());
+			int maxPage = Integer.parseInt(pageList.get(pageList.size() - 2).text());
 
 			return page < maxPage;
 

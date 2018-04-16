@@ -11,6 +11,9 @@ import spark.Route;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
+/**
+ *
+ */
 public class BinaryRoute {
 
 	public static Route getBinaryForId = (Request request, Response response ) -> {

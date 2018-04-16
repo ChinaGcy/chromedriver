@@ -2,10 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
-import one.rewind.io.requester.account.AccountWrapper;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -20,7 +17,7 @@ import java.util.regex.Pattern;
  */
 public class ServiceScanTask extends ScanTask {
 
-	public static ServiceScanTask generateTask(String channel, int page, AccountWrapper aw) {
+	public static ServiceScanTask generateTask(String channel, int page) {
 
 		String url = "https://www.zbj.com/" + channel + "/pk" + page + ".html";
 
@@ -47,14 +44,14 @@ public class ServiceScanTask extends ScanTask {
 
 		super(url);
 		this.setParam("page", page);
-		this.priority = Priority.low;
+		this.setPriority(Priority.HIGH);
 	}
 
 	/**
 	 *
 	 * @return
 	 */
-	public List<Task> postProc(WebDriver driver) throws Exception {
+	public List<Task> postProc() throws Exception {
 
 		String src = getResponse().getText();
 
@@ -80,8 +77,8 @@ public class ServiceScanTask extends ScanTask {
 		// 当前页数
 		int i = (page-1)/40+1;
 		// 翻页
-		if (pageTurning(driver, "#utopia_widget_18 > div.pagination > ul", i)) {
-			Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40, null);
+		if (pageTurning("div.pagination > ul > li", i)) {
+			Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40);
 			tasks.add(t);
 		}
 

@@ -1,13 +1,11 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.sdyk.ai.crawler.zbj.exception.IpException;
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ProxyReplace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Case;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -28,18 +26,12 @@ public class CaseTask extends Task {
 		super(url);
 	}
 
-	public List<Task> postProc(WebDriver driver) {
+	public List<Task> postProc() {
 
 		String src = getResponse().getText();
-		List<Task> tasks = new ArrayList();
+		Document doc = getResponse().getDoc();
 
-		// 判断是否被禁
-		try {
-			ProxyReplace.proxyWork(src, this);
-		} catch (IpException e) {
-			ProxyReplace.replace(this);
-			return tasks;
-		}
+		List<Task> tasks = new ArrayList();
 
 		if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
 			ca = new Case(getUrl());
@@ -47,17 +39,18 @@ public class CaseTask extends Task {
 			if (!getUrl().contains("https://shop.tianpeng.com")) {
 				// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
 				try {
-					pageOne(src, driver);
+					pageOne();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else {
 				// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
-				pageTwo(src, driver);
+				pageTwo();
 			}
 			// 以下是两个页面共有的信息
 			// 二进制文件下载
-			String description_src = driver.findElement(By.cssSelector("#J-description")).getAttribute("innerHTML");
+			String description_src = doc.select("#J-description").html();
+
 			try {
 				ca.description = download(description_src);
 			} catch (Exception e) {
@@ -67,7 +60,7 @@ public class CaseTask extends Task {
 			try {
 				ca.insert();
 			} catch (Exception e) {
-				logger.error("insert for Case error", "e");
+				logger.error(e);
 			}
 		}
 
@@ -78,15 +71,13 @@ public class CaseTask extends Task {
 	 * 获取猪八戒服务价格预算
 	 * @param driver
 	 */
-	public void budgetZBJ(WebDriver driver) {
+	public void budgetZBJ() {
 
 		try {
-			double[] budget = StringUtil.budget_all(driver,
-					"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode > dl.price-panel.app-price-panel.hot-price > dd > span.price",
+			double[] budget = StringUtil.budget_all("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode > dl.price-panel.app-price-panel.hot-price > dd > span.price",
 					"");
 			if (budget[0] == 0.00 && budget[1] == 0.00) {
-				budget = StringUtil.budget_all(driver,
-						"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode.no-app-price > dl:nth-child(1) > dd > span.price",
+				budget = StringUtil.budget_all("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode.no-app-price > dl:nth-child(1) > dd > span.price",
 						"");
 				ca.budget_lb = budget[0];
 				ca.budget_up = budget[1];
@@ -105,11 +96,10 @@ public class CaseTask extends Task {
 	 * 获取天蓬网服务价格预算
 	 * @param driver
 	 */
-	public void budgetTPW(WebDriver driver) {
+	public void budgetTPW() {
 
 		try {
-			double[] budget = StringUtil.budget_all(driver,
-					"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.price",
+			double[] budget = StringUtil.budget_all("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.price",
 					"");
 			ca.budget_lb = budget[0];
 			ca.budget_up = budget[1];
@@ -122,54 +112,43 @@ public class CaseTask extends Task {
 
 	/**
 	 * 猪八戒服务页面
-	 * @param src 页面源
-	 * @param driver
 	 */
-	public void pageOne (String src, WebDriver driver) {
+	public void pageOne () {
 
 		ca.user_id = getUrl().split("/")[3];
 
-		ca.title = getString(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2",
+		ca.title = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2",
 				"");
 
 		// body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong
-		ca.cycle = getString(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong",
+		ca.cycle = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong",
 				"");
 
 		// 价格预算
-		budgetZBJ(driver);
+		budgetZBJ();
 
-		ca.response_time = getString(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-respond-time > div > strong",
+		ca.response_time = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-respond-time > div > strong",
 				"");
 
-		ca.service_attitude = getDouble(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li.first > strong",
+		ca.service_attitude = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li.first > strong",
 				"");
 
-		ca.work_speed = getDouble(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(2) > strong",
+		ca.work_speed = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(2) > strong",
 				"");
 
-		ca.complete_quality = getDouble(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(3) > strong",
+		ca.complete_quality = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(3) > strong",
 				"");
 
-		ca.rating = getFloat(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > div.service-star-box > div.service-star-score",
+		ca.rating = getFloat("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > div.service-star-box > div.service-star-score",
 				"");
 
-		ca.rate_num = getInt(driver,
-				"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > div.service-star-box > div.service-comment-count > em",
+		ca.rate_num = getInt("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > div.service-star-box > div.service-comment-count > em",
 				"");
 
 		// 获取服务描述
 		String caseTask_des = "";
 		try {
-			caseTask_des = getString(driver,
-					"#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property",
+			caseTask_des = getString("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property",
 					"");
 		} catch (NoSuchElementException e) { }
 
@@ -188,16 +167,14 @@ public class CaseTask extends Task {
 
 	/**
 	 * 天棚网服务页面
-	 * @param src
-	 * @param driver
 	 */
-	public void pageTwo(String src, WebDriver driver) {
+	public void pageTwo() {
 
 		ca.user_id = getUrl().split("/")[3];
 		ca.title = driver.findElement(By.cssSelector("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2"))
 				.getText();
 
-		budgetTPW(driver);
+		budgetTPW();
 
 		String caseTask_des = driver.findElement(By.cssSelector("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property"))
 				.getText();

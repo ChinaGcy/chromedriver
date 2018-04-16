@@ -199,6 +199,9 @@ public class StringUtil {
 	 */
 	public static String cleanContent(String in, Set<String> extraUrls_img, Set<String> extraUrls_a, List<String> fileName_a){
 
+		in = in.replace("(?i)^<.+?>", "");
+		in = in.replace("(?i)</.+?>$", "");
+
 		String out = "<p>" + in + "</p>";
 
 		// 去HTML注释

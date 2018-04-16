@@ -3,7 +3,6 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.openqa.selenium.WebDriver;
-import one.rewind.io.requester.account.AccountWrapper;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 
 import java.net.MalformedURLException;
@@ -26,10 +25,9 @@ public class ProjectScanTask extends ScanTask {
 	 * 生成项目翻页采集任务
 	 * @param channel
 	 * @param page
-	 * @param aw
 	 * @return
 	 */
-	public static ProjectScanTask generateTask(String channel, int page, AccountWrapper aw) {
+	public static ProjectScanTask generateTask(String channel, int page) {
 
 		ProjectScanTask.channel = channel;
 
@@ -40,7 +38,6 @@ public class ProjectScanTask extends ScanTask {
 		try {
 			ProjectScanTask t = new ProjectScanTask(url, page);
 			t.setRequester_class(ChromeDriverRequester.class.getSimpleName());
-			t.setAccount(aw);
 			return t;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -64,14 +61,14 @@ public class ProjectScanTask extends ScanTask {
 		this.setParam("page", page);
 
 		// 设置优先级
-		priority = Priority.low;
+		this.setPriority(Priority.HIGH);
 	}
 
 	/**
 	 *
 	 * @return
 	 */
-	public List<Task> postProc(WebDriver driver) throws Exception {
+	public List<Task> postProc() throws Exception {
 
 		String src = getResponse().getText();
 
@@ -93,14 +90,10 @@ public class ProjectScanTask extends ScanTask {
 			}
 		}
 
-		// TODO 此处判断翻页存在巨大问题 已解决
-		// TODO 注意 当列表无数据时，使用WebDriver会报错
-		if (pageTurning(driver,
-				"body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul",
-				page)) {
-			Task t = generateTask(channel, ++page, null);
+		if (pageTurning("div.pagination > ul > li",page)) {
+			Task t = generateTask(channel, ++page);
 			if (t != null) {
-				t.setPrior();
+				t.setPriority(Priority.HIGH);
 				tasks.add(t);
 			}
 		}

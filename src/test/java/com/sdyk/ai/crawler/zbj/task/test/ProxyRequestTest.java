@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
 import com.sdyk.ai.crawler.zbj.model.Proxy;
-import com.sdyk.ai.crawler.zbj.proxy.proxyPool.ZBJProxyWrapper;
+import com.sdyk.ai.crawler.zbj.proxy.pool.ZbjProxyWrapper;
 import org.junit.Test;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -73,7 +73,7 @@ public class ProxyRequestTest {
 		ChromeDriverAgent agent_ = new ChromeDriverAgent();
 		agent_.fetch(t);
 
-		ZBJProxyWrapper proxyWapper = new ZBJProxyWrapper();
+		ZbjProxyWrapper proxyWapper = new ZbjProxyWrapper();
 
 		proxyWapper.getProxy(proxyWapper);
 

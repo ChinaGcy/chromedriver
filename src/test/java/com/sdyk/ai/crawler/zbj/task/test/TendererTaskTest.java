@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.requester.ChromeDriverLoginWrapper;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.modelTask.TendererTask;
 import org.junit.Test;

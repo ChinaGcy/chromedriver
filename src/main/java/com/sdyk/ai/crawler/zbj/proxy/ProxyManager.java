@@ -1,12 +1,11 @@
 package com.sdyk.ai.crawler.zbj.proxy;
 
+import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RLock;
 import one.rewind.db.RedissonAdapter;
-import one.rewind.io.requester.proxy.ProxyWrapper;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +41,7 @@ public class ProxyManager {
 	 *
 	 * @param proxy
 	 */
-	public void waits(ProxyWrapper proxy) {
+	public void waits(Proxy proxy) {
 
 		RLock lock = RedissonAdapter.redisson.getLock(proxy.getInfo());
 		lock.lock(10, TimeUnit.SECONDS);
@@ -66,6 +65,5 @@ public class ProxyManager {
 
 		lastRequestTime.get(proxy.getId()).set(System.currentTimeMillis());
 		lock.unlock();
-
 	}
 }

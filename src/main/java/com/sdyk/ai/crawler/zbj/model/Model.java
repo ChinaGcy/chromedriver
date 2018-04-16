@@ -6,7 +6,7 @@ import com.j256.ormlite.field.DatabaseField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
-import one.rewind.db.OrmLiteDaoManager;
+import one.rewind.db.DaoManager;
 import one.rewind.json.JSON;
 import one.rewind.json.JSONable;
 
@@ -31,7 +31,7 @@ public abstract class Model implements JSONable<Model> {
 
 		for (Class<?> clazz : getModelClasses()) {
 			try {
-				Dao dao = OrmLiteDaoManager.getDao(clazz);
+				Dao dao = DaoManager.getDao(clazz);
 				daoMap.put(clazz.getSimpleName(), dao);
 
 			} catch (Exception e) {

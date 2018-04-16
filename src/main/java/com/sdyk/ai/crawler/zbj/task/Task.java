@@ -14,20 +14,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public abstract class Task extends one.rewind.io.requester.Task implements Comparable<Task> {
+public abstract class Task extends one.rewind.io.requester.Task {
 
 	public static final Logger logger = LogManager.getLogger(Task.class.getName());
-
-	public ChromeDriverAgent agent;
-
-	// 优先级
-	public Priority priority = Priority.middle;
-
-	public enum Priority {
-		low,
-		middle,
-		high
-	}
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
@@ -45,72 +34,52 @@ public abstract class Task extends one.rewind.io.requester.Task implements Compa
 		super(url, headers, post_data, cookies, ref);
 	}
 
-	public List<? extends Task> postProc(WebDriver driver) throws Exception {
-		return null;
-	}
+	public String getString(String path, String... clean) {
 
-	public void setPriority(Priority priority) {
-		this.priority = priority;
-	}
-
-	public Priority getPriority() {
-		return priority;
-	}
-
-	public static String getString(WebDriver driver, String path, String... clean) {
-		String txt = driver.findElement(By.cssSelector(path)).getText();
-		for(String c : clean) {
-			txt = txt.replaceAll(c, "");
+		String found = null;
+		if(getResponse().getDoc() != null) {
+			found = getResponse().getDoc().select(path).text();
+			for(String c : clean) {
+				found = found.replaceAll(c, "");
+			}
 		}
-		return txt;
+
+		return found;
 	}
 
-	public static int getInt(WebDriver driver, String path, String... clean) {
-		return Integer.parseInt(getString(driver, path, clean));
+	public int getInt(String path, String... clean) {
+		return Integer.parseInt(getString(path, clean));
 	}
 
-	public static float getFloat(WebDriver driver, String path, String... clean) {
-		return Float.parseFloat(getString(driver, path, clean));
+	public float getFloat(String path, String... clean) {
+		return Float.parseFloat(getString(path, clean));
 	}
 
-	public static double getDouble(WebDriver driver, String path, String... clean) {
-		return Double.parseDouble(getString(driver, path, clean));
-	}
-
-	public void setAgent(ChromeDriverAgent agent) { this.agent = agent; }
-
-	public ChromeDriverAgent getAgent() {
-		return agent;
+	public double getDouble(String path, String... clean) {
+		return Double.parseDouble(getString(path, clean));
 	}
 
 	/**
-	 *
-	 * @param description_src
+	 * 对源代码中的附件进行下载，并替换链接
+	 * @param src 包含附件链接的源代码
+	 * @return 替换后的内容
 	 */
-	public String download(String description_src) {
+	public String download(String src) {
 
 		Set<String> img_urls = new HashSet<>();
 		Set<String> a_urls = new HashSet<>();
 		List<String> fileName = new ArrayList<>();
-		String des_src = StringUtil.cleanContent(description_src, img_urls, a_urls, fileName);
+
+		String des_src = StringUtil.cleanContent(src, img_urls, a_urls, fileName);
+
 		if (img_urls.size() != 0 ) {
 			des_src = BinaryDownloader.download(des_src, img_urls, getUrl(), null);
 		}
+
 		if (a_urls.size() != 0) {
 			des_src = BinaryDownloader.download(des_src, a_urls, getUrl(), fileName);
 		}
+
 		return des_src;
-	}
-
-	/**
-	 * 优先级比较
-	 * @param another
-	 * @return
-	 */
-	public int compareTo(Task another) {
-
-		final Priority me = this.getPriority();
-		final Priority it = another.getPriority();
-		return me.ordinal() == it.ordinal() ? 0 : it.ordinal() - me.ordinal();
 	}
 }

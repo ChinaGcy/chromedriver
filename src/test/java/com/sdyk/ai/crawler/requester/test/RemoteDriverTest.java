@@ -1,12 +1,12 @@
-package com.sdyk.ai.crawler;
+package com.sdyk.ai.crawler.requester.test;
 
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.SshManager;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.proxy.ProxyWrapper;
-import one.rewind.io.requester.proxy.ProxyWrapperImpl;
+import one.rewind.io.requester.proxy.Proxy;
+import one.rewind.io.requester.proxy.ProxyImpl;
 import org.junit.Test;
 
 import java.net.URL;
@@ -57,11 +57,11 @@ public class RemoteDriverTest {
 
 		for(int i=0; i<10; i++) {
 
-			final ProxyWrapper proxy = new ProxyWrapperImpl("114.215.70.14", 59998, "tfelab", "TfeLAB2@15");
+			final Proxy proxy = new ProxyImpl("114.215.70.14", 59998, "tfelab", "TfeLAB2@15");
 			final URL remoteAddress = new URL("http://10.0.0.62:" + (31000 + i) + "/wd/hub");
 
 			new Thread(() -> {
-				requester.addChromeDriverAgent(new ChromeDriverAgent(remoteAddress, proxy));
+				requester.addAgent(new ChromeDriverAgent(remoteAddress, proxy));
 			}).start();
 
 		}
@@ -82,7 +82,7 @@ public class RemoteDriverTest {
 	@Test
 	public void testBuildProxyServer() throws InterruptedException, UnknownHostException {
 
-		ProxyWrapper proxy = new ProxyWrapperImpl("scisaga.net", 60103, "tfelab", "TfeLAB2@15");
+		Proxy proxy = new ProxyImpl("scisaga.net", 60103, "tfelab", "TfeLAB2@15");
 		BrowserMobProxyServer ps = buildBMProxy(proxy);
 		System.err.println(ps.getClientBindAddress());
 		System.err.println(ps.getPort());
