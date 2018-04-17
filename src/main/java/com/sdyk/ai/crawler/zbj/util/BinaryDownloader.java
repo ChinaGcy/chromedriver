@@ -64,7 +64,7 @@ public class BinaryDownloader {
 
 				Binary binary = new Binary(url);
 
-				BasicRequester.getInstance().fetch(t_);
+				BasicRequester.getInstance().submit(t_);
 
 				binary.src = t_.getResponse().getSrc();
 

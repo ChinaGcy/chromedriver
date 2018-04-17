@@ -1,15 +1,15 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import one.rewind.txt.DateFormatUtil;
 
+import javax.print.Doc;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -45,33 +45,26 @@ public class TendererRatingTask extends ScanTask {
 		this.setParam("webId", webId);
 	}
 
-	public List<Task> postProc(WebDriver driver) {
+	public List<Task> postProc() {
 
 		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
-
-		// 判断是否被禁
-		try {
-			ProxyReplace.proxyWork(src, this);
-		} catch (IpException e) {
-			ProxyReplace.replace(this);
-			return tasks;
-		}
+		Document doc = getResponse().getDoc();
 
 		// 防止数据为空
-		if (!driver.findElement(By.cssSelector("#evaluation > div > div")).getText().contains("该雇主还未收到过评价")) {
+		if (!doc.select("#evaluation > div > div").text().contains("该雇主还未收到过评价")) {
 
 			int page = this.getParamInt("page");
 
 			// 每页中的评价数
-			for (int i = 0; i < driver.findElement(By.cssSelector("#evaluation > div > div.panel-content > ul")).findElements(By.tagName("li")).size(); i++) {
+			for (int i = 0; i < doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
 
 				tendererRating = new TendererRating(getUrl());
 
 				tendererRating.tenderer_url = getUrl().split("\\?")[0];
 
 				// 每个评价
-				ratingData(driver, i);
+				ratingData(doc, i);
 
 				// 入库
 				try {
@@ -82,10 +75,10 @@ public class TendererRatingTask extends ScanTask {
 			}
 
 			// 翻页
-			Task t = pageTurn(driver, page);
+			Task t = pageTurn(page);
 
 			if (t != null) {
-				t.setPrior();
+				t.setPriority(Priority.LOW);
 				tasks.add(t);
 			}
 		}
@@ -94,55 +87,40 @@ public class TendererRatingTask extends ScanTask {
 
 	/**
 	 *
-	 * @param driver
 	 * @param i
 	 */
-	public void ratingData(WebDriver driver, int i) {
+	public void ratingData(Document doc, int i) {
 
 		tendererRating.facilitator_name =
-				shareData(driver,"#evaluation > div > div.panel-content > ul",i)
-						.findElement(By.className("evaluation-item-from"))
-						.findElement(By.tagName("a"))
-						.getText();
+				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.who > a")
+						.text();
 
 		tendererRating.facilitator_url =
-				shareData(driver,"#evaluation > div > div.panel-content > ul",i)
-						.findElement(By.className("evaluation-item-from"))
-						.findElement(By.tagName("a"))
-						.getAttribute("href");
+				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.who > a")
+						.attr("href");
 
 		tendererRating.maluation =
-				shareData(driver,"#evaluation > div > div.panel-content > ul",i)
-						.findElement(By.className("evaluation-item-text"))
-						.getText();
+				shareData(doc, "#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-text > p")
+						.text();
 
 		tendererRating.maluation_tag =
-				shareData(driver,"#evaluation > div > div.panel-content > ul",i)
-						.findElement(By.className("evaluation-item-tags"))
-						.getText();
+				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-tags.clearfix")
+						.text();
 		try {
 			tendererRating.maluation_time =
 					DateFormatUtil.parseTime(
-							shareData(driver,"#evaluation > div > div.panel-content > ul",i)
-									.findElement(By.className("evaluation-item-from"))
-									.findElement(By.className("when"))
-									.getText());
+							shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.when")
+									.text());
 
 		} catch (ParseException e) {
 			logger.error("Error: {}, ", e);
 		}
 		try {
 			tendererRating.pay_timeliness_num =
-					shareData(driver,"#evaluation > div > div.panel-content > ul",i)
-							.findElement(By.className("evaluation-item-scores"))
-							.findElement(By.className("scores-intime"))
-							.findElements(By.tagName("i"))
+					shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-intime > span.stars-group > i")
 							.size();
 			tendererRating.work_happy_num =
-					shareData(driver,"#evaluation > div > div.panel-content > ul",i)
-							.findElement(By.className("evaluation-item-scores"))
-							.findElement(By.className("scores-delight"))
-							.findElements(By.tagName("i"))
+					shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child(1) > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-delight > span.stars-group > i")
 							.size();
 
 		} catch (NoSuchElementException e) {
@@ -154,28 +132,23 @@ public class TendererRatingTask extends ScanTask {
 	/**
 	 * 为ratingData方法提供WeElement
 	 *
-	 * @param driver
+	 * @param doc
 	 * @param path
-	 * @param i
 	 * @return
 	 */
-	public WebElement shareData(WebDriver driver, String path, int i) {
-
-		return driver.findElement(By.cssSelector(path))
-				.findElements(By.tagName("li"))
-				.get(i);
+	public Elements shareData(Document doc, String path) {
+		return doc.select(path);
 	}
 
 	/**
 	 * 翻页
-	 * @param driver
 	 * @param page
 	 * @return
 	 */
-	public Task pageTurn(WebDriver driver, int page) {
+	public Task pageTurn(int page) {
 
 		// 判断是否翻页
-		if (pageTurning(driver,"#evaluation > div > div.pagination-wrapper > div > ul", page)) {
+		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul", page)) {
 
 			Task t = null;
 			try {

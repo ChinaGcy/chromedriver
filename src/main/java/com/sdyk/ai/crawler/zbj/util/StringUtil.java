@@ -2,16 +2,15 @@ package com.sdyk.ai.crawler.zbj.util;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import one.rewind.txt.NumberFormatUtil;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,37 +57,36 @@ public class StringUtil {
 
 	/**
 	 *
-	 * @param driver
+	 * @param doc
 	 * @param path
 	 * @return
 	 */
-	public static int getBidderTotalNum(WebDriver driver, String path) {
-		return Integer.parseInt(driver.findElement(By.cssSelector(path)).getText());
+	public static int getBidderTotalNum(Document doc, String path) {
+		return Integer.parseInt(doc.select(path).text());
 	}
 
 	/**
 	 *
-	 * @param driver
+	 * @param doc
 	 * @param path
 	 * @return
 	 */
-	public static int getBidderNum(WebDriver driver, String path, String tag) {
-		if (driver.findElement(By.cssSelector(path)).findElements(By.tagName(tag)).size() > 1) {
-			return Integer.parseInt(driver.findElement(By.cssSelector(path)).findElements(By.tagName(tag)).get(1).getText());
+	public static int getBidderNum(Document doc, String path, String tag) {
+		if (doc.select(path).tagName(tag).size() > 1) {
+			return Integer.parseInt(doc.select(path).tagName(tag).get(1).text());
 		}
 		else{
-			return Integer.parseInt(driver.findElement(By.cssSelector(path)).findElements(By.tagName(tag)).get(0).getText());
+			return Integer.parseInt(doc.select(path).tagName(tag).get(0).text());
 		}
 	}
 
 	/**
 	 *获取预算
-	 * @param driver
 	 * @param path
 	 * @param des_src
 	 * @return
 	 */
-	public static double[] budget_all(WebDriver driver, String path, String des_src) {
+	public static double[] budget_all(Document doc, String path, String des_src) {
 
 		// 1.描述中拿预算
 		double budget_all = StringUtil.detectBudget(des_src);
@@ -96,7 +94,7 @@ public class StringUtil {
 		if (budget_all == 0) {
 
 			// 3.拿到预算栏中的数据
-			String budget = driver.findElement(By.cssSelector(path)).getText();
+			String budget = doc.select(path).text();
 
 			// 4.判断格式
 			if (budget.equals("可议价")) {

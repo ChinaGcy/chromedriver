@@ -1,13 +1,11 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 
-import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.SupplierRating;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
-import org.openqa.selenium.By;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
 import one.rewind.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
@@ -44,21 +42,13 @@ public class ServiceRatingTask extends ScanTask {
 
 	/**
 	 *
-	 * @param driver
 	 * @return
 	 */
-	public List<Task> postProc(WebDriver driver) {
+	public List<Task> postProc() {
 
-		String src = getResponse().getText();
+		Document doc = getResponse().getDoc();
+
 		List<Task> tasks = new ArrayList<>();
-
-		// 判断是否被禁
-		try {
-			ProxyReplace.proxyWork(src, this);
-		} catch (IpException e) {
-			ProxyReplace.replace(this);
-			return tasks;
-		}
 
 		int page = this.getParamInt("page");
 
@@ -66,8 +56,8 @@ public class ServiceRatingTask extends ScanTask {
 		int size = 0;
 
 		try {
-			size = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20"))
-					.findElements(By.className("user-information")).size();
+			size = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl.user-information.clearfix")
+					.size();
 		} catch (NoSuchElementException e) {
 			// 页面为空，size = 0 ，不采集数据
 		}
@@ -77,7 +67,7 @@ public class ServiceRatingTask extends ScanTask {
 			serviceRating = new SupplierRating(getUrl());
 
 			// 每个评价
-			ratingData(driver, i);
+			ratingData(doc, i);
 
 			try {
 				serviceRating.insert();
@@ -87,7 +77,7 @@ public class ServiceRatingTask extends ScanTask {
 		}
 
 		// 翻页
-		if (pageTurning(driver, "#userlist > div.pagination > ul", page)) {
+		if (pageTurning("#userlist > div.pagination > ul", page)) {
 			Task task = generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ getUrl().split("-")[2] +"-type-1-isLazyload-0-page-", ++page);
 			tasks.add(task);
 		}
@@ -97,37 +87,36 @@ public class ServiceRatingTask extends ScanTask {
 
 	/**
 	 *
-	 * @param driver
 	 * @param i
 	 */
-	public void ratingData(WebDriver driver, int i) {
+	public void ratingData(Document doc, int i) {
 
 		serviceRating.service_supplier_id = getUrl().split("-")[2];
-		String[] ss = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dt > img"))
-				.getAttribute("src").split("/");
+		String[] ss =doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dt > img")
+				.attr("src").split("/");
 		serviceRating.tenderer_id = ss[3].substring(1)+ss[4]+ss[5]+ss[6].split("_")[2].split(".jpg")[0];
 
 		serviceRating.tenderer_url = "https://home.zbj.com/" + serviceRating.tenderer_id;
 
-		serviceRating.project_url = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a"))
-				.getAttribute("href");
+		serviceRating.project_url = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a")
+				.attr("href");
 
-		serviceRating.tenderer_name = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit"))
-				.getText().split("成交价格：")[0];
-		serviceRating.spend = Double.parseDouble(driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit"))
-				.getText().split("成交价格：")[1].replaceAll("元", ""));
-		serviceRating.description = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span"))
-				.getText();
+		serviceRating.tenderer_name = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
+				.text().split("成交价格：")[0];
+		serviceRating.spend = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
+				.text().split("成交价格：")[1].replaceAll("元", ""));
+		serviceRating.description = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
+				.text();
 		try {
-			serviceRating.tags = driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx"))
-					.getText().split("印象：")[1];
+			serviceRating.tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
+					.text().split("印象：")[1];
 
 		} catch (NoSuchElementException e) {
 			serviceRating.tags ="";
 		}
 
 		try {
-			serviceRating.rating_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd.mint > p")).getText());
+			serviceRating.rating_time = DateFormatUtil.parseTime(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd.mint > p").text());
 		} catch (ParseException e) {
 			logger.error("serviceRating  rating_time {}", e);
 		}

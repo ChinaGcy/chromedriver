@@ -1,9 +1,8 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
-import org.openqa.selenium.WebDriver;
+import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -36,18 +35,11 @@ public class TendererOrderTask extends ScanTask {
 		this.setParam("webId", webId);
 	}
 
-	public List<Task> postProc(WebDriver driver) throws ParseException, MalformedURLException, URISyntaxException {
+	public List<Task> postProc() throws ParseException, MalformedURLException, URISyntaxException {
 
 		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
-
-		// 判断是否被禁
-		try {
-			ProxyReplace.proxyWork(src, this);
-		} catch (IpException e) {
-			ProxyReplace.replace(this);
-			return tasks;
-		}
+		Document doc = getResponse().getDoc();
 
 		int op_page = this.getParamInt("page");
 
@@ -64,12 +56,12 @@ public class TendererOrderTask extends ScanTask {
 				tasks.add(new ProjectTask(url));
 			}
 		}
-		if (pageTurning(driver, "#order > div > div.pagination-wrapper > div > ul", op_page)) {
+		if (pageTurning("#order > div > div.pagination-wrapper > div > ul", op_page)) {
 			// 翻页
 			Task t = generateTask("https://home.zbj.com/"
 					+ this.getParamString("webId"), ++op_page, this.getParamString("webId"));
 			if (t != null) {
-				t.setPrior();
+				t.setPriority(Priority.MEDIUM);
 				tasks.add(t);
 
 			}

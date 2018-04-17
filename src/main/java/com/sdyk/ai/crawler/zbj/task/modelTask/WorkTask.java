@@ -1,9 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.Work;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -12,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
+
 
 /**
  * 案例详情
@@ -25,29 +24,22 @@ public class WorkTask extends Task {
 		this.setParam("user_id",user_id);
 	}
 
-	public List<Task> postProc(WebDriver driver) {
+	public List<Task> postProc() {
 
+		Document doc = getResponse().getDoc();
 		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
-
-		// 判断是否被禁
-		try {
-			ProxyReplace.proxyWork(src, this);
-		} catch (IpException e) {
-			ProxyReplace.replace(this);
-			return tasks;
-		}
 
 		work = new Work(getUrl());
 
 		// 判断页面格式
 		if (getUrl().contains("zbj")) {
 			// 猪八戒
-			pageOne(driver);
+			pageOne(doc);
 		}
 		else {
 			// 天棚网
-			pageTwo(driver);
+			pageTwo(doc);
 		}
 
 		try {
@@ -60,15 +52,14 @@ public class WorkTask extends Task {
 
 	/**
 	 * 猪八戒案例格式
-	 * @param driver
 	 */
-	public void pageOne(WebDriver driver) {
+	public void pageOne(Document doc) {
 
-		work.name = driver.findElement(By.cssSelector("body > div.det-bg.yahei > div.det-content.clearfix > div.det-head.fl > div"))
-				.getText();
+		work.name = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-head.fl > div")
+				.text();
 		work.user_id = this.getParamString("user_id");
 
-		String src_ = getString(driver,
+		String src_ = getString(
 				"body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-content > ul",
 				"") + " ";
 		Pattern pattern = Pattern.compile(".*客户名称：(?<T>.+?)\\s+");
@@ -89,41 +80,40 @@ public class WorkTask extends Task {
 		}
 
 		// 下载二进制文件
-		String description_src = driver.findElement(By.cssSelector("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-left.fl"))
-				.getAttribute("innerHTML");
+		String description_src = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-left.fl")
+				.html();
 
 		work.description = download(description_src)
 				.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
 
 		// 价格
-		if(driver.findElement(By.cssSelector("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content"))
-				.getText().contains("面议")) {
+		if(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
+				.text().contains("面议")) {
 			work.pricee = 0.00;
 		} else {
-			work.pricee = Double.parseDouble(driver.findElement(By.cssSelector("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content"))
-					.getText().split("￥")[1]);
+			work.pricee = Double.parseDouble(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
+					.text().split("￥")[1]);
 		}
 	}
 
 	/**
 	 * 天棚网案例格式
-	 * @param driver
 	 */
-	public void pageTwo(WebDriver driver) {
+	public void pageTwo(Document doc) {
 
 		try {
 
 			work.user_id = this.getParamString("user_id");
-			work.name = driver.findElement(By.cssSelector("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-title > h2"))
-					.getText();
-			work.tenderer_name = driver.findElement(By.cssSelector("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-customer > em"))
-					.getText();
-			work.pricee = Double.parseDouble(driver.findElement(By.cssSelector("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-amount > em"))
-					.getText().replaceAll("¥", "").replaceAll(",", ""));
-			work.tags = driver.findElement(By.cssSelector("body > div.tp-works-hd > div > div.tp-works-hd-left > ul")).getText();
+			work.name = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-title > h2")
+					.text();
+			work.tenderer_name = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-customer > em")
+					.text();
+			work.pricee = Double.parseDouble(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-amount > em")
+					.text().replaceAll("¥", "").replaceAll(",", ""));
+			work.tags = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > ul").text();
 
-			String description_src = driver.findElement(By.cssSelector("body > div.tp-works-bd > div > div.works-bd-content > div"))
-					.getAttribute("innerHTML");
+			String description_src = doc.select("body > div.tp-works-bd > div > div.works-bd-content > div")
+					.html();
 			// 二进制文件下载
 			work.description = download(description_src)
 					.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");

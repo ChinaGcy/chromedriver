@@ -4,7 +4,6 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Case;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 
 import java.net.MalformedURLException;
@@ -39,13 +38,13 @@ public class CaseTask extends Task {
 			if (!getUrl().contains("https://shop.tianpeng.com")) {
 				// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
 				try {
-					pageOne();
+					pageOne(doc);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else {
 				// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
-				pageTwo();
+				pageTwo(doc);
 			}
 			// 以下是两个页面共有的信息
 			// 二进制文件下载
@@ -69,15 +68,14 @@ public class CaseTask extends Task {
 
 	/**
 	 * 获取猪八戒服务价格预算
-	 * @param driver
 	 */
-	public void budgetZBJ() {
+	public void budgetZBJ(Document doc) {
 
 		try {
-			double[] budget = StringUtil.budget_all("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode > dl.price-panel.app-price-panel.hot-price > dd > span.price",
+			double[] budget = StringUtil.budget_all(doc,"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode > dl.price-panel.app-price-panel.hot-price > dd > span.price",
 					"");
 			if (budget[0] == 0.00 && budget[1] == 0.00) {
-				budget = StringUtil.budget_all("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode.no-app-price > dl:nth-child(1) > dd > span.price",
+				budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode.no-app-price > dl:nth-child(1) > dd > span.price",
 						"");
 				ca.budget_lb = budget[0];
 				ca.budget_up = budget[1];
@@ -94,12 +92,11 @@ public class CaseTask extends Task {
 
 	/**
 	 * 获取天蓬网服务价格预算
-	 * @param driver
 	 */
-	public void budgetTPW() {
+	public void budgetTPW(Document doc) {
 
 		try {
-			double[] budget = StringUtil.budget_all("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.price",
+			double[] budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.price",
 					"");
 			ca.budget_lb = budget[0];
 			ca.budget_up = budget[1];
@@ -113,7 +110,7 @@ public class CaseTask extends Task {
 	/**
 	 * 猪八戒服务页面
 	 */
-	public void pageOne () {
+	public void pageOne (Document doc) {
 
 		ca.user_id = getUrl().split("/")[3];
 
@@ -125,7 +122,7 @@ public class CaseTask extends Task {
 				"");
 
 		// 价格预算
-		budgetZBJ();
+		budgetZBJ(doc);
 
 		ca.response_time = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-respond-time > div > strong",
 				"");
@@ -168,21 +165,18 @@ public class CaseTask extends Task {
 	/**
 	 * 天棚网服务页面
 	 */
-	public void pageTwo() {
+	public void pageTwo(Document doc) {
 
 		ca.user_id = getUrl().split("/")[3];
-		ca.title = driver.findElement(By.cssSelector("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2"))
-				.getText();
+		ca.title = doc.select("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2").text();
 
-		budgetTPW();
+		budgetTPW(doc);
 
-		String caseTask_des = driver.findElement(By.cssSelector("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property"))
-				.getText();
+		ca.type = doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
+				.text();
 
 		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
-		Matcher matcher_tags = pattern_tags.matcher(caseTask_des);
-
-		ca.type = caseTask_des;
+		Matcher matcher_tags = pattern_tags.matcher(ca.type );
 
 		if (matcher_tags.find()) {
 			ca.tags = matcher_tags.group("T");

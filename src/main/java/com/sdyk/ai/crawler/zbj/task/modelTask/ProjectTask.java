@@ -1,12 +1,10 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
-import org.openqa.selenium.By;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
 import one.rewind.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
@@ -30,25 +28,17 @@ public class ProjectTask extends Task {
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 		// 设置优先级
-		this.priority = Priority.high;
+		this.setPriority(Priority.HIGH);
 	}
 
 	/**
-	 * @param driver
 	 * @return
 	 */
-	public List<Task> postProc(WebDriver driver) {
+	public List<Task> postProc() {
 
 		String src = getResponse().getText();
+		Document doc = getResponse().getDoc();
 		List<Task> tasks = new ArrayList();
-
-		// 判断是否被禁
-		try {
-			ProxyReplace.proxyWork(src, this);
-		} catch (IpException e) {
-			ProxyReplace.replace(this);
-			return tasks;
-		}
 
 		try {
 			// 初始化 必须传入url 生成主键id
@@ -63,7 +53,7 @@ public class ProjectTask extends Task {
 				tasks.add(new ProjectTask(getUrl()));
 				return tasks;
 			} catch (MalformedURLException | URISyntaxException e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 		// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
@@ -73,7 +63,7 @@ public class ProjectTask extends Task {
 			String header;
 			try {
 				// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-				header = driver.findElement(By.cssSelector("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title")).getText();
+				header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
 
 			} catch (NoSuchElementException e) {
 				return tasks;
@@ -84,7 +74,7 @@ public class ProjectTask extends Task {
 
 				logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
 
-				pageOne(src, driver, header, tasks);
+				pageOne(doc, src, header, tasks);
 
 				try {
 					project.insert();
@@ -95,7 +85,7 @@ public class ProjectTask extends Task {
 			// B2 页面格式2 ：http://task.zbj.com/12954086/
 			else if (pageType(header) == PageType.ReqDetail) {
 
-				pageTwo(src, driver, header, tasks);
+				pageTwo(doc, header);
 
 				try {
 					project.insert();
@@ -149,15 +139,13 @@ public class ProjectTask extends Task {
 	/**
 	 * pageone
 	 * 项目状态， 时间
-	 * @param driver
 	 */
-	public void projectStateOne(WebDriver driver) {
+	public void projectStateOne(Document doc) {
 
 		try {
 			// 项目状态
-			project.current_status = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
-					.findElement(By.className("modecont")).findElement(By.className("cur"))
-					.findElement(By.tagName("p")).getText().split("2")[0];
+			project.current_status = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > p")
+					.text().split("2")[0];
 		}
 		catch (Exception e) {
 			// 已经完成
@@ -166,14 +154,11 @@ public class ProjectTask extends Task {
 		try {
 			try {
 				// 剩余时间
-				project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix"))
-						.findElement(By.className("modecont"))
-						.findElement(By.className("cur"))
-						.findElement(By.className("taskmode-clock"))
-						.getAttribute("data-difftime"));
+				project.remaining_time = DateFormatUtil.parseTime(doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > span.taskmode-clock.o-time > em")
+						.text());
 			}
 			catch (ParseException e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 		catch (NoSuchElementException e) {
@@ -185,46 +170,40 @@ public class ProjectTask extends Task {
 	/**
 	 * pagetwo
 	 * 项目状态， 时间
-	 * @param driver
 	 */
-	public void projectStateTwo(WebDriver driver) {
+	public void projectStateTwo(Document doc) {
 
 		try {
-			project.current_status = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-blockr > div.timeline > div > div"))
-					.findElement(By.className("current")).findElement(By.tagName("p")).getText();
-		} catch (Exception e) {
+			// 项目状态
+			project.current_status = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(3)")
+					.text();
+		}
+		catch (Exception e) {
+			// 已经完成
 			project.current_status = "评价";
 		}
-		// 若无此项，则为空
 		try {
 			try {
-				project.remaining_time = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.timeline > div > div"))
-						.findElement(By.className("current")).findElement(By.className("clock")).getAttribute("data-difftime"));
+				// 剩余时间
+				project.remaining_time = DateFormatUtil.parseTime(doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > div.clock.absolute-1 > em")
+						.text());
 			}
 			catch (ParseException e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 		catch (NoSuchElementException e) {
+			// 无法找到剩余时间
 			project.remaining_time = null;
-		}
-
-		try {
-			project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(2)"))
-					.findElement(By.tagName("b")).getText());
-		}
-		catch (ParseException e) {
-			e.printStackTrace();
 		}
 	}
 
 	/**
 	 *
-	 * @param driver
 	 */
-	public void getTendererIdName(WebDriver driver, String src) {
+	public void getTendererIdName(Document doc, String src) {
 
-		String link = driver.findElement(By.cssSelector("#j-content > div > div.user-toltit > dl")).findElement(By.tagName("img")).getAttribute("src").split("\\.")[2];
+		String link = doc.select("#j-content > div > div.user-toltit > dl > dt > a > img").attr("src").split("\\.")[2];
 
 		String[] links = link.split("/");
 
@@ -232,7 +211,7 @@ public class ProjectTask extends Task {
 
 		project.tenderer_id = Integer.parseInt(links[1] + links[2] + links[3] + ss)+"";
 
-		project.tenderer_name = driver.findElement(By.cssSelector("#j-content > div > div.user-toltit > dl")).findElement(By.tagName("img")).getAttribute("alt");
+		project.tenderer_name = doc.select("#j-content > div > div.user-toltit > dl > dt > a > img").attr("alt");
 
 		Pattern pattern = Pattern.compile("<div class=\"taskmode-inline\" id=\"reward-all\">\\s+赏金分配：<em class=\"gray6\">(?<rewardType>.+?)</em>");
 		Matcher matcher = pattern.matcher(src);
@@ -244,21 +223,20 @@ public class ProjectTask extends Task {
 
 	/**
 	 *
-	 * @param driver
 	 * @param src
 	 */
-	public void finishProject(WebDriver driver, String src) {
+	public void finishProject(String src,Document doc) {
 		// 1 采集时刻投标人数
 		// 1.1 项目已完成
 		if (src.contains("<div class=\"banner-task-summary clearfix\">")) {
 
 			try {
-				project.bidder_num = getInt(driver,
+				project.bidder_num = getInt(
 						"#anytime-back > div.banner-task-summary.clearfix > div.summary-right > h4:nth-child(2) > em:nth-child(2)",
 						"个|名");
 			}
 			catch (NoSuchElementException e) {
-				project.bidder_num = getInt(driver,
+				project.bidder_num = getInt(
 						"body > div.main.task-details > div.main-con.user-page > div.banner-task-summary.clearfix > div.summary-right.clearfix > h4:nth-child(2) > em:nth-child(2)",
 						"个|名");
 			}
@@ -268,10 +246,10 @@ public class ProjectTask extends Task {
 		else {
 
 			if (src.contains("该需求可接受")) {
-				project.bidder_total_num = StringUtil.getBidderTotalNum(driver,
+				project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
 						"#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(1)");
 
-				project.bidder_num = StringUtil.getBidderNum(driver,
+				project.bidder_num = StringUtil.getBidderNum(doc,
 						"#j-ibid-list > div > div.ibid-total.clearfix",
 						"b");
 			}
@@ -282,29 +260,28 @@ public class ProjectTask extends Task {
 	 * 页面格式1
 	 * 获取信息
 	 * @param src 页面源
-	 * @param driver
 	 * @param head 页面格式
 	 * @param tasks
 	 */
-	public void pageOne(String src, WebDriver driver, String head, List<Task> tasks) {
+	public void pageOne(Document doc, String src, String head, List<Task> tasks) {
 
 		// 项目是否可投标，以及投标数量
-		finishProject(driver, src);
+		finishProject(src, doc);
 
-		project.title = getString(driver, "#ed-tit > div.tctitle.clearfix > h1", "");
+		project.title = getString("#ed-tit > div.tctitle.clearfix > h1", "");
 
-		project.area = getString(driver, "#j-receiptcon > span.ads", "");
+		project.area = getString("#j-receiptcon > span.ads", "");
 
-		project.origin = getString(driver, "#j-receiptcon > a", "");
+		project.origin = getString("#j-receiptcon > a", "");
 
 		// body > div.main.task-details > div.grid > ul
-		project.category = getString(driver, "body > div.main.task-details > div.grid > ul", "");
+		project.category = getString("body > div.main.task-details > div.grid > ul", "");
 
 		project.type = head;
 
 		// TODO 需要额外处理图片, 下载
-		String description_src = driver.findElement(By.cssSelector("#work-more"))
-				.getAttribute("innerHTML")
+		String description_src =doc.select("#work-more")
+				.html()
 				.replaceAll("<a.+?>查看全部</a>","");
 
 		project.description = download(description_src);
@@ -312,7 +289,7 @@ public class ProjectTask extends Task {
 		project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
 
 		// 预算处理  #ed-tit > div.micon > div.fl.money-operate > p > u
-		double[] budget = StringUtil.budget_all(driver,
+		double[] budget = StringUtil.budget_all(doc,
 				"#ed-tit > div.micon > div.fl.money-operate > p > u",
 				project.description);
 		project.budget_lb = budget[0];
@@ -320,19 +297,19 @@ public class ProjectTask extends Task {
 
 		// 发布时间
 		try {
-			project.pubdate = DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#j-receiptcon > span.time")).getText());
+			project.pubdate = DateFormatUtil.parseTime(doc.select("#j-receiptcon > span.time").text());
 		}
 		catch (ParseException e) {
 			project.pubdate = null;
 		}
 
 		// 获取招标人id
-		getTendererIdName(driver, src);
+		getTendererIdName(doc, src);
 
 		// 项目状态 剩余时间
-		projectStateOne(driver);
+		projectStateOne(doc);
 
-		project.trade_type = driver.findElement(By.cssSelector("#j-content > div > div.taskmode-block.clearfix > div.header")).findElement(By.tagName("em")).getText();
+		project.trade_type = doc.select("#j-content > div > div.taskmode-block.clearfix > div.header > em").text();
 
 		// 进入雇主页
 		try {
@@ -345,29 +322,24 @@ public class ProjectTask extends Task {
 	/**
 	 * 页面格式2
 	 * 数据采取
-	 * @param src
-	 * @param driver
 	 * @param head
-	 * @param tasks
 	 */
-	public void pageTwo(String src, WebDriver driver, String head, List<Task> tasks) {
+	public void pageTwo(Document doc, String head) {
 
 		project.type = head;
 
-		project.title = getString(driver,
+		project.title = getString(
 				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > h1", "");
 
-		project.req_no = getString(driver,
+		project.req_no = getString(
 				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
 
-		project.category = getString(driver,
+		project.category = getString(
 				"#utopia_widget_3",
 				"");
 
-		String description_src = driver.findElement(By.cssSelector("#trade-content > div.page-info-content.clearfix > div.main-content")).findElement(By.className("order-header-block"))
-				.findElement(By.className("task-detail"))
-				.findElement(By.className("task-detail-content"))
-				.getAttribute("innerHTML").replaceAll("<a.+?>显示全部</a>","")
+		String description_src = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper.with-task-ext > div.task-detail-content.content")
+				.html().replaceAll("<a.+?>显示全部</a>","")
 				.replace(">\\s+<","><").replaceAll("\\s+<","<").replaceAll(">\\s+",">");
 
 		// 下载
@@ -392,7 +364,7 @@ public class ProjectTask extends Task {
 
 		// 预算处理
 		try {
-			double[] budget = StringUtil.budget_all(driver,
+			double[] budget = StringUtil.budget_all(doc,
 					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe > span:nth-child(1) > b",
 					project.description);
 			project.budget_lb = budget[0];
@@ -405,14 +377,14 @@ public class ProjectTask extends Task {
 		}
 
 		// 项目状态，剩余时间
-		projectStateTwo(driver);
+		projectStateTwo(doc);
 
 		// 投标总数与投标人数
 		try {
 
-			project.bidder_total_num = StringUtil.getBidderTotalNum(driver,
+			project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
 					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
-			project.bidder_num = StringUtil.getBidderNum(driver,
+			project.bidder_num = StringUtil.getBidderNum(doc,
 					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info",
 					"span");
 		}
@@ -420,7 +392,7 @@ public class ProjectTask extends Task {
 		}
 
 		try {
-			project.status = getString(driver,"#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+			project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
 
 		} catch (NoSuchElementException e) {
 			System.err.println("status is null");

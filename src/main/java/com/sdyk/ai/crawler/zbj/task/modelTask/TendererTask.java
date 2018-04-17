@@ -1,9 +1,8 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.sdyk.ai.crawler.zbj.exception.IpException;
 import com.sdyk.ai.crawler.zbj.model.Tenderer;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import org.openqa.selenium.By;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import one.rewind.txt.DateFormatUtil;
@@ -21,30 +20,23 @@ public class TendererTask extends Task {
 
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
-		this.priority = Priority.high;
+		this.setPriority(Priority.MEDIUM);
 	}
 
 	public List<Task> postProc(WebDriver driver) throws ParseException, MalformedURLException, URISyntaxException {
 
+		Document doc = getResponse().getDoc();
 		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
-
-		// 判断是否被禁
-		try {
-			ProxyReplace.proxyWork(src, this);
-		} catch (IpException e) {
-			ProxyReplace.replace(this);
-			return tasks;
-		}
 
 		Tenderer tenderer = new Tenderer(getUrl());
 
 		tenderer.website_id = getUrl().split("com/")[1];
-		tenderer.name = getString(driver,
+		tenderer.name = getString(
 				"#utopia_widget_1 > div > div.topinfo-top > div > h2",
 				"");
 		try {
-			tenderer.area = getString(driver,
+			tenderer.area = getString(
 					"#utopia_widget_1 > div > div.topinfo-top > div > div > span.location",
 					"");
 		}
@@ -53,38 +45,38 @@ public class TendererTask extends Task {
 		}
 		try {
 			tenderer.login_time =
-					DateFormatUtil.parseTime(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login"))
-							.getText());
+					DateFormatUtil.parseTime(doc.select("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login")
+							.text());
 		} catch (NoSuchElementException e) {
 			tenderer.login_time = null;
 		}
 
 
 		tenderer.trade_num =
-				Integer.parseInt(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-trade > div.statistics-item-val > strong"))
-				.getText().replaceAll("-", "0"));
+				Integer.parseInt(doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-trade > div.statistics-item-val > strong")
+				.text().replaceAll("-", "0"));
 
 		tenderer.industry =
-				driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div:nth-child(3) > div.statistics-item-val"))
-				.getText();
+				doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div:nth-child(3) > div.statistics-item-val")
+				.text();
 
 		tenderer.tender_type =
-				driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-time > div.statistics-item-val"))
-				.getText();
+				doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-time > div.statistics-item-val")
+				.text();
 
 		tenderer.enterprise_size =
-				driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-scale > div.statistics-item-val"))
-				.getText();
+				doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-scale > div.statistics-item-val")
+				.text();
 
 		tenderer.description =
-				driver.findElement(By.cssSelector("#utopia_widget_4 > div > div > p")).getText();
+				doc.select("#utopia_widget_4 > div > div > p").text();
 
 		tenderer.demand_forecast =
-				driver.findElement(By.cssSelector("#utopia_widget_5 > div > div > h5")).getText();
+				doc.select("#utopia_widget_5 > div > div > h5").text();
 
 		tenderer.total_spending =
-				Double.parseDouble(driver.findElement(By.cssSelector("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-pay > div.statistics-item-val > strong"))
-				.getText().replaceAll(",", ""));
+				Double.parseDouble(doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-pay > div.statistics-item-val > strong")
+				.text().replaceAll(",", ""));
 
 
 		// 添加projectTask
