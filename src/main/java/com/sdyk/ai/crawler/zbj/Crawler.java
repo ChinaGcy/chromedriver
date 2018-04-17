@@ -4,6 +4,7 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import it.sauronsoftware.cron4j.Scheduler;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ public class Crawler {
 			synchronized (Crawler.class) {
 				if (instance == null) {
 					instance = new Crawler();
-
 				}
 			}
 		}
@@ -82,6 +82,14 @@ public class Crawler {
 	};
 
 	/**
+	 * TODO 初始化ChromeDriverAgent
+	 * 增加Exception Callbacks
+	 */
+	public Crawler() {
+
+	}
+
+	/**
 	 *
 	 * @param backtrace
 	 * @return
@@ -91,7 +99,7 @@ public class Crawler {
 		List<ScanTask> tasks = new ArrayList<>();
 
 		for(String channel : project_channels) {
-			ScanTask t = ProjectScanTask.generateTask(channel, 1, null);
+			ScanTask t = ProjectScanTask.generateTask(channel, 1);
 			t.backtrace = backtrace;
 			tasks.add(t);
 			System.out.println("PROJECT:" + channel);
@@ -116,7 +124,7 @@ public class Crawler {
 
 		// 需求
 		for (Task task : getTask(true)) {
-			ChromeRequester.getInstance().distribute(task);
+			ChromeDriverRequester.getInstance().submit(task);
 		}
 	}
 
@@ -135,7 +143,7 @@ public class Crawler {
 				public void run() {
 
 					for (Task task : getTask(false)) {
-						ChromeRequester.getInstance().distribute(task);
+						ChromeDriverRequester.getInstance().submit(task);
 					}
 				}
 			});
@@ -156,31 +164,13 @@ public class Crawler {
 
 		if (args.length == 1 && args[0].equals("H")){
 			// 获取历史数据
-			System.out.println("历史数据");
+			logger.info("历史数据");
 			Crawler.getInstance().getHistoricalData();
 
-		}else if (args.length == 1 && args[0].equals("P")){
-			while(true) {
-				if (ZbjProxyWrapper.tag == 1) {
-					ZbjProxyWrapper proxyWapper = new ZbjProxyWrapper();
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						logger.error("proxy pool error", e);
-					}
-					try {
-						String[] a = proxyWapper.getProxy(proxyWapper);
-						ProxyReplace.map.put(a[0], a[1]);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					ZbjProxyWrapper.tag = 0;
-				}
-			}
 		}
 		else {
 			// 监控数据
-			System.out.println("监控数据");
+			logger.info("监控数据");
 			Crawler.getInstance().monitor();
 		}
 	}

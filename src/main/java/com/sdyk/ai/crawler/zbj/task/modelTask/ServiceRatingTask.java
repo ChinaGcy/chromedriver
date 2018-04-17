@@ -92,8 +92,10 @@ public class ServiceRatingTask extends ScanTask {
 	public void ratingData(Document doc, int i) {
 
 		serviceRating.service_supplier_id = getUrl().split("-")[2];
-		String[] ss =doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dt > img")
+
+		String[] ss = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dt > img")
 				.attr("src").split("/");
+
 		serviceRating.tenderer_id = ss[3].substring(1)+ss[4]+ss[5]+ss[6].split("_")[2].split(".jpg")[0];
 
 		serviceRating.tenderer_url = "https://home.zbj.com/" + serviceRating.tenderer_id;
@@ -103,8 +105,10 @@ public class ServiceRatingTask extends ScanTask {
 
 		serviceRating.tenderer_name = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
 				.text().split("成交价格：")[0];
+
 		serviceRating.spend = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
 				.text().split("成交价格：")[1].replaceAll("元", ""));
+
 		serviceRating.description = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
 				.text();
 		try {
