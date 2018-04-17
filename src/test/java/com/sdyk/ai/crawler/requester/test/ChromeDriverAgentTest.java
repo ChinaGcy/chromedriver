@@ -30,6 +30,8 @@ public class ChromeDriverAgentTest {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent(proxy, ChromeDriverAgent.Flag.MITM);
 
+		agent.start();
+
 /*		agent.setIdleCallback(()->{
 			System.err.println("IDLE");
 		});*/
@@ -60,7 +62,9 @@ public class ChromeDriverAgentTest {
 
 		for(int i=0; i<1; i++) {
 
-			ChromeDriverAgent agent = new ChromeDriverAgent(null);
+			ChromeDriverAgent agent = new ChromeDriverAgent();
+			agent.start();
+
 			Task task = new Task("http://www.zbj.com");
 			ChromeAction action = new LoginWithGeetestAction(account);
 			task.addAction(action);

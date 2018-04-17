@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.zbj;
 
-import com.sdyk.ai.crawler.zbj.proxy.pool.ZbjProxyWrapper;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
