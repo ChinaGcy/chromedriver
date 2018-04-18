@@ -4,6 +4,7 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Case;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.openqa.selenium.NoSuchElementException;
 
 import java.net.MalformedURLException;
@@ -44,7 +45,6 @@ public class CaseTask extends Task {
 				}
 			} else {
 				// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
-				pageTwo(doc);
 			}
 			// 以下是两个页面共有的信息
 			// 二进制文件下载

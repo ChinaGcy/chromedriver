@@ -20,7 +20,7 @@ public class ProjectTaskTest {
 	@Test
 	public void projectTest() {
 
-		ChromeDriverAgent agent = null;
+		/*ChromeDriverAgent agent = null;
 		try {
 			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
 		} catch (Exception e) {
@@ -58,12 +58,12 @@ public class ProjectTaskTest {
 					taskQueue.add(t);
 				}
 			}
-		}
+		}*/
 	}
 	// 页面格式1
 	@Test
 	public void pageOneTest() {
-
+/*
 		ChromeDriverAgent agent = null;
 		try {
 			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
@@ -86,7 +86,7 @@ public class ProjectTaskTest {
 			task.postProc(agent.getDriver());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	@Test

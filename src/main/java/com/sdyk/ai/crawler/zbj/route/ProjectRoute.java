@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
 
 import static com.sdyk.ai.crawler.zbj.model.Model.rewriteBinaryUrl;
 
+/**
+ * 项目路由
+ */
 public class ProjectRoute {
 
 	/**
@@ -36,7 +39,7 @@ public class ProjectRoute {
 	};
 
 	/**
-	 *
+	 *项目列表
 	 */
 	public static Route getProjects = (Request request, Response response) -> {
 

@@ -10,8 +10,14 @@ import spark.*;
 
 import java.util.List;
 
+/**
+ * 服务商路由
+ */
 public class ServiceSupplierRatingRoute {
 
+	/**
+	 * 评价列表
+	 */
 	public static Route getServiceSupplierRatings = (Request request, Response response) -> {
 
 		int serviceSupplierId = Integer.parseInt(request.params(":servicesupplierid"));

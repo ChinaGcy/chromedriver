@@ -12,7 +12,7 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 /**
- *
+ *二进制路由
  */
 public class BinaryRoute {
 

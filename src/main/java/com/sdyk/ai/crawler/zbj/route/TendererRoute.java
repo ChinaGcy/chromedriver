@@ -14,6 +14,9 @@ import java.util.List;
 
 public class TendererRoute {
 
+	/**
+	 * 通过id查询雇主
+	 */
 	public static Route getTendererById = (Request request, Response response ) -> {
 
 		String id = request.params(":id");
@@ -26,6 +29,9 @@ public class TendererRoute {
 		return new Msg<Tenderer>(Msg.SUCCESS, p);
 	};
 
+	/**
+	 * 雇主列表
+	 */
 	public static Route getTenderers = (Request request, Response response) -> {
 
 		int page = Integer.parseInt(request.params(":page"));

@@ -14,6 +14,9 @@ import java.util.List;
 
 import static com.sdyk.ai.crawler.zbj.model.Model.rewriteBinaryUrl;
 
+/**
+ * 服务路由
+ */
 public class CaseRoute {
 
 	public static Route getCaseById = (Request request, Response response ) -> {

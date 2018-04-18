@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
 import com.sdyk.ai.crawler.zbj.model.Proxy;
-import com.sdyk.ai.crawler.zbj.proxy.pool.ZbjProxyWrapper;
 import org.junit.Test;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -14,11 +13,11 @@ public class ProxyRequestTest {
 	@Test
 	public void testRequestByProxy() throws MalformedURLException, URISyntaxException, InterruptedException {
 
-		Task t = new Task("https://www.baidu.com/s?wd=ip");
+		/*Task t = new Task("https://www.baidu.com/s?wd=ip");
 
-		/*Proxy pw = new Proxy();
+		Proxy pw = new Proxy();
 		pw.host = "scisaga.net";
-		pw.port = 60103;*/
+		pw.port = 60103;
 
 		Proxy pw_ = new Proxy();
 		pw_.host = "114.215.70.14";
@@ -26,9 +25,9 @@ public class ProxyRequestTest {
 		pw_.username = "tfelab";
 		pw_.password = "TfeLAB2@15";
 
-		/*t.setProxyWrapper(pw);
+		t.setProxyWrapper(pw);
 		ChromeDriverAgent agent = new ChromeDriverAgent();
-		agent.fetch(t);*/
+		agent.fetch(t);
 
 		ChromeDriverAgent agent_ = new ChromeDriverAgent();
 		t.setProxyWrapper(pw_);
@@ -42,9 +41,9 @@ public class ProxyRequestTest {
 		pw1.username = "tfelab";
 		pw1.password = "TfeLAB2@15";
 
-		/*t.setProxyWrapper(pw);
+		t.setProxyWrapper(pw);
 		ChromeDriverAgent agent = new ChromeDriverAgent();
-		agent.fetch(t);*/
+		agent.fetch(t);
 
 		t.setProxyWrapper(pw1);
 		agent_.fetch(t);
@@ -58,8 +57,7 @@ public class ProxyRequestTest {
 		agent_.fetch(t);
 
 		Thread.sleep(3000);
-
-	}
+*/	}
 
 	/**
 	 * 开启服务器代理测试
@@ -69,7 +67,7 @@ public class ProxyRequestTest {
 	@Test
 	public void replaceProxy() throws Exception {
 
-		Task t = new Task("https://www.baidu.com/s?wd=ip");
+		/*Task t = new Task("https://www.baidu.com/s?wd=ip");
 		ChromeDriverAgent agent_ = new ChromeDriverAgent();
 		agent_.fetch(t);
 
@@ -81,7 +79,7 @@ public class ProxyRequestTest {
 
 		agent_.fetch(t);
 
-		agent_.fetch(t);
+		agent_.fetch(t);*/
 	}
 
 

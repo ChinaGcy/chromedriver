@@ -18,7 +18,7 @@ public class TendererTaskTest {
 	@Test
 	public  void TendererTaskTest() throws Exception {
 
-		PriorityBlockingQueue<Task> queue = new PriorityBlockingQueue<>();
+		/*PriorityBlockingQueue<Task> queue = new PriorityBlockingQueue<>();
 		Set<String> set = new HashSet<>();
 
 		ChromeDriverAgent agent = new ChromeDriverLoginWrapper("zbj.com").login(null,null); //future
@@ -41,6 +41,6 @@ public class TendererTaskTest {
 			}
 
 		}
-		agent.close();
+		agent.close();*/
 	}
 }

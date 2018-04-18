@@ -14,6 +14,9 @@ import static com.sdyk.ai.crawler.zbj.model.Model.rewriteBinaryUrl;
 
 public class WorkRoute {
 
+	/**
+	 * 通过id查询案例
+	 */
 	public static Route getWorkById = (Request request, Response response ) -> {
 
 		String id = request.params(":id");
@@ -28,7 +31,7 @@ public class WorkRoute {
 	};
 
 	/**
-	 *
+	 *案例列表
 	 */
 	public static Route getWorks = (Request request, Response response) -> {
 

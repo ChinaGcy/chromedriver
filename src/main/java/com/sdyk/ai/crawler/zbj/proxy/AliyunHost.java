@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -230,6 +231,7 @@ public class AliyunHost {
 	 */
 	private void buildSshHost() throws IOException {
 		ssh_host = new SshManager.Host(host, port, user, passwd);
+		ssh_host.connect();
 	}
 
 	/**
@@ -311,6 +313,17 @@ public class AliyunHost {
 
 	/**
 	 *
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<AliyunHost> getAll() throws Exception {
+
+		Dao<AliyunHost, String> dao = one.rewind.db.DaoManager.getDao(AliyunHost.class);
+		return dao.queryForAll();
+	}
+
+	/**
+	 *
 	 * @param host
 	 * @return
 	 * @throws Exception
@@ -335,6 +348,7 @@ public class AliyunHost {
 		Proxy proxy = null;
 
 		try {
+			//ssh_host.connect();
 
 			ssh_host.upload("squid.sh", "/root");
 

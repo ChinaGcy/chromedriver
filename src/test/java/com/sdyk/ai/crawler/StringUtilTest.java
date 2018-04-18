@@ -107,15 +107,10 @@ public class StringUtilTest {
 		List<String> fileName = new ArrayList<>();
 
 		ChromeDriverAgent agent = null;
-		try {
-			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
 		one.rewind.io.requester.Task t = new one.rewind.io.requester.Task("http://task.zbj.com/12913633/");
 
-		agent.fetch(t);
+		agent.submit(t);
 
 		Pattern p = Pattern.compile("(?s)<div class=\'describe.+?<div class=\'img-item\'>");
 

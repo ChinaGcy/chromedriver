@@ -17,7 +17,7 @@ public class TemplateTest {
 	@Test
 	public void testCleanContent() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
 
-		String s = "";
+		/*String s = "";
 
 		Set<String> img_urls = new HashSet<>();
 
@@ -84,6 +84,6 @@ public class TemplateTest {
 
 			FileUtil.writeBytesToFile(src, fileName);
 
-		}
+		}*/
 	}
 }

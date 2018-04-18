@@ -39,7 +39,7 @@ public class ChromeDriverTest {
 			e.printStackTrace();
 		}
 
-		BasicRequester.getInstance().fetch(t_);
+		BasicRequester.getInstance().submit(t_);
 
 		System.err.println(t_.getResponse().getSrc());
 		try {

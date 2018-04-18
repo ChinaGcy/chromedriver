@@ -24,7 +24,7 @@ public class ServiceSupplierTest {
 
 		taskQueue.add(new ServiceSupplierTask("http://shop.zbj.com/11622281/"));
 
-		while(!taskQueue.isEmpty()) {
+		/*while(!taskQueue.isEmpty()) {
 			Task t = taskQueue.poll();
 			Proxy pw_ = new Proxy();
 			pw_.host = "118.190.83.89";
@@ -44,7 +44,7 @@ public class ServiceSupplierTest {
 					taskQueue.add(t);
 				}
 			}
-		}
+		}*/
 	}
 
 

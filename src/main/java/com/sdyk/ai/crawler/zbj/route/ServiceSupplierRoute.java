@@ -12,8 +12,14 @@ import spark.Route;
 
 import java.util.List;
 
+/**
+ * 服务商
+ */
 public class ServiceSupplierRoute {
 
+	/**
+	 * 通过id查询服务商
+	 */
 	public static Route getServiceById = (Request request, Response response ) -> {
 
 		String id = request.params(":id");
@@ -26,7 +32,7 @@ public class ServiceSupplierRoute {
 	};
 
 	/**
-	 *
+	 *服务商列表
 	 */
 	public static Route getServiceSuppliers = (Request request, Response response) -> {
 

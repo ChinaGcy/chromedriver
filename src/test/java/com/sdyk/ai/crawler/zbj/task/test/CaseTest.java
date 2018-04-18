@@ -28,7 +28,7 @@ public class CaseTest {
 
 		queue.add(t);
 
-		while(!queue.isEmpty()) {
+		/*while(!queue.isEmpty()) {
 
 			Task tt = queue.poll();
 
@@ -38,7 +38,7 @@ public class CaseTest {
 				queue.add(t1);
 			}
 
-		}
+		}*/
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class CaseTest {
 	@Test
 	public void caseTaskTest() throws MalformedURLException, URISyntaxException {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		/*ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		Queue<Task> taskQueue = new LinkedBlockingQueue<>();
 
@@ -70,6 +70,6 @@ public class CaseTest {
 					taskQueue.add(t);
 				}
 			}
-		}
+		}*/
 	}
 }

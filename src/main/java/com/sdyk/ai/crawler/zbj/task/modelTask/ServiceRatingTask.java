@@ -86,7 +86,7 @@ public class ServiceRatingTask extends ScanTask {
 	}
 
 	/**
-	 *
+	 * 获取数据
 	 * @param i
 	 */
 	public void ratingData(Document doc, int i) {

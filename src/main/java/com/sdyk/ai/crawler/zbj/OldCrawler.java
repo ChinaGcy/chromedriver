@@ -8,14 +8,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.client.RedisTimeoutException;
-import one.rewind.common.Configs;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.requester.BasicRequester;
-import one.rewind.io.requester.Requester;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.proxy.IpDetector;
-import one.rewind.io.requester.proxy.ProxyWrapper;
 import one.rewind.json.JSON;
 import one.rewind.util.NetworkUtil;
 
@@ -55,11 +52,11 @@ public class OldCrawler {
 	// 初始化配置参数
 	static {
 
-		try {
+		/*try {
 			REQUEST_PER_SECOND_LIMIT = Configs.getConfig(Requester.class).getInt("requestPerSecondLimit");
 		} catch (Exception e) {
 			logger.error(e);
-		}
+		}*/
 	}
 
 	private Map<Class<? extends Task>, Distributor<? extends Task>> distributors = new HashMap<>();
@@ -108,7 +105,7 @@ public class OldCrawler {
 			createDistributor(t.getClass());
 		}
 
-		if(t.isPrior()) {
+		/*if(t.setPriority()) {
 			try {
 				distributors.get(t.getClass()).distribute(t.toJSON());
 			} catch (Exception e) {
@@ -116,7 +113,7 @@ public class OldCrawler {
 			}
 		} else {
 			distributors.get(t.getClass()).taskQueue.offer(t.toJSON());
-		}
+		}*/
 
 	}
 
@@ -203,12 +200,12 @@ public class OldCrawler {
 
 		public void distribute(String json) throws Exception {
 
-			T t = JSON.fromJson(json, clazz);
+			/*T t = JSON.fromJson(json, clazz);
 			ProxyWrapper proxy = null;
 
-			/**
+			*//**
 			 * 根据AccountWrapper设定proxy
-			 */
+			 *//*
 			if(t.getAccountWrapper() != null) {
 				if(t.getAccountWrapper().getProxyId() != null) {
 					proxy = Proxy.getProxyById(t.getAccountWrapper().getProxyId());
@@ -231,10 +228,10 @@ public class OldCrawler {
 				}
 			}
 
-			/*// TODO Degenerated Case.
+			// TODO Degenerated Case.
 			if(t.getRetryCount() > 1) {
 				t.setProxy(Proxy.getValidProxy("aliyun"));
-			}*/
+			}
 
 			Operator o = new Operator(t);
 			if(proxy != null) {
@@ -247,7 +244,7 @@ public class OldCrawler {
 			executor.submit(o);
 
 			logger.info("Executor task queue active: {}, queue: {} ", executor.getActiveCount(), executor.getQueue().size());
-		}
+		*/}
 
 		/**
 		 *
@@ -286,9 +283,9 @@ public class OldCrawler {
 				if(t.getRequester_class() != null
 						&& t.getRequester_class().equals(ChromeDriverRequester.class.getSimpleName()))
 				{
-					ChromeDriverRequester.getInstance().fetch(t, CONNECT_TIMEOUT);
+					ChromeDriverRequester.getInstance().submit(t);
 				} else {
-					BasicRequester.getInstance().fetch(t, CONNECT_TIMEOUT);
+					BasicRequester.getInstance().submit(t, CONNECT_TIMEOUT);
 				}
 
 				StatManager.getInstance().count();
@@ -302,7 +299,7 @@ public class OldCrawler {
 
 					if(t.getRetryCount() < RETRY_LIMIT) {
 						t.addRetryCount();
-						t.addExceptions(t.getException().getMessage());
+						//t.addExceptions(t.getException().getMessage());
 						addTask(t);
 					} else {
 						try {
@@ -317,12 +314,12 @@ public class OldCrawler {
 				} else {
 
 					try {
-						addTask(t.postProc());
+						//addTask(t.postProc());
 					} catch (Exception e) {
 						logger.error("Error in task post process. ", e);
 
 						try {
-							t.addExceptions(e.getMessage());
+						//	t.addExceptions(e.getMessage());
 							t.insert();
 						} catch (Exception ex) {
 							ex.printStackTrace();

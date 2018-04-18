@@ -14,6 +14,13 @@ import java.util.regex.Pattern;
 
 public class TendererOrderTask extends ScanTask {
 
+	/**
+	 * 翻页
+	 * @param url
+	 * @param page
+	 * @param webId
+	 * @return
+	 */
 	public static TendererOrderTask generateTask(String url, int page, String webId) {
 
 		TendererOrderTask t = null;

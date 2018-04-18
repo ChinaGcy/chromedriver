@@ -59,6 +59,7 @@ public class WorkTask extends Task {
 				.text();
 		work.user_id = this.getParamString("user_id");
 
+		// 获取work类型
 		String src_ = getString(
 				"body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-content > ul",
 				"") + " ";

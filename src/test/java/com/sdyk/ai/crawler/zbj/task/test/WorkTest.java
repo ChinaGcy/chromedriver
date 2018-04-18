@@ -20,7 +20,7 @@ public class WorkTest {
 	@Test
 	public void workTaskTest() throws Exception {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		/*ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		Queue<Task> queue = new LinkedBlockingQueue<>();
 
@@ -36,22 +36,22 @@ public class WorkTest {
 				queue.add(task);
 			}
 
-		}
+		}*/
 	}
 
 
 	@Test
 	public void testBasicRequester() {
-		one.rewind.io.requester.Task t = null;
+	/*	one.rewind.io.requester.Task t = null;
 		try {
-			t = new one.rewind.io.requester.Task("http://www.baidu.com");
-			BasicRequester.getInstance().fetch(t);
+		t = new one.rewind.io.requester.Task("http://www.baidu.com");
+		BasicRequester.getInstance().fetch(t);
 
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+	} catch (MalformedURLException e) {
+		e.printStackTrace();
+	} catch (URISyntaxException e) {
+		e.printStackTrace();
+	}*/
 
-	}
+}
  }

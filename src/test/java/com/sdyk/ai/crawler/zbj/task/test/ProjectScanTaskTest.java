@@ -16,7 +16,7 @@ public class ProjectScanTaskTest {
 	@Test
 	public void testProjectScanTest() {
 
-		// 并发量
+		/*// 并发量
 		StatManager statManager = StatManager.getInstance();
 
 		try {
@@ -32,7 +32,7 @@ public class ProjectScanTaskTest {
 						agent.fetch(t);
 						for (Task t_ : t.postProc(agent.getDriver())) {
 							taskQueue.add(t_);
-							/*agent.fetch(t_);*/
+							*//*agent.fetch(t_);*//*
 						}
 
 					} catch (Exception e) {
@@ -43,6 +43,6 @@ public class ProjectScanTaskTest {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }

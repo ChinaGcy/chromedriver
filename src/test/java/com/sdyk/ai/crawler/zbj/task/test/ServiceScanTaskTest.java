@@ -23,9 +23,9 @@ public class ServiceScanTaskTest {
 
 		Queue<Task> taskQueue = new LinkedBlockingQueue<>();
 
-		taskQueue.add(ServiceScanTask.generateTask("wdfw",1,null));
+		//taskQueue.add(ServiceScanTask.generateTask("wdfw",1,null));
 
-		while(!taskQueue.isEmpty()) {
+		/*while(!taskQueue.isEmpty()) {
 			Task t = taskQueue.poll();
 			if(t != null) {
 				try {
@@ -39,7 +39,7 @@ public class ServiceScanTaskTest {
 					taskQueue.add(t);
 				}
 			}
-		}
+		}*/
 	}
 
 }

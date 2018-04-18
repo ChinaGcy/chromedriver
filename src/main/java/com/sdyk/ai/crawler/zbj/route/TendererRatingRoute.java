@@ -12,6 +12,9 @@ import spark.Route;
 
 import java.util.List;
 
+/**
+ * 雇主评价列表
+ */
 public class TendererRatingRoute {
 
 	public static Route getTendererRatings = (Request request, Response response) -> {
