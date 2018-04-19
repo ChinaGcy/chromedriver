@@ -27,7 +27,7 @@ public class ServiceSupplierTest {
 		/*while(!taskQueue.isEmpty()) {
 			Task t = taskQueue.poll();
 			Proxy pw_ = new Proxy();
-			pw_.host = "118.190.83.89";
+			pw_.sshHost = "118.190.83.89";
 			pw_.port = 59998;
 			pw_.username = "tfelab";
 			pw_.password = "TfeLAB2@15";

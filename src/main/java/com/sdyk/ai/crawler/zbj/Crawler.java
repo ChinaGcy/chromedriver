@@ -1,12 +1,22 @@
 package com.sdyk.ai.crawler.zbj;
 
+import com.sdyk.ai.crawler.zbj.account.AccountManager;
+import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
+import com.sdyk.ai.crawler.zbj.model.AccountImpl;
+import com.sdyk.ai.crawler.zbj.model.ProxyImpl;
+import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
+import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import it.sauronsoftware.cron4j.Scheduler;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +97,81 @@ public class Crawler {
 	 */
 	public Crawler() {
 
+		String domain = "zbj.com";
+		int driverCount = 20;
+
+		try {
+
+			AliyunHost.batchBuild(driverCount + 2);
+
+			DockerHostManager.getInstance().createDockerContainers("10.0.0.62", driverCount);
+
+			// 读取全部有效账户 N个
+			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
+
+			// 创建N+2个有效代理，并保存到数据库中
+			for(AccountImpl account : accounts) {
+
+				ProxyImpl proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+
+				if(proxy != null) {
+
+					proxy.setFailedCallback(()->{
+
+						if(proxy.source == ProxyImpl.Source.ALIYUN_HOST) {
+
+							AliyunHost aliyunHost = null;
+
+							try {
+								aliyunHost = AliyunHost.getByHost(proxy.host);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+
+							if(aliyunHost != null) {
+								aliyunHost.stop();
+							}
+
+							// TODO 删掉该Proxy记录
+
+							//
+							if(ProxyManager.getInstance().getValidProxyNum() < driverCount + 2) {
+								try {
+									AliyunHost.batchBuild(1);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					});
+
+					one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("https://www.zbj.com");
+					task.addAction(new LoginWithGeetestAction(account));
+
+					DockerHostManager.DockerContainer container = DockerHostManager.getInstance().getContainer();
+					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
+
+					// agent 添加异常回调
+					agent.addAccountFailedCallback(()->{
+						logger.info("Account {}:{} failed.", account.domain, account.username);
+					}).addProxyFailedCallback(()->{
+						logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
+					}).addTerminatedCallback(()->{
+						logger.info("Container {} {}:{} failed.", container.name, container.dockerHost.ip,  container.vncPort);
+					});
+
+					agent.start();
+					agent.submit(task);
+
+					ChromeDriverRequester.getInstance().addAgent(agent);
+
+				}
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

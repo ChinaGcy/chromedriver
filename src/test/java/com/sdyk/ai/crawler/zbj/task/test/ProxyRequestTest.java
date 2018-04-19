@@ -16,11 +16,11 @@ public class ProxyRequestTest {
 		/*Task t = new Task("https://www.baidu.com/s?wd=ip");
 
 		Proxy pw = new Proxy();
-		pw.host = "scisaga.net";
+		pw.sshHost = "scisaga.net";
 		pw.port = 60103;
 
 		Proxy pw_ = new Proxy();
-		pw_.host = "114.215.70.14";
+		pw_.sshHost = "114.215.70.14";
 		pw_.port = 59998;
 		pw_.username = "tfelab";
 		pw_.password = "TfeLAB2@15";
@@ -36,7 +36,7 @@ public class ProxyRequestTest {
 		Thread.sleep(3000);
 
 		Proxy pw1 = new Proxy();
-		pw1.host = "118.190.133.34";
+		pw1.sshHost = "118.190.133.34";
 		pw1.port = 59998;
 		pw1.username = "tfelab";
 		pw1.password = "TfeLAB2@15";

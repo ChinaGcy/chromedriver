@@ -8,7 +8,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.zbj.model.Proxy;
+import com.sdyk.ai.crawler.zbj.model.ProxyImpl;
 import com.typesafe.config.Config;
 import one.rewind.db.DBName;
 import one.rewind.io.SshManager;
@@ -36,6 +36,7 @@ public class AliyunHost {
 
 	public static DefaultProfile profile;
 	public static IAcsClient client;
+	public static String Proxy_Group_Name;
 
 	public static enum Region {
 		CN_SHENZHEN
@@ -48,6 +49,8 @@ public class AliyunHost {
 		key = config.getString("key");
 		secret = config.getString("secret");
 		regionId = config.getString("regionId");
+
+		Proxy_Group_Name = "aliyun-" + regionId + "-squid";
 
 		profile = DefaultProfile.getProfile(regionId, key, secret);
 		client = new DefaultAcsClient(profile);
@@ -143,13 +146,13 @@ public class AliyunHost {
 
 			AliyunHost aliyun_host = new AliyunHost(serviceId, user, passwd, region_str);
 
-			logger.info("Wait 5s for remote host creating...");
+			logger.info("Wait 5s for remote sshHost creating...");
 			Thread.sleep(5000);
 			logger.info("Wait done.");
 
 			aliyun_host.start();
 
-			logger.info("Wait 90s for remote host starting...");
+			logger.info("Wait 90s for remote sshHost starting...");
 			Thread.sleep(90000);
 			logger.info("Wait done.");
 
@@ -185,7 +188,7 @@ public class AliyunHost {
 					AliyunHost aliyunHost = AliyunHost.buildService(Region.CN_SHENZHEN);
 					aliyunHost.insert();
 
-					Proxy proxy = aliyunHost.createSquidProxy();
+					ProxyImpl proxy = aliyunHost.createSquidProxy();
 					proxy.insert();
 
 				} catch (Exception e) {
@@ -280,7 +283,7 @@ public class AliyunHost {
 	 * 删除主机，停止后删除
 	 * @return
 	 */
-	public boolean delect() {
+	public boolean delete() {
 		DeleteInstanceRequest deleteInstance = new DeleteInstanceRequest();
 		deleteInstance.setInstanceId(id);
 
@@ -349,7 +352,7 @@ public class AliyunHost {
 	 */
 	public static AliyunHost getByHost(String host) throws Exception {
 		Dao<AliyunHost, String> dao = one.rewind.db.DaoManager.getDao(AliyunHost.class);
-		AliyunHost aliyunHost = dao.queryBuilder().where().eq("host", host).queryForFirst();
+		AliyunHost aliyunHost = dao.queryBuilder().where().eq("sshHost", host).queryForFirst();
 		return aliyunHost;
 	}
 
@@ -357,14 +360,13 @@ public class AliyunHost {
 	 *
 	 * @return
 	 */
-	public Proxy createSquidProxy() {
+	public ProxyImpl createSquidProxy() {
 
-		String groupName = "aliyun-squid";
 		String proxyUser = "tfelab";
 		String proxyPassword = "TfeLAB2@15";
 		int proxyPort = 59998;
 
-		Proxy proxy = null;
+		ProxyImpl proxy = null;
 
 		try {
 			//ssh_host.connect();
@@ -384,9 +386,8 @@ public class AliyunHost {
 			logger.info(out);
 			// TODO 需要判定是否成功启动服务
 
-			proxy = new Proxy(groupName, host, proxyPort, proxyUser, proxyPassword, region, 0);
+			proxy = new ProxyImpl(Proxy_Group_Name, host, proxyPort, proxyUser, proxyPassword, region, 0);
 			proxy.setAliyunHost();
-
 			proxy.validate();
 
 		} catch (Exception e) {
