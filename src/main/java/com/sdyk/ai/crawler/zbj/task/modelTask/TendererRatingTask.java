@@ -47,7 +47,6 @@ public class TendererRatingTask extends ScanTask {
 
 	public List<Task> postProc() {
 
-		String src = getResponse().getText();
 		List<Task> tasks = new ArrayList<>();
 		Document doc = getResponse().getDoc();
 
@@ -57,7 +56,7 @@ public class TendererRatingTask extends ScanTask {
 			int page = this.getParamInt("page");
 
 			// 每页中的评价数
-			for (int i = 0; i < doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
+			for (int i = 1; i <= doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
 
 				tendererRating = new TendererRating(getUrl());
 
@@ -68,6 +67,7 @@ public class TendererRatingTask extends ScanTask {
 
 				// 入库
 				try {
+
 					tendererRating.insert();
 				} catch (Exception e) {
 					logger.error("Error insert: {}, ", e);
@@ -120,7 +120,7 @@ public class TendererRatingTask extends ScanTask {
 					shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-intime > span.stars-group > i")
 							.size();
 			tendererRating.work_happy_num =
-					shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child(1) > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-delight > span.stars-group > i")
+					shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-delight > span.stars-group > i")
 							.size();
 
 		} catch (NoSuchElementException e) {

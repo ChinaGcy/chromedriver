@@ -37,7 +37,9 @@ public class ProjectTask extends Task {
 	public List<Task> postProc() {
 
 		String src = getResponse().getText();
+
 		Document doc = getResponse().getDoc();
+
 		List<Task> tasks = new ArrayList();
 
 		try {
@@ -196,6 +198,13 @@ public class ProjectTask extends Task {
 			// 无法找到剩余时间
 			project.remaining_time = null;
 		}
+
+		try {
+			project.pubdate = DateFormatUtil.parseTime(doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2) > b")
+					.text());
+		} catch (ParseException e) {
+			project.pubdate = null;
+		}
 	}
 
 	/**
@@ -250,8 +259,7 @@ public class ProjectTask extends Task {
 						"#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(1)");
 
 				project.bidder_num = StringUtil.getBidderNum(doc,
-						"#j-ibid-list > div > div.ibid-total.clearfix",
-						"b");
+						"#j-ibid-list > div > div.ibid-total.clearfix > b");
 			}
 		}
 	}
@@ -277,12 +285,10 @@ public class ProjectTask extends Task {
 		// body > div.main.task-details > div.grid > ul
 		project.category = getString("body > div.main.task-details > div.grid > ul", "");
 
-		project.type = head;
-
 		// TODO 需要额外处理图片, 下载
 		String description_src =doc.select("#work-more")
 				.html()
-				.replaceAll("<a.+?>查看全部</a>","");
+				.replaceAll("<a class=\"check-all-btn\".+?>查看全部</a>","");
 
 		project.description = download(description_src);
 
@@ -338,9 +344,8 @@ public class ProjectTask extends Task {
 				"#utopia_widget_3",
 				"");
 
-		String description_src = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper.with-task-ext > div.task-detail-content.content")
-				.html().replaceAll("<a.+?>显示全部</a>","")
-				.replace(">\\s+<","><").replaceAll("\\s+<","<").replaceAll(">\\s+",">");
+		String description_src = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")
+				.toString();
 
 		// 下载
 		project.description = download(description_src);
@@ -349,18 +354,10 @@ public class ProjectTask extends Task {
 
 
 		// 获取地点，来源
-		Pattern pattern = Pattern.compile("<div class=\"more-info\"><span><i class=\"lbs\"></i>(?<area>.+?)</span><span><i></i>来自：(?<from>.+?)</span></div>");
-		Matcher matcher = pattern.matcher(description_src);
-		if (matcher.find()) {
-			project.area = matcher.group("area");
-			project.origin = matcher.group("from");
-		}
-
-		Pattern pattern_origin = Pattern.compile("<div class=\"more-info\"><span><i></i>来自：(?<from>.+?)</span></div>");
-		Matcher matcher_origin = pattern_origin.matcher(description_src);
-		if (matcher_origin.find()) {
-			project.origin = matcher_origin.group("from");
-		}
+		project.area = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+				.text();
+		project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
+				.text();
 
 		// 预算处理
 		try {
@@ -385,8 +382,7 @@ public class ProjectTask extends Task {
 			project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
 					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
 			project.bidder_num = StringUtil.getBidderNum(doc,
-					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info",
-					"span");
+					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
 		}
 		catch (NoSuchElementException e) {
 		}

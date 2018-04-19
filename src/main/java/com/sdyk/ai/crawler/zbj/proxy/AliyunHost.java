@@ -277,6 +277,25 @@ public class AliyunHost {
 	}
 
 	/**
+	 * 删除主机，停止后删除
+	 * @return
+	 */
+	public boolean delect() {
+		DeleteInstanceRequest deleteInstance = new DeleteInstanceRequest();
+		deleteInstance.setInstanceId(id);
+
+		// 发起请求
+		try {
+			DeleteInstanceResponse response = client.getAcsResponse(deleteInstance);
+			logger.info(response);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	/**
 	 *
 	 * @return
 	 * @throws Exception

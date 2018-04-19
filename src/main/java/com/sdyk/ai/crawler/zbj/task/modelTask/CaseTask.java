@@ -4,7 +4,6 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Case;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.openqa.selenium.NoSuchElementException;
 
 import java.net.MalformedURLException;
@@ -16,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 乙方项目详情
+ * 乙方服务详情
  */
 public class CaseTask extends Task {
 

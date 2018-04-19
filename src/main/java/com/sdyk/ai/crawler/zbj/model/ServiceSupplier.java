@@ -44,7 +44,7 @@ public class ServiceSupplier extends Model {
 	public String expertise;
 
 	// 擅长技能
-	@DatabaseField(dataType = DataType.STRING, width = 128)
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String skills;
 
 	//服务质量

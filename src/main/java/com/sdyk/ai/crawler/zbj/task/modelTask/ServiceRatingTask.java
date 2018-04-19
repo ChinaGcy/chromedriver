@@ -64,7 +64,8 @@ public class ServiceRatingTask extends ScanTask {
 
 		for (int i = 1; i <= size; i++) {
 
-			serviceRating = new SupplierRating(getUrl());
+			// 防止每个评论的url一样导致id相同
+			serviceRating = new SupplierRating(getUrl()+ "--number:" + i);
 
 			// 每个评价
 			ratingData(doc, i);

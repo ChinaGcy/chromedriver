@@ -23,7 +23,7 @@ public class TendererTask extends Task {
 		this.setPriority(Priority.MEDIUM);
 	}
 
-	public List<Task> postProc(WebDriver driver) throws ParseException, MalformedURLException, URISyntaxException {
+	public List<Task> postProc() throws ParseException {
 
 		Document doc = getResponse().getDoc();
 		String src = getResponse().getText();
@@ -78,6 +78,12 @@ public class TendererTask extends Task {
 				Double.parseDouble(doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-pay > div.statistics-item-val > strong")
 				.text().replaceAll(",", ""));
 
+		try {
+
+			tenderer.insert();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		// 添加projectTask
 		tasks.add(TendererOrderTask.generateTask(getUrl(), 1 ,tenderer.website_id));
@@ -85,12 +91,6 @@ public class TendererTask extends Task {
 		// 评价任务
 		tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.website_id));
 
-		try {
-
-			tenderer.insert();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		return tasks;
 	}
 

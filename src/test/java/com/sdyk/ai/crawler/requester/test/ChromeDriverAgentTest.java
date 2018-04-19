@@ -60,15 +60,15 @@ public class ChromeDriverAgentTest {
 
 		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
 
-		for(int i=0; i<1; i++) {
+			for(int i=0; i<1; i++) {
 
-			ChromeDriverAgent agent = new ChromeDriverAgent();
-			agent.start();
+				ChromeDriverAgent agent = new ChromeDriverAgent();
+				agent.start();
 
-			Task task = new Task("http://www.zbj.com");
-			ChromeAction action = new LoginWithGeetestAction(account);
-			task.addAction(action);
-			agent.submit(task);
+				Task task = new Task("http://www.zbj.com");
+				ChromeAction action = new LoginWithGeetestAction(account);
+				task.addAction(action);
+				agent.submit(task);
 
 			agent.stop();
 		}

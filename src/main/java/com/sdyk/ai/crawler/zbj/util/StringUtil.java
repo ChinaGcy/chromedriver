@@ -71,12 +71,12 @@ public class StringUtil {
 	 * @param path
 	 * @return
 	 */
-	public static int getBidderNum(Document doc, String path, String tag) {
-		if (doc.select(path).tagName(tag).size() > 1) {
-			return Integer.parseInt(doc.select(path).tagName(tag).get(1).text());
+	public static int getBidderNum(Document doc, String path) {
+		if (doc.select(path).size() > 1) {
+			return Integer.parseInt(doc.select(path).get(1).text());
 		}
 		else{
-			return Integer.parseInt(doc.select(path).tagName(tag).get(0).text());
+			return Integer.parseInt(doc.select(path).get(0).text());
 		}
 	}
 

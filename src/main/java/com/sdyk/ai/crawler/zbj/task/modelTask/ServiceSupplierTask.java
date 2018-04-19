@@ -57,16 +57,16 @@ public class ServiceSupplierTask extends Task {
 			}
 		}
 
-		// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-		tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ serviceSupplier.website_id +"-type-1-page-",1));
-		tasks.add(CaseScanTask.generateTask(getUrl(),1));
-		tasks.add(WorkScanTask.generateTask(getUrl(), 1));
-
 		try {
 			serviceSupplier.insert();
 		} catch (Exception e) {
 			logger.error("insert/update error {}" , e);
 		}
+		// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
+		tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ serviceSupplier.website_id +"-type-1-page-",1));
+		tasks.add(CaseScanTask.generateTask(getUrl(),1));
+		tasks.add(WorkScanTask.generateTask(getUrl(), 1));
+
 		return tasks;
 	}
 
@@ -78,7 +78,8 @@ public class ServiceSupplierTask extends Task {
 	 */
 	public void shareData(Document doc, String src) {
 
-		serviceSupplier.website_id = getUrl().split("/")[3];
+		serviceSupplier.website_id = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc").attr("data-userid");
+
 
 		// 获取等级
 		if (src.contains("<img align=\"absmiddle\" src=\"https://t5.zbjimg.com/t5s/common/img/user-level/level-")) {
@@ -94,15 +95,27 @@ public class ServiceSupplierTask extends Task {
 
 		// 获取店铺流量
 		if (src.contains("店铺流量")) {
-			// body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div:nth-child(5) > div.my-home > p > b:nth-child(5)
-			Elements we = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div");
+
+			Element el = doc.selectFirst(".my-home");
+			if(el != null) {
+				String text = el.text()
+						.replaceAll("(?s)^.+?收藏量：", "")
+						.replaceAll(" *人", "");
+
+				serviceSupplier.collection_num = Integer
+						.parseInt(text);
+
+			}
+
+			// body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div:nth-child(5)
+			/*Elements we = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div");
 
 			for (Element web : we) {
 				if (web.text().contains("店铺流量") && web.text().contains("收藏量")) {
 					serviceSupplier.collection_num = Integer
 							.parseInt(web.select("orange").get(2).text());
 				}
-			}
+			}*/
 		}
 	}
 
