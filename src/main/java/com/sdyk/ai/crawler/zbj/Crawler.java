@@ -13,6 +13,7 @@ import it.sauronsoftware.cron4j.Scheduler;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
 
@@ -161,13 +162,17 @@ public class Crawler {
 						logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
 					}).addTerminatedCallback(()->{
 						logger.info("Container {} {}:{} failed.", container.name, container.dockerHost.ip,  container.vncPort);
+					}).addNewCallback(()->{
+						try {
+							agent.submit(task);
+						} catch (ChromeDriverException.IllegalStatusException e) {
+							e.printStackTrace();
+						}
 					});
 
 					agent.start();
 
 					agent.bmProxy.getClientBindAddress();
-
-					agent.submit(task);
 
 					ChromeDriverRequester.getInstance().addAgent(agent);
 				}
