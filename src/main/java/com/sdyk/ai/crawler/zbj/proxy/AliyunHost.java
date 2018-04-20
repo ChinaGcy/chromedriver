@@ -147,13 +147,13 @@ public class AliyunHost {
 			AliyunHost aliyun_host = new AliyunHost(serviceId, user, passwd, region_str);
 
 			logger.info("Wait 5s for remote sshHost creating...");
-			Thread.sleep(5000);
+			Thread.sleep(10000);
 			logger.info("Wait done.");
 
 			aliyun_host.start();
 
 			logger.info("Wait 90s for remote sshHost starting...");
-			Thread.sleep(90000);
+			Thread.sleep(120000);
 			logger.info("Wait done.");
 
 			aliyun_host.getIpAndPort();
@@ -377,13 +377,13 @@ public class AliyunHost {
 
 			// 先更新，再执行
 			String out = ssh_host.exec("apt update");
-			logger.info(out);
+			//logger.info(out);
 
 			out = ssh_host.exec("./squid.sh ");
-			logger.info(out);
+			//logger.info(out);
 
 			out = ssh_host.exec("service squid restart");
-			logger.info(out);
+			//logger.info(out);
 			// TODO 需要判定是否成功启动服务
 
 			proxy = new ProxyImpl(Proxy_Group_Name, host, proxyPort, proxyUser, proxyPassword, region, 0);

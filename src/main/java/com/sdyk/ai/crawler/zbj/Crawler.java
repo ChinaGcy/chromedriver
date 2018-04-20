@@ -98,12 +98,14 @@ public class Crawler {
 	public Crawler() {
 
 		String domain = "zbj.com";
-		int driverCount = 20;
+		int driverCount = 2;
 
 		try {
 
+			// 创建阿里云host
 			AliyunHost.batchBuild(driverCount + 2);
 
+			// 创建 container
 			DockerHostManager.getInstance().createDockerContainers("10.0.0.62", driverCount);
 
 			// 读取全部有效账户 N个
@@ -149,6 +151,7 @@ public class Crawler {
 					task.addAction(new LoginWithGeetestAction(account));
 
 					DockerHostManager.DockerContainer container = DockerHostManager.getInstance().getContainer();
+
 					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
 
 					// agent 添加异常回调
@@ -161,12 +164,13 @@ public class Crawler {
 					});
 
 					agent.start();
+
+					agent.bmProxy.getClientBindAddress();
+
 					agent.submit(task);
 
 					ChromeDriverRequester.getInstance().addAgent(agent);
-
 				}
-
 			}
 
 		} catch (Exception e) {

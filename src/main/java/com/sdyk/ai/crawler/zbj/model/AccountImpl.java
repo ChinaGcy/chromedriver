@@ -12,6 +12,10 @@ public class AccountImpl extends Account {
 
 	public static final Logger logger = LogManager.getLogger(AccountImpl.class.getName());
 
+	// 需要添加一个无参构造，否则会抛出
+	// java.lang.IllegalArgumentException: Can't find a no-arg constructor for class com.sdyk.ai.crawler.zbj.model.AccountImpl
+	public AccountImpl() {}
+
 	public AccountImpl(String domain, String username, String password) {
 
 		super(domain, username, password);

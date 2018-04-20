@@ -1,25 +1,18 @@
 package com.sdyk.ai.crawler;
 
-import com.sdyk.ai.crawler.zbj.model.Project;
-import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import com.sdyk.ai.crawler.zbj.task.modelTask.*;
-import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.List;
 
 
 public class JsoupText {

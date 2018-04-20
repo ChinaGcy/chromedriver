@@ -18,10 +18,15 @@ import static one.rewind.io.requester.chrome.ChromeDriverRequester.buildBMProxy;
 
 public class RemoteDriverTest {
 
+
+	/**
+	 * 创建容器
+	 * @throws Exception
+	 */
 	@Test
 	public void createDockerContainers() throws Exception {
 
-		SshManager.Host host = new SshManager.Host("10.0.0.56", 22, "root", "sdyk315pr");
+		SshManager.Host host = new SshManager.Host("10.0.0.62", 22, "root", "sdyk315pr");
 		host.connect();
 
 		CountDownLatch done = new CountDownLatch(10);
@@ -50,10 +55,14 @@ public class RemoteDriverTest {
 		done.await();
 	}
 
+	/**
+	 * 删除容器
+	 * @throws Exception
+	 */
 	@Test
 	public void delAllDockerContainers() throws Exception {
 
-		SshManager.Host host = new SshManager.Host("10.0.0.56", 22, "root", "sdyk315pr");
+		SshManager.Host host = new SshManager.Host("10.0.0.62", 22, "root", "sdyk315pr");
 		host.connect();
 
 		String cmd = "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)\n";
@@ -94,7 +103,7 @@ public class RemoteDriverTest {
 		for(int i=0; i<10; i++) {
 
 			final Proxy proxy = new ProxyImpl("scisaga.net", 60103, "tfelab", "TfeLAB2@15");
-			final URL remoteAddress = new URL("http://10.0.0.56:" + (31000 + i) + "/wd/hub");
+			final URL remoteAddress = new URL("http://10.0.0.62:" + (31000 + i) + "/wd/hub");
 
 			new Thread(() -> {
 				try {

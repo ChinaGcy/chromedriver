@@ -30,6 +30,7 @@ public class DockerHostManager {
 
 	protected static DockerHostManager instance;
 
+	// 秘钥
 	public static File PEM_FILE;
 
 	public static DockerHostManager getInstance() throws Exception {
@@ -65,7 +66,7 @@ public class DockerHostManager {
 	}
 
 	/**
-	 *
+	 * 通过ip查找dockerhost
 	 * @param ip
 	 * @return
 	 * @throws Exception
@@ -74,14 +75,11 @@ public class DockerHostManager {
 
 		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
 		DockerHost host = dao.queryBuilder().where().eq("ip", ip).queryForFirst();
-		if(host != null) {
-			host.initSshConn();
-		}
 		return host;
 	}
 
 	/**
-	 *
+	 * docker容器类
 	 */
 	public static class DockerContainer {
 
@@ -111,7 +109,7 @@ public class DockerHostManager {
 		}
 
 		/**
-		 *
+		 * 获取路由的地址
 		 * @throws MalformedURLException
 		 */
 		public URL getRemoteAddress() throws MalformedURLException {
@@ -119,7 +117,7 @@ public class DockerHostManager {
 		}
 
 		/**
-		 *
+		 * 删除容器
 		 */
 		public void delete() {
 
@@ -128,7 +126,7 @@ public class DockerHostManager {
 			String output = null;
 			try {
 
-				output = dockerHost.sshHost.exec(cmd);
+				output = dockerHost.exec(cmd);
 				logger.info(output);
 				status = Status.TERMINATED;
 
@@ -138,6 +136,12 @@ public class DockerHostManager {
 		}
 	}
 
+	/**
+	 * 在指定的docker中，批量创建容器
+	 * @param ip
+	 * @param num
+	 * @throws Exception
+	 */
 	public void createDockerContainers(String ip, int num) throws Exception {
 
 		DockerHost host = getHostByIp(ip);
@@ -146,12 +150,17 @@ public class DockerHostManager {
 		}
 	}
 
+	/**
+	 * 获取容器
+	 * @return
+	 * @throws InterruptedException
+	 */
 	public DockerContainer getContainer() throws InterruptedException {
 		return containers.take();
 	}
 
 	/**
-	 *
+	 * 批量创建容器
 	 * @param dockerHost
 	 * @param num
 	 * @throws Exception
@@ -178,10 +187,13 @@ public class DockerHostManager {
 
 				try {
 
-					output = dockerHost.sshHost.exec(cmd);
+					// TODO 同时连接不能超过10个，否则会抛出异常    http://www.ganymed.ethz.ch/ssh2/FAQ.html
+					// java.io.IOException: Could not open channel (The server refused to open the channel (SSH_OPEN_ADMINISTRATIVELY_PROHIBITED, 'open failed'))
+					output = dockerHost.exec(cmd);
 					logger.info(output);
 
 					DockerContainer container = new DockerContainer(dockerHost, containerName, seleniumPort, vncPort);
+					// 设置状态
 					container.setIdle();
 					containers.add(container);
 
@@ -199,7 +211,8 @@ public class DockerHostManager {
 	}
 
 	/**
-	 *
+	 * TODO 增加DockerContainer delete方法
+	 * 删除所有容器
 	 * @param dockerHost
 	 * @throws Exception
 	 */
@@ -207,7 +220,7 @@ public class DockerHostManager {
 
 		String cmd = "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)\n";
 
-		String output = dockerHost.sshHost.exec(cmd);
+		String output = dockerHost.exec(cmd);
 
 		logger.info(output);
 	}
