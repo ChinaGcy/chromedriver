@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
 import it.sauronsoftware.cron4j.Scheduler;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -199,14 +200,14 @@ public class Crawler {
 			System.out.println("PROJECT:" + channel);
 		}
 
-		/*if (backtrace == true) {
+		if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
-				ScanTask t = ServiceScanTask.generateTask(channel, 1, null);
+				ScanTask t = ServiceScanTask.generateTask(channel, 1);
 				t.backtrace = backtrace;
 				tasks.add(t);
 				System.out.println("SERVICE:" + channel);
 			}
-		}*/
+		}
 
 		return tasks;
 	}

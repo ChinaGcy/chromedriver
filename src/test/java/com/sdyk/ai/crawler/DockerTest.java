@@ -13,6 +13,7 @@ import com.sdyk.ai.crawler.zbj.model.DockerHost;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 
 import java.net.URL;
+import java.util.List;
 
 public class DockerTest {
 
@@ -59,19 +60,11 @@ public class DockerTest {
 	@Test
 	public void crawlerTest() throws Exception {
 
+		List<AliyunHost> aliyunHosts = AliyunHost.getAll();
+
 		// 删除阿里云服务器
-	/*	List<AliyunHost> all = AliyunHost.getAll();
-		Thread.sleep(10000);
+		AliyunHost.stopAndDeletes(aliyunHosts);
 
-		for (AliyunHost a : all) {
-			a.stop();
-		}
-
-		Thread.sleep(50000);
-		for (AliyunHost a : all) {
-			a.delete();
-		}
-*/
 		// 执行登录操作
 		Crawler crawler = new Crawler();
 

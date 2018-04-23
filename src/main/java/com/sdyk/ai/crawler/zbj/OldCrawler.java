@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import org.apache.logging.log4j.LogManager;

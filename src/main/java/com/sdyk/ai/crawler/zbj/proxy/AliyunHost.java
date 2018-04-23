@@ -283,7 +283,7 @@ public class AliyunHost {
 	 * 删除主机，停止后删除
 	 * @return
 	 */
-	public boolean delete() {
+	public boolean deleteHost() {
 		DeleteInstanceRequest deleteInstance = new DeleteInstanceRequest();
 		deleteInstance.setInstanceId(id);
 
@@ -299,7 +299,45 @@ public class AliyunHost {
 	}
 
 	/**
-	 *
+	 * 停止并删除一个主机
+	 * @return
+	 */
+	public boolean stopAndDelete() {
+		if (this.stop()) {
+			try {
+				Thread.sleep(50000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.deleteHost();
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * 删除多个主机
+	 * @return
+	 */
+	public static void stopAndDeletes(List<AliyunHost> aliyunHosts) {
+
+		for (AliyunHost a : aliyunHosts) {
+			a.stop();
+		}
+		try {
+			Thread.sleep(50000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		for (AliyunHost a : aliyunHosts) {
+			a.deleteHost();
+		}
+	}
+
+	/**
+	 * 插入
 	 * @return
 	 * @throws Exception
 	 */
@@ -322,7 +360,7 @@ public class AliyunHost {
 	}
 
 	/**
-	 *
+	 * 查询
 	 * @param id
 	 * @return
 	 * @throws Exception
@@ -357,7 +395,18 @@ public class AliyunHost {
 	}
 
 	/**
-	 *
+	 * 在数据库中删除一个主机
+	 * @return
+	 * @throws Exception
+	 */
+	public int deleteById() throws Exception {
+		Dao<AliyunHost, String> dao = one.rewind.db.DaoManager.getDao(AliyunHost.class);
+		int i = dao.deleteById(id);
+		return i;
+	}
+
+	/**
+	 * 添加代理
 	 * @return
 	 */
 	public ProxyImpl createSquidProxy() {
