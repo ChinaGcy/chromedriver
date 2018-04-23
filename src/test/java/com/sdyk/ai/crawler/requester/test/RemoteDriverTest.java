@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.requester.test;
 
+import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.SshManager;
 import one.rewind.io.requester.Task;
@@ -102,7 +103,7 @@ public class RemoteDriverTest {
 
 		for(int i=0; i<10; i++) {
 
-			final Proxy proxy = new ProxyImpl("scisaga.net", 60103, "tfelab", "TfeLAB2@15");
+			final Proxy proxy = ProxyManager.getInstance().getValidProxy("aliyun-cn-shenzhen-squid");
 			final URL remoteAddress = new URL("http://10.0.0.62:" + (31000 + i) + "/wd/hub");
 
 			new Thread(() -> {
@@ -124,7 +125,7 @@ public class RemoteDriverTest {
 
 		for(int i=0; i<100; i++) {
 
-			Task task = new Task("https://www.google.com.sg/search?q=1" + (1050 + i));
+			Task task = new Task("https://www.baidu.com/s?word=ip");
 			requester.submit(task);
 		}
 

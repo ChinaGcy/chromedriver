@@ -105,7 +105,7 @@ public class Crawler {
 		try {
 
 			// 创建阿里云host
-			AliyunHost.batchBuild(driverCount + 2);
+			// AliyunHost.batchBuild(driverCount + 2);
 
 			// 创建 container
 			DockerHostManager.getInstance().createDockerContainers("10.0.0.62", driverCount);
@@ -138,7 +138,6 @@ public class Crawler {
 
 							// TODO 删掉该Proxy记录
 
-							//
 							if(ProxyManager.getInstance().getValidProxyNum() < driverCount + 2) {
 								try {
 									AliyunHost.batchBuild(1);
@@ -162,7 +161,7 @@ public class Crawler {
 					}).addProxyFailedCallback(()->{
 						logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
 					}).addTerminatedCallback(()->{
-						logger.info("Container {} {}:{} failed.", container.name, container.dockerHost.ip,  container.vncPort);
+						logger.info("Container {} {}:{} failed.", container.name, container.dockerHost.ip, container.vncPort);
 					}).addNewCallback(()->{
 						try {
 							agent.submit(task);
@@ -171,11 +170,13 @@ public class Crawler {
 						}
 					});
 
-					agent.start();
-
-					agent.bmProxy.getClientBindAddress();
+					// agent.bmProxy.getClientBindAddress();
 
 					ChromeDriverRequester.getInstance().addAgent(agent);
+
+					agent.start();
+
+					logger.info("Local Proxy {}:{}", agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);
 				}
 			}
 

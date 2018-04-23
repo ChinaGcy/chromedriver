@@ -8,11 +8,15 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import one.rewind.db.DaoManager;
+import one.rewind.io.requester.BasicRequester;
+import one.rewind.io.requester.Task;
 import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import one.rewind.db.DBName;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
 
@@ -79,6 +83,22 @@ public class ProxyImpl extends Proxy {
 
 	public void setFailedCallback(Runnable callback) {
 		this.failedCallback = callback;
+	}
+
+	public float testSpeed(String url) throws MalformedURLException, URISyntaxException {
+
+		float speedAvg = 0;
+
+		for(int i=0; i<40; i++) {
+
+			Task t = new Task(url);
+			BasicRequester.getInstance().submit(t);
+
+			speedAvg += (double) t.getResponse().getSrc().length / ( (double) t.getDuration() );
+
+		}
+
+		return speedAvg / 20;
 	}
 
 	/**

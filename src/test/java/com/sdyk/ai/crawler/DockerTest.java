@@ -63,7 +63,7 @@ public class DockerTest {
 		List<AliyunHost> aliyunHosts = AliyunHost.getAll();
 
 		// 删除阿里云服务器
-		AliyunHost.stopAndDeletes(aliyunHosts);
+		AliyunHost.stopAndDelete(aliyunHosts);
 
 		// 执行登录操作
 		Crawler crawler = new Crawler();

@@ -18,7 +18,9 @@ public class AliyunHostTest {
 
 	@Test
 	public void aliyunHostStart() throws Exception {
+
 		try {
+
 			AliyunHost.batchBuild(5);
 
 			// 查找所有的host
@@ -31,7 +33,7 @@ public class AliyunHostTest {
 
 			Thread.sleep(50000);
 			for (AliyunHost a : all) {
-				a.delete();
+				a.stopAndDelete();
 			}
 
 

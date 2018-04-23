@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.proxy;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.sdyk.ai.crawler.zbj.model.ProxyImpl;
 import one.rewind.db.DaoManager;
@@ -97,10 +98,18 @@ public class ProxyManager {
 			throw new Exception("Proxy not available.");
 		} else {
 			proxy.use_cnt ++;
-			proxy.status = Proxy.Status.INVALID;
 			proxy.update();
 			return proxy;
 		}
+	}
+
+	public void deleteProxyByGroup(String groupName) throws Exception {
+
+		Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
+
+		DeleteBuilder<ProxyImpl, String> deleteBuilder = dao.deleteBuilder();
+		deleteBuilder.where().eq("group", groupName);
+		deleteBuilder.delete();
 	}
 
 	/**

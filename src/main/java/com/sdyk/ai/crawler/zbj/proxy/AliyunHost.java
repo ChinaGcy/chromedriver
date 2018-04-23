@@ -11,6 +11,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.zbj.model.ProxyImpl;
 import com.typesafe.config.Config;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 import one.rewind.io.SshManager;
 import one.rewind.util.Configs;
 import org.apache.logging.log4j.LogManager;
@@ -66,7 +67,7 @@ public class AliyunHost {
 
 	public transient SshManager.Host ssh_host;
 
-	@DatabaseField(dataType = DataType.STRING, width = 128, canBeNull = false, index = true)
+	@DatabaseField(dataType = DataType.STRING, width = 128, canBeNull = false, id = true)
 	public String id;
 
 	@DatabaseField(dataType = DataType.STRING, width = 128, canBeNull = false)
@@ -152,7 +153,7 @@ public class AliyunHost {
 
 			aliyun_host.start();
 
-			logger.info("Wait 90s for remote sshHost starting...");
+			logger.info("Wait 120s for remote sshHost starting...");
 			Thread.sleep(120000);
 			logger.info("Wait done.");
 
@@ -186,10 +187,13 @@ public class AliyunHost {
 				try {
 
 					AliyunHost aliyunHost = AliyunHost.buildService(Region.CN_SHENZHEN);
-					aliyunHost.insert();
 
-					ProxyImpl proxy = aliyunHost.createSquidProxy();
-					proxy.insert();
+					if(aliyunHost != null) {
+						aliyunHost.insert();
+
+						ProxyImpl proxy = aliyunHost.createSquidProxy();
+						proxy.insert();
+					}
 
 				} catch (Exception e) {
 
@@ -249,7 +253,7 @@ public class AliyunHost {
 		// 发起请求
 		try {
 			StartInstanceResponse response = client.getAcsResponse(startInstance);
-			logger.info(response);
+			logger.info(response.getRequestId());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -283,7 +287,8 @@ public class AliyunHost {
 	 * 删除主机，停止后删除
 	 * @return
 	 */
-	public boolean deleteHost() {
+	private boolean deleteHost() {
+
 		DeleteInstanceRequest deleteInstance = new DeleteInstanceRequest();
 		deleteInstance.setInstanceId(id);
 
@@ -303,6 +308,7 @@ public class AliyunHost {
 	 * @return
 	 */
 	public boolean stopAndDelete() {
+
 		if (this.stop()) {
 			try {
 				Thread.sleep(50000);
@@ -317,22 +323,34 @@ public class AliyunHost {
 		}
 	}
 
+	public static void stopAndDeleteAll() throws Exception {
+		stopAndDelete(getAll());
+	}
+
 	/**
 	 * 删除多个主机
 	 * @return
 	 */
-	public static void stopAndDeletes(List<AliyunHost> aliyunHosts) {
+	public static void stopAndDelete(List<AliyunHost> aliyunHosts) {
 
 		for (AliyunHost a : aliyunHosts) {
 			a.stop();
 		}
+		// TODO 轮询回调接口确认状态
 		try {
-			Thread.sleep(50000);
+			Thread.sleep(60000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		for (AliyunHost a : aliyunHosts) {
 			a.deleteHost();
+			a.status = Status.STOPPED;
+
+			try {
+				a.update();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -343,7 +361,7 @@ public class AliyunHost {
 	 */
 	public boolean insert() throws Exception {
 
-		Dao dao = one.rewind.db.DaoManager.getDao(this.getClass());
+		Dao dao = DaoManager.getDao(this.getClass());
 
 		try {
 			dao.create(this);
@@ -367,7 +385,7 @@ public class AliyunHost {
 	 */
 	public static AliyunHost getById(String id) throws Exception{
 
-		Dao<AliyunHost, String> dao = one.rewind.db.DaoManager.getDao(AliyunHost.class);
+		Dao<AliyunHost, String> dao = DaoManager.getDao(AliyunHost.class);
 		return dao.queryForId(id);
 	}
 
@@ -378,7 +396,7 @@ public class AliyunHost {
 	 */
 	public static List<AliyunHost> getAll() throws Exception {
 
-		Dao<AliyunHost, String> dao = one.rewind.db.DaoManager.getDao(AliyunHost.class);
+		Dao<AliyunHost, String> dao = DaoManager.getDao(AliyunHost.class);
 		return dao.queryForAll();
 	}
 
@@ -389,9 +407,14 @@ public class AliyunHost {
 	 * @throws Exception
 	 */
 	public static AliyunHost getByHost(String host) throws Exception {
-		Dao<AliyunHost, String> dao = one.rewind.db.DaoManager.getDao(AliyunHost.class);
+		Dao<AliyunHost, String> dao = DaoManager.getDao(AliyunHost.class);
 		AliyunHost aliyunHost = dao.queryBuilder().where().eq("sshHost", host).queryForFirst();
 		return aliyunHost;
+	}
+
+	private boolean update() throws Exception {
+		Dao<AliyunHost, String> dao = DaoManager.getDao(AliyunHost.class);
+		return dao.update(this) == 1;
 	}
 
 	/**
@@ -399,10 +422,10 @@ public class AliyunHost {
 	 * @return
 	 * @throws Exception
 	 */
-	public int deleteById() throws Exception {
-		Dao<AliyunHost, String> dao = one.rewind.db.DaoManager.getDao(AliyunHost.class);
+	private boolean delete() throws Exception {
+		Dao<AliyunHost, String> dao = DaoManager.getDao(AliyunHost.class);
 		int i = dao.deleteById(id);
-		return i;
+		return i == 1;
 	}
 
 	/**

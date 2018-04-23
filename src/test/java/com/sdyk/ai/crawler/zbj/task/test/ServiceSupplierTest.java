@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
-import com.sdyk.ai.crawler.zbj.model.Proxy;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.junit.Test;

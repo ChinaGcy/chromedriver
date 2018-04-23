@@ -8,6 +8,9 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ *
+ */
 public class ChromeDriverTimeOut {
 
 	ChromeDriverAgent agent = new ChromeDriverAgent();
