@@ -15,13 +15,12 @@ public class CrawlerTest {
 		DockerHost host = DockerHostManager.getInstance().getHostByIp("10.0.0.62");
 		DockerHostManager.getInstance().delAllDockerContainers(host);
 
-		// ProxyManager.getInstance().deleteProxyByGroup(AliyunHost.Proxy_Group_Name);
+		/*ProxyManager.getInstance().deleteProxyByGroup(AliyunHost.Proxy_Group_Name);
 
-		// AliyunHost.stopAndDeleteAll();
+		AliyunHost.stopAndDeleteAll();
 
 		Crawler crawler = new Crawler();
-
-		Thread.sleep(6000000);
+		Thread.sleep(6000000);*/
 
 	}
 }

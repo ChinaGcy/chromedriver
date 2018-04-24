@@ -1,8 +1,10 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
+import one.rewind.io.SshManager;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 public class AliyunHostTest {
@@ -17,28 +19,14 @@ public class AliyunHostTest {
 	}
 
 	@Test
+	public void connect() throws IOException {
+		SshManager.Host ssh_host = new SshManager.Host("47.106.35.84", 22, "root", "SdYK@315Fr##");
+		ssh_host.connect();
+	}
+
+	@Test
 	public void aliyunHostStart() throws Exception {
 
-		try {
-
-			AliyunHost.batchBuild(5);
-
-			// 查找所有的host
-			List<AliyunHost> all = AliyunHost.getAll();
-			Thread.sleep(10000);
-
-			for (AliyunHost a : all) {
-				a.stop();
-			}
-
-			Thread.sleep(50000);
-			for (AliyunHost a : all) {
-				a.stopAndDelete();
-			}
-
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		AliyunHost.stopAndDeleteAll();
 	}
 }
