@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler;
 
-import com.sdyk.ai.crawler.zbj.Crawler;
+import com.sdyk.ai.crawler.zbj.Scheduler;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import one.rewind.db.Refacter;
 import org.junit.Test;
@@ -9,7 +9,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-import com.sdyk.ai.crawler.zbj.model.DockerHost;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerHost;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 
 import java.net.URL;
@@ -66,7 +66,7 @@ public class DockerTest {
 		AliyunHost.stopAndDelete(aliyunHosts);
 
 		// 执行登录操作
-		Crawler crawler = new Crawler();
+		Scheduler scheduler = new Scheduler();
 
 		Thread.sleep(300000);
 

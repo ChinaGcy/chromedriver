@@ -8,7 +8,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.zbj.model.ProxyImpl;
+import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.typesafe.config.Config;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;

@@ -1,11 +1,9 @@
-package com.sdyk.ai.crawler.zbj.model;
+package com.sdyk.ai.crawler.zbj.proxy.model;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import one.rewind.db.DaoManager;
 import one.rewind.io.requester.BasicRequester;
@@ -19,7 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 
 @DBName(value = "crawler")

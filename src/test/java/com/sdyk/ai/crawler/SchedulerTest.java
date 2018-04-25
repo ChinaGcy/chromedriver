@@ -1,13 +1,13 @@
 package com.sdyk.ai.crawler;
 
-import com.sdyk.ai.crawler.zbj.Crawler;
+import com.sdyk.ai.crawler.zbj.Scheduler;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
-import com.sdyk.ai.crawler.zbj.model.DockerHost;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerHost;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import org.junit.Test;
 
-public class CrawlerTest {
+public class SchedulerTest {
 
 	@Test
 	public void test() throws Exception {
@@ -19,7 +19,7 @@ public class CrawlerTest {
 
 		AliyunHost.stopAndDeleteAll();
 
-		Crawler crawler = new Crawler();
+		Scheduler scheduler = new Scheduler();
 		Thread.sleep(6000000);
 
 	}

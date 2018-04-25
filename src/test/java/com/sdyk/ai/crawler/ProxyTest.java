@@ -1,8 +1,7 @@
 package com.sdyk.ai.crawler;
 
 import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.zbj.model.ProxyImpl;
-import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
+import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import one.rewind.db.DaoManager;
 import one.rewind.io.requester.proxy.Proxy;
 import org.junit.Test;

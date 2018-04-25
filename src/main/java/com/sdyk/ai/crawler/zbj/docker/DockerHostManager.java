@@ -1,39 +1,42 @@
 package com.sdyk.ai.crawler.zbj.docker;
 
 import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.zbj.model.DockerHost;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerContainer;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerHost;
+import com.typesafe.config.Config;
 import one.rewind.db.DaoManager;
-import one.rewind.io.SshManager;
-import one.rewind.io.requester.Task;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.ChromeDriverException;
-import one.rewind.io.requester.proxy.Proxy;
-import one.rewind.io.requester.proxy.ProxyImpl;
+import one.rewind.util.Configs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redisson.api.RLock;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
+import static one.rewind.db.RedissonAdapter.redisson;
 
 
 public class DockerHostManager {
 
 	public static final Logger logger = LogManager.getLogger(DockerHostManager.class.getName());
 
+	public static File PEM_FILE;
+	public static int MAX_CONTAINER_NUM = 40;
+	private static int SELENIUM_BEGIN_PORT = 31000;
+	private static int VNC_BEGIN_PORT = 32000;
+
+	static {
+		Config config = Configs.getConfig(DockerHostManager.class);
+		PEM_FILE = new File(config.getString("privateKey"));
+		MAX_CONTAINER_NUM = config.getInt("maxContainerNum");
+		SELENIUM_BEGIN_PORT = config.getInt("seleniumBeginPort");
+		SELENIUM_BEGIN_PORT = config.getInt("vncBeginPort");
+	}
+
 	protected static DockerHostManager instance;
 
-	// 秘钥
-	public static File PEM_FILE;
-
-	public static DockerHostManager getInstance() throws Exception {
+	public static DockerHostManager getInstance() {
 
 		if (instance == null) {
 			synchronized (DockerHostManager.class) {
@@ -46,23 +49,14 @@ public class DockerHostManager {
 		return instance;
 	}
 
-	static {
-		PEM_FILE = new File("id_rsa_2048");
-	}
-
-	private BlockingQueue<DockerContainer> containers = new LinkedBlockingDeque<>();
+	private transient RLock lock = redisson.getLock("Docker-Manager");
 
 	/**
 	 *
 	 * @throws Exception
 	 */
-	public DockerHostManager() throws Exception {
+	public DockerHostManager() {
 
-		/*Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
-		List<DockerHost> hosts = dao.queryForEq("status", "RUNNING");
-		for(DockerHost host : hosts) {
-			host.initSshConn();
-		}*/
 	}
 
 	/**
@@ -79,135 +73,114 @@ public class DockerHostManager {
 	}
 
 	/**
-	 * docker容器类
+	 *
+	 * @return
+	 * @throws Exception
 	 */
-	public static class DockerContainer {
+	public DockerContainer getFreeContainer() throws Exception {
 
-		public DockerHost dockerHost;
-		public String name;
-		int seleniumPort;
-		public int vncPort;
-		Status status = Status.STARTING;
+		lock.lock(10, TimeUnit.SECONDS);
+		Dao<DockerContainer, String> dao = DaoManager.getDao(DockerContainer.class);
+		DockerContainer container = dao.queryBuilder()
+				.where().eq("status", DockerContainer.Status.IDLE.name())
+				.queryForFirst();
 
-		public void setIdle() {
-			this.status = Status.IDLE;
+		if(container != null) {
+			container.setOccupied();
 		}
 
-		public enum Status {
-			STARTING, // 启动中
-			IDLE, // 空闲
-			OCCUPIED, // 占用
-			FAILED, // 出错
-			TERMINATED // 已删除
-		}
+		lock.unlock();
+		return container;
+	}
 
-		DockerContainer(DockerHost host, String name, int seleniumPort, int vncPort) {
-			this.dockerHost = host;
-			this.name = name;
-			this.seleniumPort = seleniumPort;
-			this.vncPort = vncPort;
-		}
+	/**
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	private DockerHost getMinLoadHost() throws Exception {
 
-		/**
-		 * 获取路由的地址
-		 * @throws MalformedURLException
-		 */
-		public URL getRemoteAddress() throws MalformedURLException {
-			return new URL("http://" +dockerHost.ip+  ":" + seleniumPort + "/wd/hub");
-		}
+		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
+		DockerHost host = dao.queryBuilder()
+				.orderBy("container_num", true)
+				.where().eq("status", DockerHost.Status.RUNNING.name())
+				.queryForFirst();
 
-		/**
-		 * 删除容器
-		 */
-		public void delete() {
-
-			String cmd = "docker rm -f " + name +  "\n";
-
-			String output = null;
-			try {
-
-				output = dockerHost.exec(cmd);
-				logger.info(output);
-				status = Status.TERMINATED;
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		return host;
 	}
 
 	/**
 	 * 在指定的docker中，批量创建容器
-	 * @param ip
 	 * @param num
 	 * @throws Exception
 	 */
-	public void createDockerContainers(String ip, int num) throws Exception {
-
-		DockerHost host = getHostByIp(ip);
-		if(host != null) {
-			containers.addAll(createDockerContainers(host, num));
-		}
-	}
-
-	/**
-	 * 获取容器
-	 * @return
-	 * @throws InterruptedException
-	 */
-	public DockerContainer getContainer() throws InterruptedException {
-		return containers.take();
-	}
-
-	/**
-	 * 批量创建容器
-	 * @param dockerHost
-	 * @param num
-	 * @throws Exception
-	 */
-	public List<DockerContainer> createDockerContainers(DockerHost dockerHost, int num) throws Exception {
-
-		List<DockerContainer> containers = new ArrayList<>();
+	public void createDockerContainers(int num) throws Exception {
 
 		CountDownLatch done = new CountDownLatch(num);
 
-		for(int i_=0; i_<num; i_++){
+		for(int i=0; i<num; i++) {
 
-			final int i = i_;
+			new Thread(()->{
 
-			new Thread(() -> {
-
-				int seleniumPort = (31000 + i);
-				int vncPort = (32000 + i);
-				String containerName = "ChromeContainer-"+i;
-
-				String cmd = "docker run -d --name " + containerName + " -p "+seleniumPort+":4444 -p "+vncPort+":5900 -e SCREEN_WIDTH=\"1360\" -e SCREEN_HEIGHT=\"768\" -e SCREEN_DEPTH=\"24\" selenium/standalone-chrome-debug";
-
-				String output = null;
+				DockerHost host = null;
 
 				try {
-
-					// TODO 同时连接不能超过10个，否则会抛出异常    http://www.ganymed.ethz.ch/ssh2/FAQ.html
-					// java.io.IOException: Could not open channel (The server refused to open the channel (SSH_OPEN_ADMINISTRATIVELY_PROHIBITED, 'open failed'))
-					output = dockerHost.exec(cmd);
-					logger.info(output);
-
-					DockerContainer container = new DockerContainer(dockerHost, containerName, seleniumPort, vncPort);
-					// 设置状态
-					container.setIdle();
-					containers.add(container);
-
+					host = getMinLoadHost();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
-				done.countDown();
+				if(host != null) {
+
+					DockerContainer container = null;
+
+					try {
+						createDockerContainer(host);
+						done.countDown();
+
+					} catch (Exception e) {
+						logger.error("Error create docker container, ", e);
+					}
+				}
+				else {
+					logger.error("No available host.");
+				}
 
 			}).start();
 		}
 
 		done.await();
-		return containers;
+	}
+
+	/**
+	 *
+	 * @param dockerHost
+	 * @return
+	 * @throws Exception
+	 */
+	private void createDockerContainer(DockerHost dockerHost) throws Exception {
+
+		DockerContainer container = null;
+
+		int currentContainerNum = dockerHost.addContinerNum();
+
+		int seleniumPort = (SELENIUM_BEGIN_PORT + currentContainerNum);
+		int vncPort = (VNC_BEGIN_PORT + currentContainerNum);
+		String containerName = "ChromeContainer-" + dockerHost.ip + "-" + currentContainerNum;
+
+		String cmd = "docker run -d --name " + containerName + " -p "+seleniumPort+":4444 -p "+vncPort+":5900 -e SCREEN_WIDTH=\"1360\" -e SCREEN_HEIGHT=\"768\" -e SCREEN_DEPTH=\"24\" selenium/standalone-chrome-debug";
+
+		String output = null;
+
+		output = dockerHost.exec(cmd);
+
+		// TODO 检验output 确定container创建成功
+		logger.info(output);
+		container = new DockerContainer(dockerHost.ip, containerName, seleniumPort, vncPort);
+
+		container.insert();
+		// 设置状态
+		container.setIdle();
 	}
 
 	/**
@@ -216,12 +189,25 @@ public class DockerHostManager {
 	 * @param dockerHost
 	 * @throws Exception
 	 */
-	public void delAllDockerContainers(DockerHost dockerHost) throws Exception {
+	public void delAllDockerContainers(DockerHost dockerHost) {
 
 		String cmd = "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)\n";
 
 		String output = dockerHost.exec(cmd);
 
 		logger.info(output);
+	}
+
+	/**
+	 *
+	 * @throws Exception
+	 */
+	public void delAllDockerContainers() throws Exception {
+
+		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
+
+		dao.queryForAll().stream().forEach(host -> {
+			delAllDockerContainers(host);
+		});
 	}
 }

@@ -2,41 +2,43 @@ package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.account.AccountManager;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
-import com.sdyk.ai.crawler.zbj.model.AccountImpl;
-import com.sdyk.ai.crawler.zbj.model.ProxyImpl;
+import com.sdyk.ai.crawler.zbj.account.model.AccountImpl;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerContainer;
+import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
-import it.sauronsoftware.cron4j.Scheduler;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
-import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import static spark.route.HttpMethod.get;
 
-public class Crawler {
+/**
+ * 任务生成器
+ */
+public class Scheduler {
 
-	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Crawler.class.getName());
+	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
-	protected static Crawler instance;
 
-	public static Crawler getInstance() {
+	protected static Scheduler instance;
+
+	public static Scheduler getInstance() {
 
 		if (instance == null) {
 
-			synchronized (Crawler.class) {
+			synchronized (Scheduler.class) {
 				if (instance == null) {
-					instance = new Crawler();
+					instance = new Scheduler();
 				}
 			}
 		}
@@ -97,37 +99,20 @@ public class Crawler {
 	 * TODO 初始化ChromeDriverAgent
 	 * 增加Exception Callbacks
 	 */
-	public Crawler() {
+	public Scheduler() {
 
 		String domain = "zbj.com";
 		int driverCount = 2;
-
-		/*ProxyImpl p = new ProxyImpl();
-		int i = 0;
-
-		for (ProxyImpl proxyImpl : p.getAll()){
-
-			if (proxyImpl.status == ProxyImpl.Status.NORMAL && proxyImpl.enable){
-				i++;
-			}
-		}
-
-		if (driverCount + 2 > i) {
-			// 创建driverCount+2 - i个
-			try {
-				AliyunHost.batchBuild(driverCount + 2 - i);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
 
 		try {
 
 			// 创建阿里云host
 			//  AliyunHost.batchBuild(driverCount + 2);
 
+			DockerHostManager.getInstance().delAllDockerContainers();
+
 			// 创建 container
-			DockerHostManager.getInstance().createDockerContainers("10.0.0.60", driverCount);
+			DockerHostManager.getInstance().createDockerContainers(driverCount);
 			// 读取全部有效账户 N个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 
@@ -169,7 +154,7 @@ public class Crawler {
 					one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("https://www.zbj.com");
 					task.addAction(new LoginWithGeetestAction(account));
 
-					DockerHostManager.DockerContainer container = DockerHostManager.getInstance().getContainer();
+					DockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
 					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
 
@@ -179,7 +164,7 @@ public class Crawler {
 					}).addProxyFailedCallback(()->{
 						logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
 					}).addTerminatedCallback(()->{
-						logger.info("Container {} {}:{} failed.", container.name, container.dockerHost.ip, container.vncPort);
+						logger.info("Container {} {}:{} failed.", container.name, container.ip, container.vncPort);
 					}).addNewCallback(()->{
 						try {
 							agent.submit(task);
@@ -249,7 +234,7 @@ public class Crawler {
 
 		try {
 
-			Scheduler s = new Scheduler();
+			it.sauronsoftware.cron4j.Scheduler s = new it.sauronsoftware.cron4j.Scheduler();
 
 			// 每隔十分钟，生成实时扫描任务
 			s.schedule("*/10 * * * *", new Runnable() {
@@ -279,13 +264,13 @@ public class Crawler {
 		if (args.length == 1 && args[0].equals("H")){
 			// 获取历史数据
 			logger.info("历史数据");
-			Crawler.getInstance().getHistoricalData();
+			Scheduler.getInstance().getHistoricalData();
 
 		}
 		else {
 			// 监控数据
 			logger.info("监控数据");
-			Crawler.getInstance().monitor();
+			Scheduler.getInstance().monitor();
 		}
 	}
 

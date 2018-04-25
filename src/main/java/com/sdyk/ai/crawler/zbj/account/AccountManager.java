@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.zbj.account;
 
 import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.zbj.model.AccountImpl;
+import com.sdyk.ai.crawler.zbj.account.model.AccountImpl;
 import one.rewind.db.DaoManager;
 import one.rewind.io.requester.account.Account;
 import org.apache.logging.log4j.LogManager;

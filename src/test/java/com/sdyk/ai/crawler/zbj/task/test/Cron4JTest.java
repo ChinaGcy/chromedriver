@@ -5,7 +5,7 @@ import it.sauronsoftware.cron4j.Scheduler;
 public class Cron4JTest {
 
 	public static void main(String[] args) {
-		// Creates a Crawler instance.
+		// Creates a Scheduler instance.
 		Scheduler s = new Scheduler();
 		// Schedule a once-a-minute task.
 		// 分钟 小时 天 月 秒
