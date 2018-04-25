@@ -122,6 +122,9 @@ public class DockerHost {
 
 		lock.lock(10, TimeUnit.SECONDS);
 
+		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
+		dao.refresh(this);
+
 		this.container_num ++;
 		this.update();
 
