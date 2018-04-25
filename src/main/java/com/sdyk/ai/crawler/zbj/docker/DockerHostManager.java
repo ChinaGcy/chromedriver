@@ -47,7 +47,7 @@ public class DockerHostManager {
 	}
 
 	static {
-		PEM_FILE = new File("secret.pem");
+		PEM_FILE = new File("id_rsa_2048");
 	}
 
 	private BlockingQueue<DockerContainer> containers = new LinkedBlockingDeque<>();

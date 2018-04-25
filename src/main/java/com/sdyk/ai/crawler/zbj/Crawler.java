@@ -124,11 +124,10 @@ public class Crawler {
 		try {
 
 			// 创建阿里云host
-			 AliyunHost.batchBuild(driverCount + 2);
+			//  AliyunHost.batchBuild(driverCount + 2);
 
 			// 创建 container
-			DockerHostManager.getInstance().createDockerContainers("10.0.0.62", driverCount);
-
+			DockerHostManager.getInstance().createDockerContainers("10.0.0.60", driverCount);
 			// 读取全部有效账户 N个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 

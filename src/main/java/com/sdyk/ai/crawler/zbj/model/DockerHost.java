@@ -43,10 +43,10 @@ public class DockerHost {
 	public String exec(String cmd) throws Exception {
 
 		// 秘钥登录
-		//sshHost = new SshManager.Host(ip, port, "root", DockerHostManager.PEM_FILE);
+		SshManager.Host sshHost = new SshManager.Host(ip, port, "root", DockerHostManager.PEM_FILE);
 
 		// 账号登录
-		SshManager.Host sshHost = new SshManager.Host(ip, port, "root", "sdyk315pr");
+		//SshManager.Host sshHost = new SshManager.Host(ip, port, "root", "sdyk315pr");
 		sshHost.connect();
 		String output = sshHost.exec(cmd);
 		sshHost.conn.close();
