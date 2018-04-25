@@ -31,7 +31,7 @@ public class DockerHostManager {
 		PEM_FILE = new File(config.getString("privateKey"));
 		MAX_CONTAINER_NUM = config.getInt("maxContainerNum");
 		SELENIUM_BEGIN_PORT = config.getInt("seleniumBeginPort");
-		SELENIUM_BEGIN_PORT = config.getInt("vncBeginPort");
+		VNC_BEGIN_PORT = config.getInt("vncBeginPort");
 	}
 
 	protected static DockerHostManager instance;
@@ -82,7 +82,7 @@ public class DockerHostManager {
 		lock.lock(10, TimeUnit.SECONDS);
 		Dao<DockerContainer, String> dao = DaoManager.getDao(DockerContainer.class);
 		DockerContainer container = dao.queryBuilder()
-				.where().eq("status", DockerContainer.Status.IDLE.name())
+				.where().eq("status", DockerContainer.Status.IDLE)
 				.queryForFirst();
 
 		if(container != null) {
@@ -103,7 +103,7 @@ public class DockerHostManager {
 		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
 		DockerHost host = dao.queryBuilder()
 				.orderBy("container_num", true)
-				.where().eq("status", DockerHost.Status.RUNNING.name())
+				.where().eq("status", DockerHost.Status.RUNNING)
 				.queryForFirst();
 
 		return host;
@@ -131,8 +131,6 @@ public class DockerHostManager {
 				}
 
 				if(host != null) {
-
-					DockerContainer container = null;
 
 					try {
 						createDockerContainer(host);
@@ -162,7 +160,7 @@ public class DockerHostManager {
 
 		DockerContainer container = null;
 
-		int currentContainerNum = dockerHost.addContinerNum();
+		int currentContainerNum = dockerHost.addContainerNum();
 
 		int seleniumPort = (SELENIUM_BEGIN_PORT + currentContainerNum);
 		int vncPort = (VNC_BEGIN_PORT + currentContainerNum);
@@ -209,5 +207,7 @@ public class DockerHostManager {
 		dao.queryForAll().stream().forEach(host -> {
 			delAllDockerContainers(host);
 		});
+
+		new DockerContainer().deleteAll();
 	}
 }

@@ -3,16 +3,22 @@ package com.sdyk.ai.crawler.zbj.docker.model;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
+import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
+import one.rewind.db.Refacter;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 容器
  */
+@DBName(value = "crawler")
+@DatabaseTable(tableName = "docker_container")
 public class DockerContainer {
 
 	public enum Status {
@@ -48,6 +54,11 @@ public class DockerContainer {
 	// 更新时间
 	@DatabaseField(dataType = DataType.DATE, index = true)
 	public Date update_time = new Date();
+
+	/**
+	 *
+	 */
+	public DockerContainer() {}
 
 	/**
 	 *
@@ -128,5 +139,24 @@ public class DockerContainer {
 		}
 
 		return false;
+	}
+
+	/**
+	 * 删除当前container
+	 * @throws Exception
+	 */
+	public void delete() throws Exception {
+		Dao<DockerContainer, String> dao = DaoManager.getDao(DockerContainer.class);
+		dao.delete(this);
+	}
+
+	/**
+	 *
+	 * @throws Exception
+	 */
+	public void deleteAll () throws Exception {
+		Dao<DockerContainer, String> dao = DaoManager.getDao(DockerContainer.class);
+		List<DockerContainer> list = dao.queryForAll();
+		dao.delete(list);
 	}
 }

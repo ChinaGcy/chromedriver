@@ -109,7 +109,9 @@ public class Scheduler {
 			// 创建阿里云host
 			//  AliyunHost.batchBuild(driverCount + 2);
 
+			// 删除所有docker container
 			DockerHostManager.getInstance().delAllDockerContainers();
+
 
 			// 创建 container
 			DockerHostManager.getInstance().createDockerContainers(driverCount);
@@ -152,6 +154,7 @@ public class Scheduler {
 					});
 
 					one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("https://www.zbj.com");
+
 					task.addAction(new LoginWithGeetestAction(account));
 
 					DockerContainer container = DockerHostManager.getInstance().getFreeContainer();
@@ -261,7 +264,9 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) {
 
-		if (args.length == 1 && args[0].equals("H")){
+		Scheduler.getInstance();
+
+		/*if (args.length == 1 && args[0].equals("H")){
 			// 获取历史数据
 			logger.info("历史数据");
 			Scheduler.getInstance().getHistoricalData();
@@ -271,7 +276,7 @@ public class Scheduler {
 			// 监控数据
 			logger.info("监控数据");
 			Scheduler.getInstance().monitor();
-		}
+		}*/
 	}
 
 }

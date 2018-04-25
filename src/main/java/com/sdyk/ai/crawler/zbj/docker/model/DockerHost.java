@@ -20,8 +20,6 @@ import static one.rewind.db.RedissonAdapter.redisson;
 @DatabaseTable(tableName = "docker_hosts")
 public class DockerHost {
 
-	private transient RLock lock;
-
 	@DatabaseField(dataType = DataType.INTEGER, canBeNull = false, generatedId = true)
 	public int id;
 
@@ -50,18 +48,16 @@ public class DockerHost {
 	@DatabaseField(dataType = DataType.DATE, index = true)
 	public Date update_time = new Date();
 
-	// TODO 确认通过数据库反序列化时，是否会调用此方法，ip字段是否被初始化
 	public DockerHost() {
-		lock = redisson.getLock("Docker-Host-Access-Lock-" + ip);
 	}
 
 	public String exec(String cmd) {
 
 		// 秘钥登录
-		SshManager.Host sshHost = new SshManager.Host(ip, port, "root", DockerHostManager.PEM_FILE);
+		// SshManager.Host sshHost = new SshManager.Host(ip, port, "root", DockerHostManager.PEM_FILE);
 
 		// 账号登录
-		// shManager.Host sshHost = new SshManager.Host(ip, port, "root", "sdyk315pr");
+		SshManager.Host sshHost = new SshManager.Host(ip, port, "root", "sdyk315pr");
 
 		String output = null;
 
@@ -118,9 +114,11 @@ public class DockerHost {
 	}
 
 	/**
-	 *
+	 * 统计container数量
 	 */
-	public int addContinerNum() throws Exception {
+	public int addContainerNum() throws Exception {
+
+		RLock lock = redisson.getLock("Docker-Host-Access-Lock-" + ip);
 
 		lock.lock(10, TimeUnit.SECONDS);
 

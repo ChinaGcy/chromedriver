@@ -92,7 +92,7 @@ task copyFiles(group: 'tetra') << {
         into 'src/main/dist'
     }
     copy {
-        from 'id_rsa_2048'
+        from 'gcy-docker.pem'
         into 'src/main/dist'
     }
 }
