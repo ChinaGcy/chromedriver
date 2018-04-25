@@ -9,7 +9,7 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * 停止加载
  */
 public class ChromeDriverTimeOut {
 

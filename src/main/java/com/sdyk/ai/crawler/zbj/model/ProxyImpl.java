@@ -17,6 +17,8 @@ import one.rewind.db.DBName;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 
@@ -99,6 +101,26 @@ public class ProxyImpl extends Proxy {
 		}
 
 		return speedAvg / 20;
+	}
+
+	/**
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	public List<ProxyImpl> getAll() {
+		Dao dao = null;
+		try {
+			dao = DaoManager.getDao(this.getClass());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			return dao.queryForEq("source",Source.ALIYUN_HOST);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**

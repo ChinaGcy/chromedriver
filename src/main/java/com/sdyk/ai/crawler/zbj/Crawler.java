@@ -102,14 +102,32 @@ public class Crawler {
 		String domain = "zbj.com";
 		int driverCount = 2;
 
+		/*ProxyImpl p = new ProxyImpl();
+		int i = 0;
+
+		for (ProxyImpl proxyImpl : p.getAll()){
+
+			if (proxyImpl.status == ProxyImpl.Status.NORMAL && proxyImpl.enable){
+				i++;
+			}
+		}
+
+		if (driverCount + 2 > i) {
+			// 创建driverCount+2 - i个
+			try {
+				AliyunHost.batchBuild(driverCount + 2 - i);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}*/
+
 		try {
 
 			// 创建阿里云host
-			// AliyunHost.batchBuild(driverCount + 2);
+			//  AliyunHost.batchBuild(driverCount + 2);
 
 			// 创建 container
-			DockerHostManager.getInstance().createDockerContainers("10.0.0.62", driverCount);
-
+			DockerHostManager.getInstance().createDockerContainers("10.0.0.60", driverCount);
 			// 读取全部有效账户 N个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 

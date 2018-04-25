@@ -153,15 +153,14 @@ public class AliyunHost {
 
 			aliyun_host.start();
 
-			logger.info("Wait 120s for remote sshHost starting...");
+			/*logger.info("Wait 120s for remote sshHost starting...");
 			Thread.sleep(120000);
-			logger.info("Wait done.");
+			logger.info("Wait done.");*/
 
-			aliyun_host.getIpAndPort();
+			// TODO 添加个时间限制，如果时间过长提示
+			while (!aliyun_host.getIpAndPort()) {}
 
-			Thread.sleep(5000);
-
-			aliyun_host.buildSshHost();
+			aliyun_host.buildSshHost(0);
 
 			return aliyun_host;
 		}
@@ -227,7 +226,6 @@ public class AliyunHost {
 			this.port = 22;
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -236,9 +234,24 @@ public class AliyunHost {
 	 *
 	 * @throws IOException
 	 */
-	private void buildSshHost() throws IOException {
-		ssh_host = new SshManager.Host(host, port, user, passwd);
-		ssh_host.connect();
+	private void buildSshHost(int i) throws IOException {
+		if (i > 4){
+			throw new IOException();
+		}
+		try {
+			ssh_host = new SshManager.Host(host, port, user, passwd);
+			ssh_host.connect();
+		} catch (IOException e) {
+
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			++i;
+			this.buildSshHost(i);
+		}
+
 	}
 
 	/**
@@ -284,7 +297,7 @@ public class AliyunHost {
 	}
 
 	/**
-	 * 删除主机，停止后删除
+	 * 删除主机，注意停止后删除
 	 * @return
 	 */
 	private boolean deleteHost() {
@@ -298,7 +311,6 @@ public class AliyunHost {
 			logger.info(response);
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -331,27 +343,32 @@ public class AliyunHost {
 	 * 删除多个主机
 	 * @return
 	 */
-	public static void stopAndDelete(List<AliyunHost> aliyunHosts) {
+	public static void stopAndDelete(List<AliyunHost> aliyunHosts) throws InterruptedException {
+
+		// TODO 结束不了
+		CountDownLatch doneSignal = new CountDownLatch(aliyunHosts.size());
 
 		for (AliyunHost a : aliyunHosts) {
-			a.stop();
+
+			new Thread(() -> {
+				// 判断停止是否出错
+				if (a.stop()) {
+
+					// TODO 添加个时间限制，如果时间过长提示
+					while (!a.deleteHost()) {}
+					a.status = Status.STOPPING;
+					try {
+						a.update();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				doneSignal.countDown();
+
+			}).start();
 		}
+		doneSignal.await();
 		// TODO 轮询回调接口确认状态
-		try {
-			Thread.sleep(60000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		for (AliyunHost a : aliyunHosts) {
-			a.deleteHost();
-			a.status = Status.STOPPED;
-
-			try {
-				a.update();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	/**
