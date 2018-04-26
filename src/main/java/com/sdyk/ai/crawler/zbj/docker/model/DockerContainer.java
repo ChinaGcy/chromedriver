@@ -79,8 +79,9 @@ public class DockerContainer {
 		this.update();
 	}
 
-	public void setOccupied() {
+	public void setOccupied() throws Exception {
 		this.status = Status.OCCUPIED;
+		this.update();
 	}
 
 	/**
@@ -88,6 +89,7 @@ public class DockerContainer {
 	 * @throws MalformedURLException
 	 */
 	public URL getRemoteAddress() throws MalformedURLException {
+		System.err.println(seleniumPort);
 		return new URL("http://" +ip+  ":" + seleniumPort + "/wd/hub");
 	}
 

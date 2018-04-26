@@ -23,4 +23,14 @@ public class SchedulerTest {
 		Thread.sleep(6000000);
 
 	}
+
+	@Test
+	public void scheduleTest() {
+		Scheduler.getInstance();
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -54,10 +54,10 @@ public class DockerHost {
 	public String exec(String cmd) {
 
 		// 秘钥登录
-		// SshManager.Host sshHost = new SshManager.Host(ip, port, "root", DockerHostManager.PEM_FILE);
+		SshManager.Host sshHost = new SshManager.Host(ip, port, "root", DockerHostManager.PEM_FILE);
 
 		// 账号登录
-		SshManager.Host sshHost = new SshManager.Host(ip, port, "root", "sdyk315pr");
+		//SshManager.Host sshHost = new SshManager.Host(ip, port, "root", "sdyk315pr");
 
 		String output = null;
 
@@ -123,6 +123,7 @@ public class DockerHost {
 		lock.lock(10, TimeUnit.SECONDS);
 
 		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
+		// 刷新内存数据
 		dao.refresh(this);
 
 		this.container_num ++;

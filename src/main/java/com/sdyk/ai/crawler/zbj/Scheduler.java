@@ -102,7 +102,7 @@ public class Scheduler {
 	public Scheduler() {
 
 		String domain = "zbj.com";
-		int driverCount = 2;
+		int driverCount = 1;
 
 		try {
 
@@ -158,6 +158,7 @@ public class Scheduler {
 					task.addAction(new LoginWithGeetestAction(account));
 
 					DockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+
 
 					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
 

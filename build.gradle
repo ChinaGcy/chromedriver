@@ -9,7 +9,7 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-mainClassName = 'com.sdyk.ai.crawler.zbj.Crawler'
+mainClassName = 'com.sdyk.ai.crawler.zbj.Scheduler'
 
 applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\""]
 
@@ -48,7 +48,7 @@ uploadArchives {
 
 dependencies {
 
-    compile 'one.rewind:common:1.0.13-SNAPSHOT'
+    compile 'one.rewind:common:1.0.15-SNAPSHOT'
 
     compile name: 'opencv-341'
 
