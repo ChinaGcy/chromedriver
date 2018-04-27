@@ -265,9 +265,9 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) {
 
-		Scheduler.getInstance();
+		//Scheduler.getInstance();
 
-		/*if (args.length == 1 && args[0].equals("H")){
+		if (args.length == 1 && args[0].equals("H")){
 			// 获取历史数据
 			logger.info("历史数据");
 			Scheduler.getInstance().getHistoricalData();
@@ -277,7 +277,7 @@ public class Scheduler {
 			// 监控数据
 			logger.info("监控数据");
 			Scheduler.getInstance().monitor();
-		}*/
+		}
 	}
 
 }

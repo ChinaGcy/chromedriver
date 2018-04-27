@@ -11,7 +11,7 @@ sourceCompatibility = 1.8
 
 mainClassName = 'com.sdyk.ai.crawler.zbj.Scheduler'
 
-applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\""]
+applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\"", "-Djava.library.path=/opt/zbj/opencv-3.4.1/build/lib"]
 
 repositories {
     maven {
@@ -48,7 +48,7 @@ uploadArchives {
 
 dependencies {
 
-    compile 'one.rewind:common:1.0.15-SNAPSHOT'
+    compile 'one.rewind:common:1.0.16-SNAPSHOT'
 
     compile name: 'opencv-341'
 
@@ -95,6 +95,10 @@ task copyFiles(group: 'tetra') << {
         from 'gcy-docker.pem'
         into 'src/main/dist'
     }
+    copy {
+        from 'lib'
+        into 'src/main/dist'
+    }
 }
 
 jar.dependsOn copyFiles
@@ -109,7 +113,7 @@ startScripts {
 
         def unixScriptFile  = file getUnixScript()
         def unixFileText = unixScriptFile.text
-        unixFileText = unixFileText.replaceAll('APP_NAME', 'sleep 3\nexport DISPLAY=:99\nAPP_NAME')
+        unixFileText = unixFileText.replaceAll('APP_NAME', 'sleep 3\nAPP_NAME')
         unixScriptFile.text = unixFileText
     }
 }
