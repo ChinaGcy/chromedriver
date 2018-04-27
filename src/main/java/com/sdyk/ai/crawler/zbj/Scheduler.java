@@ -32,13 +32,13 @@ public class Scheduler {
 
 	protected static Scheduler instance;
 
-	public static Scheduler getInstance() {
+	public static Scheduler getInstance(int i) {
 
 		if (instance == null) {
 
 			synchronized (Scheduler.class) {
 				if (instance == null) {
-					instance = new Scheduler();
+					instance = new Scheduler(i);
 				}
 			}
 		}
@@ -99,10 +99,10 @@ public class Scheduler {
 	 * TODO 初始化ChromeDriverAgent
 	 * 增加Exception Callbacks
 	 */
-	public Scheduler() {
+	public Scheduler(int i) {
 
 		String domain = "zbj.com";
-		int driverCount = 1;
+		int driverCount = i;
 
 		try {
 
@@ -264,19 +264,23 @@ public class Scheduler {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		int i = 1;
 
+		if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {
+			i = Integer.parseInt(args[1]);
+		}
 		//Scheduler.getInstance();
 
-		if (args.length == 1 && args[0].equals("H")){
+		if (args.length == 2 && args[0].equals("H")){
 			// 获取历史数据
 			logger.info("历史数据");
-			Scheduler.getInstance().getHistoricalData();
+			Scheduler.getInstance(i).getHistoricalData();
 
 		}
 		else {
 			// 监控数据
 			logger.info("监控数据");
-			Scheduler.getInstance().monitor();
+			Scheduler.getInstance(i).monitor();
 		}
 	}
 
