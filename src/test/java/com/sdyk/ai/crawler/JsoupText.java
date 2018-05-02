@@ -5,6 +5,7 @@ import one.rewind.io.requester.Task;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -143,5 +144,21 @@ public class JsoupText {
 		serviceRatingTask.postProc();
 	}
 
+	@Test
+	public void ChromeDriverRequesterTest() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException {
 
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+
+		ChromeDriverRequester.getInstance().addAgent(agent);
+		CaseTask caseTask = new CaseTask("https://shop.zbj.com/4696791/sid-983087.html");
+		agent.start();
+		caseTask.setBuildDom();
+
+		agent.submit(caseTask);
+
+		//ChromeDriverRequester.getInstance().submit(caseTask);  //java.lang.NullPointerException
+
+		caseTask.postProc();
+
+	}
 }

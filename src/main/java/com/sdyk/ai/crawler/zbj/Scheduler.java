@@ -159,7 +159,6 @@ public class Scheduler {
 
 					DockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
-
 					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
 
 					// agent 添加异常回调
@@ -229,7 +228,9 @@ public class Scheduler {
 		for (Task task : getTask(true)) {
 
 			task.setBuildDom();
+
 			ChromeDriverRequester.getInstance().submit(task);
+
 			try {
 				task.postProc();
 			} catch (Exception e) {
