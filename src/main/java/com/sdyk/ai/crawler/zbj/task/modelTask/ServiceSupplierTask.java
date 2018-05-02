@@ -4,6 +4,7 @@ import com.sdyk.ai.crawler.zbj.model.ServiceSupplier;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.WorkScanTask;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,52 +25,53 @@ public class ServiceSupplierTask extends Task {
 	ServiceSupplier serviceSupplier;
 
 	public ServiceSupplierTask(String url) throws MalformedURLException, URISyntaxException {
+
 		super(url);
 		this.setPriority(Priority.MEDIUM);
 
-	}
+		this.addDoneCallback(() -> {
+			String src = getResponse().getText();
+			Document doc = getResponse().getDoc();
 
-	public List<Task> postProc() {
+			List<Task> tasks = new ArrayList<Task>();
 
-		String src = getResponse().getText();
-		Document doc = getResponse().getDoc();
+			serviceSupplier = new ServiceSupplier(getUrl());
 
-		List<Task> tasks = new ArrayList<Task>();
+			shareData(doc, src);
 
-		serviceSupplier = new ServiceSupplier(getUrl());
-
-		shareData(doc, src);
-
-		// 判断是哪个页面格式
-		if (src.contains("as.zbjimg.com/static/nodejs-tianpeng-utopiacs-web/widget/tp-header/img/tianpeng-logo_31addeb.png")) {
-			// 天棚网服务商信息
-			try {
-				pageOne(src, serviceSupplier, doc);
-			} catch (IOException e) {
-				logger.error(e);
+			// 判断是哪个页面格式
+			if (src.contains("as.zbjimg.com/static/nodejs-tianpeng-utopiacs-web/widget/tp-header/img/tianpeng-logo_31addeb.png")) {
+				// 天棚网服务商信息
+				try {
+					pageOne(src, serviceSupplier, doc);
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			} else {
+				// 猪八戒服务商信息
+				try {
+					pageTwo(src, serviceSupplier, doc);
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			}
-		} else {
-			// 猪八戒服务商信息
+
 			try {
-				pageTwo(src, serviceSupplier, doc);
-			} catch (IOException e) {
-				logger.error(e);
+				serviceSupplier.insert();
+			} catch (Exception e) {
+				logger.error("insert/update error {}" , e);
 			}
-		}
+			// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
+			tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ serviceSupplier.website_id +"-type-1-page-",1));
+			tasks.add(CaseScanTask.generateTask(getUrl(),1));
+			tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
-		try {
-			serviceSupplier.insert();
-		} catch (Exception e) {
-			logger.error("insert/update error {}" , e);
-		}
-		// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-		tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ serviceSupplier.website_id +"-type-1-page-",1));
-		tasks.add(CaseScanTask.generateTask(getUrl(),1));
-		tasks.add(WorkScanTask.generateTask(getUrl(), 1));
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
+		});
 
-		return tasks;
 	}
-
 
 	/**
 	 *

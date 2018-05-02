@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
@@ -43,46 +44,47 @@ public class TendererRatingTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("webId", webId);
-	}
 
-	public List<Task> postProc() {
+		this.addDoneCallback(() -> {
+			List<Task> tasks = new ArrayList<>();
+			Document doc = getResponse().getDoc();
 
-		List<Task> tasks = new ArrayList<>();
-		Document doc = getResponse().getDoc();
+			// 防止数据为空
+			if (!doc.select("#evaluation > div > div").text().contains("该雇主还未收到过评价")) {
 
-		// 防止数据为空
-		if (!doc.select("#evaluation > div > div").text().contains("该雇主还未收到过评价")) {
 
-			int page = this.getParamInt("page");
+				// 每页中的评价数
+				for (int i = 1; i <= doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
 
-			// 每页中的评价数
-			for (int i = 1; i <= doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
+					tendererRating = new TendererRating(getUrl());
 
-				tendererRating = new TendererRating(getUrl());
+					tendererRating.tenderer_url = getUrl().split("\\?")[0];
 
-				tendererRating.tenderer_url = getUrl().split("\\?")[0];
+					// 每个评价
+					ratingData(doc, i);
 
-				// 每个评价
-				ratingData(doc, i);
+					// 入库
+					try {
 
-				// 入库
-				try {
+						tendererRating.insert();
+					} catch (Exception e) {
+						logger.error("Error insert: {}, ", e);
+					}
+				}
 
-					tendererRating.insert();
-				} catch (Exception e) {
-					logger.error("Error insert: {}, ", e);
+				// 翻页
+				Task t = pageTurn(page);
+
+				if (t != null) {
+					t.setPriority(Priority.LOW);
+					tasks.add(t);
 				}
 			}
 
-			// 翻页
-			Task t = pageTurn(page);
-
-			if (t != null) {
-				t.setPriority(Priority.LOW);
-				tasks.add(t);
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
 			}
-		}
-		return tasks;
+		});
 	}
 
 	/**

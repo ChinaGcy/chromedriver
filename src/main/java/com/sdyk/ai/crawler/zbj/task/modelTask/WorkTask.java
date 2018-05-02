@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.model.Work;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
@@ -22,34 +23,35 @@ public class WorkTask extends Task {
 	public WorkTask(String url, String user_id) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("user_id",user_id);
+
+		this.addDoneCallback(()-> {
+			Document doc = getResponse().getDoc();
+			String src = getResponse().getText();
+			List<Task> tasks = new ArrayList<>();
+
+			work = new Work(getUrl());
+
+			// 判断页面格式
+			if (getUrl().contains("zbj")) {
+				// 猪八戒
+				pageOne(doc);
+			}
+			else {
+				// 天棚网
+				pageTwo(doc);
+			}
+
+			try {
+				work.insert();
+			} catch (Exception e) {
+				logger.error("insert error for Work", e);
+			}
+
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
+		});
 	}
-
-	public List<Task> postProc() {
-
-		Document doc = getResponse().getDoc();
-		String src = getResponse().getText();
-		List<Task> tasks = new ArrayList<>();
-
-		work = new Work(getUrl());
-
-		// 判断页面格式
-		if (getUrl().contains("zbj")) {
-			// 猪八戒
-			pageOne(doc);
-		}
-		else {
-			// 天棚网
-			pageTwo(doc);
-		}
-
-		try {
-			work.insert();
-		} catch (Exception e) {
-			logger.error("insert error for Work", e);
-		}
-		return tasks;
-	}
-
 	/**
 	 * 猪八戒案例格式
 	 */

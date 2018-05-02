@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.openqa.selenium.WebDriver;
 
 import java.net.MalformedURLException;
@@ -39,56 +40,64 @@ public class CaseScanTask extends ScanTask {
 	public CaseScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("page", page);
-	}
 
-	public List<Task> postProc() throws Exception {
+		this.addDoneCallback(() -> {
 
-		String src = getResponse().getText();
+			String src = getResponse().getText();
 
-		// http://shop.zbj.com/17788555/servicelist-p1.html
-		String webId = this.getUrl().split("/")[3];
+			// http://shop.zbj.com/17788555/servicelist-p1.html
+			String webId = this.getUrl().split("/")[3];
 
-		List<Task> tasks = new ArrayList<>();
+			List<Task> tasks = new ArrayList<>();
 
-		int page = this.getParamInt("page");
-
-		// 判断是否翻页
-		if (!src.contains("暂时还没有此类服务！") && backtrace) {
-			Task t = generateTask("https://shop.zbj.com/" + webId + "/", ++page);
-			if (t != null) {
-				t.setPriority(Priority.HIGH);
-				tasks.add(t);
+			// 判断是否翻页
+			if (!src.contains("暂时还没有此类服务！") && backtrace) {
+				Task t = generateTask("https://shop.zbj.com/" + webId + "/", page + 1);
+				if (t != null) {
+					t.setPriority(Priority.HIGH);
+					tasks.add(t);
+				}
 			}
-		}
 
-		// 获取猪八戒， 天蓬网的服务地址
-		Pattern pattern = Pattern.compile("http://shop.zbj.com/\\d+/sid-\\d+.html");
-		Matcher matcher = pattern.matcher(src);
-		Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
-		Matcher matcher_tp = pattern_tp.matcher(src);
+			// 获取猪八戒， 天蓬网的服务地址
+			Pattern pattern = Pattern.compile("http://shop.zbj.com/\\d+/sid-\\d+.html");
+			Matcher matcher = pattern.matcher(src);
+			Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
+			Matcher matcher_tp = pattern_tp.matcher(src);
 
-		// 猪八戒url
-		while (matcher.find()) {
+			// 猪八戒url
+			while (matcher.find()) {
 
-			String url = matcher.group();
+				String new_url = matcher.group();
 
-			if(!list.contains(url)) {
-				list.add(url);
-				tasks.add(new CaseTask(url));
+				if(!list.contains(url)) {
+					list.add(url);
+					try {
+						tasks.add(new CaseTask(new_url));
+					} catch (MalformedURLException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		}
 
-		// 天蓬网url
-		while (matcher_tp.find()) {
+			// 天蓬网url
+			while (matcher_tp.find()) {
 
-			String url = matcher_tp.group();
+				String new_url = matcher_tp.group();
 
-			if(!list.contains(url)) {
-				list.add(url);
-				tasks.add(new CaseTask(url));
+				if(!list.contains(url)) {
+					list.add(url);
+					try {
+						tasks.add(new CaseTask(new_url));
+					} catch (MalformedURLException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		}
 
-		return tasks;
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
+		});
 	}
 }

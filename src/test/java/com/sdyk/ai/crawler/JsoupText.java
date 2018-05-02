@@ -38,7 +38,6 @@ public class JsoupText {
 		ProjectTask task1 = new ProjectTask("https://task.zbj.com/13234141/");
 		task1.setBuildDom();
 		agent.submit(task1);
-		task1.postProc();
 	}
 
 
@@ -63,7 +62,6 @@ public class JsoupText {
 		TendererTask task1 = new TendererTask("https://home.zbj.com/16120380");
 		task1.setBuildDom();
 		agent.submit(task1);
-		task1.postProc();
 	}
 
 	/**
@@ -86,7 +84,6 @@ public class JsoupText {
 		TendererRatingTask task1 = new TendererRatingTask("https://home.zbj.com/16120380", 1 , "16120380");
 		task1.setBuildDom();
 		agent.submit(task1);
-		task1.postProc();
 	}
 
 	/**
@@ -99,7 +96,6 @@ public class JsoupText {
 		CaseTask caseTask = new CaseTask("https://shop.zbj.com/4696791/sid-983087.html");
 		caseTask.setBuildDom();
 		agent.submit(caseTask);
-		caseTask.postProc();
 	}
 
 	/**
@@ -113,7 +109,6 @@ public class JsoupText {
 		ServiceSupplierTask serviceSupplierTask = new ServiceSupplierTask("http://shop.zbj.com/18751471/");
 		serviceSupplierTask.setBuildDom();
 		agent.submit(serviceSupplierTask);
-		serviceSupplierTask.postProc();
 	}
 
 	/**
@@ -127,7 +122,6 @@ public class JsoupText {
 		WorkTask workTask = new WorkTask("http://shop.zbj.com/works/detail-wid-329637.html","329637");
 		workTask.setBuildDom();
 		agent.submit(workTask);
-		workTask.postProc();
 	}
 
 	/**
@@ -141,24 +135,23 @@ public class JsoupText {
 		ServiceRatingTask serviceRatingTask = new ServiceRatingTask("http://shop.zbj.com/evaluation/evallist-uid-7394304-type-1-isLazyload-0-page-10.html",10);
 		serviceRatingTask.setBuildDom();
 		agent.submit(serviceRatingTask);
-		serviceRatingTask.postProc();
 	}
 
 	@Test
-	public void ChromeDriverRequesterTest() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException {
+	public void ChromeDriverRequesterTest() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
-
 		ChromeDriverRequester.getInstance().addAgent(agent);
-		CaseTask caseTask = new CaseTask("https://shop.zbj.com/4696791/sid-983087.html");
 		agent.start();
+
+		CaseTask caseTask = new CaseTask("https://shop.zbj.com/4696791/sid-983087.html");
 		caseTask.setBuildDom();
+		caseTask.addDoneCallback(() -> {
+			System.err.println("Task is really done!");
+		});
 
-		agent.submit(caseTask);
+		ChromeDriverRequester.getInstance().submit(caseTask);
 
-		//ChromeDriverRequester.getInstance().submit(caseTask);  //java.lang.NullPointerException
-
-		caseTask.postProc();
-
+		Thread.sleep(1000000);
 	}
 }

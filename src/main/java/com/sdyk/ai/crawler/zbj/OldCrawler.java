@@ -292,9 +292,11 @@ public class OldCrawler {
 				/**
 				 * 重试逻辑
 				 */
-				if (t.getException() != null) {
+				if (t.getExceptions().size() > 0) {
 
-					logger.error("Fetch Error: {}.", t.getUrl(), t.getException());
+					for(Throwable e : t.getExceptions()) {
+						logger.error("Fetch Error: {}.", t.getUrl(), e);
+					}
 
 					if(t.getRetryCount() < RETRY_LIMIT) {
 						t.addRetryCount();

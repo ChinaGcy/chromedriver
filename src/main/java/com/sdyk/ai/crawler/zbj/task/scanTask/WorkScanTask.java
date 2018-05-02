@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.modelTask.WorkTask;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.openqa.selenium.WebDriver;
 
 import java.net.MalformedURLException;
@@ -39,55 +40,61 @@ public class WorkScanTask extends ScanTask {
 		this.setParam("page", page);
 		this.setParam("userId", userId);
 
-	}
+		this.addDoneCallback(() -> {
+			String src = getResponse().getText();
 
-	public List<Task> postProc() throws Exception {
+			List<Task> tasks = new ArrayList<>();
 
-		String src = getResponse().getText();
+			//http://shop.zbj.com/works/detail-wid-131609.html
+			Pattern pattern = Pattern.compile("https://shop.zbj.com/works/detail-wid-\\d+.html");
+			Matcher matcher = pattern.matcher(src);
+			Pattern pattern_tp = Pattern.compile("https://shop.tianpeng.com/works/detail-wid-\\d+.html");
+			Matcher matcher_tp = pattern_tp.matcher(src);
 
-		List<Task> tasks = new ArrayList<>();
+			List<String> list = new ArrayList<>();
 
-		int page = this.getParamInt("page");
+			while (matcher.find()) {
 
-		String userId = this.getParamString("userId");
+				String new_url = matcher.group();
 
-		//http://shop.zbj.com/works/detail-wid-131609.html
-		Pattern pattern = Pattern.compile("https://shop.zbj.com/works/detail-wid-\\d+.html");
-		Matcher matcher = pattern.matcher(src);
-		Pattern pattern_tp = Pattern.compile("https://shop.tianpeng.com/works/detail-wid-\\d+.html");
-		Matcher matcher_tp = pattern_tp.matcher(src);
-
-		List<String> list = new ArrayList<>();
-
-		while (matcher.find()) {
-
-			String url = matcher.group();
-
-			if(!list.contains(url)) {
-				list.add(url);
-				tasks.add(new WorkTask(url,userId));
+				if(!list.contains(url)) {
+					list.add(url);
+					try {
+						tasks.add(new WorkTask(new_url, userId));
+					} catch (MalformedURLException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		}
 
-		while (matcher_tp.find()) {
+			while (matcher_tp.find()) {
 
-			String url = matcher_tp.group();
+				String new_url = matcher_tp.group();
 
-			if(!list.contains(url)) {
-				list.add(url);
-				tasks.add(new WorkTask(url,userId));
+				if(!list.contains(url)) {
+					list.add(url);
+					try {
+						tasks.add(new WorkTask(new_url, userId));
+					} catch (MalformedURLException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		}
 
-		if (pageTurning("div.pagination > ul > li", page)) {
-			//http://shop.zbj.com/18115303/works-p2.html
-			Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId") + "/works", ++page);
-			if (t != null) {
-				t.setPriority(Priority.HIGH);
-				tasks.add(t);
+			if (pageTurning("div.pagination > ul > li", page)) {
+				//http://shop.zbj.com/18115303/works-p2.html
+				Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId") + "/works", page + 1);
+				if (t != null) {
+					t.setPriority(Priority.HIGH);
+					tasks.add(t);
+				}
 			}
-		}
-		return tasks;
+
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
+		});
+
 	}
 
 }

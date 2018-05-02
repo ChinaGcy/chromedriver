@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
 import one.rewind.txt.DateFormatUtil;
@@ -29,74 +30,74 @@ public class ProjectTask extends Task {
 		super(url);
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
-	}
 
-	/**
-	 * @return
-	 */
-	public List<Task> postProc() {
+		this.addDoneCallback(() -> {
+			String src = getResponse().getText();
 
-		String src = getResponse().getText();
+			Document doc = getResponse().getDoc();
 
-		Document doc = getResponse().getDoc();
+			List<Task> tasks = new ArrayList();
 
-		List<Task> tasks = new ArrayList();
-
-		try {
-			// 初始化 必须传入url 生成主键id
-			project = new Project(getUrl());
-		} catch (MalformedURLException | URISyntaxException e) {
-			logger.error("Error extract url: {}, ", getUrl(), e);
-		}
-
-
-		if (src.contains("操作失败请稍后重试")) {
 			try {
-				tasks.add(new ProjectTask(getUrl()));
-				return tasks;
+				// 初始化 必须传入url 生成主键id
+				project = new Project(getUrl());
 			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error(e);
-			}
-		}
-		// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
-		// A 无法请求页面内容
-		if (pageAccessible(src)) {
-
-			String header;
-			try {
-				// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-				header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
-
-			} catch (NoSuchElementException e) {
-				return tasks;
+				logger.error("Error extract url: {}, ", getUrl(), e);
 			}
 
-			// B1 页面格式1 ：http://task.zbj.com/12954152/
-			if (pageType(header) == PageType.OrderDetail) {
 
-				logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
-
-				pageOne(doc, src, header, tasks);
-
+			if (src.contains("操作失败请稍后重试")) {
 				try {
-					project.insert();
-				} catch (Exception e) {
-					logger.error("insert error for project", e);
+					ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
+					return;
+				} catch (MalformedURLException | URISyntaxException e) {
+					logger.error(e);
 				}
 			}
-			// B2 页面格式2 ：http://task.zbj.com/12954086/
-			else if (pageType(header) == PageType.ReqDetail) {
+			// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
-				pageTwo(doc, header);
+			// A 无法请求页面内容
+			if (pageAccessible(src)) {
 
+				String header;
 				try {
-					project.insert();
-				} catch (Exception e) {
-					logger.error("insert error for project", e);
+					// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
+					header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
+
+				} catch (NoSuchElementException e) {
+					return;
+				}
+
+				// B1 页面格式1 ：http://task.zbj.com/12954152/
+				if (pageType(header) == PageType.OrderDetail) {
+
+					logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
+
+					pageOne(doc, src, header, tasks);
+
+					try {
+						project.insert();
+					} catch (Exception e) {
+						logger.error("insert error for project", e);
+					}
+				}
+				// B2 页面格式2 ：http://task.zbj.com/12954086/
+				else if (pageType(header) == PageType.ReqDetail) {
+
+					pageTwo(doc, header);
+
+					try {
+						project.insert();
+					} catch (Exception e) {
+						logger.error("insert error for project", e);
+					}
 				}
 			}
-		}
-		return tasks;
+
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
+		});
 	}
 
 	/**

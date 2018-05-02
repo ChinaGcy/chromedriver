@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.WebDriver;
 
@@ -44,53 +45,49 @@ public class ServiceScanTask extends ScanTask {
 	public ServiceScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-		this.setParam("page", page);
 		this.setPriority(Priority.HIGH);
-	}
 
-	/**
-	 *
-	 * @return
-	 */
-	public List<Task> postProc() throws Exception {
+		this.addDoneCallback(() -> {
 
-		String src = getResponse().getText();
-		System.err.println("1111......" + src);
+			String src = getResponse().getText();
 
-		Document document = getResponse().getDoc();
+			Document document = getResponse().getDoc();
 
-		System.err.println("2222......" + document);
+			List<Task> tasks = new ArrayList<>();
 
-		List<Task> tasks = new ArrayList<>();
+			Pattern pattern = Pattern.compile("//shop.zbj.com/\\d+/");
+			Matcher matcher = pattern.matcher(src);
 
-		int page = this.getParamInt("page");
+			List<String> list = new ArrayList<>();
 
-		Pattern pattern = Pattern.compile("//shop.zbj.com/\\d+/");
-		Matcher matcher = pattern.matcher(src);
+			while (matcher.find()) {
 
-		List<String> list = new ArrayList<>();
+				String new_url = "https:" + matcher.group();
 
-		while (matcher.find()) {
+				if(!list.contains(new_url)) {
 
-			String url = "https:" + matcher.group();
-
-			if(!list.contains(url)) {
-				System.err.println(url);
-				list.add(url);
-				tasks.add(new ServiceSupplierTask(url));
+					list.add(new_url);
+					try {
+						tasks.add(new ServiceSupplierTask(new_url));
+					} catch (MalformedURLException | URISyntaxException e) {
+						logger.error(e);
+					}
+				}
 			}
-		}
 
-		// 当前页数
-		int i = (page-1)/40+1;
-		// 翻页
-		if (pageTurning("div.pagination > ul > li", i)) {
-			Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40);
-			tasks.add(t);
-		}
+			// 当前页数
+			int i = (page-1)/40+1;
+			// 翻页
+			if (pageTurning("div.pagination > ul > li", i)) {
+				Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40);
+				tasks.add(t);
+			}
 
-		logger.info("Task num: {}", tasks.size());
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
 
-		return tasks;
+			logger.info("Task num: {}", tasks.size());
+		});
 	}
 }

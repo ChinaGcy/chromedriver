@@ -230,12 +230,6 @@ public class Scheduler {
 			task.setBuildDom();
 
 			ChromeDriverRequester.getInstance().submit(task);
-
-			try {
-				task.postProc();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

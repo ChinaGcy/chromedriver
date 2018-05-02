@@ -1,7 +1,9 @@
 package com.sdyk.ai.crawler.zbj.task;
 
+import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.zbj.util.BinaryDownloader;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
+import one.rewind.db.DBName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -14,7 +16,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public abstract class Task extends one.rewind.io.requester.Task {
+@DBName(value = "crawler")
+@DatabaseTable(tableName = "tasks")
+public class Task extends one.rewind.io.requester.Task {
 
 	public static final Logger logger = LogManager.getLogger(Task.class.getName());
 

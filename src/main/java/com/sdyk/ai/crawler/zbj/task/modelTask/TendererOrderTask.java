@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
@@ -40,40 +41,45 @@ public class TendererOrderTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("webId", webId);
-	}
 
-	public List<Task> postProc() throws ParseException, MalformedURLException, URISyntaxException {
+		this.addDoneCallback(() -> {
+			String src = getResponse().getText();
+			List<Task> tasks = new ArrayList<>();
+			Document doc = getResponse().getDoc();
 
-		String src = getResponse().getText();
-		List<Task> tasks = new ArrayList<>();
-		Document doc = getResponse().getDoc();
+			int op_page = this.getParamInt("page");
 
-		int op_page = this.getParamInt("page");
+			Pattern pattern = Pattern.compile("<div class=\"order-item-content\"><div class=\"order-item-title\"><a href=\"(?<T>.+?)\" target=\"_blank\">");
+			Matcher matcher = pattern.matcher(src.replaceAll(">\\s+<", "><"));
 
-		Pattern pattern = Pattern.compile("<div class=\"order-item-content\"><div class=\"order-item-title\"><a href=\"(?<T>.+?)\" target=\"_blank\">");
-		Matcher matcher = pattern.matcher(src.replaceAll(">\\s+<", "><"));
+			List<String> list = new ArrayList<>();
 
-		List<String> list = new ArrayList<>();
+			while (matcher.find()) {
 
-		while (matcher.find()) {
-
-			String url = matcher.group("T") + "/";
-			if(!list.contains(url)) {
-				list.add(url);
-				tasks.add(new ProjectTask(url));
+				String new_url = matcher.group("T") + "/";
+				if(!list.contains(new_url)) {
+					list.add(new_url);
+					try {
+						tasks.add(new ProjectTask(new_url));
+					} catch (MalformedURLException | URISyntaxException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		}
-		if (pageTurning("#order > div > div.pagination-wrapper > div > ul", op_page)) {
-			// 翻页
-			Task t = generateTask("https://home.zbj.com/"
-					+ this.getParamString("webId"), ++op_page, this.getParamString("webId"));
-			if (t != null) {
-				t.setPriority(Priority.MEDIUM);
-				tasks.add(t);
+			if (pageTurning("#order > div > div.pagination-wrapper > div > ul", op_page)) {
+				// 翻页
+				Task t = generateTask("https://home.zbj.com/"
+						+ this.getParamString("webId"), ++op_page, this.getParamString("webId"));
+				if (t != null) {
+					t.setPriority(Priority.MEDIUM);
+					tasks.add(t);
 
+				}
 			}
-		}
 
-		return tasks;
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
+		});
 	}
 }

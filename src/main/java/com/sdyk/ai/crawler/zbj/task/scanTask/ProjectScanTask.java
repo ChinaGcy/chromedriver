@@ -59,52 +59,52 @@ public class ProjectScanTask extends ScanTask {
 	public ProjectScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-		this.setParam("page", page);
 
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
-	}
 
-	/**
-	 *
-	 * @return
-	 */
-	public List<Task> postProc() throws Exception {
+		this.addDoneCallback(() -> {
 
-		String src = getResponse().getText();
-		System.err.println("1111......" + src);
+			String src = getResponse().getText();
 
-		Document document = getResponse().getDoc();
-		System.err.println("2222......" + document);
+			Document document = getResponse().getDoc();
 
-		List<Task> tasks = new ArrayList<>();
+			List<Task> tasks = new ArrayList<>();
 
-		int page = this.getParamInt("page");
+			Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
+			Matcher matcher = pattern.matcher(src);
 
-		Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
-		Matcher matcher = pattern.matcher(src);
+			List<String> list = new ArrayList<>();
 
-		List<String> list = new ArrayList<>();
-
-		while (matcher.find()) {
-			String url = matcher.group();
-			// 去重
-			if(!list.contains(url)) {
-				System.err.println(url);
-				list.add(url);
-				tasks.add(new ProjectTask("https://"+url));
+			while (matcher.find()) {
+				String new_url = matcher.group();
+				// 去重
+				if(!list.contains(new_url)) {
+					list.add(new_url);
+					try {
+						tasks.add(new ProjectTask("https://"+ new_url));
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		}
 
-		if (pageTurning("div.pagination > ul > li",page)) {
-			Task t = generateTask(channel, ++page);
-			if (t != null) {
-				t.setPriority(Priority.HIGH);
-				tasks.add(t);
+			if (pageTurning("div.pagination > ul > li", page)) {
+				Task t = generateTask(channel, page + 1);
+				if (t != null) {
+					t.setPriority(Priority.HIGH);
+					tasks.add(t);
+				}
 			}
-		}
 
-		logger.info("Task num: {}", tasks.size());
-		return tasks;
+			logger.info("Task num: {}", tasks.size());
+
+			for(Task t : tasks) {
+				ChromeDriverRequester.getInstance().submit(t);
+			}
+
+		});
 	}
 }
