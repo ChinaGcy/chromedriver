@@ -72,10 +72,8 @@ public class ProjectScanTask extends ScanTask {
 	public List<Task> postProc() throws Exception {
 
 		String src = getResponse().getText();
-		System.err.println("1111......" + src);
 
 		Document document = getResponse().getDoc();
-		System.err.println("2222......" + document);
 
 		List<Task> tasks = new ArrayList<>();
 

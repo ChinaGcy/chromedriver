@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.zbj.task.modelTask.*;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
@@ -156,9 +157,19 @@ public class JsoupText {
 
 		agent.submit(caseTask);
 
-		//ChromeDriverRequester.getInstance().submit(caseTask);  //java.lang.NullPointerException
+		//ChromeDriverRequester.getInstance().submit(caseTask);  //java.lang.NullPointerException 获取页面信息为空
 
 		caseTask.postProc();
 
+	}
+
+	@Test
+	public void ScanTest() throws Exception {
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		agent.start();
+		ProjectScanTask task = new ProjectScanTask("https://task.zbj.com/p2s5.html",2);
+		task.setBuildDom();
+		agent.submit(task);
+		task.postProc();
 	}
 }

@@ -202,6 +202,7 @@ public class Scheduler {
 
 		for(String channel : project_channels) {
 			ScanTask t = ProjectScanTask.generateTask(channel, 1);
+			t.setBuildDom();
 			t.backtrace = backtrace;
 			tasks.add(t);
 			System.out.println("PROJECT:" + channel);
@@ -222,14 +223,15 @@ public class Scheduler {
 	/**
 	 * 获取历史数据
 	 */
-	public void getHistoricalData() {
+	public void getHistoricalData() throws InterruptedException, ChromeDriverException.IllegalStatusException {
 
 		// 需求
 		for (Task task : getTask(true)) {
 
-			task.setBuildDom();
 
-			ChromeDriverRequester.getInstance().submit(task);
+			//ChromeDriverRequester.getInstance().idleAgentQueue.take().submit(task);
+
+			ChromeDriverRequester.getInstance().submit(task); // 出错 java.lang.NullPointerException 获取页面信息为空
 
 			try {
 				task.postProc();
@@ -271,7 +273,7 @@ public class Scheduler {
 	 *
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ChromeDriverException.IllegalStatusException, InterruptedException {
 		int i = 1;
 
 		if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {

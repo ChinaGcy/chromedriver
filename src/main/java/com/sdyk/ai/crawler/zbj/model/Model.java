@@ -99,10 +99,8 @@ public abstract class Model implements JSONable<Model> {
 			dao.create(this);
 			return true;
 		} catch (SQLException e) {
-			System.out.println("update data !");
 			try {
 				dao.update(this);
-				System.out.println("OK!");
 				return true;
 			} catch (SQLException e1) {
 				logger.error("insert update error {}", e1);
