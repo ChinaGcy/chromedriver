@@ -73,7 +73,7 @@ public class Scheduler {
 
 	// 服务商频道参数
 	public static String[] service_supplier_channels = {
-			"pxfw",
+			/*"pxfw",
 			"consult",
 			"paperwork",
 			"ppsj",
@@ -92,7 +92,7 @@ public class Scheduler {
 			"wxptkf",
 			"dianlu",
 			"xxtg",
-			"yxtg",
+			"yxtg"*/
 	};
 
 	/**
@@ -112,9 +112,9 @@ public class Scheduler {
 			// 删除所有docker container
 			DockerHostManager.getInstance().delAllDockerContainers();
 
-
 			// 创建 container
 			DockerHostManager.getInstance().createDockerContainers(driverCount);
+
 			// 读取全部有效账户 N个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 
@@ -159,7 +159,8 @@ public class Scheduler {
 
 					DockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
-					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
+					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
+					// ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
 
 					// agent 添加异常回调
 					agent.addAccountFailedCallback(()->{
@@ -248,6 +249,8 @@ public class Scheduler {
 				public void run() {
 
 					for (Task task : getTask(false)) {
+
+						task.setBuildDom();
 						ChromeDriverRequester.getInstance().submit(task);
 					}
 				}
