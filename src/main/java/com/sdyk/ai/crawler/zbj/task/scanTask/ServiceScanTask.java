@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.WebDriver;
 
 import java.net.MalformedURLException;
@@ -54,6 +55,11 @@ public class ServiceScanTask extends ScanTask {
 	public List<Task> postProc() throws Exception {
 
 		String src = getResponse().getText();
+		System.err.println("1111......" + src);
+
+		Document document = getResponse().getDoc();
+
+		System.err.println("2222......" + document);
 
 		List<Task> tasks = new ArrayList<>();
 
@@ -69,6 +75,7 @@ public class ServiceScanTask extends ScanTask {
 			String url = "https:" + matcher.group();
 
 			if(!list.contains(url)) {
+				System.err.println(url);
 				list.add(url);
 				tasks.add(new ServiceSupplierTask(url));
 			}

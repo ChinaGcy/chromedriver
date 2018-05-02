@@ -227,7 +227,14 @@ public class Scheduler {
 
 		// 需求
 		for (Task task : getTask(true)) {
+
+			task.setBuildDom();
 			ChromeDriverRequester.getInstance().submit(task);
+			try {
+				task.postProc();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

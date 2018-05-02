@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import org.jsoup.nodes.Document;
 import org.openqa.selenium.WebDriver;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 
@@ -71,6 +72,10 @@ public class ProjectScanTask extends ScanTask {
 	public List<Task> postProc() throws Exception {
 
 		String src = getResponse().getText();
+		System.err.println("1111......" + src);
+
+		Document document = getResponse().getDoc();
+		System.err.println("2222......" + document);
 
 		List<Task> tasks = new ArrayList<>();
 
@@ -85,6 +90,7 @@ public class ProjectScanTask extends ScanTask {
 			String url = matcher.group();
 			// 去重
 			if(!list.contains(url)) {
+				System.err.println(url);
 				list.add(url);
 				tasks.add(new ProjectTask("https://"+url));
 			}

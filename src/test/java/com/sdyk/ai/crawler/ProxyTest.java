@@ -1,6 +1,8 @@
 package com.sdyk.ai.crawler;
 
 import com.j256.ormlite.dao.Dao;
+import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
+import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import one.rewind.db.DaoManager;
 import one.rewind.io.requester.proxy.Proxy;
@@ -51,5 +53,14 @@ public class ProxyTest {
 
 		/*ProxyImpl proxy = (ProxyImpl) ProxyManager.getInstance().getProxyById("1");
 		System.err.println("Proxy " + proxy.getInfo() + " to " + url + "\t" + proxy.testSpeed(url) + " KB/s.");*/
+	}
+
+	@Test
+	public void queue() throws Exception {
+		ProxyManager proxyManager =ProxyManager.getInstance();
+		ProxyImpl proxy = proxyManager.getValidProxy("aliyun");
+
+		System.err.println(proxy.toJSON());
+
 	}
 }
