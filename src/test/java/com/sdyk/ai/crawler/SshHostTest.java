@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler;
 
-import one.rewind.io.SshManager;
+import one.rewind.io.ssh.SshManager;
 import org.junit.Test;
 
 import java.io.File;

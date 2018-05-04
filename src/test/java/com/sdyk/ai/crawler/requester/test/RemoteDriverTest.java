@@ -2,13 +2,13 @@ package com.sdyk.ai.crawler.requester.test;
 
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import net.lightbody.bmp.BrowserMobProxyServer;
-import one.rewind.io.SshManager;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.proxy.ProxyImpl;
+import one.rewind.io.ssh.SshManager;
 import org.junit.Test;
 
 import java.net.URL;
@@ -78,7 +78,7 @@ public class RemoteDriverTest {
 
 		final Proxy proxy = new ProxyImpl("114.215.70.14", 59998, "tfelab", "TfeLAB2@15");
 		final URL remoteAddress = new URL("http://10.0.0.56:4444/wd/hub");
-		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, proxy);
+		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress,null,proxy);
 		agent.start();
 
 		System.err.println(ChromeDriverRequester.REQUESTER_LOCAL_IP + ":" + agent.bmProxy_port);
@@ -109,7 +109,7 @@ public class RemoteDriverTest {
 			new Thread(() -> {
 				try {
 
-					ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, proxy);
+					ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, null, proxy);
 					//ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress);
 
 					requester.addAgent(agent);

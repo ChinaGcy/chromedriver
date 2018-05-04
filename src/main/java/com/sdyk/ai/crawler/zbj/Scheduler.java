@@ -3,7 +3,6 @@ package com.sdyk.ai.crawler.zbj;
 import com.sdyk.ai.crawler.zbj.account.AccountManager;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 import com.sdyk.ai.crawler.zbj.account.model.AccountImpl;
-import com.sdyk.ai.crawler.zbj.docker.model.DockerContainer;
 import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
@@ -12,6 +11,7 @@ import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
+import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
@@ -160,10 +160,10 @@ public class Scheduler {
 
 					task.addAction(new LoginWithGeetestAction(account));
 
-					DockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+					ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
 					//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
-					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
+					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy);
 
 					// agent 添加异常回调
 					agent.addAccountFailedCallback(()->{

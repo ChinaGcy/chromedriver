@@ -110,7 +110,7 @@ public class MouseMovementTest {
 
 		new MouseEventSimulator(
 				MouseEventModeler.loadData("mouse_movements/1521357776022_6a62fed3-55ad-44d6-8ce8-205c6514dc9b.txt")
-		).simulate(100);
+		);
 	}
 
 }

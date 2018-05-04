@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.zbj.Scheduler;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
-import com.sdyk.ai.crawler.zbj.docker.model.DockerHost;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import org.junit.Test;
@@ -12,7 +12,7 @@ public class SchedulerTest {
 	@Test
 	public void test() throws Exception {
 
-		DockerHost host = DockerHostManager.getInstance().getHostByIp("10.0.0.62");
+		DockerHostImpl host = DockerHostManager.getInstance().getHostByIp("10.0.0.62");
 		DockerHostManager.getInstance().delAllDockerContainers(host);
 
 		ProxyManager.getInstance().deleteProxyByGroup(AliyunHost.Proxy_Group_Name);

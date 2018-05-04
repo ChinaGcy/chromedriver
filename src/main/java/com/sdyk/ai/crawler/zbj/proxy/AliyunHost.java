@@ -12,7 +12,7 @@ import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.typesafe.config.Config;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
-import one.rewind.io.SshManager;
+import one.rewind.io.ssh.SshManager;
 import one.rewind.util.Configs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -231,26 +231,15 @@ public class AliyunHost {
 	}
 
 	/**
-	 *
+	 * TODO 应该确认连接成功
 	 * @throws IOException
 	 */
 	private void buildSshHost(int i) throws IOException {
 		if (i > 4){
 			throw new IOException();
 		}
-		try {
-			ssh_host = new SshManager.Host(host, port, user, passwd);
-			ssh_host.connect();
-		} catch (IOException e) {
-
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-			++i;
-			this.buildSshHost(i);
-		}
+		ssh_host = new SshManager.Host(host, port, user, passwd);
+		ssh_host.connect();
 
 	}
 

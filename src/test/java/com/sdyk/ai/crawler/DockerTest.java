@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.zbj.Scheduler;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import one.rewind.db.Refacter;
 import org.junit.Test;
@@ -9,7 +10,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-import com.sdyk.ai.crawler.zbj.docker.model.DockerHost;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 
 import java.net.URL;
@@ -41,7 +41,7 @@ public class DockerTest {
 
 	@Test
 	public void createDockerDB() throws Exception {
-		Refacter.createTable(DockerHost.class);
+		Refacter.createTable(DockerHostImpl.class);
 	}
 
 

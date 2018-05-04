@@ -1,8 +1,8 @@
 package com.sdyk.ai.crawler.zbj.docker;
 
 import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.zbj.docker.model.DockerContainer;
-import com.sdyk.ai.crawler.zbj.docker.model.DockerHost;
+import com.sdyk.ai.crawler.zbj.docker.model.ChromeDriverDockerContainerImpl;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import com.typesafe.config.Config;
 import one.rewind.db.DaoManager;
 import one.rewind.util.Configs;
@@ -20,19 +20,6 @@ import static one.rewind.db.RedissonAdapter.redisson;
 public class DockerHostManager {
 
 	public static final Logger logger = LogManager.getLogger(DockerHostManager.class.getName());
-
-	public static File PEM_FILE;
-	public static int MAX_CONTAINER_NUM = 40;
-	private static int SELENIUM_BEGIN_PORT = 31000;
-	private static int VNC_BEGIN_PORT = 32000;
-
-	static {
-		Config config = Configs.getConfig(DockerHostManager.class);
-		PEM_FILE = new File(config.getString("privateKey"));
-		MAX_CONTAINER_NUM = config.getInt("maxContainerNum");
-		SELENIUM_BEGIN_PORT = config.getInt("seleniumBeginPort");
-		VNC_BEGIN_PORT = config.getInt("vncBeginPort");
-	}
 
 	protected static DockerHostManager instance;
 
@@ -65,10 +52,10 @@ public class DockerHostManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public DockerHost getHostByIp(String ip) throws Exception {
+	public DockerHostImpl getHostByIp(String ip) throws Exception {
 
-		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
-		DockerHost host = dao.queryBuilder().where().eq("ip", ip).queryForFirst();
+		Dao<DockerHostImpl, String> dao = DaoManager.getDao(DockerHostImpl.class);
+		DockerHostImpl host = dao.queryBuilder().where().eq("ip", ip).queryForFirst();
 		return host;
 	}
 
@@ -77,12 +64,12 @@ public class DockerHostManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public DockerContainer getFreeContainer() throws Exception {
+	public ChromeDriverDockerContainerImpl getFreeContainer() throws Exception {
 
 		lock.lock(10, TimeUnit.SECONDS);
-		Dao<DockerContainer, String> dao = DaoManager.getDao(DockerContainer.class);
-		DockerContainer container = dao.queryBuilder()
-				.where().eq("status", DockerContainer.Status.IDLE)
+		Dao<ChromeDriverDockerContainerImpl, String> dao = DaoManager.getDao(ChromeDriverDockerContainerImpl.class);
+		ChromeDriverDockerContainerImpl container = dao.queryBuilder()
+				.where().eq("status", ChromeDriverDockerContainerImpl.Status.IDLE)
 				.queryForFirst();
 
 		if(container != null) {
@@ -98,12 +85,12 @@ public class DockerHostManager {
 	 * @return
 	 * @throws Exception
 	 */
-	private DockerHost getMinLoadHost() throws Exception {
+	private DockerHostImpl getMinLoadHost() throws Exception {
 
-		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
-		DockerHost host = dao.queryBuilder()
+		Dao<DockerHostImpl, String> dao = DaoManager.getDao(DockerHostImpl.class);
+		DockerHostImpl host = dao.queryBuilder()
 				.orderBy("container_num", true)
-				.where().eq("status", DockerHost.Status.RUNNING)
+				.where().eq("status", DockerHostImpl.Status.RUNNING)
 				.queryForFirst();
 
 		return host;
@@ -122,7 +109,7 @@ public class DockerHostManager {
 
 			new Thread(()->{
 
-				DockerHost host = null;
+				DockerHostImpl host = null;
 
 				try {
 					host = getMinLoadHost();
@@ -133,7 +120,7 @@ public class DockerHostManager {
 				if(host != null) {
 
 					try {
-						createDockerContainer(host);
+						host.createChromeDriverDockerContainer();
 						done.countDown();
 
 					} catch (Exception e) {
@@ -151,43 +138,12 @@ public class DockerHostManager {
 	}
 
 	/**
-	 *
-	 * @param dockerHost
-	 * @return
-	 * @throws Exception
-	 */
-	private void createDockerContainer(DockerHost dockerHost) throws Exception {
-
-		DockerContainer container = null;
-
-		int currentContainerNum = dockerHost.addContainerNum();
-
-		int seleniumPort = (SELENIUM_BEGIN_PORT + currentContainerNum);
-		int vncPort = (VNC_BEGIN_PORT + currentContainerNum);
-		String containerName = "ChromeContainer-" + dockerHost.ip + "-" + currentContainerNum;
-
-		String cmd = "docker run -d --name " + containerName + " -p "+seleniumPort+":4444 -p "+vncPort+":5900 -e SCREEN_WIDTH=\"1360\" -e SCREEN_HEIGHT=\"768\" -e SCREEN_DEPTH=\"24\" selenium/standalone-chrome-debug";
-
-		String output = null;
-
-		output = dockerHost.exec(cmd);
-
-		// TODO 检验output 确定container创建成功
-		logger.info(output);
-		container = new DockerContainer(dockerHost.ip, containerName, seleniumPort, vncPort);
-
-		container.insert();
-		// 设置状态
-		container.setIdle();
-	}
-
-	/**
 	 * TODO 增加DockerContainer delete方法
 	 * 删除所有容器
 	 * @param dockerHost
 	 * @throws Exception
 	 */
-	public void delAllDockerContainers(DockerHost dockerHost) {
+	public void delAllDockerContainers(DockerHostImpl dockerHost) {
 
 		String cmd = "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)\n";
 
@@ -202,12 +158,18 @@ public class DockerHostManager {
 	 */
 	public void delAllDockerContainers() throws Exception {
 
-		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
+		Dao<DockerHostImpl, String> dao = DaoManager.getDao(DockerHostImpl.class);
 
 		dao.queryForAll().stream().forEach(host -> {
 			delAllDockerContainers(host);
 		});
 
-		new DockerContainer().deleteAll();
+		DaoManager.getDao(ChromeDriverDockerContainerImpl.class).queryForAll().stream().forEach(c -> {
+			try {
+				c.delete();
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		});
 	}
 }
