@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
@@ -17,6 +18,8 @@ import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.apache.logging.log4j.LogManager;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +51,7 @@ public class Scheduler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-			"t-pxfw",
+			"t-pxfw"/*,
 			"t-consult",
 			"t-paperwork",
 			"t-ppsj",
@@ -67,7 +70,7 @@ public class Scheduler {
 			"t-wxptkf",
 			"t-dianlu",
 			"t-xxtg",
-			"t-yxtg",
+			"t-yxtg",*/
 
 	};
 
@@ -159,8 +162,8 @@ public class Scheduler {
 
 					DockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
-					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
-					// ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
+					//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
+					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), proxy);
 
 					// agent 添加异常回调
 					agent.addAccountFailedCallback(()->{
@@ -203,6 +206,7 @@ public class Scheduler {
 
 		for(String channel : project_channels) {
 			ScanTask t = ProjectScanTask.generateTask(channel, 1);
+			t.setBuildDom();
 			t.backtrace = backtrace;
 			tasks.add(t);
 			System.out.println("PROJECT:" + channel);
@@ -211,6 +215,7 @@ public class Scheduler {
 		if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
 				ScanTask t = ServiceScanTask.generateTask(channel, 1);
+				t.setBuildDom();
 				t.backtrace = backtrace;
 				tasks.add(t);
 				System.out.println("SERVICE:" + channel);
@@ -228,10 +233,15 @@ public class Scheduler {
 		// 需求
 		for (Task task : getTask(true)) {
 
-			task.setBuildDom();
-
 			ChromeDriverRequester.getInstance().submit(task);
+
 		}
+		try {
+			Thread.sleep(100000000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	/**

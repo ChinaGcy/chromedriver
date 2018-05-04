@@ -146,9 +146,9 @@ public class JsoupText {
 
 		CaseTask caseTask = new CaseTask("https://shop.zbj.com/4696791/sid-983087.html");
 		caseTask.setBuildDom();
-		caseTask.addDoneCallback(() -> {
+		/*caseTask.addDoneCallback(() -> {
 			System.err.println("Task is really done!");
-		});
+		});*/
 
 		ChromeDriverRequester.getInstance().submit(caseTask);
 

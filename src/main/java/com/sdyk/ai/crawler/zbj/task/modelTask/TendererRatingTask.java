@@ -82,6 +82,7 @@ public class TendererRatingTask extends ScanTask {
 			}
 
 			for(Task t : tasks) {
+				t.setBuildDom();
 				ChromeDriverRequester.getInstance().submit(t);
 			}
 		});

@@ -92,6 +92,7 @@ public class TendererTask extends Task {
 			tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.website_id));
 
 			for(Task t : tasks) {
+				t.setBuildDom();
 				ChromeDriverRequester.getInstance().submit(t);
 			}
 		});

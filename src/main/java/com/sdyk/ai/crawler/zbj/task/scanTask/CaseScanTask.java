@@ -70,8 +70,8 @@ public class CaseScanTask extends ScanTask {
 
 				String new_url = matcher.group();
 
-				if(!list.contains(url)) {
-					list.add(url);
+				if(!list.contains(new_url)) {
+					list.add(new_url);
 					try {
 						tasks.add(new CaseTask(new_url));
 					} catch (MalformedURLException | URISyntaxException e) {
@@ -85,8 +85,8 @@ public class CaseScanTask extends ScanTask {
 
 				String new_url = matcher_tp.group();
 
-				if(!list.contains(url)) {
-					list.add(url);
+				if(!list.contains(new_url)) {
+					list.add(new_url);
 					try {
 						tasks.add(new CaseTask(new_url));
 					} catch (MalformedURLException | URISyntaxException e) {
