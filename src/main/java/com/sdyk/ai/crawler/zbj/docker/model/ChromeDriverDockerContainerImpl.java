@@ -24,6 +24,8 @@ import java.util.Date;
 @DatabaseTable(tableName = "docker_containers")
 public class ChromeDriverDockerContainerImpl extends ChromeDriverDockerContainer{
 
+	public ChromeDriverDockerContainerImpl() {}
+
 	public ChromeDriverDockerContainerImpl(DockerHost dockerHost, String containerName, int seleniumPort, int vncPort) {
 		super(dockerHost, containerName, seleniumPort, vncPort);
 	}

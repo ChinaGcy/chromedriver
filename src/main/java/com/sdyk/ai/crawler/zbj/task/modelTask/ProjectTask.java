@@ -4,9 +4,11 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
 import one.rewind.txt.DateFormatUtil;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -28,18 +30,19 @@ public class ProjectTask extends Task {
 
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+		this.setBuildDom();
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback(() -> {
 
 			String src = getResponse().getText();
-
 			Document doc = getResponse().getDoc();
+
+			FileUtil.writeBytesToFile(doc.text().getBytes(), "project.html");
 
 			List<Task> tasks = new ArrayList();
 
-			System.err.println("11111");
 			try {
 				// 初始化 必须传入url 生成主键id
 				project = new Project(getUrl());
@@ -47,7 +50,6 @@ public class ProjectTask extends Task {
 				logger.error("Error extract url: {}, ", getUrl(), e);
 			}
 
-			System.err.println("2222");
 			if (src.contains("操作失败请稍后重试")) {
 				try {
 					ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
@@ -63,24 +65,21 @@ public class ProjectTask extends Task {
 
 				String header;
 				try {
-					System.err.println("33333333");
 					// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
 					header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
 
 				} catch (NoSuchElementException e) {
+					logger.error(e);
 					return;
 				}
 
-				System.err.println("33333");
 				// B1 页面格式1 ：http://task.zbj.com/12954152/
 				if (pageType(header) == PageType.OrderDetail) {
 
 					logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
 
 					pageOne(doc, src, header, tasks);
-					System.err.println("4444");
 					try {
-						System.err.println(project.toJSON());
 						project.insert();
 					} catch (Exception e) {
 						logger.error("insert error for project", e);
@@ -90,9 +89,7 @@ public class ProjectTask extends Task {
 				else if (pageType(header) == PageType.ReqDetail) {
 
 					pageTwo(doc, header);
-					System.err.println("55555");
 					try {
-						System.err.println(project.toJSON());
 						project.insert();
 					} catch (Exception e) {
 						logger.error("insert error for project", e);
@@ -117,8 +114,8 @@ public class ProjectTask extends Task {
 	 */
 	public boolean pageAccessible(String src) {
 
-		String reg = "(无法|无权|不能|暂不能在网页|该任务仅限雇主和参与服务商)查看"/* +
-				"|参数校验错误"*/;
+		String reg = "(无法|无权|不能|暂不能在网页|该任务仅限雇主和参与服务商)查看" +
+				"|参数校验错误";
 		Pattern pattern = Pattern.compile(reg);
 		Matcher matcher = pattern.matcher(src);
 		if(matcher.find()) {
@@ -365,7 +362,7 @@ public class ProjectTask extends Task {
 		project.area = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
 				.text();
 		project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
-				.text();
+				.text().replace("来自：", "");
 
 		// 预算处理
 		try {

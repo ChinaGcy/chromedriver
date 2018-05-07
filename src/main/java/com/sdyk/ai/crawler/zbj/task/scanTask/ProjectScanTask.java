@@ -67,8 +67,6 @@ public class ProjectScanTask extends ScanTask {
 
 			String src = getResponse().getText();
 
-			Document document = getResponse().getDoc();
-
 			List<Task> tasks = new ArrayList<>();
 
 			Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
@@ -94,6 +92,7 @@ public class ProjectScanTask extends ScanTask {
 			if (pageTurning("div.pagination > ul > li", page)) {
 				Task t = generateTask(channel, page + 1);
 				if (t != null) {
+					t.setBuildDom();
 					t.setPriority(Priority.HIGH);
 					tasks.add(t);
 				}

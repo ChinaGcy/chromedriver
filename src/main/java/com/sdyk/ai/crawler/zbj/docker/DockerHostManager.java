@@ -3,14 +3,12 @@ package com.sdyk.ai.crawler.zbj.docker;
 import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.zbj.docker.model.ChromeDriverDockerContainerImpl;
 import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
-import com.typesafe.config.Config;
 import one.rewind.db.DaoManager;
-import one.rewind.util.Configs;
+import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RLock;
 
-import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -120,7 +118,8 @@ public class DockerHostManager {
 				if(host != null) {
 
 					try {
-						host.createChromeDriverDockerContainer();
+						ChromeDriverDockerContainer container = host.createChromeDriverDockerContainer();
+						container.insert();
 						done.countDown();
 
 					} catch (Exception e) {
