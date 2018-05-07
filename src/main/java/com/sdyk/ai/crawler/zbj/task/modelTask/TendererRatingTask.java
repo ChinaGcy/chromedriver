@@ -44,6 +44,7 @@ public class TendererRatingTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("webId", webId);
+		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 			List<Task> tasks = new ArrayList<>();

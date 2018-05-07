@@ -41,6 +41,7 @@ public class TendererOrderTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("webId", webId);
+		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 			String src = getResponse().getText();

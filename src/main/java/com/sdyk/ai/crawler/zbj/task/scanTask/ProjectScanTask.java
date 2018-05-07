@@ -62,6 +62,7 @@ public class ProjectScanTask extends ScanTask {
 
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
+		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 

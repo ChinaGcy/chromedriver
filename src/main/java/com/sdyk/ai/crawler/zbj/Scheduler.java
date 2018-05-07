@@ -206,7 +206,6 @@ public class Scheduler {
 
 		for(String channel : project_channels) {
 			ScanTask t = ProjectScanTask.generateTask(channel, 1);
-			t.setBuildDom();
 			t.backtrace = backtrace;
 			tasks.add(t);
 			System.out.println("PROJECT:" + channel);
@@ -215,7 +214,6 @@ public class Scheduler {
 		if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
 				ScanTask t = ServiceScanTask.generateTask(channel, 1);
-				t.setBuildDom();
 				t.backtrace = backtrace;
 				tasks.add(t);
 				System.out.println("SERVICE:" + channel);

@@ -28,6 +28,7 @@ public class ServiceSupplierTask extends Task {
 
 		super(url);
 		this.setPriority(Priority.MEDIUM);
+		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 			String src = getResponse().getText();

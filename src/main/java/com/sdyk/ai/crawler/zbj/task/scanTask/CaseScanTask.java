@@ -40,6 +40,7 @@ public class CaseScanTask extends ScanTask {
 	public CaseScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("page", page);
+		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 

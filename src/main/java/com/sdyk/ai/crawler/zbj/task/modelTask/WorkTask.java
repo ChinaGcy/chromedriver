@@ -23,6 +23,7 @@ public class WorkTask extends Task {
 	public WorkTask(String url, String user_id) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("user_id",user_id);
+		this.setBuildDom();
 
 		this.addDoneCallback(()-> {
 			Document doc = getResponse().getDoc();

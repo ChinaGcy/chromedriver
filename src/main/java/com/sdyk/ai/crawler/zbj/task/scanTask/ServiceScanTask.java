@@ -46,6 +46,7 @@ public class ServiceScanTask extends ScanTask {
 
 		super(url);
 		this.setPriority(Priority.HIGH);
+		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 

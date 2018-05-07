@@ -22,11 +22,13 @@ public class TendererTask extends Task {
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setPriority(Priority.MEDIUM);
+		this.setBuildDom();
 
 		this.addDoneCallback(()->{
 
 			Document doc = getResponse().getDoc();
 			String src = getResponse().getText();
+
 			List<Task> tasks = new ArrayList<>();
 
 			Tenderer tenderer = new Tenderer(getUrl());
