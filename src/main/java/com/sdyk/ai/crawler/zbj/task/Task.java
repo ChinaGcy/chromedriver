@@ -25,7 +25,7 @@ public class Task extends one.rewind.io.requester.Task {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
-		StatManager.getInstance().count();
+
 	}
 
 	public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {

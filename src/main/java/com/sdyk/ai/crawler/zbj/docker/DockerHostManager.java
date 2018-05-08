@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.zbj.docker.model.ChromeDriverDockerContainerImpl;
 import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import one.rewind.db.DaoManager;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.docker.model.DockerContainer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RLock;
@@ -71,6 +72,8 @@ public class DockerHostManager {
 				.queryForFirst();
 
 		if(container != null) {
+			// TODO 自定义 ChromeDriverDockerContainerImpl 的反序列化方法 初始化 DockerHostImpl
+			container.host = getHostByIp(container.ip);
 			container.setOccupied();
 		}
 
@@ -160,12 +163,23 @@ public class DockerHostManager {
 		Dao<DockerHostImpl, String> dao = DaoManager.getDao(DockerHostImpl.class);
 
 		dao.queryForAll().stream().forEach(host -> {
+
 			delAllDockerContainers(host);
+
+			try {
+				host.container_num = 0;
+				host.update();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 
 		DaoManager.getDao(ChromeDriverDockerContainerImpl.class).queryForAll().stream().forEach(c -> {
 			try {
+				c.status = DockerContainer.Status.TERMINATED;
+				c.update();
 				c.delete();
+
 			} catch (Exception e) {
 				logger.error(e);
 			}

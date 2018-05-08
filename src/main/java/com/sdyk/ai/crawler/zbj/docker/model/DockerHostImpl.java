@@ -76,7 +76,7 @@ public class DockerHostImpl extends DockerHost {
 
 		lock.lock(10, TimeUnit.SECONDS);
 
-		Dao<DockerHost, String> dao = DaoManager.getDao(DockerHost.class);
+		Dao<DockerHostImpl, String> dao = DaoManager.getDao(DockerHostImpl.class);
 		// 刷新内存数据
 		dao.refresh(this);
 

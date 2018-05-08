@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static spark.route.HttpMethod.get;
 
@@ -51,7 +52,7 @@ public class Scheduler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-			"t-pxfw",
+		/*	"t-pxfw",
 			"t-consult",
 			"t-paperwork",
 			"t-ppsj",
@@ -59,7 +60,7 @@ public class Scheduler {
 			"t-ad",
 			"t-dhsjzbj",
 			"t-video",
-			"t-xcpzzzbj",
+			"t-xcpzzzbj",*/
 			"t-uisheji",
 			"t-rjkf",
 			"t-ydyykf",
@@ -109,6 +110,10 @@ public class Scheduler {
 
 		try {
 
+			logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
+			ChromeDriverRequester.instance = new Requester();
+			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
+
 			// 创建阿里云host
 			//  AliyunHost.batchBuild(driverCount + 2);
 
@@ -121,74 +126,92 @@ public class Scheduler {
 			// 读取全部有效账户 N个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 
+			CountDownLatch latch = new CountDownLatch(accounts.size());
+
 			// 创建N+2个有效代理，并保存到数据库中
 			for(AccountImpl account : accounts) {
 
-				ProxyImpl proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+				Thread thread = new Thread(() -> {
 
-				if(proxy != null) {
+					try {
 
-					proxy.setFailedCallback(()->{
+						ProxyImpl proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
-						if(proxy.source == ProxyImpl.Source.ALIYUN_HOST) {
+						if(proxy != null) {
 
-							AliyunHost aliyunHost = null;
+							proxy.setFailedCallback(()->{
 
-							try {
-								aliyunHost = AliyunHost.getByHost(proxy.host);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
+								if(proxy.source == ProxyImpl.Source.ALIYUN_HOST) {
 
-							if(aliyunHost != null) {
-								aliyunHost.stop();
-							}
+									AliyunHost aliyunHost = null;
 
-							// TODO 删掉该Proxy记录
+									try {
+										aliyunHost = AliyunHost.getByHost(proxy.host);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
 
-							if(ProxyManager.getInstance().getValidProxyNum() < driverCount + 2) {
+									if(aliyunHost != null) {
+										aliyunHost.stop();
+									}
+
+									// TODO 删掉该Proxy记录
+
+									if(ProxyManager.getInstance().getValidProxyNum() < driverCount + 2) {
+										try {
+											AliyunHost.batchBuild(1);
+										} catch (InterruptedException e) {
+											e.printStackTrace();
+										}
+									}
+								}
+							});
+
+							Task task = new Task("https://www.zbj.com");
+
+							task.addAction(new LoginWithGeetestAction(account));
+
+							ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+
+							//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
+							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy);
+
+							// agent 添加异常回调
+							agent.addAccountFailedCallback(()->{
+								logger.info("Account {}:{} failed.", account.domain, account.username);
+							}).addProxyFailedCallback(()->{
+								logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
+							}).addTerminatedCallback(()->{
+								logger.info("Container {} {}:{} failed.", container.name, container.ip, container.vncPort);
+							}).addNewCallback(()->{
 								try {
-									AliyunHost.batchBuild(1);
-								} catch (InterruptedException e) {
+									agent.submit(task, 300000);
+								} catch (ChromeDriverException.IllegalStatusException e) {
 									e.printStackTrace();
 								}
-							}
+							});
+
+							// agent.bmProxy.getClientBindAddress();
+
+							ChromeDriverRequester.getInstance().addAgent(agent);
+
+							agent.start();
+							logger.info("Local Proxy {}:{}", agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);
 						}
-					});
 
-					one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("https://www.zbj.com");
+						latch.countDown();
+					}
+					catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				});
 
-					task.addAction(new LoginWithGeetestAction(account));
-
-					ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
-
-					//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
-					ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy);
-
-					// agent 添加异常回调
-					agent.addAccountFailedCallback(()->{
-						logger.info("Account {}:{} failed.", account.domain, account.username);
-					}).addProxyFailedCallback(()->{
-						logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
-					}).addTerminatedCallback(()->{
-						logger.info("Container {} {}:{} failed.", container.name, container.ip, container.vncPort);
-					}).addNewCallback(()->{
-						try {
-							agent.submit(task);
-						} catch (ChromeDriverException.IllegalStatusException e) {
-							e.printStackTrace();
-						}
-					});
-
-					// agent.bmProxy.getClientBindAddress();
-
-					ChromeDriverRequester.getInstance().addAgent(agent);
-
-					agent.start();
-
-					logger.info("Local Proxy {}:{}", agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);
-				}
+				thread.start();
 			}
+
+			latch.await();
+
+			logger.info("All ChromeDriverAgents are ready.");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -277,6 +300,7 @@ public class Scheduler {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
 		int i = 1;
 
 		if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {

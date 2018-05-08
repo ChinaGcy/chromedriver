@@ -10,6 +10,8 @@ import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.docker.model.DockerHost;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.util.Configs;
 
 import java.io.File;
@@ -24,10 +26,24 @@ import java.util.Date;
 @DatabaseTable(tableName = "docker_containers")
 public class ChromeDriverDockerContainerImpl extends ChromeDriverDockerContainer{
 
-	public ChromeDriverDockerContainerImpl() {}
+	public ChromeDriverDockerContainerImpl() throws Exception {}
 
 	public ChromeDriverDockerContainerImpl(DockerHost dockerHost, String containerName, int seleniumPort, int vncPort) {
 		super(dockerHost, containerName, seleniumPort, vncPort);
+	}
+
+	public String exec(String cmd) {
+
+		String output = "";
+
+		cmd = "docker exec " + name + " /bin/sh -c \"" + cmd + "\"";
+
+		System.err.println(cmd);
+		if(host != null) {
+			output = host.exec(cmd);
+		}
+
+		return output;
 	}
 }
 

@@ -1,9 +1,12 @@
 package com.sdyk.ai.crawler;
 
+import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.zbj.Scheduler;
 import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import one.rewind.db.Refacter;
+import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.ssh.SshManager;
 import org.junit.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -69,6 +72,25 @@ public class DockerTest {
 		Scheduler scheduler = new Scheduler(1);
 
 		Thread.sleep(300000);
+
+	}
+
+	@Test
+	public void delAllContainers() throws Exception {
+
+		DockerHostManager.getInstance().delAllDockerContainers();
+	}
+
+	@Test
+	public void xdotoolTest() throws Exception {
+
+		SshManager.Host host = new SshManager.Host("10.0.0.62", 22, "root", "sdyk315pr");
+
+		host.connect();
+
+		String out = host.exec("docker exec ChromeContainer-10.0.0.62-1 xdotool mousemove 1000,700");
+
+		System.err.println(out);
 
 	}
 
