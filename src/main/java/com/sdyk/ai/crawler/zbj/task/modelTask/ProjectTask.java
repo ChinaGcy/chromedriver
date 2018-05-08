@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.util.StatManager;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -30,6 +31,7 @@ public class ProjectTask extends Task {
 
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+
 		this.setBuildDom();
 		// 设置优先级
 		this.setPriority(Priority.HIGH);

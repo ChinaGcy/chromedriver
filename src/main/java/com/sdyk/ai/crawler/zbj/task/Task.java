@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task;
 
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.zbj.util.BinaryDownloader;
+import com.sdyk.ai.crawler.zbj.util.StatManager;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import one.rewind.db.DBName;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +25,7 @@ public class Task extends one.rewind.io.requester.Task {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+		StatManager.getInstance().count();
 	}
 
 	public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {

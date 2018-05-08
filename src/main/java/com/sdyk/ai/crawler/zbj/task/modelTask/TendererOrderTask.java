@@ -1,7 +1,9 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
+import com.sdyk.ai.crawler.zbj.util.StatManager;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
 
@@ -53,15 +55,14 @@ public class TendererOrderTask extends ScanTask {
 			Pattern pattern = Pattern.compile("<div class=\"order-item-content\"><div class=\"order-item-title\"><a href=\"(?<T>.+?)\" target=\"_blank\">");
 			Matcher matcher = pattern.matcher(src.replaceAll(">\\s+<", "><"));
 
-			List<String> list = new ArrayList<>();
-
 			while (matcher.find()) {
 
 				String new_url = matcher.group("T") + "/";
-				if(!list.contains(new_url)) {
-					list.add(new_url);
+				// 去除重复Task
+				if(!ProjectScanTask.tasks.contains(new_url)) {
 					try {
 						tasks.add(new ProjectTask(new_url));
+
 					} catch (MalformedURLException | URISyntaxException e) {
 						e.printStackTrace();
 					}

@@ -22,6 +22,8 @@ public class ProjectScanTask extends ScanTask {
 
 	private static String channel;
 
+	public static List<Task> tasks = new ArrayList<>();
+
 	/**
 	 * 生成项目翻页采集任务
 	 * @param channel
@@ -73,18 +75,15 @@ public class ProjectScanTask extends ScanTask {
 			Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
 			Matcher matcher = pattern.matcher(src);
 
-			List<String> list = new ArrayList<>();
-
 			while (matcher.find()) {
 				String new_url = matcher.group();
 				// 去重
-				if(!list.contains(new_url)) {
-					list.add(new_url);
+				if(!tasks.contains(new_url)) {
 					try {
 						tasks.add(new ProjectTask("https://"+ new_url));
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-					} catch (URISyntaxException e) {
+						tasks.add(new ProjectTask("https://"+ new_url));
+
+					} catch (MalformedURLException | URISyntaxException e) {
 						e.printStackTrace();
 					}
 				}

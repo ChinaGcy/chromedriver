@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
+import com.sdyk.ai.crawler.zbj.util.StatManager;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
