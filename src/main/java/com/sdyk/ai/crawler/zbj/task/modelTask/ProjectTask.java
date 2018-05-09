@@ -90,8 +90,9 @@ public class ProjectTask extends Task {
 				// B2 页面格式2 ：http://task.zbj.com/12954086/
 				else if (pageType(header) == PageType.ReqDetail) {
 
-					pageTwo(doc, header);
+					pageTwo(doc, header, tasks);
 					try {
+						System.err.println(project.toJSON());
 						project.insert();
 					} catch (Exception e) {
 						logger.error("insert error for project", e);
@@ -337,7 +338,24 @@ public class ProjectTask extends Task {
 	 * 数据采取
 	 * @param head
 	 */
-	public void pageTwo(Document doc, String head) {
+	public void pageTwo(Document doc, String head, List<Task> tasks) {
+
+		String src = doc.head().select("#storage").toString();
+
+		Pattern pattern_name = Pattern.compile("\"buyerName\":.+?\"");
+		Matcher matcher_name = pattern_name.matcher(src);
+		if (matcher_name.find()) {
+			project.tenderer_name = matcher_name.group()
+					.replace("\"buyerName\":\"","")
+					.replace("\"","");
+		}
+		Pattern pattern_id = Pattern.compile("\"buyerId\":.+?,");
+		Matcher matcher_id = pattern_id.matcher(src);
+		if (matcher_id.find()) {
+			project.tenderer_id = matcher_id.group()
+					.replace("\"buyerId\":","")
+					.replace(",","");
+		}
 
 		project.type = head;
 
@@ -400,6 +418,11 @@ public class ProjectTask extends Task {
 		} catch (NoSuchElementException e) {
 			System.err.println("status is null");
 		}
-
+		// 进入雇主页
+		try {
+			tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
+		} catch (MalformedURLException | URISyntaxException e) {
+			logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+		}
 	}
 }

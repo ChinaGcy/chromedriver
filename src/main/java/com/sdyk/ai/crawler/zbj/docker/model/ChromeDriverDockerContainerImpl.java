@@ -38,11 +38,9 @@ public class ChromeDriverDockerContainerImpl extends ChromeDriverDockerContainer
 
 		cmd = "docker exec " + name + " /bin/sh -c \"" + cmd + "\"";
 
-		System.err.println(cmd);
 		if(host != null) {
 			output = host.exec(cmd);
 		}
-
 		return output;
 	}
 }

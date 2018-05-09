@@ -52,7 +52,7 @@ public class Scheduler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-		/*	"t-pxfw",
+			"t-pxfw",
 			"t-consult",
 			"t-paperwork",
 			"t-ppsj",
@@ -60,7 +60,7 @@ public class Scheduler {
 			"t-ad",
 			"t-dhsjzbj",
 			"t-video",
-			"t-xcpzzzbj",*/
+			"t-xcpzzzbj",
 			"t-uisheji",
 			"t-rjkf",
 			"t-ydyykf",
@@ -257,12 +257,6 @@ public class Scheduler {
 			ChromeDriverRequester.getInstance().submit(task);
 
 		}
-		try {
-			Thread.sleep(100000000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	/**
