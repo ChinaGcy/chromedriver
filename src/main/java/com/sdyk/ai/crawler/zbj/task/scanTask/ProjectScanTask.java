@@ -22,7 +22,8 @@ public class ProjectScanTask extends ScanTask {
 
 	private static String channel;
 
-	public static List<Task> tasks = new ArrayList<>();
+	// 去重
+	public static List<String> urls = new ArrayList<>();
 
 	/**
 	 * 生成项目翻页采集任务
@@ -70,7 +71,8 @@ public class ProjectScanTask extends ScanTask {
 
 			String src = getResponse().getText();
 
-			List<Task> tasks = new ArrayList<>();
+			// 生成任务
+			List<Task> task = new ArrayList<>();
 
 			Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
 			Matcher matcher = pattern.matcher(src);
@@ -78,10 +80,10 @@ public class ProjectScanTask extends ScanTask {
 			while (matcher.find()) {
 				String new_url = matcher.group();
 				// 去重
-				if(!tasks.contains(new_url)) {
+				if(!urls.contains(new_url)) {
 					try {
-						tasks.add(new ProjectTask("https://"+ new_url));
-						tasks.add(new ProjectTask("https://"+ new_url));
+						urls.add(new_url);
+						task.add(new ProjectTask("https://"+ new_url));
 
 					} catch (MalformedURLException | URISyntaxException e) {
 						e.printStackTrace();
@@ -94,13 +96,13 @@ public class ProjectScanTask extends ScanTask {
 				if (t != null) {
 					t.setBuildDom();
 					t.setPriority(Priority.HIGH);
-					tasks.add(t);
+					task.add(t);
 				}
 			}
 
-			logger.info("Task num: {}", tasks.size());
+			logger.info("Task num: {}", task.size());
 
-			for(Task t : tasks) {
+			for(Task t : task) {
 				ChromeDriverRequester.getInstance().submit(t);
 			}
 

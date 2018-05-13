@@ -17,6 +17,7 @@ import one.rewind.util.Configs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.plaf.TableHeaderUI;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -160,7 +161,8 @@ public class AliyunHost {
 			// TODO 添加个时间限制，如果时间过长提示
 			while (!aliyun_host.getIpAndPort()) {}
 
-			aliyun_host.buildSshHost(0);
+			// 生成host
+			aliyun_host.buildSshHost();
 
 			return aliyun_host;
 		}
@@ -234,13 +236,8 @@ public class AliyunHost {
 	 * TODO 应该确认连接成功
 	 * @throws IOException
 	 */
-	private void buildSshHost(int i) throws IOException {
-		if (i > 4){
-			throw new IOException();
-		}
+	private void buildSshHost() {
 		ssh_host = new SshManager.Host(host, port, user, passwd);
-		ssh_host.connect();
-
 	}
 
 	/**
@@ -447,7 +444,9 @@ public class AliyunHost {
 		ProxyImpl proxy = null;
 
 		try {
-			//ssh_host.connect();
+
+			Thread.sleep(10000);
+			ssh_host.connect();
 
 			ssh_host.upload("squid.sh", "/root");
 

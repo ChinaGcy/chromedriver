@@ -14,7 +14,12 @@ public class Requester extends ChromeDriverRequester {
 
 	public Requester() {}
 
+
+
+
 	public void submit(Task task) {
+
+
 
 		task.addDoneCallback(() -> {
 			StatManager.getInstance().count();

@@ -1,10 +1,10 @@
 package com.sdyk.ai.crawler;
 
+import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.docker.model.DockerHost;
-import one.rewind.io.requester.Task;
 import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -141,8 +141,34 @@ public class RemoteDriverTest {
 
 		Thread.sleep(10000);
 
-
 	}
 
+	/**
+	 * 每次执行task任务时都会报异常，使chromedriver重新启动，
+	 * 在执行到最后一个task也会重新启动一个chromedriver
+	 * @throws Exception
+	 */
+	@Test
+	public void RemoteChromeDriverTest() throws Exception {
 
+		DockerHost host = new DockerHost("10.0.0.62", 22, "root");
+		host.delAllDockerContainers();
+		ChromeDriverDockerContainer container = host.createChromeDriverDockerContainer();
+		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
+		final URL remoteAddress = container.getRemoteAddress();
+		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container);
+		requester.addAgent(agent);
+
+		agent.start();
+		Task task = new Task("http://www.baidu.com/s");
+
+		for (int i = 0; i < 5; i++) {
+			requester.submit(task);
+		}
+		Thread.sleep(240000);
+	}
+
+	/**
+	 *
+	 */
 }

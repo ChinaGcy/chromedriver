@@ -22,11 +22,24 @@ public class AliyunHostTest {
 	public void connect() throws IOException {
 		SshManager.Host ssh_host = new SshManager.Host("47.106.35.84", 22, "root", "SdYK@315Fr##");
 		ssh_host.connect();
-	}
+}
 
 	@Test
 	public void aliyunHostStart() throws Exception {
 
 		AliyunHost.stopAndDeleteAll();
+	}
+
+	@Test
+	public void crerateHost() throws InterruptedException {
+		AliyunHost.batchBuild(1);
+	}
+
+	@Test
+	public void uploadTest() throws Exception {
+		SshManager.Host host = new SshManager.Host("119.23.246.39", 22,"root","SdYK@315Fr##");
+		host.connect();
+		host.upload("squid.sh", "");
+
 	}
 }

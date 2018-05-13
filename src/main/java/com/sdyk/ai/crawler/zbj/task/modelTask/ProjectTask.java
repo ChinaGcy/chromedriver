@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.zbj.util.StatManager;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
@@ -41,7 +42,8 @@ public class ProjectTask extends Task {
 			String src = getResponse().getText();
 			Document doc = getResponse().getDoc();
 
-			FileUtil.writeBytesToFile(doc.text().getBytes(), "project.html");
+
+			FileUtil.writeBytesToFile(src.getBytes(), "project.html");
 
 			List<Task> tasks = new ArrayList();
 
@@ -66,14 +68,9 @@ public class ProjectTask extends Task {
 			if (pageAccessible(src)) {
 
 				String header;
-				try {
-					// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-					header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
 
-				} catch (NoSuchElementException e) {
-					logger.error(e);
-					return;
-				}
+				// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
+				header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
 
 				// B1 页面格式1 ：http://task.zbj.com/12954152/
 				if (pageType(header) == PageType.OrderDetail) {
@@ -92,7 +89,6 @@ public class ProjectTask extends Task {
 
 					pageTwo(doc, header, tasks);
 					try {
-						System.err.println(project.toJSON());
 						project.insert();
 					} catch (Exception e) {
 						logger.error("insert error for project", e);
@@ -152,29 +148,29 @@ public class ProjectTask extends Task {
 	 */
 	public void projectStateOne(Document doc) {
 
-		try {
-			// 项目状态
-			project.current_status = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > p")
+
+		project.current_status = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > p")
 					.text().split("2")[0];
-		}
-		catch (Exception e) {
-			// 已经完成
+		// 已经完成
+		if (project.current_status == null || project.current_status.equals("")) {
 			project.current_status = "评价";
 		}
+
+
+		// 剩余时间
 		try {
-			try {
-				// 剩余时间
-				project.remaining_time = DateFormatUtil.parseTime(doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > span.taskmode-clock.o-time > em")
-						.text());
+			String time = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > span.taskmode-clock.o-time > em")
+					.text();
+			if (time.equals("") || time == null) {
+				// 无法找到剩余时间
+				project.remaining_time = null;
+			}else {
+				project.remaining_time = DateFormatUtil.parseTime(time);
 			}
-			catch (ParseException e) {
-				logger.error(e);
-			}
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
-		catch (NoSuchElementException e) {
-			// 无法找到剩余时间
-			project.remaining_time = null;
-		}
+
 	}
 
 	/**
@@ -183,35 +179,41 @@ public class ProjectTask extends Task {
 	 */
 	public void projectStateTwo(Document doc) {
 
-		try {
-			// 项目状态
-			project.current_status = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(3)")
+		// 项目状态
+		project.current_status = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(3)")
 					.text();
-		}
-		catch (Exception e) {
-			// 已经完成
+		// 已经完成
+		if (project.current_status == null || project.current_status.equals("")) {
 			project.current_status = "评价";
 		}
-		try {
-			try {
-				// 剩余时间
-				project.remaining_time = DateFormatUtil.parseTime(doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > div.clock.absolute-1 > em")
-						.text());
-			}
-			catch (ParseException e) {
-				logger.error(e);
-			}
-		}
-		catch (NoSuchElementException e) {
-			// 无法找到剩余时间
+
+		String time = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > div.clock.absolute-1 > em")
+				.text();
+		// 无法找到剩余时间
+		if (time == null || time.equals("")) {
 			project.remaining_time = null;
 		}
+		else {
+			// 剩余时间
+			try {
+				project.remaining_time = DateFormatUtil.parseTime(time);
+			} catch (ParseException e) {
+				logger.error("projectTask remaining is error {}", e);
+			}
+		}
 
-		try {
-			project.pubdate = DateFormatUtil.parseTime(doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2) > b")
-					.text());
-		} catch (ParseException e) {
+
+		String pubdate = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(2) > b")
+				.text();
+		if (pubdate == null || pubdate.equals("")) {
 			project.pubdate = null;
+		}
+		else {
+			try {
+				project.pubdate = DateFormatUtil.parseTime(pubdate);
+			} catch (ParseException e) {
+				logger.error("project pubdate is error", e);
+			}
 		}
 	}
 
@@ -247,17 +249,16 @@ public class ProjectTask extends Task {
 		// 1.1 项目已完成
 		if (src.contains("<div class=\"banner-task-summary clearfix\">")) {
 
-			try {
-				project.bidder_num = getInt(
-						"#anytime-back > div.banner-task-summary.clearfix > div.summary-right > h4:nth-child(2) > em:nth-child(2)",
-						"个|名");
-			}
-			catch (NoSuchElementException e) {
+			project.bidder_num = getInt(
+					"#anytime-back > div.banner-task-summary.clearfix > div.summary-right > h4:nth-child(2) > em:nth-child(2)",
+					"个|名");
+
+			if (project.bidder_num == 0) {
 				project.bidder_num = getInt(
 						"body > div.main.task-details > div.main-con.user-page > div.banner-task-summary.clearfix > div.summary-right.clearfix > h4:nth-child(2) > em:nth-child(2)",
 						"个|名");
 			}
-			project.bidder_total_num = project.bidder_num;
+
 		}
 		// 1.2 项目未完成
 		else {
@@ -310,13 +311,17 @@ public class ProjectTask extends Task {
 		project.budget_up = budget[1];
 
 		// 发布时间
-		try {
-			project.pubdate = DateFormatUtil.parseTime(doc.select("#j-receiptcon > span.time").text());
-		}
-		catch (ParseException e) {
-			project.pubdate = null;
-		}
+		String pubdate = doc.select("#j-receiptcon > span.time").text();
 
+		if (pubdate == null || pubdate.equals("")) {
+			project.pubdate = null;
+		}else {
+			try {
+				project.pubdate = DateFormatUtil.parseTime(doc.select("#j-receiptcon > span.time").text());
+			} catch (ParseException e) {
+				logger.error("projectTask one pubdate is bad", e);
+			}
+		}
 		// 获取招标人id
 		getTendererIdName(doc, src);
 
@@ -377,47 +382,37 @@ public class ProjectTask extends Task {
 
 		project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
 
-
 		// 获取地点，来源
-		project.area = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
-				.text();
-		project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
-				.text().replace("来自：", "");
+		if (doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span").size() == 2) {
+			project.area = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+					.text().replace("-"," ");
+			project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
+					.text().replace("来自：", "");
+		}
+		else {
+			project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+					.text().replace("来自：", "");
+		}
 
 		// 预算处理
-		try {
-			double[] budget = StringUtil.budget_all(doc,
-					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe > span:nth-child(1) > b",
-					project.description);
-			project.budget_lb = budget[0];
-			project.budget_up = budget[1];
 
-		}
-		catch (NoSuchElementException e) {
-			project.budget_lb = 0;
-			project.budget_up = 0;
-		}
+		double[] budget = StringUtil.budget_all(doc,
+				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe > span:nth-child(1) > b",
+				project.description);
+		project.budget_lb = budget[0];
+		project.budget_up = budget[1];
 
 		// 项目状态，剩余时间
 		projectStateTwo(doc);
 
 		// 投标总数与投标人数
-		try {
+		project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
+				"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
+		project.bidder_num = StringUtil.getBidderNum(doc,
+				"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
 
-			project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
-					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
-			project.bidder_num = StringUtil.getBidderNum(doc,
-					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
-		}
-		catch (NoSuchElementException e) {
-		}
+		project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
 
-		try {
-			project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
-
-		} catch (NoSuchElementException e) {
-			System.err.println("status is null");
-		}
 		// 进入雇主页
 		try {
 			tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));

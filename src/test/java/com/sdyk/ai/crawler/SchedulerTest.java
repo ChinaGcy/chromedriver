@@ -19,14 +19,14 @@ public class SchedulerTest {
 
 		AliyunHost.stopAndDeleteAll();
 
-		Scheduler scheduler = new Scheduler(1);
+		Scheduler scheduler = new Scheduler();
 		Thread.sleep(6000000);
 
 	}
 
 	@Test
 	public void scheduleTest() {
-		Scheduler.getInstance(1);
+		Scheduler.getInstance();
 		try {
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {

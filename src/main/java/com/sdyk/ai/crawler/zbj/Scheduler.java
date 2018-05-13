@@ -16,6 +16,7 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
 
 import java.net.MalformedURLException;
@@ -33,16 +34,17 @@ public class Scheduler {
 
 	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
+	public static int num = 1;
 
 	protected static Scheduler instance;
 
-	public static Scheduler getInstance(int i) {
+	public static Scheduler getInstance() {
 
 		if (instance == null) {
 
 			synchronized (Scheduler.class) {
 				if (instance == null) {
-					instance = new Scheduler(i);
+					instance = new Scheduler();
 				}
 			}
 		}
@@ -103,10 +105,10 @@ public class Scheduler {
 	 * TODO 初始化ChromeDriverAgent
 	 * 增加Exception Callbacks
 	 */
-	public Scheduler(int i) {
+	public Scheduler() {
 
 		String domain = "zbj.com";
-		int driverCount = i;
+		int driverCount = num;
 
 		try {
 
@@ -135,6 +137,7 @@ public class Scheduler {
 
 					try {
 
+						//ProxyImpl proxy = new ProxyImpl("aliyun", "tpda.cc", 60202, "sdyk", "sdyk","", 1);
 						ProxyImpl proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
 						if(proxy != null) {
@@ -180,7 +183,19 @@ public class Scheduler {
 							agent.addAccountFailedCallback(()->{
 								logger.info("Account {}:{} failed.", account.domain, account.username);
 							}).addProxyFailedCallback(()->{
+
+								// 代理被禁
 								logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
+
+								try {
+									agent.proxy.status = Proxy.Status.INVALID;
+									agent.proxy.update();
+									ProxyImpl p1 = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+									agent.changeProxy(p1);
+
+								} catch (Exception e) {
+									logger.error(e);
+								}
 							}).addTerminatedCallback(()->{
 								logger.info("Container {} {}:{} failed.", container.name, container.ip, container.vncPort);
 							}).addNewCallback(()->{
@@ -295,23 +310,20 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) {
 
-		int i = 1;
-
 		if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {
-			i = Integer.parseInt(args[1]);
+			num = Integer.parseInt(args[1]);
 		}
-		//Scheduler.getInstance();
 
 		if (args.length == 2 && args[0].equals("H")){
 			// 获取历史数据
 			logger.info("历史数据");
-			Scheduler.getInstance(i).getHistoricalData();
+			Scheduler.getInstance().getHistoricalData();
 
 		}
 		else {
 			// 监控数据
 			logger.info("监控数据");
-			Scheduler.getInstance(i).monitor();
+			Scheduler.getInstance().monitor();
 		}
 	}
 

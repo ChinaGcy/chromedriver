@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import one.rewind.db.DaoManager;
 import one.rewind.db.PooledDataSource;
@@ -91,13 +92,14 @@ public class ProxyManager {
 		ProxyImpl proxy = queryBuilder.limit(1L).orderBy("use_cnt", true)
 				.where().eq("group", group)
 				.and().eq("enable", true)
-				.and().eq("status", Proxy.Status.NORMAL)
+				.and().eq("status", Proxy.Status.Free)
 				.queryForFirst();
 
 		if (proxy == null) {
-			throw new Exception("Proxy not available.");
+			throw new NoAvailableProxyException();
 		} else {
 			proxy.use_cnt ++;
+			proxy.status = Proxy.Status.Busy;
 			proxy.update();
 			return proxy;
 		}
@@ -126,7 +128,7 @@ public class ProxyManager {
 
 		try {
 
-			String sql = "SELECT COUNT(*) as num FROM proxies WHERE status = 'NORMAL'";
+			String sql = "SELECT COUNT(*) as num FROM proxies WHERE status = 'Free'";
 
 			conn = PooledDataSource.getDataSource("crawler").getConnection();
 			stmt = conn.createStatement();

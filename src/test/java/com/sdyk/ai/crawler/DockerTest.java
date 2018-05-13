@@ -69,7 +69,7 @@ public class DockerTest {
 		AliyunHost.stopAndDelete(aliyunHosts);
 
 		// 执行登录操作
-		Scheduler scheduler = new Scheduler(1);
+		Scheduler scheduler = new Scheduler();
 
 		Thread.sleep(300000);
 

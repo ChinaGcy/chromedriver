@@ -59,7 +59,7 @@ public class TendererOrderTask extends ScanTask {
 
 				String new_url = matcher.group("T") + "/";
 				// 去除重复Task
-				if(!ProjectScanTask.tasks.contains(new_url)) {
+				if(!ProjectScanTask.urls.contains(new_url)) {
 					try {
 						tasks.add(new ProjectTask(new_url));
 
