@@ -69,6 +69,10 @@ public class AccountManager {
 
 		logger.info("Get {} {} accounts.", domain, accounts.size());
 
+		for (AccountImpl account : accounts) {
+			account.status = Account.Status.Occupied;
+			dao.update(account);
+		}
 		return accounts;
 	}
 }

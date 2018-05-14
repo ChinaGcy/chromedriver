@@ -6,6 +6,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import one.rewind.db.DBName;
 import one.rewind.txt.URLUtil;
 
+import javax.xml.crypto.Data;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -81,6 +82,10 @@ public class Project extends Model {
 	// 采集时刻可投标人数
 	@DatabaseField(dataType = DataType.INTEGER)
 	public int bidder_num = 0;
+
+	// 采集时刻已经投标数
+	@DatabaseField(dataType = DataType.INTEGER)
+	public int bidder_new_num;
 
 	// 招标人ID
 	@DatabaseField(dataType = DataType.STRING, width = 32)

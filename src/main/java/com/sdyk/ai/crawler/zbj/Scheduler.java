@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.zbj;
 import com.sdyk.ai.crawler.zbj.account.AccountManager;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 import com.sdyk.ai.crawler.zbj.account.model.AccountImpl;
+import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
@@ -73,8 +74,7 @@ public class Scheduler {
 			"t-wxptkf",
 			"t-dianlu",
 			"t-xxtg",
-			"t-yxtg",
-
+			"t-yxtg"
 	};
 
 	// 服务商频道参数
@@ -190,7 +190,13 @@ public class Scheduler {
 								try {
 									agent.proxy.status = Proxy.Status.INVALID;
 									agent.proxy.update();
-									ProxyImpl p1 = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+
+									ProxyImpl p1 = null;
+									try {
+										p1 = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+									} catch (NoAvailableProxyException e) {
+										AliyunHost.batchBuild(driverCount);
+									}
 									agent.changeProxy(p1);
 
 								} catch (Exception e) {

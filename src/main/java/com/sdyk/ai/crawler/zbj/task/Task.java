@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.zbj.util.BinaryDownloader;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import one.rewind.db.DBName;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -93,14 +94,14 @@ public class Task extends one.rewind.io.requester.Task {
 	}
 
 
-	/*public one.rewind.io.requester.Task validate() throws ProxyException.Failed {
-		throw new ProxyException.Failed();
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		//throw new ProxyException.Failed();
 
 		//throw new UnreachableBrowserException("chromedriver is bad");
-		*//*if (getResponse().getDoc().title().contains("您的访问存在异常-猪八戒网")) {
+		if (getResponse().getDoc().title().contains("您的访问存在异常-猪八戒网")) {
 			throw new ProxyException.Failed();
 		}
-		return this;*//*
+		return this;
 
-	}*/
+	}
 }

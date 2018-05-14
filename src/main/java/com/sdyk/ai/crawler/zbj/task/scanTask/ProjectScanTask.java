@@ -78,12 +78,12 @@ public class ProjectScanTask extends ScanTask {
 			Matcher matcher = pattern.matcher(src);
 
 			while (matcher.find()) {
-				String new_url = matcher.group();
+				String new_url = "http://" + matcher.group();
 				// 去重
 				if(!urls.contains(new_url)) {
 					try {
 						urls.add(new_url);
-						task.add(new ProjectTask("https://"+ new_url));
+						task.add(new ProjectTask(new_url));
 
 					} catch (MalformedURLException | URISyntaxException e) {
 						e.printStackTrace();

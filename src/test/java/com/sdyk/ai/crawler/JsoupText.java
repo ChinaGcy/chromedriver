@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler;
 
+import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.task.modelTask.*;
 import one.rewind.io.requester.Task;
 import one.rewind.io.requester.account.Account;
@@ -49,7 +50,8 @@ public class JsoupText {
 	public void tendererTest() throws Exception {
 
 		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		ChromeDriverAgent agent = new ChromeDriverAgent(ProxyManager.getInstance().getProxyById("6"));
+		ChromeDriverRequester.getInstance().addAgent(agent);
 		agent.start();
 
 		Task task = new Task("http://www.zbj.com");
@@ -59,9 +61,11 @@ public class JsoupText {
 		task.addAction(action);
 		agent.submit(task);
 
-		TendererTask task1 = new TendererTask("https://home.zbj.com/16120380");
+		TendererTask task1 = new TendererTask("https://home.zbj.com/10407343");
 		task1.setBuildDom();
-		agent.submit(task1);
+		ChromeDriverRequester.getInstance().submit(task1);
+		Thread.sleep(1000000);
+
 	}
 
 	/**

@@ -152,14 +152,21 @@ public class RemoteDriverTest {
 	public void RemoteChromeDriverTest() throws Exception {
 
 		DockerHost host = new DockerHost("10.0.0.62", 22, "root");
+
 		host.delAllDockerContainers();
+
 		ChromeDriverDockerContainer container = host.createChromeDriverDockerContainer();
+
 		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
+
 		final URL remoteAddress = container.getRemoteAddress();
+
 		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container);
+
 		requester.addAgent(agent);
 
 		agent.start();
+
 		Task task = new Task("http://www.baidu.com/s");
 
 		for (int i = 0; i < 5; i++) {

@@ -10,7 +10,7 @@ import java.util.List;
 public class AliyunHostTest {
 
 	@Test
-	public void AliyunHostT() throws Exception {
+	public void AliyunHostTest() throws Exception {
 
 		//Refacter.createTable(AliyunHost.class);
 		AliyunHost aliyunHost = AliyunHost.buildService(AliyunHost.Region.CN_SHENZHEN);

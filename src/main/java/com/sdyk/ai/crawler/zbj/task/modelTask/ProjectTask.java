@@ -267,6 +267,7 @@ public class ProjectTask extends Task {
 				project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
 						"#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(1)");
 
+				//#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(2)
 				project.bidder_num = StringUtil.getBidderNum(doc,
 						"#j-ibid-list > div > div.ibid-total.clearfix > b");
 			}
@@ -412,6 +413,8 @@ public class ProjectTask extends Task {
 				"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
 
 		project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+
+		project.trade_type = "投标";
 
 		// 进入雇主页
 		try {
