@@ -22,7 +22,9 @@ public class CaseTask extends Task {
 	Case ca;
 
 	public CaseTask(String url) throws MalformedURLException, URISyntaxException {
+
 		super(url);
+
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
