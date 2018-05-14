@@ -22,8 +22,6 @@ public class ProjectScanTask extends ScanTask {
 
 	private static String channel;
 
-	// 去重
-	public static List<String> urls = new ArrayList<>();
 
 	/**
 	 * 生成项目翻页采集任务
@@ -79,15 +77,11 @@ public class ProjectScanTask extends ScanTask {
 
 			while (matcher.find()) {
 				String new_url = "http://" + matcher.group();
-				// 去重
-				if(!urls.contains(new_url)) {
-					try {
-						urls.add(new_url);
-						task.add(new ProjectTask(new_url));
 
-					} catch (MalformedURLException | URISyntaxException e) {
-						e.printStackTrace();
-					}
+				try {
+					task.add(new ProjectTask(new_url));
+				} catch (MalformedURLException | URISyntaxException e) {
+					e.printStackTrace();
 				}
 			}
 

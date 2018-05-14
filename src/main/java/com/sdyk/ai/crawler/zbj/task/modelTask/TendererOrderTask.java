@@ -102,38 +102,33 @@ public class TendererOrderTask extends ScanTask {
 
 			System.err.println(url);
 
-			if (!ProjectScanTask.urls.contains(url)) {
+			Project project = new Project(url);
 
-				ProjectScanTask.urls.add(url);
-
-				Project project = new Project(url);
-
-				project.title = element.select("div > div.order-item-title > a").text();
-				project.trade_type = element.select("span.order-item-type").text();
-				try {
-					project.pubdate = DateFormatUtil.parseTime(element.select("div > div.order-item-subinfo > span:nth-child(3)")
-							.text());
-				} catch (ParseException e) {
-					logger.error(e);
-				}
-				project.origin = element.select("div > div.order-item-subinfo > span:nth-child(5)").text();
-				project.bidder_new_num = Integer.parseInt(element.select("div > div.order-item-subinfo > span:nth-child(1)")
-						.text()
-						.split("位")[0]);
-
-				project.budget_up = Double.parseDouble(element.select("#order > div > div.panel-content > ul > li:nth-child(1) > span.order-item-budget.fr > em")
-						.text()
-						.replace("￥", ""));
-				project.budget_lb = project.budget_up;
-
-				project.trade_type = element.select("div > div.order-item-title > span").text();
-
-				System.err.println(project.toJSON());
-
-				project.insert();
-
-				tasks.add(new ProjectTask(url));
+			project.title = element.select("div > div.order-item-title > a").text();
+			project.trade_type = element.select("span.order-item-type").text();
+			try {
+				project.pubdate = DateFormatUtil.parseTime(element.select("div > div.order-item-subinfo > span:nth-child(3)")
+						.text());
+			} catch (ParseException e) {
+				logger.error(e);
 			}
+			project.origin = element.select("div > div.order-item-subinfo > span:nth-child(5)").text();
+			project.bidder_new_num = Integer.parseInt(element.select("div > div.order-item-subinfo > span:nth-child(1)")
+					.text()
+					.split("位")[0]);
+
+			project.budget_up = Double.parseDouble(element.select("#order > div > div.panel-content > ul > li:nth-child(1) > span.order-item-budget.fr > em")
+					.text()
+					.replace("￥", ""));
+			project.budget_lb = project.budget_up;
+
+			project.trade_type = element.select("div > div.order-item-title > span").text();
+
+			System.err.println(project.toJSON());
+
+			project.insert();
+
+			tasks.add(new ProjectTask(url));
 		}
 	}
 }
