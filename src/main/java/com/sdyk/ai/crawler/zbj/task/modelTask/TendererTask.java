@@ -15,12 +15,15 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.sdyk.ai.crawler.zbj.task.modelTask.TendererOrderTask.getSimpleProjectTask;
+
 /**
  * 雇主详情
  */
 public class TendererTask extends Task {
 
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException {
+
 		super(url);
 		this.setPriority(Priority.MEDIUM);
 		this.setBuildDom();
@@ -85,7 +88,7 @@ public class TendererTask extends Task {
 			try {
 				tenderer.insert();
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 
 			// 添加projectTask

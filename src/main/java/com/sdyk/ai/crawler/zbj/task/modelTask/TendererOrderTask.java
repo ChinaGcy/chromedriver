@@ -51,7 +51,7 @@ public class TendererOrderTask extends ScanTask {
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
-			String src = getResponse().getText();
+
 			List<Task> tasks = new ArrayList<>();
 			Document doc = getResponse().getDoc();
 
@@ -59,12 +59,12 @@ public class TendererOrderTask extends ScanTask {
 
 			// 获取历史数据（简略）
 			try {
-				getSimpleProjectTask(doc, tasks);
-			} catch (MalformedURLException | URISyntaxException e) {
+				tasks.addAll(getSimpleProjectTask(doc));
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			if (pageTurning("#order > div > div.pagination-wrapper > div > ul", op_page)) {
+			if (pageTurning("#order > div > div.pagination-wrapper > div > ul >li", op_page)) {
 				// 翻页
 				Task t = generateTask("https://home.zbj.com/"
 						+ this.getParamString("webId"), ++op_page, this.getParamString("webId"));
@@ -72,14 +72,11 @@ public class TendererOrderTask extends ScanTask {
 					t.setPriority(Priority.MEDIUM);
 					t.setBuildDom();
 					tasks.add(t);
-
 				}
 			}
 
 			for(Task t : tasks) {
-
 				t.setBuildDom();
-
 				ChromeDriverRequester.getInstance().submit(t);
 			}
 		});
@@ -88,11 +85,12 @@ public class TendererOrderTask extends ScanTask {
 	/**
 	 * 添加简略project数据，之后更新成为具体数据
 	 * @param doc
-	 * @param tasks
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public void getSimpleProjectTask(Document doc, List<Task> tasks) throws MalformedURLException, URISyntaxException {
+	public static List<Task> getSimpleProjectTask(Document doc) throws Exception {
+
+		List<Task> tasks = new ArrayList<>();
 
 		Elements elements = doc.select("#order > div > div.panel-content > ul > li");
 
@@ -100,35 +98,49 @@ public class TendererOrderTask extends ScanTask {
 
 			String url = element.select("div > div.order-item-title > a").attr("href");
 
-			System.err.println(url);
+			logger.info(url);
 
 			Project project = new Project(url);
 
 			project.title = element.select("div > div.order-item-title > a").text();
-			project.trade_type = element.select("span.order-item-type").text();
-			try {
-				project.pubdate = DateFormatUtil.parseTime(element.select("div > div.order-item-subinfo > span:nth-child(3)")
-						.text());
-			} catch (ParseException e) {
-				logger.error(e);
-			}
-			project.origin = element.select("div > div.order-item-subinfo > span:nth-child(5)").text();
-			project.bidder_new_num = Integer.parseInt(element.select("div > div.order-item-subinfo > span:nth-child(1)")
-					.text()
-					.split("位")[0]);
 
-			project.budget_up = Double.parseDouble(element.select("#order > div > div.panel-content > ul > li:nth-child(1) > span.order-item-budget.fr > em")
-					.text()
-					.replace("￥", ""));
+			project.trade_type = element.select("span.order-item-type").text();
+
+			project.pubdate = DateFormatUtil.parseTime(
+					element.select("div > div.order-item-subinfo > span:nth-child(3)")
+						.text()
+			);
+
+			project.origin = element.select("div > div.order-item-subinfo > span:nth-child(5)").text();
+
+			if (!element.select("div > div.order-item-subinfo > span:nth-child(1)")
+					.text().contains("提供服务")
+					) {
+				project.bidder_new_num = Integer.parseInt(element.select("div > div.order-item-subinfo > span:nth-child(1)")
+						.text()
+						.split("位")[0]);
+			}
+			else{
+				project.bidder_num = 1;
+			}
+
+			try {
+				project.budget_up = Double.parseDouble(element.select("span.order-item-budget.fr > em")
+						.text()
+						.replace("￥", ""));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			project.budget_lb = project.budget_up;
 
 			project.trade_type = element.select("div > div.order-item-title > span").text();
-
-			System.err.println(project.toJSON());
 
 			project.insert();
 
 			tasks.add(new ProjectTask(url));
 		}
+
+		return tasks;
 	}
 }

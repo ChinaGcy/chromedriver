@@ -1,7 +1,16 @@
 package com.sdyk.ai.crawler.zbj.task.test;
 
+import com.sdyk.ai.crawler.zbj.Requester;
+import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.modelTask.TendererTask;
+import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.account.AccountImpl;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.action.ChromeAction;
+import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.proxy.Proxy;
+import org.junit.Before;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
@@ -11,36 +20,41 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class TendererTaskTest {
 
+	@Before
+	public void setup() {
+		Requester.URL_VISITS.clear();
+		ChromeDriverRequester.instance = new Requester();
+		ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
+	}
+
 	/**
-	 *
+	 * 测试tendererTask
 	 * @throws Exception
 	 */
 	@Test
-	public  void TendererTaskTest() throws Exception {
+	public void tendererTest() throws Exception {
 
-		/*PriorityBlockingQueue<Task> queue = new PriorityBlockingQueue<>();
-		Set<String> set = new HashSet<>();
+		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
+		// Proxy proxy = ProxyManager.getInstance().getProxyById("6");
+		// proxy.validate();
 
-		ChromeDriverAgent agent = new ChromeDriverLoginWrapper("zbj.com").login(null,null); //future
-		Thread.sleep(1000);
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		ChromeDriverRequester.getInstance().addAgent(agent);
 
-		TendererTask tendererTask = new TendererTask("http://home.zbj.com/15087337");
+		agent.start();
 
-		queue.add(tendererTask);
+		one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("http://www.zbj.com");
+		ChromeAction action = new LoginWithGeetestAction(account);
+		task.addAction(action);
 
-		while (!queue.isEmpty()) {
-			Task t = queue.poll();
+		ChromeDriverRequester.getInstance().submit(task);
 
-			System.err.println(t.getUrl());
-			if (!set.contains(t.getUrl())) {
-				set.add(t.getUrl());
-				agent.fetch(t);
-				for (Task tt : t.postProc(agent.getDriver())) {
-					queue.add(tt);
-				}
-			}
 
-		}
-		agent.close();*/
+		task = new TendererTask("https://home.zbj.com/10407343");
+		task.setBuildDom();
+		ChromeDriverRequester.getInstance().submit(task);
+
+		Thread.sleep(10000000);
+
 	}
 }

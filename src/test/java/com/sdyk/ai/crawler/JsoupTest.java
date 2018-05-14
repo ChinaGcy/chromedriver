@@ -10,6 +10,7 @@ import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.proxy.Proxy;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
@@ -17,7 +18,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 
 
-public class JsoupText {
+public class JsoupTest {
 
 	/**
 	 * 测试projectTask
@@ -42,31 +43,7 @@ public class JsoupText {
 	}
 
 
-	/**
-	 * 测试tendererTask
-	 * @throws Exception
-	 */
-	@Test
-	public void tendererTest() throws Exception {
 
-		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
-		ChromeDriverAgent agent = new ChromeDriverAgent(ProxyManager.getInstance().getProxyById("6"));
-		ChromeDriverRequester.getInstance().addAgent(agent);
-		agent.start();
-
-		Task task = new Task("http://www.zbj.com");
-		task.setBuildDom();
-		agent.submit(task);
-		ChromeAction action = new LoginWithGeetestAction(account);
-		task.addAction(action);
-		agent.submit(task);
-
-		TendererTask task1 = new TendererTask("https://home.zbj.com/10407343");
-		task1.setBuildDom();
-		ChromeDriverRequester.getInstance().submit(task1);
-		Thread.sleep(1000000);
-
-	}
 
 	/**
 	 * 测试tendererRatingTask
