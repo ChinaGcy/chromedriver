@@ -115,6 +115,8 @@ public class Scheduler {
 	// 初始化方法
 	public void init() {
 
+		Requester.URL_VISITS.clear();
+
 		String domain = "zbj.com";
 		int driverCount = num;
 
@@ -125,7 +127,7 @@ public class Scheduler {
 			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
 
 			// 创建阿里云host
-			//  AliyunHost.batchBuild(driverCount + 2);
+			//AliyunHost.batchBuild(driverCount + 2);
 
 			// 删除所有docker container
 			DockerHostManager.getInstance().delAllDockerContainers();
@@ -201,6 +203,7 @@ public class Scheduler {
 									agent.proxy.failed();
 
 									// 获取一个新的代理服务器地址
+									// TODO 需要设置callback
 									ProxyImpl new_proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 									agent.changeProxy(new_proxy);
 

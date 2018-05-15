@@ -19,10 +19,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class ProxyManager {
 
@@ -50,12 +47,20 @@ public class ProxyManager {
 
 	private ConcurrentHashMap<String, RAtomicLong> lastRequestTime = new ConcurrentHashMap<>();
 
-	private ExecutorService executor;
-
+	private ThreadPoolExecutor executor = new ThreadPoolExecutor(
+			4,
+			4,
+			0, TimeUnit.MICROSECONDS,
+			//new ArrayBlockingQueue<>(20)
+			new LinkedBlockingQueue<>()
+	);
 	private ProxyManager() {
 
-		executor = Executors.newSingleThreadExecutor(
-				new ThreadFactoryBuilder().setNameFormat("ProxyManager-%d").build());
+		executor.setThreadFactory(new ThreadFactoryBuilder()
+				.setNameFormat("ProxyManager-%d").build());
+
+		/*executor = Executors.newSingleThreadExecutor(
+				new ThreadFactoryBuilder().setNameFormat("ProxyManager-%d").build());*/
 	}
 
 	/**
@@ -121,6 +126,10 @@ public class ProxyManager {
 	 */
 	public int getValidProxyNum() {
 
+		/*Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
+		QueryBuilder<ProxyImpl, String> qb = dao.queryBuilder()
+				.where().eq("status", "Free").and().eq("enable", 1);*/
+
 		int num = 0;
 
 		Connection conn = null;
@@ -128,7 +137,7 @@ public class ProxyManager {
 
 		try {
 
-			String sql = "SELECT COUNT(*) as num FROM proxies WHERE status = 'Free'";
+			String sql = "SELECT COUNT(*) as num FROM proxies WHERE status = 'Free' AND enable = 1;";
 
 			conn = PooledDataSource.getDataSource("crawler").getConnection();
 			stmt = conn.createStatement();

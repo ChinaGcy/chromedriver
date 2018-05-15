@@ -1,42 +1,111 @@
 package com.sdyk.ai.crawler.requester.test;
 
+import com.sdyk.ai.crawler.zbj.Requester;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.proxy.Proxy;
+import org.junit.Before;
 import org.junit.Test;
 
-public class ProxyFiledTest {
+public class ProxyFailedTest {
+
+
+	@Before
+	public void buildAliyunHostProxy() throws InterruptedException {
+		/*for(AliyunHost host : AliyunHost.getAll()) {
+			host.stopAndDelete();
+		}*/
+		AliyunHost.batchBuild(4);
+	}
+
 	/**
 	 * 测试代理更换
 	 */
 	@Test
 	public void test() throws Exception {
 
-		ProxyImpl p = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+		ProxyImpl proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
-		ChromeDriverAgent agent = new ChromeDriverAgent(p);
+		proxy.setFailedCallback(()->{
+
+			if(proxy.source == ProxyImpl.Source.ALIYUN_HOST) {
+
+				AliyunHost aliyunHost = null;
+
+				try {
+
+					aliyunHost = AliyunHost.getByHost(proxy.host);
+					aliyunHost.stop();
+
+				} catch (Exception e) {
+					Requester.logger.error("AliyunHost:{} Error, ", proxy.host, e);
+				}
+
+				// 2个Faild 1个Busy 1个Free
+				if(ProxyManager.getInstance().getValidProxyNum() < 2) {
+					try {
+						AliyunHost.batchBuild(2);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+		ChromeDriverAgent agent = new ChromeDriverAgent(proxy);
 		Task task = new Task("https://www.baidu.com/s?wd=ip");
+
+		task.setBuildDom();
 
 		agent.addProxyFailedCallback(() -> {
 
 			try {
-				agent.proxy.status = Proxy.Status.INVALID;
-				agent.proxy.update();
+
+				agent.proxy.failed();
 
 				ProxyImpl p1 = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+
+				//
+				p1.setFailedCallback(()->{
+
+					if(p1.source == ProxyImpl.Source.ALIYUN_HOST) {
+
+						AliyunHost aliyunHost = null;
+
+						try {
+
+							aliyunHost = AliyunHost.getByHost(p1.host);
+							aliyunHost.stop();
+
+						} catch (Exception e) {
+							Requester.logger.error("AliyunHost:{} Error, ", p1.host, e);
+						}
+
+						if(ProxyManager.getInstance().getValidProxyNum() < 2) {
+							try {
+								AliyunHost.batchBuild(2);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+
 				agent.changeProxy(p1);
 			}
 			catch (NoAvailableProxyException e) {
 				System.err.println("No Available Proxy, exit.");
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 				System.exit(0);
 			}
 			catch (Exception e) {

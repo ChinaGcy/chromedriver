@@ -148,7 +148,7 @@ public class AliyunHost {
 
 			AliyunHost aliyun_host = new AliyunHost(serviceId, user, passwd, region_str);
 
-			logger.info("Wait 5s for remote sshHost creating...");
+			logger.info("Wait 10s for remote sshHost creating...");
 			Thread.sleep(10000);
 			logger.info("Wait done.");
 
@@ -159,7 +159,9 @@ public class AliyunHost {
 			logger.info("Wait done.");*/
 
 			// TODO 添加个时间限制，如果时间过长提示
-			while (!aliyun_host.getIpAndPort()) {}
+			while (!aliyun_host.getIpAndPort()) {
+				Thread.sleep(5000);
+			}
 
 			// 生成host
 			aliyun_host.buildSshHost();
@@ -190,10 +192,12 @@ public class AliyunHost {
 					AliyunHost aliyunHost = AliyunHost.buildService(Region.CN_SHENZHEN);
 
 					if(aliyunHost != null) {
+
 						aliyunHost.insert();
 
 						ProxyImpl proxy = aliyunHost.createSquidProxy();
 						proxy.insert();
+						logger.info("New proxy[AliyunHost] {}:{}", proxy.getHost(), proxy.getPort());
 					}
 
 				} catch (Exception e) {
@@ -228,6 +232,7 @@ public class AliyunHost {
 			this.port = 22;
 			return true;
 		} catch (Exception e) {
+			logger.info(e);
 			return false;
 		}
 	}
@@ -265,6 +270,13 @@ public class AliyunHost {
 	 */
 	public boolean stop() {
 
+		this.status = Status.STOPPING;
+		try {
+			this.update();
+		} catch (Exception e) {
+			logger.error(e);
+		}
+
 		// 设置参数
 		StopInstanceRequest stopInstance = new StopInstanceRequest();
 		stopInstance.setInstanceId(id);
@@ -274,6 +286,8 @@ public class AliyunHost {
 		// 发起请求
 		try {
 			StopInstanceResponse response = client.getAcsResponse(stopInstance);
+			this.status = Status.STOPPED;
+			this.update();
 			logger.info(response);
 			return true;
 		} catch (Exception e) {
@@ -411,7 +425,7 @@ public class AliyunHost {
 	 */
 	public static AliyunHost getByHost(String host) throws Exception {
 		Dao<AliyunHost, String> dao = DaoManager.getDao(AliyunHost.class);
-		AliyunHost aliyunHost = dao.queryBuilder().where().eq("sshHost", host).queryForFirst();
+		AliyunHost aliyunHost = dao.queryBuilder().where().eq("host", host).queryForFirst();
 		return aliyunHost;
 	}
 
@@ -444,8 +458,9 @@ public class AliyunHost {
 		ProxyImpl proxy = null;
 
 		try {
-
+			logger.info("Sleep 10 for ssh connection.");
 			Thread.sleep(10000);
+
 			ssh_host.connect();
 
 			ssh_host.upload("squid.sh", "/root");

@@ -59,7 +59,7 @@ public class TendererOrderTask extends ScanTask {
 
 			// 获取历史数据（简略）
 			try {
-				tasks.addAll(getSimpleProjectTask(doc));
+				tasks.addAll(getSimpleProjectTask(doc, webId));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -88,7 +88,7 @@ public class TendererOrderTask extends ScanTask {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public static List<Task> getSimpleProjectTask(Document doc) throws Exception {
+	public static List<Task> getSimpleProjectTask(Document doc, String webId) throws Exception {
 
 		List<Task> tasks = new ArrayList<>();
 
@@ -102,26 +102,46 @@ public class TendererOrderTask extends ScanTask {
 
 			Project project = new Project(url);
 
+			project.tenderer_name = doc.select("#utopia_widget_1 > div > div.topinfo-top > div > h2").text();
+
+			project.tenderer_id = webId;
+
 			project.title = element.select("div > div.order-item-title > a").text();
 
 			project.trade_type = element.select("span.order-item-type").text();
 
-			project.pubdate = DateFormatUtil.parseTime(
-					element.select("div > div.order-item-subinfo > span:nth-child(3)")
-						.text()
-			);
+			//#order > div > div.panel-content > ul > li:nth-child(1) > div > div.order-item-subinfo > span:nth-child(1)
+			//#order > div > div.panel-content > ul > li:nth-child(1) > div > div.order-item-subinfo > span:nth-child(3)
+			//#order > div > div.panel-content > ul > li:nth-child(1) > div > div.order-item-subinfo > span:nth-child(5)
+			if (doc.select("div > div.order-item-subinfo > span").size() > 4) {
 
-			project.origin = element.select("div > div.order-item-subinfo > span:nth-child(5)").text();
+				project.pubdate = DateFormatUtil.parseTime(
+						element.select("div > div.order-item-subinfo > span:nth-child(3)")
+								.text()
+				);
 
-			if (!element.select("div > div.order-item-subinfo > span:nth-child(1)")
-					.text().contains("提供服务")
-					) {
-				project.bidder_new_num = Integer.parseInt(element.select("div > div.order-item-subinfo > span:nth-child(1)")
+				project.origin = element.select("div > div.order-item-subinfo > span:nth-child(5)")
 						.text()
-						.split("位")[0]);
-			}
-			else{
-				project.bidder_num = 1;
+						.replace("来自：", "");
+
+				if (!element.select("div > div.order-item-subinfo > span:nth-child(1)")
+						.text().contains("提供服务")
+						) {
+					project.bidder_new_num = Integer.parseInt(element.select("div > div.order-item-subinfo > span:nth-child(1)")
+							.text()
+							.split("位")[0]);
+				} else {
+					project.bidder_new_num = 1;
+				}
+			} else {
+				project.pubdate = DateFormatUtil.parseTime(
+						element.select("div > div.order-item-subinfo > span:nth-child(1)")
+								.text()
+				);
+
+				project.origin = element.select("div > div.order-item-subinfo > span:nth-child(3)")
+						.text()
+						.replace("来自：", "");
 			}
 
 			try {
@@ -134,7 +154,7 @@ public class TendererOrderTask extends ScanTask {
 
 			project.budget_lb = project.budget_up;
 
-			project.trade_type = element.select("div > div.order-item-title > span").text();
+			project.status = element.select("div > div.order-item-title > span").text();
 
 			project.insert();
 
