@@ -48,8 +48,9 @@ public class Requester extends ChromeDriverRequester {
 		return one.rewind.txt.StringUtil.MD5(url);
 	}
 
-	private ChromeDriverDockerContainer getChromeDriverDockerContainer() {
+	public ChromeDriverDockerContainer getChromeDriverDockerContainer() {
 		try {
+			DockerHostManager.getInstance().createDockerContainers(1);
 			return DockerHostManager.getInstance().getFreeContainer();
 		} catch (Exception e) {
 			logger.error("Error get free container, ", e);

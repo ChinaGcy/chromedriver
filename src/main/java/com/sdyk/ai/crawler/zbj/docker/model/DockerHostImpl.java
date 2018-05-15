@@ -4,25 +4,66 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
-import com.typesafe.config.Config;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.docker.model.DockerHost;
-import one.rewind.util.Configs;
 import org.redisson.api.RLock;
 
-import java.io.File;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static one.rewind.db.RedissonAdapter.logger;
 import static one.rewind.db.RedissonAdapter.redisson;
 
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "docker_hosts")
 public class DockerHostImpl extends DockerHost {
+
+	@DatabaseField(dataType = DataType.SERIALIZABLE, width = 1024)
+	public HashSet<Integer> occupiedPorts;
+
+	public DockerHostImpl() {}
+
+	public DockerHostImpl(String ip, int port, String username) {
+		this.status = DockerHost.Status.RUNNING;
+		this.insert_time = new Date();
+		this.update_time = new Date();
+		this.ip = ip;
+		this.port = port;
+		this.username = username;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public int getPort() throws Exception {
+
+		RLock lock = redisson.getLock("Docker-Host-Access-Lock-" + ip);
+		lock.lock();
+
+		Dao dao = DaoManager.getDao(DockerHostImpl.class);
+		dao.refresh(this);
+
+		int port = -1;
+
+		if (occupiedPorts == null) {
+			occupiedPorts = new HashSet<>();
+		}
+
+		for(int i=0; i<1000; i++) {
+			if(!occupiedPorts.contains(i)) {
+				port = i;
+				break;
+			}
+		}
+
+		occupiedPorts.add(port);
+		this.update();
+
+		lock.unlock();
+		return port;
+	}
 
 	/**
 	 *
@@ -32,14 +73,18 @@ public class DockerHostImpl extends DockerHost {
 
 		ChromeDriverDockerContainer container = null;
 
-		int currentContainerNum = this.addContainerNum();
+		int port = getPort();
 
-		int seleniumPort = (ChromeDriverDockerContainer.SELENIUM_BEGIN_PORT + currentContainerNum);
-		int vncPort = (ChromeDriverDockerContainer.VNC_BEGIN_PORT + currentContainerNum);
-		String containerName = "ChromeContainer-" + this.ip + "-" + currentContainerNum;
+		logger.info("Use {} port: {}", ip, port);
+
+		int seleniumPort = (ChromeDriverDockerContainer.SELENIUM_BEGIN_PORT + port);
+		int vncPort = (ChromeDriverDockerContainer.VNC_BEGIN_PORT + port);
+		String containerName = "ChromeContainer-" + this.ip + "-" + port;
 
 		container = new ChromeDriverDockerContainerImpl(this, containerName, seleniumPort, vncPort);
 		container.create();
+
+		this.addContainerNum();
 
 		return container;
 	}

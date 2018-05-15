@@ -135,4 +135,9 @@ public class StringUtilTest {
 		System.err.println(System.nanoTime());
 	}
 
+	@Test
+	public void md5Test() {
+		System.err.println(one.rewind.txt.StringUtil.MD5("http://task.zbj.com/5190852/"));
+	}
+
 }

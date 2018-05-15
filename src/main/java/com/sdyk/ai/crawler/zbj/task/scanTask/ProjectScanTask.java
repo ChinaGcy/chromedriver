@@ -76,12 +76,20 @@ public class ProjectScanTask extends ScanTask {
 			Matcher matcher = pattern.matcher(src);
 
 			while (matcher.find()) {
+
+				List<String> list = new ArrayList<>();
+
 				String new_url = "http://" + matcher.group();
 
-				try {
-					task.add(new ProjectTask(new_url));
-				} catch (MalformedURLException | URISyntaxException e) {
-					e.printStackTrace();
+				// 去重
+				if (!list.contains(new_url)) {
+					list.add(new_url);
+
+					try {
+						task.add(new ProjectTask(new_url));
+					} catch (MalformedURLException | URISyntaxException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 

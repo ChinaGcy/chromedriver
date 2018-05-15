@@ -127,7 +127,7 @@ public class Scheduler {
 			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
 
 			// 创建阿里云host
-			//AliyunHost.batchBuild(driverCount + 2);
+			AliyunHost.batchBuild(driverCount + 2);
 
 			// 删除所有docker container
 			DockerHostManager.getInstance().delAllDockerContainers();
@@ -224,9 +224,10 @@ public class Scheduler {
 
 							}).addNewCallback(()->{
 
+								// TODO
 								try {
 									agent.submit(task, 300000);
-								} catch (ChromeDriverException.IllegalStatusException e) {
+								} catch (Exception e) {
 									logger.error(e);
 								}
 

@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.requester.test;
 
+import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
+import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.requester.Task;
@@ -27,33 +29,8 @@ public class RemoteDriverTest {
 	@Test
 	public void createDockerContainers() throws Exception {
 
-		SshManager.Host host = new SshManager.Host("10.0.0.62", 22, "root", "sdyk315pr");
-		host.connect();
-
-		CountDownLatch done = new CountDownLatch(10);
-
-		for(int i_=0; i_<10; i_++){
-
-			final int i = i_;
-
-			new Thread(() -> {
-
-				String cmd = "docker run -d --name ChromeContainer-"+i+" -p "+(31000 + i)+":4444 -p "+(32000 + i)+":5900 -e SCREEN_WIDTH=\"1360\" -e SCREEN_HEIGHT=\"768\" -e SCREEN_DEPTH=\"24\" selenium/standalone-chrome-debug";
-
-				String output = null;
-				try {
-					output = host.exec(cmd);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				System.err.println(output);
-
-				done.countDown();
-
-			}).start();
-		}
-
-		done.await();
+		// DockerHostImpl host = DockerHostManager.getInstance().getHostByIp("10.0.0.62");
+		DockerHostManager.getInstance().createDockerContainers(10);
 	}
 
 	/**

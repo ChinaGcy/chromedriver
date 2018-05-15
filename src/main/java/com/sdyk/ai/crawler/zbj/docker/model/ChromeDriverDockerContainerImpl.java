@@ -32,6 +32,38 @@ public class ChromeDriverDockerContainerImpl extends ChromeDriverDockerContainer
 		super(dockerHost, containerName, seleniumPort, vncPort);
 	}
 
+	public int getPort() {
+		return this.seleniumPort - SELENIUM_BEGIN_PORT;
+	}
+
+	/**
+	 *
+	 * @throws Exception
+	 */
+	public void rm() throws Exception {
+
+		String cmd = "docker rm -f " + name + "\n";
+
+		if (host != null) {
+
+			String output = host.exec(cmd);
+			// TODO 根据output 判断是否执行成功
+
+			DockerHost.logger.info(output);
+
+			host.minusContainerNum();
+
+			status = Status.TERMINATED;
+
+			DockerHostImpl host = DockerHostManager.getInstance().getHostByIp(this.ip);
+			host.occupiedPorts.add(getPort());
+			host.update();
+
+		} else {
+			throw new Exception("DockerHost is null");
+		}
+	}
+
 	public String exec(String cmd) {
 
 		String output = "";
