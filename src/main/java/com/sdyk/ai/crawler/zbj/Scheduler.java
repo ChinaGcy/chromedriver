@@ -147,7 +147,6 @@ public class Scheduler {
 
 					try {
 
-						//ProxyImpl proxy = new ProxyImpl("aliyun", "tpda.cc", 60202, "sdyk", "sdyk","", 1);
 						ProxyImpl proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
 						if(proxy != null) {
@@ -224,7 +223,6 @@ public class Scheduler {
 
 							}).addNewCallback(()->{
 
-								// TODO
 								try {
 									agent.submit(task, 300000);
 								} catch (Exception e) {

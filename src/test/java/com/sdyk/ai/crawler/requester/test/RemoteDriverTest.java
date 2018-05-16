@@ -3,8 +3,9 @@ package com.sdyk.ai.crawler.requester.test;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
+import com.sdyk.ai.crawler.zbj.task.Task;
 import net.lightbody.bmp.BrowserMobProxyServer;
-import one.rewind.io.requester.Task;
+import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -123,4 +124,24 @@ public class RemoteDriverTest {
 		Thread.sleep(100000);
 	}
 
+	@Test
+	public void RestartContainer() throws Exception {
+
+		DockerHostImpl host = new DockerHostImpl("10.0.0.62", 22, "root");
+		host.delAllDockerContainers();
+		ChromeDriverDockerContainer container = host.createChromeDriverDockerContainer();
+		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
+		final Proxy proxy = new ProxyImpl("114.215.45.48", 59998, "tfelab", "TfeLAB2@15");
+		final URL remoteAddress = container.getRemoteAddress();
+		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container, proxy);
+		requester.addAgent(agent);
+
+		agent.start();
+
+		while(true) {
+			Task task = new Task("http://www.baidu.com/s?wd=ip");
+			agent.submit(task);
+		}
+
+	}
 }
