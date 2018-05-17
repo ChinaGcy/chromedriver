@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler;
+package com.sdyk.ai.crawler.main.test;
 
 import com.sdyk.ai.crawler.zbj.Scheduler;
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;

@@ -195,6 +195,8 @@ public class AliyunHost {
 
 						aliyunHost.insert();
 
+						Thread.sleep(20000);
+
 						ProxyImpl proxy = aliyunHost.createSquidProxy();
 						proxy.insert();
 						logger.info("New proxy[AliyunHost] {}:{}", proxy.getHost(), proxy.getPort());
@@ -355,8 +357,15 @@ public class AliyunHost {
 				if (a.stop()) {
 
 					// TODO 添加个时间限制，如果时间过长提示
-					while (!a.deleteHost()) {}
-					a.status = Status.STOPPING;
+					while (!a.deleteHost()) {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							logger.error(e);
+						}
+					}
+
+					a.status = Status.STOPPED;
 					try {
 						a.update();
 					} catch (Exception e) {
@@ -458,8 +467,8 @@ public class AliyunHost {
 		ProxyImpl proxy = null;
 
 		try {
-			logger.info("Sleep 10 for ssh connection.");
-			Thread.sleep(10000);
+			logger.info("Sleep 30 for ssh connection.");
+			Thread.sleep(30000);
 
 			ssh_host.connect();
 
@@ -480,6 +489,8 @@ public class AliyunHost {
 
 			proxy = new ProxyImpl(Proxy_Group_Name, host, proxyPort, proxyUser, proxyPassword, region, 0);
 			proxy.setAliyunHost();
+
+			Thread.sleep(20000);
 			proxy.validate();
 
 		} catch (Exception e) {

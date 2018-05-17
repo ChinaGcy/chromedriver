@@ -160,7 +160,7 @@ public class Scheduler {
 									try {
 
 										aliyunHost = AliyunHost.getByHost(proxy.host);
-										aliyunHost.stop();
+										aliyunHost.stopAndDelete();
 
 									} catch (Exception e) {
 										logger.error("AliyunHost:{} Error, ", proxy.host, e);

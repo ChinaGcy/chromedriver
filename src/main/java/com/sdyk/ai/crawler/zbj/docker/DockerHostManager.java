@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RLock;
 
+import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -168,6 +169,7 @@ public class DockerHostManager {
 
 			try {
 				host.container_num = 0;
+				host.occupiedPorts = new HashSet<>();
 				host.update();
 			} catch (Exception e) {
 				e.printStackTrace();

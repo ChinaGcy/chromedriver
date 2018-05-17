@@ -6,7 +6,7 @@ import one.rewind.db.DaoManager;
 
 import java.util.List;
 
-public class ProxyTester {
+public class ProxyTest {
 
 	public static void main(String[] args) throws Exception {
 

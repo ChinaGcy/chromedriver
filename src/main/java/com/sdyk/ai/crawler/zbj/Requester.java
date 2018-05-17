@@ -28,15 +28,20 @@ public class Requester extends ChromeDriverRequester {
 
 	public Requester() {}
 
+	/**
+	 * 当程序异常退出，需要重构 URL_VISITS
+	 * @param task
+	 */
 	public void submit(Task task) {
 
 		String hash = hash(task.getUrl());
 
 		if(! URL_VISITS.containsKey(hash) || WHITE_URLS.contains(task.getUrl())) {
 
+			URL_VISITS.put(hash, new Date());
+
 			task.addDoneCallback(() -> {
 
-				URL_VISITS.put(hash, new Date());
 				StatManager.getInstance().count();
 			});
 

@@ -29,7 +29,7 @@ public class Task extends one.rewind.io.requester.Task {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
-
+		setBuildDom();
 	}
 
 	public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {
@@ -95,13 +95,14 @@ public class Task extends one.rewind.io.requester.Task {
 
 
 	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		//throw new ProxyException.Failed();
 
-		throw new UnreachableBrowserException("chromedriver is bad");
-		/*if (getResponse().getDoc().title().contains("您的访问存在异常-猪八戒网")) {
+		// throw new ProxyException.Failed();
+
+		// throw new UnreachableBrowserException("chromedriver is bad");
+		if (getResponse().getText().contains("您的访问存在异常")) {
 			throw new ProxyException.Failed();
 		}
-		return this;*/
 
+		return this;
 	}
 }

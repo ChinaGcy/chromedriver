@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler;
+package com.sdyk.ai.crawler.util.test;
 
 import one.rewind.io.ssh.SshManager;
 import org.junit.Test;

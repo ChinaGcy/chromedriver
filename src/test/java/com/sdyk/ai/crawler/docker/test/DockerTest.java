@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler;
+package com.sdyk.ai.crawler.docker.test;
 
 import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.zbj.Scheduler;
@@ -91,7 +91,6 @@ public class DockerTest {
 		String out = host.exec("docker exec ChromeContainer-10.0.0.62-1 xdotool mousemove 1000,700");
 
 		System.err.println(out);
-
 	}
 
 }

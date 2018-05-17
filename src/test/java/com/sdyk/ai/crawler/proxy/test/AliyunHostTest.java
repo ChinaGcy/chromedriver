@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.zbj.task.test;
+package com.sdyk.ai.crawler.proxy.test;
 
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import one.rewind.io.ssh.SshManager;

@@ -14,6 +14,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class CaseTest {
 
 	/**
+	 * 测试casetask
+	 */
+	@Test
+	public void CaseTest() throws Exception {
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		agent.start();
+		CaseTask caseTask = new CaseTask("https://shop.zbj.com/4696791/sid-983087.html");
+		caseTask.setBuildDom();
+		agent.submit(caseTask);
+	}
+
+	/**
 	 *
 	 * @throws Exception
 	 */

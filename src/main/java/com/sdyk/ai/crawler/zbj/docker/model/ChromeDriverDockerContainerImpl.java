@@ -56,7 +56,10 @@ public class ChromeDriverDockerContainerImpl extends ChromeDriverDockerContainer
 			status = Status.TERMINATED;
 
 			DockerHostImpl host = DockerHostManager.getInstance().getHostByIp(this.ip);
-			host.occupiedPorts.add(getPort());
+			if(host.occupiedPorts != null) {
+				host.occupiedPorts.remove(getPort());
+			}
+
 			host.update();
 
 		} else {

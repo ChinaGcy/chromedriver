@@ -4,6 +4,10 @@ import com.sdyk.ai.crawler.zbj.model.Project;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 
+import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.account.AccountImpl;
+import one.rewind.io.requester.chrome.action.ChromeAction;
+import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import org.junit.Test;
 import one.rewind.db.Refacter;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -15,78 +19,22 @@ import java.util.Queue;
 
 public class ProjectTaskTest {
 
-
-	// 页面格式2
 	@Test
-	public void projectTest() {
+	public void projectTest() throws Exception {
+		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		agent.start();
 
-		/*ChromeDriverAgent agent = null;
-		try {
-			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("http://www.zbj.com");
+		task.setBuildDom();
+		agent.submit(task);
+		ChromeAction action = new LoginWithGeetestAction(account);
+		task.addAction(action);
+		agent.submit(task);
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		Task task = null;
-		try {
-			// 页面格式2 ： http://task.zbj.com/12909258/
-
-			task = new ProjectTask("http://task.zbj.com/12913633/");
-		} catch (MalformedURLException | URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		Queue<Task> taskQueue = new LinkedList<>();
-		taskQueue.add(task);
-		while(!taskQueue.isEmpty()) {
-			Task t = taskQueue.poll();
-			if(t != null) {
-				try {
-					agent.fetch(t);
-					for (Task t_ : t.postProc(agent.getDriver())) {
-						taskQueue.add(t_);
-						//agent.fetch(t_);
-					}
-
-				} catch (Exception e) {
-
-					taskQueue.add(t);
-				}
-			}
-		}*/
-	}
-	// 页面格式1
-	@Test
-	public void pageOneTest() {
-/*
-		ChromeDriverAgent agent = null;
-		try {
-			agent = new ChromeDriverLoginWrapper("zbj.com").login(null, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		Task task = null;
-
-		try {
-			task = new ProjectTask("http://task.zbj.com/12897928/");
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		agent.fetch(task);
-		try {
-			task.postProc(agent.getDriver());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
+		ProjectTask task1 = new ProjectTask("https://task.zbj.com/13371103/");
+		task1.setBuildDom();
+		agent.submit(task1);
 	}
 
 	@Test

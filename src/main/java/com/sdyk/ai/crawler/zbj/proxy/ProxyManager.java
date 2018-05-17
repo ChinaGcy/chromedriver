@@ -54,6 +54,7 @@ public class ProxyManager {
 			//new ArrayBlockingQueue<>(20)
 			new LinkedBlockingQueue<>()
 	);
+
 	private ProxyManager() {
 
 		executor.setThreadFactory(new ThreadFactoryBuilder()
