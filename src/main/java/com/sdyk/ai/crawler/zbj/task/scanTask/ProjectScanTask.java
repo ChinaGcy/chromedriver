@@ -20,9 +20,6 @@ import java.util.regex.Pattern;
  */
 public class ProjectScanTask extends ScanTask {
 
-	private static String channel;
-
-
 	/**
 	 * 生成项目翻页采集任务
 	 * @param channel
@@ -31,14 +28,10 @@ public class ProjectScanTask extends ScanTask {
 	 */
 	public static ProjectScanTask generateTask(String channel, int page) {
 
-		ProjectScanTask.channel = channel;
-
-		if(page >= 100) return null;
-
 		String url = "http://task.zbj.com/" + channel + "/p" + page + "s5.html?o=7";
 
 		try {
-			ProjectScanTask t = new ProjectScanTask(url, page);
+			ProjectScanTask t = new ProjectScanTask(url, page, channel);
 			t.setRequester_class(ChromeDriverRequester.class.getSimpleName());
 			return t;
 		} catch (MalformedURLException e) {
@@ -57,7 +50,7 @@ public class ProjectScanTask extends ScanTask {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ProjectScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
+	public ProjectScanTask(String url, int page, String channel) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 
@@ -67,45 +60,55 @@ public class ProjectScanTask extends ScanTask {
 
 		this.addDoneCallback(() -> {
 
-			String src = getResponse().getText();
+			try {
 
-			// 生成任务
-			List<Task> task = new ArrayList<>();
+				logger.info("Extract content: {}", getUrl());
 
-			Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
-			Matcher matcher = pattern.matcher(src);
+				String src = getResponse().getText();
 
-			while (matcher.find()) {
+				// 生成任务
+				Map<String, Task> tasks = new HashMap<>();
 
-				List<String> list = new ArrayList<>();
+				Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
+				Matcher matcher = pattern.matcher(src);
 
-				String new_url = "http://" + matcher.group();
+				while (matcher.find()) {
 
-				// 去重
-				if (!list.contains(new_url)) {
-					list.add(new_url);
+					String new_url = "http://" + matcher.group();
 
 					try {
-						task.add(new ProjectTask(new_url));
-					} catch (MalformedURLException | URISyntaxException e) {
-						e.printStackTrace();
+						tasks.put(new_url, new ProjectTask(new_url));
+					} catch (Exception e) {
+						logger.error(e);
 					}
 				}
-			}
 
-			if (pageTurning("div.pagination > ul > li", page)) {
-				Task t = generateTask(channel, page + 1);
-				if (t != null) {
-					t.setBuildDom();
-					t.setPriority(Priority.HIGH);
-					task.add(t);
+				if (pageTurning("div.pagination > ul > li", page)) {
+
+					Task next_t = generateTask(channel, page + 1);
+
+					logger.info("Next page: {}", next_t.getUrl());
+
+					if (next_t != null) {
+						next_t.setBuildDom();
+						next_t.setPriority(Priority.HIGH);
+
+						try {
+							tasks.put(next_t.getUrl(), next_t);
+						} catch (Exception e) {
+							logger.error(e);
+						}
+					}
 				}
-			}
 
-			logger.info("Task num: {}", task.size());
+				logger.info("Task num: {}", tasks.size());
 
-			for(Task t : task) {
-				ChromeDriverRequester.getInstance().submit(t);
+				for (Task t : tasks.values()) {
+					ChromeDriverRequester.getInstance().submit(t);
+				}
+
+			} catch (Exception e) {
+				logger.error(e);
 			}
 
 		});

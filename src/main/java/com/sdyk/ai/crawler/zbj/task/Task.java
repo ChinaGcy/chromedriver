@@ -2,20 +2,12 @@ package com.sdyk.ai.crawler.zbj.task;
 
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.zbj.util.BinaryDownloader;
-import com.sdyk.ai.crawler.zbj.util.StatManager;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import one.rewind.db.DBName;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jsoup.nodes.Document;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import org.openqa.selenium.remote.UnreachableBrowserException;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -58,15 +50,27 @@ public class Task extends one.rewind.io.requester.Task {
 	}
 
 	public int getInt(String path, String... clean) {
-		return Integer.parseInt(getString(path, clean));
+		try {
+			return Integer.parseInt(getString(path, clean));
+		} catch (NumberFormatException e) {
+			return 0;
+		}
 	}
 
 	public float getFloat(String path, String... clean) {
-		return Float.parseFloat(getString(path, clean));
+		try {
+			return Float.parseFloat(getString(path, clean));
+		} catch (NumberFormatException e) {
+			return 0.0f;
+		}
 	}
 
 	public double getDouble(String path, String... clean) {
-		return Double.parseDouble(getString(path, clean));
+		try {
+			return Double.parseDouble(getString(path, clean));
+		} catch (NumberFormatException e) {
+			return 0.0d;
+		}
 	}
 
 	/**

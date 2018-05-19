@@ -42,43 +42,49 @@ public class ServiceRatingTask extends ScanTask {
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
-			Document doc = getResponse().getDoc();
-
-			List<Task> tasks = new ArrayList<>();
-
-			// 判断当前页面有多少评论
-			int size = 0;
 
 			try {
-				size = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl.user-information.clearfix")
-						.size();
-			} catch (NoSuchElementException e) {
-				// 页面为空，size = 0 ，不采集数据
-			}
 
-			for (int i = 1; i <= size; i++) {
+				Document doc = getResponse().getDoc();
 
-				// 防止每个评论的url一样导致id相同
-				serviceRating = new SupplierRating(getUrl()+ "--number:" + i);
+				List<Task> tasks = new ArrayList<>();
 
-				// 每个评价
-				ratingData(doc, i);
+				// 判断当前页面有多少评论
+				int size = 0;
 
 				try {
-					serviceRating.insert();
-				} catch (Exception e) {
-					logger.error("Error insert: {}, ", e);
+					size = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl.user-information.clearfix")
+							.size();
+				} catch (NoSuchElementException e) {
+					// 页面为空，size = 0 ，不采集数据
 				}
-			}
 
-			// 翻页
-			if (pageTurning("#userlist > div.pagination > ul", page)) {
-				Task task = generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ getUrl().split("-")[2] +"-type-1-isLazyload-0-page-", page + 1);
-				tasks.add(task);
-			}
+				for (int i = 1; i <= size; i++) {
 
-			for(Task t : tasks) {
-				ChromeDriverRequester.getInstance().submit(t);
+					// 防止每个评论的url一样导致id相同
+					serviceRating = new SupplierRating(getUrl() + "--number:" + i);
+
+					// 每个评价
+					ratingData(doc, i);
+
+					try {
+						serviceRating.insert();
+					} catch (Exception e) {
+						logger.error("Error insert: {}, ", e);
+					}
+				}
+
+				// 翻页
+				if (pageTurning("#userlist > div.pagination > ul", page)) {
+					Task task = generateTask("https://shop.zbj.com/evaluation/evallist-uid-" + getUrl().split("-")[2] + "-type-1-isLazyload-0-page-", page + 1);
+					tasks.add(task);
+				}
+
+				for (Task t : tasks) {
+					ChromeDriverRequester.getInstance().submit(t);
+				}
+			} catch (Exception e) {
+				logger.error(e);
 			}
 		});
 	}

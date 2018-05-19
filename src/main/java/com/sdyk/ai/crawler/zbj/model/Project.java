@@ -111,6 +111,15 @@ public class Project extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String reward_type;
 
+	// 浏览次数
+	@DatabaseField(dataType = DataType.INTEGER)
+	public int view_num;
+
+	// 收藏人数
+	@DatabaseField(dataType = DataType.INTEGER)
+
+	public int collect_num;
+
 	public Project() {}
 
 	public Project(String url) throws MalformedURLException, URISyntaxException {

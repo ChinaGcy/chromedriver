@@ -26,30 +26,34 @@ public class WorkTask extends Task {
 		this.setBuildDom();
 
 		this.addDoneCallback(()-> {
-			Document doc = getResponse().getDoc();
-			String src = getResponse().getText();
-			List<Task> tasks = new ArrayList<>();
-
-			work = new Work(getUrl());
-
-			// 判断页面格式
-			if (getUrl().contains("zbj")) {
-				// 猪八戒
-				pageOne(doc);
-			}
-			else {
-				// 天棚网
-				pageTwo(doc);
-			}
 
 			try {
-				work.insert();
-			} catch (Exception e) {
-				logger.error("insert error for Work", e);
-			}
 
-			for(Task t : tasks) {
-				ChromeDriverRequester.getInstance().submit(t);
+				Document doc = getResponse().getDoc();
+				List<Task> tasks = new ArrayList<>();
+
+				work = new Work(getUrl());
+
+				// 判断页面格式
+				if (getUrl().contains("zbj")) {
+					// 猪八戒
+					pageOne(doc);
+				} else {
+					// 天棚网
+					pageTwo(doc);
+				}
+
+				try {
+					work.insert();
+				} catch (Exception e) {
+					logger.error("insert error for Work", e);
+				}
+
+				for (Task t : tasks) {
+					ChromeDriverRequester.getInstance().submit(t);
+				}
+			}catch (Exception e) {
+				logger.error(e);
 			}
 		});
 	}

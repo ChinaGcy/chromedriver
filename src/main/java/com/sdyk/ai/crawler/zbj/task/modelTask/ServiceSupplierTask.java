@@ -31,44 +31,50 @@ public class ServiceSupplierTask extends Task {
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
-			String src = getResponse().getText();
-			Document doc = getResponse().getDoc();
-
-			List<Task> tasks = new ArrayList<Task>();
-
-			serviceSupplier = new ServiceSupplier(getUrl());
-
-			shareData(doc, src);
-
-			// 判断是哪个页面格式
-			if (src.contains("as.zbjimg.com/static/nodejs-tianpeng-utopiacs-web/widget/tp-header/img/tianpeng-logo_31addeb.png")) {
-				// 天棚网服务商信息
-				try {
-					pageOne(src, serviceSupplier, doc);
-				} catch (IOException e) {
-					logger.error(e);
-				}
-			} else {
-				// 猪八戒服务商信息
-				try {
-					pageTwo(src, serviceSupplier, doc);
-				} catch (IOException e) {
-					logger.error(e);
-				}
-			}
 
 			try {
-				serviceSupplier.insert();
-			} catch (Exception e) {
-				logger.error("insert/update error {}" , e);
-			}
-			// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-			tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-"+ serviceSupplier.website_id +"-type-1-page-",1));
-			tasks.add(CaseScanTask.generateTask(getUrl(),1));
-			tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
-			for(Task t : tasks) {
-				ChromeDriverRequester.getInstance().submit(t);
+				String src = getResponse().getText();
+				Document doc = getResponse().getDoc();
+
+				List<Task> tasks = new ArrayList<Task>();
+
+				serviceSupplier = new ServiceSupplier(getUrl());
+
+				shareData(doc, src);
+
+				// 判断是哪个页面格式
+				if (src.contains("as.zbjimg.com/static/nodejs-tianpeng-utopiacs-web/widget/tp-header/img/tianpeng-logo_31addeb.png")) {
+					// 天棚网服务商信息
+					try {
+						pageOne(src, serviceSupplier, doc);
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				} else {
+					// 猪八戒服务商信息
+					try {
+						pageTwo(src, serviceSupplier, doc);
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				}
+
+				try {
+					serviceSupplier.insert();
+				} catch (Exception e) {
+					logger.error("insert/update error {}", e);
+				}
+				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
+				tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-" + serviceSupplier.website_id + "-type-1-page-", 1));
+				tasks.add(CaseScanTask.generateTask(getUrl(), 1));
+				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
+
+				for (Task t : tasks) {
+					ChromeDriverRequester.getInstance().submit(t);
+				}
+			} catch(Exception e) {
+				logger.error(e);
 			}
 		});
 

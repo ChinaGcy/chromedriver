@@ -42,57 +42,63 @@ public class WorkScanTask extends ScanTask {
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
-			String src = getResponse().getText();
 
-			List<Task> tasks = new ArrayList<>();
+			try {
 
-			//http://shop.zbj.com/works/detail-wid-131609.html
-			Pattern pattern = Pattern.compile("https://shop.zbj.com/works/detail-wid-\\d+.html");
-			Matcher matcher = pattern.matcher(src);
-			Pattern pattern_tp = Pattern.compile("https://shop.tianpeng.com/works/detail-wid-\\d+.html");
-			Matcher matcher_tp = pattern_tp.matcher(src);
+				String src = getResponse().getText();
 
-			List<String> list = new ArrayList<>();
+				List<Task> tasks = new ArrayList<>();
 
-			while (matcher.find()) {
+				//http://shop.zbj.com/works/detail-wid-131609.html
+				Pattern pattern = Pattern.compile("https://shop.zbj.com/works/detail-wid-\\d+.html");
+				Matcher matcher = pattern.matcher(src);
+				Pattern pattern_tp = Pattern.compile("https://shop.tianpeng.com/works/detail-wid-\\d+.html");
+				Matcher matcher_tp = pattern_tp.matcher(src);
 
-				String new_url = matcher.group();
+				List<String> list = new ArrayList<>();
 
-				if(!list.contains(url)) {
-					list.add(url);
-					try {
-						tasks.add(new WorkTask(new_url, userId));
-					} catch (MalformedURLException | URISyntaxException e) {
-						e.printStackTrace();
+				while (matcher.find()) {
+
+					String new_url = matcher.group();
+
+					if (!list.contains(url)) {
+						list.add(url);
+						try {
+							tasks.add(new WorkTask(new_url, userId));
+						} catch (MalformedURLException | URISyntaxException e) {
+							e.printStackTrace();
+						}
 					}
 				}
-			}
 
-			while (matcher_tp.find()) {
+				while (matcher_tp.find()) {
 
-				String new_url = matcher_tp.group();
+					String new_url = matcher_tp.group();
 
-				if(!list.contains(new_url)) {
-					list.add(new_url);
-					try {
-						tasks.add(new WorkTask(new_url, userId));
-					} catch (MalformedURLException | URISyntaxException e) {
-						e.printStackTrace();
+					if (!list.contains(new_url)) {
+						list.add(new_url);
+						try {
+							tasks.add(new WorkTask(new_url, userId));
+						} catch (MalformedURLException | URISyntaxException e) {
+							e.printStackTrace();
+						}
 					}
 				}
-			}
 
-			if (pageTurning("div.pagination > ul > li", page)) {
-				//http://shop.zbj.com/18115303/works-p2.html
-				Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId") + "/works", page + 1);
-				if (t != null) {
-					t.setPriority(Priority.HIGH);
-					tasks.add(t);
+				if (pageTurning("div.pagination > ul > li", page)) {
+					//http://shop.zbj.com/18115303/works-p2.html
+					Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId") + "/works", page + 1);
+					if (t != null) {
+						t.setPriority(Priority.HIGH);
+						tasks.add(t);
+					}
 				}
-			}
 
-			for(Task t : tasks) {
-				ChromeDriverRequester.getInstance().submit(t);
+				for (Task t : tasks) {
+					ChromeDriverRequester.getInstance().submit(t);
+				}
+			} catch (Exception e) {
+				logger.error(e);
 			}
 		});
 

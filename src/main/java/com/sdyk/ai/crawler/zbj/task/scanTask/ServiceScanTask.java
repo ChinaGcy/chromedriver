@@ -50,45 +50,51 @@ public class ServiceScanTask extends ScanTask {
 
 		this.addDoneCallback(() -> {
 
-			String src = getResponse().getText();
+			try {
 
-			Document document = getResponse().getDoc();
+				String src = getResponse().getText();
 
-			List<Task> tasks = new ArrayList<>();
+				Document document = getResponse().getDoc();
 
-			Pattern pattern = Pattern.compile("//shop.zbj.com/\\d+/");
-			Matcher matcher = pattern.matcher(src);
+				List<Task> tasks = new ArrayList<>();
 
-			List<String> list = new ArrayList<>();
+				Pattern pattern = Pattern.compile("//shop.zbj.com/\\d+/");
+				Matcher matcher = pattern.matcher(src);
 
-			while (matcher.find()) {
+				List<String> list = new ArrayList<>();
 
-				String new_url = "https:" + matcher.group();
+				while (matcher.find()) {
 
-				if(!list.contains(new_url)) {
+					String new_url = "https:" + matcher.group();
 
-					list.add(new_url);
-					try {
-						tasks.add(new ServiceSupplierTask(new_url));
-					} catch (MalformedURLException | URISyntaxException e) {
-						logger.error(e);
+					if (!list.contains(new_url)) {
+
+						list.add(new_url);
+						try {
+							tasks.add(new ServiceSupplierTask(new_url));
+						} catch (MalformedURLException | URISyntaxException e) {
+							logger.error(e);
+						}
 					}
 				}
-			}
 
-			// 当前页数
-			int i = (page-1)/40+1;
-			// 翻页
-			if (pageTurning("div.pagination > ul > li", i)) {
-				Task t = ServiceScanTask.generateTask(getUrl().split("/")[3],page + 40);
-				tasks.add(t);
-			}
+				// 当前页数
+				int i = (page - 1) / 40 + 1;
+				// 翻页
+				if (pageTurning("div.pagination > ul > li", i)) {
+					Task t = ServiceScanTask.generateTask(getUrl().split("/")[3], page + 40);
+					tasks.add(t);
+				}
 
-			for(Task t : tasks) {
-				ChromeDriverRequester.getInstance().submit(t);
-			}
+				for (Task t : tasks) {
+					ChromeDriverRequester.getInstance().submit(t);
+				}
 
-			logger.info("Task num: {}", tasks.size());
+				logger.info("Task num: {}", tasks.size());
+
+			} catch (Exception e) {
+				logger.error(e);
+			}
 		});
 	}
 }

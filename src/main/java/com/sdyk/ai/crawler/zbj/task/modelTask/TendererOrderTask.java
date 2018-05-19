@@ -110,10 +110,8 @@ public class TendererOrderTask extends ScanTask {
 
 			project.trade_type = element.select("span.order-item-type").text();
 
-			//#order > div > div.panel-content > ul > li:nth-child(1) > div > div.order-item-subinfo > span:nth-child(1)
-			//#order > div > div.panel-content > ul > li:nth-child(1) > div > div.order-item-subinfo > span:nth-child(3)
-			//#order > div > div.panel-content > ul > li:nth-child(1) > div > div.order-item-subinfo > span:nth-child(5)
-			if (doc.select("div > div.order-item-subinfo > span").size() > 4) {
+			// TODO 正则获取数据
+			if (doc.select("div > div.order-item-subinfo > span").size() >= 5) {
 
 				project.pubdate = DateFormatUtil.parseTime(
 						element.select("div > div.order-item-subinfo > span:nth-child(3)")

@@ -44,60 +44,65 @@ public class CaseScanTask extends ScanTask {
 
 		this.addDoneCallback(() -> {
 
-			String src = getResponse().getText();
+			try {
 
-			// http://shop.zbj.com/17788555/servicelist-p1.html
-			String webId = this.getUrl().split("/")[3];
+				String src = getResponse().getText();
 
-			List<Task> tasks = new ArrayList<>();
+				// http://shop.zbj.com/17788555/servicelist-p1.html
+				String webId = this.getUrl().split("/")[3];
 
-			// 判断是否翻页
-			if (!src.contains("暂时还没有此类服务！") && backtrace) {
-				Task t = generateTask("https://shop.zbj.com/" + webId + "/", page + 1);
-				if (t != null) {
-					t.setPriority(Priority.HIGH);
-					tasks.add(t);
-				}
-			}
+				List<Task> tasks = new ArrayList<>();
 
-			// 获取猪八戒， 天蓬网的服务地址
-			Pattern pattern = Pattern.compile("http://shop.zbj.com/\\d+/sid-\\d+.html");
-			Matcher matcher = pattern.matcher(src);
-			Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
-			Matcher matcher_tp = pattern_tp.matcher(src);
-
-			// 猪八戒url
-			while (matcher.find()) {
-
-				String new_url = matcher.group();
-
-				if(!list.contains(new_url)) {
-					list.add(new_url);
-					try {
-						tasks.add(new CaseTask(new_url));
-					} catch (MalformedURLException | URISyntaxException e) {
-						e.printStackTrace();
+				// 判断是否翻页
+				if (!src.contains("暂时还没有此类服务！") && backtrace) {
+					Task t = generateTask("https://shop.zbj.com/" + webId + "/", page + 1);
+					if (t != null) {
+						t.setPriority(Priority.HIGH);
+						tasks.add(t);
 					}
 				}
-			}
 
-			// 天蓬网url
-			while (matcher_tp.find()) {
+				// 获取猪八戒， 天蓬网的服务地址
+				Pattern pattern = Pattern.compile("http://shop.zbj.com/\\d+/sid-\\d+.html");
+				Matcher matcher = pattern.matcher(src);
+				Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
+				Matcher matcher_tp = pattern_tp.matcher(src);
 
-				String new_url = matcher_tp.group();
+				// 猪八戒url
+				while (matcher.find()) {
 
-				if(!list.contains(new_url)) {
-					list.add(new_url);
-					try {
-						tasks.add(new CaseTask(new_url));
-					} catch (MalformedURLException | URISyntaxException e) {
-						e.printStackTrace();
+					String new_url = matcher.group();
+
+					if (!list.contains(new_url)) {
+						list.add(new_url);
+						try {
+							tasks.add(new CaseTask(new_url));
+						} catch (MalformedURLException | URISyntaxException e) {
+							e.printStackTrace();
+						}
 					}
 				}
-			}
 
-			for(Task t : tasks) {
-				ChromeDriverRequester.getInstance().submit(t);
+				// 天蓬网url
+				while (matcher_tp.find()) {
+
+					String new_url = matcher_tp.group();
+
+					if (!list.contains(new_url)) {
+						list.add(new_url);
+						try {
+							tasks.add(new CaseTask(new_url));
+						} catch (MalformedURLException | URISyntaxException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+
+				for (Task t : tasks) {
+					ChromeDriverRequester.getInstance().submit(t);
+				}
+			}catch (Exception e) {
+				logger.error(e);
 			}
 		});
 	}

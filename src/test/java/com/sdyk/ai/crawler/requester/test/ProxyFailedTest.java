@@ -9,9 +9,13 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 public class ProxyFailedTest {
 
@@ -165,4 +169,44 @@ public class ProxyFailedTest {
 
 		Thread.sleep(10000000);
 	}
+
+	/**
+	 * 使IP地址被封禁
+	 */
+	@Test
+	public void proxyFailedByIPTest() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
+
+		//ProxyImpl proxy = new ProxyImpl();
+
+		ProxyImpl proxy = new ProxyImpl("aliyun-cn-shenzhen-squid", "120.77.250.179", 59998, "tfelab", "TfeLAB2@15", "sz", 1);
+
+		ChromeDriverAgent agent = new ChromeDriverAgent(proxy);
+
+		Task task = new Task("http://www.zbj.com");
+
+		ChromeDriverRequester.getInstance().addAgent(agent);
+
+		agent.start();
+
+		/*long start = System.currentTimeMillis();
+
+		for (int i = 0; i < Integer.MAX_VALUE; i++) {
+			ChromeDriverRequester.getInstance().submit(task);
+
+			if (System.currentTimeMillis() - start > 24*60*60*1000) {
+				break;
+			}
+		}*/
+
+		/*while (ChromeDriverRequester.getInstance().queue.size() < 10000) {
+			ChromeDriverRequester.getInstance().submit(task);
+		}*/
+
+		for (int i = 0; i < 2000; i++) {
+			ChromeDriverRequester.getInstance().submit(task);
+		}
+
+		Thread.sleep(24*60*60*1000);
+	}
+
 }

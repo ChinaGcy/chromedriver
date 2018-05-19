@@ -29,38 +29,43 @@ public class CaseTask extends Task {
 
 		this.addDoneCallback(() -> {
 
-			String src = getResponse().getText();
-			Document doc = getResponse().getDoc();
+			try {
 
-			if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
-				ca = new Case(getUrl());
+				String src = getResponse().getText();
+				Document doc = getResponse().getDoc();
 
-				if (!getUrl().contains("https://shop.tianpeng.com")) {
-					// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
+				if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
+					ca = new Case(getUrl());
+
+					if (!getUrl().contains("https://shop.tianpeng.com")) {
+						// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
+						try {
+							pageOne(doc);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else {
+						// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
+					}
+
+					// 以下是两个页面共有的信息
+					// 二进制文件下载
+					String description_src = doc.select("#J-description").html();
+
 					try {
-						pageOne(doc);
+						ca.description = download(description_src);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-				} else {
-					// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
-				}
 
-				// 以下是两个页面共有的信息
-				// 二进制文件下载
-				String description_src = doc.select("#J-description").html();
-
-				try {
-					ca.description = download(description_src);
-				} catch (Exception e) {
-					e.printStackTrace();
+					try {
+						ca.insert();
+					} catch (Exception e) {
+						logger.error(e);
+					}
 				}
-
-				try {
-					ca.insert();
-				} catch (Exception e) {
-					logger.error(e);
-				}
+			} catch (Exception e) {
+				logger.error(e);
 			}
 		});
 	}

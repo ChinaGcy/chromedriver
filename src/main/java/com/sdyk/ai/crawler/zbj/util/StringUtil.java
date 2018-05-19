@@ -62,7 +62,11 @@ public class StringUtil {
 	 * @return
 	 */
 	public static int getBidderTotalNum(Document doc, String path) {
-		return Integer.parseInt(doc.select(path).text());
+		try {
+			return Integer.parseInt(doc.select(path).text());
+		}catch (NumberFormatException e) {
+			return 0;
+		}
 	}
 
 	/**
@@ -72,11 +76,14 @@ public class StringUtil {
 	 * @return
 	 */
 	public static int getBidderNum(Document doc, String path) {
-		if (doc.select(path).size() > 1) {
-			return Integer.parseInt(doc.select(path).get(1).text());
-		}
-		else{
-			return Integer.parseInt(doc.select(path).get(0).text());
+		try {
+			if (doc.select(path).size() > 1) {
+				return Integer.parseInt(doc.select(path).get(1).text());
+			} else {
+				return Integer.parseInt(doc.select(path).get(0).text());
+			}
+		}catch (NumberFormatException e) {
+			return 0;
 		}
 	}
 

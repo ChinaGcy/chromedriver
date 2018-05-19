@@ -28,6 +28,10 @@ public class Requester extends ChromeDriverRequester {
 
 	public Requester() {}
 
+	public long getTaskQueueSize() {
+		return queue.size();
+	}
+
 	/**
 	 * 当程序异常退出，需要重构 URL_VISITS
 	 * @param task

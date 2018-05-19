@@ -1,6 +1,8 @@
 package com.sdyk.ai.crawler.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.zbj.task.Task;
+import one.rewind.txt.DateFormatUtil;
+import one.rewind.util.FileUtil;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -18,6 +20,11 @@ public abstract class ScanTask extends Task{
 
 	public ScanTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+		this.addDoneCallback(() -> {
+			FileUtil.appendLineToFile(
+					url + "\t" + DateFormatUtil.dff.print(System.currentTimeMillis()),
+					"scantask.txt");
+		});
 	}
 
 	public ScanTask(String url, String post_data) throws MalformedURLException, URISyntaxException {
@@ -53,6 +60,7 @@ public abstract class ScanTask extends Task{
 			return page < maxPage;
 
 		} catch (NoSuchElementException | ArrayIndexOutOfBoundsException e) {
+			logger.error(e);
 			return false;
 		}
 	}

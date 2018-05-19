@@ -1,54 +1,44 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.account.AccountManager;
-import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 import com.sdyk.ai.crawler.zbj.account.model.AccountImpl;
-import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
-import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
+import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
+import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
+import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
-import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
-import one.rewind.io.requester.exception.ChromeDriverException;
-import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
-import org.redisson.api.RMap;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static spark.route.HttpMethod.get;
-
 /**
- * 任务生成器
+ * 单机完整测试代理更换（无docker环境下）
  */
-public class Scheduler {
+public class SchedulerProxyFiled {
 
 	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
 	public static int num = 1;
 
-	protected static Scheduler instance;
+	protected static SchedulerProxyFiled instance;
 
-	public static Scheduler getInstance() {
+	public static SchedulerProxyFiled getInstance() {
 
 		if (instance == null) {
 
-			synchronized (Scheduler.class) {
+			synchronized (SchedulerProxyFiled.class) {
 				if (instance == null) {
-					instance = new Scheduler();
+					instance = new SchedulerProxyFiled();
 				}
 			}
 		}
@@ -108,7 +98,7 @@ public class Scheduler {
 	 * TODO 初始化ChromeDriverAgent
 	 * 增加Exception Callbacks
 	 */
-	public Scheduler() {
+	public SchedulerProxyFiled() {
 		init();
 	}
 
@@ -118,7 +108,7 @@ public class Scheduler {
 		Requester.URL_VISITS.clear();
 
 		String domain = "zbj.com";
-		int driverCount = num;
+		int driverCount = 1;
 
 		try {
 
@@ -130,10 +120,10 @@ public class Scheduler {
 			//AliyunHost.batchBuild(driverCount + 2);
 
 			// 删除所有docker container
-			DockerHostManager.getInstance().delAllDockerContainers();
+			//DockerHostManager.getInstance().delAllDockerContainers();
 
 			// 创建 container
-			DockerHostManager.getInstance().createDockerContainers(driverCount);
+			//DockerHostManager.getInstance().createDockerContainers(driverCount);
 
 			// 读取全部有效账户 N个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
@@ -182,10 +172,10 @@ public class Scheduler {
 
 							task.addAction(new LoginWithGeetestAction(account));
 
-							ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+							//ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
 							//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
-							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy);
+							ChromeDriverAgent agent = new ChromeDriverAgent();
 
 							// agent 添加异常回调
 							agent.addAccountFailedCallback(()->{
@@ -219,7 +209,7 @@ public class Scheduler {
 
 							}).addTerminatedCallback(()->{
 
-								logger.info("Container {} {}:{} Terminated.", container.name, container.ip, container.vncPort);
+								//logger.info("Container {} {}:{} Terminated.", container.name, container.ip, container.vncPort);
 
 							}).addNewCallback(()->{
 
@@ -236,9 +226,9 @@ public class Scheduler {
 
 							agent.start();
 
-							logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
+							/*logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
 									agent.remoteAddress,
-									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);
+									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);*/
 						}
 
 						latch.countDown();
@@ -337,23 +327,19 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) {
 
-		new Thread(()->{ServiceWrapper.getInstance();}).start();
-
 		if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {
 			num = Integer.parseInt(args[1]);
 		}
 
-		if (args.length == 2 && args[0].equals("H")){
+		if (args.length == 2 && args[0].equals("H")) {
 			// 获取历史数据
 			logger.info("历史数据");
-			Scheduler.getInstance().getHistoricalData();
+			SchedulerProxyFiled.getInstance().getHistoricalData();
 
-		}
-		else {
+		} else {
 			// 监控数据
 			logger.info("监控数据");
-			Scheduler.getInstance().monitor();
+			SchedulerProxyFiled.getInstance().monitor();
 		}
 	}
-
 }

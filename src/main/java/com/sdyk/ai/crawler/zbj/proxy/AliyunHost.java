@@ -195,8 +195,6 @@ public class AliyunHost {
 
 						aliyunHost.insert();
 
-						Thread.sleep(20000);
-
 						ProxyImpl proxy = aliyunHost.createSquidProxy();
 						proxy.insert();
 						logger.info("New proxy[AliyunHost] {}:{}", proxy.getHost(), proxy.getPort());
@@ -455,6 +453,19 @@ public class AliyunHost {
 	}
 
 	/**
+	 * 循环调用，知道ssh正常连接
+	 * @throws InterruptedException
+	 */
+	private void connectSsh() throws InterruptedException {
+		try {
+			ssh_host.connect();
+		} catch (Exception e) {
+			Thread.sleep(5000);
+			connectSsh();
+		}
+	}
+
+	/**
 	 * 添加代理
 	 * @return
 	 */
@@ -467,10 +478,8 @@ public class AliyunHost {
 		ProxyImpl proxy = null;
 
 		try {
-			logger.info("Sleep 30 for ssh connection.");
-			Thread.sleep(30000);
 
-			ssh_host.connect();
+			connectSsh();
 
 			ssh_host.upload("squid.sh", "/root");
 

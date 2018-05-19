@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.j256.ormlite.stmt.query.In;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
@@ -39,66 +40,71 @@ public class ProjectTask extends Task {
 
 		this.addDoneCallback(() -> {
 
-			String src = getResponse().getText();
-			Document doc = getResponse().getDoc();
-
-
-			FileUtil.writeBytesToFile(src.getBytes(), "project.html");
-
-			List<Task> tasks = new ArrayList();
-
 			try {
-				// 初始化 必须传入url 生成主键id
-				project = new Project(getUrl());
-			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract url: {}, ", getUrl(), e);
-			}
 
-			if (src.contains("操作失败请稍后重试")) {
+				String src = getResponse().getText();
+				Document doc = getResponse().getDoc();
+
+
+				FileUtil.writeBytesToFile(src.getBytes(), "project.html");
+
+				List<Task> tasks = new ArrayList();
+
 				try {
-					ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
-					return;
+					// 初始化 必须传入url 生成主键id
+					project = new Project(getUrl());
 				} catch (MalformedURLException | URISyntaxException e) {
-					logger.error(e);
+					logger.error("Error extract url: {}, ", getUrl(), e);
 				}
-			}
-			// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
-			// A 无法请求页面内容
-			if (pageAccessible(src)) {
-
-				String header;
-
-				// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-				header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
-
-				// B1 页面格式1 ：http://task.zbj.com/12954152/
-				if (pageType(header) == PageType.OrderDetail) {
-
-					logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
-
-					pageOne(doc, src, header, tasks);
+				if (src.contains("操作失败请稍后重试")) {
 					try {
-						project.insert();
-					} catch (Exception e) {
-						logger.error("insert error for project", e);
+						ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
+						return;
+					} catch (MalformedURLException | URISyntaxException e) {
+						logger.error(e);
 					}
 				}
-				// B2 页面格式2 ：http://task.zbj.com/12954086/
-				else if (pageType(header) == PageType.ReqDetail) {
+				// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
-					pageTwo(doc, header, tasks);
-					try {
-						project.insert();
-					} catch (Exception e) {
-						logger.error("insert error for project", e);
+				// A 无法请求页面内容
+				if (pageAccessible(src)) {
+
+					String header;
+
+					// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
+					header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
+
+					// B1 页面格式1 ：http://task.zbj.com/12954152/
+					if (pageType(header) == PageType.OrderDetail) {
+
+						logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
+
+						pageOne(doc, src, header, tasks);
+						try {
+							project.insert();
+						} catch (Exception e) {
+							logger.error("insert error for project", e);
+						}
+					}
+					// B2 页面格式2 ：http://task.zbj.com/12954086/
+					else if (pageType(header) == PageType.ReqDetail) {
+
+						pageTwo(doc, header, tasks);
+						try {
+							project.insert();
+						} catch (Exception e) {
+							logger.error("insert error for project", e);
+						}
 					}
 				}
-			}
 
-			for(Task t : tasks) {
-				t.setBuildDom();
-				ChromeDriverRequester.getInstance().submit(t);
+				for (Task t : tasks) {
+					t.setBuildDom();
+					ChromeDriverRequester.getInstance().submit(t);
+				}
+			}catch (Exception e) {
+				logger.error(e);
 			}
 		});
 	}
@@ -283,59 +289,85 @@ public class ProjectTask extends Task {
 	 */
 	public void pageOne(Document doc, String src, String head, List<Task> tasks) {
 
-		// 项目是否可投标，以及投标数量
-		finishProject(src, doc);
-
-		project.title = getString("#ed-tit > div.tctitle.clearfix > h1", "");
-
-		project.area = getString("#j-receiptcon > span.ads", "");
-
-		project.origin = getString("#j-receiptcon > a", "");
-
-		// body > div.main.task-details > div.grid > ul
-		project.category = getString("body > div.main.task-details > div.grid > ul", "");
-
-		// TODO 需要额外处理图片, 下载
-		String description_src =doc.select("#work-more")
-				.html()
-				.replaceAll("<a class=\"check-all-btn\".+?>查看全部</a>","");
-
-		project.description = download(description_src);
-
-		project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
-
-		// 预算处理  #ed-tit > div.micon > div.fl.money-operate > p > u
-		double[] budget = StringUtil.budget_all(doc,
-				"#ed-tit > div.micon > div.fl.money-operate > p > u",
-				project.description);
-		project.budget_lb = budget[0];
-		project.budget_up = budget[1];
-
-		// 发布时间
-		String pubdate = doc.select("#j-receiptcon > span.time").text();
-
-		if (pubdate == null || pubdate.equals("")) {
-			project.pubdate = null;
-		}else {
-			try {
-				project.pubdate = DateFormatUtil.parseTime(doc.select("#j-receiptcon > span.time").text());
-			} catch (ParseException e) {
-				logger.error("projectTask one pubdate is bad", e);
-			}
-		}
-		// 获取招标人id
-		getTendererIdName(doc, src);
-
-		// 项目状态 剩余时间
-		projectStateOne(doc);
-
-		project.trade_type = doc.select("#j-content > div > div.taskmode-block.clearfix > div.header > em").text();
-
-		// 进入雇主页
 		try {
-			tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
-		} catch (MalformedURLException | URISyntaxException e) {
-			logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+
+			// 项目是否可投标，以及投标数量
+			finishProject(src, doc);
+
+			project.title = getString("#ed-tit > div.tctitle.clearfix > h1", "");
+
+			project.area = getString("#j-receiptcon > span.ads", "");
+
+			project.origin = getString("#j-receiptcon > a", "");
+
+			// body > div.main.task-details > div.grid > ul
+			project.category = getString("body > div.main.task-details > div.grid > ul", "");
+
+			// TODO 需要额外处理图片, 下载
+			String description_src = doc.select("#work-more")
+					.html()
+					.replaceAll("<a class=\"check-all-btn\".+?>查看全部</a>", "");
+
+			project.description = download(description_src);
+
+			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
+
+			// 预算处理  #ed-tit > div.micon > div.fl.money-operate > p > u
+			double[] budget = StringUtil.budget_all(doc,
+					"#ed-tit > div.micon > div.fl.money-operate > p > u",
+					project.description);
+			project.budget_lb = budget[0];
+			project.budget_up = budget[1];
+
+			// 发布时间
+			String pubdate = doc.select("#j-receiptcon > span.time").text();
+
+			if (pubdate == null || pubdate.equals("")) {
+				project.pubdate = null;
+			} else {
+				try {
+					project.pubdate = DateFormatUtil.parseTime(doc.select("#j-receiptcon > span.time").text());
+				} catch (ParseException e) {
+					logger.error("projectTask one pubdate is bad", e);
+				}
+			}
+			// 获取招标人id
+			getTendererIdName(doc, src);
+
+			// 项目状态 剩余时间
+			projectStateOne(doc);
+
+			project.trade_type = doc.select("#j-content > div > div.taskmode-block.clearfix > div.header > em").text();
+
+			String data = doc
+					.select("#anytime-back > div.user-bg.clearfix > div.right.task-right > div.r-c > div > div.task-service-box-bd")
+					.text();
+			Pattern pattern_view = Pattern.compile("浏览：(?<T>\\d+)次");
+			Pattern pattern_bidder = Pattern.compile("投标次数：(?<T>\\d+)次");
+			Pattern pattern_collect = Pattern.compile("收藏：(?<T>\\d+)人");
+
+			Matcher matcher_view = pattern_view.matcher(data);
+			Matcher matcher_bidder = pattern_bidder.matcher(data);
+			Matcher matcher_collect = pattern_collect.matcher(data);
+
+			while (matcher_view.find()) {
+				project.view_num = Integer.parseInt(matcher_view.group("T"));
+			}
+			while (matcher_bidder.find()) {
+				project.bidder_new_num = Integer.parseInt(matcher_bidder.group("T"));
+			}
+			while (matcher_collect.find()) {
+				project.collect_num = Integer.parseInt(matcher_collect.group("T"));
+			}
+
+			// 进入雇主页
+			try {
+				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
+			} catch (MalformedURLException | URISyntaxException e) {
+				logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+			}
+		} catch (Exception e) {
+			logger.error(e);
 		}
 	}
 
@@ -346,81 +378,85 @@ public class ProjectTask extends Task {
 	 */
 	public void pageTwo(Document doc, String head, List<Task> tasks) {
 
-		String src = doc.head().select("#storage").toString();
-
-		Pattern pattern_name = Pattern.compile("\"buyerName\":.+?\"");
-		Matcher matcher_name = pattern_name.matcher(src);
-		if (matcher_name.find()) {
-			project.tenderer_name = matcher_name.group()
-					.replace("\"buyerName\":\"","")
-					.replace("\"","");
-		}
-		Pattern pattern_id = Pattern.compile("\"buyerId\":.+?,");
-		Matcher matcher_id = pattern_id.matcher(src);
-		if (matcher_id.find()) {
-			project.tenderer_id = matcher_id.group()
-					.replace("\"buyerId\":","")
-					.replace(",","");
-		}
-
-		project.type = head;
-
-		project.title = getString(
-				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > h1", "");
-
-		project.req_no = getString(
-				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
-
-		project.category = getString(
-				"#utopia_widget_3",
-				"");
-
-		String description_src = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")
-				.toString();
-
-		// 下载
-		project.description = download(description_src);
-
-		project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
-
-		// 获取地点，来源
-		if (doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span").size() == 2) {
-			project.area = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
-					.text().replace("-"," ");
-			project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
-					.text().replace("来自：", "");
-		}
-		else {
-			project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
-					.text().replace("来自：", "");
-		}
-
-		// 预算处理
-
-		double[] budget = StringUtil.budget_all(doc,
-				"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe > span:nth-child(1) > b",
-				project.description);
-		project.budget_lb = budget[0];
-		project.budget_up = budget[1];
-
-		// 项目状态，剩余时间
-		projectStateTwo(doc);
-
-		// 投标总数与投标人数
-		project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
-				"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
-		project.bidder_num = StringUtil.getBidderNum(doc,
-				"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
-
-		project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
-
-		project.trade_type = "投标";
-
-		// 进入雇主页
 		try {
-			tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
-		} catch (MalformedURLException | URISyntaxException e) {
-			logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+
+			String src = doc.head().select("#storage").toString();
+
+			Pattern pattern_name = Pattern.compile("\"buyerName\":.+?\"");
+			Matcher matcher_name = pattern_name.matcher(src);
+			if (matcher_name.find()) {
+				project.tenderer_name = matcher_name.group()
+						.replace("\"buyerName\":\"", "")
+						.replace("\"", "");
+			}
+			Pattern pattern_id = Pattern.compile("\"buyerId\":.+?,");
+			Matcher matcher_id = pattern_id.matcher(src);
+			if (matcher_id.find()) {
+				project.tenderer_id = matcher_id.group()
+						.replace("\"buyerId\":", "")
+						.replace(",", "");
+			}
+
+			project.type = head;
+
+			project.title = getString(
+					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > h1", "");
+
+			project.req_no = getString(
+					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
+
+			project.category = getString(
+					"#utopia_widget_3",
+					"");
+
+			String description_src = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")
+					.toString();
+
+			// 下载
+			project.description = download(description_src);
+
+			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
+
+			// 获取地点，来源
+			if (doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span").size() == 2) {
+				project.area = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+						.text().replace("-", " ");
+				project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
+						.text().replace("来自：", "");
+			} else {
+				project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+						.text().replace("来自：", "");
+			}
+
+			// 预算处理
+
+			double[] budget = StringUtil.budget_all(doc,
+					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe > span:nth-child(1) > b",
+					project.description);
+			project.budget_lb = budget[0];
+			project.budget_up = budget[1];
+
+			// 项目状态，剩余时间
+			projectStateTwo(doc);
+
+			// 投标总数与投标人数
+			project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
+					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
+			project.bidder_num = StringUtil.getBidderNum(doc,
+					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
+
+			project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+
+			project.trade_type = "投标";
+
+			// 进入雇主页
+			try {
+				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
+			} catch (MalformedURLException | URISyntaxException e) {
+				logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+			}
+		}catch (Exception e) {
+			logger.error(e);
 		}
 	}
 }
