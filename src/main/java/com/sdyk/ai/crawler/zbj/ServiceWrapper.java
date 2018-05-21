@@ -30,7 +30,7 @@ public class ServiceWrapper {
 
 		port(port);
 
-		/*// 需求
+		// 需求
 		get("/project/:id", ProjectRoute.getProjectById, new ModelMsgTransformer());
 
 		get("/projects/:page", ProjectRoute.getProjects, new ModelMsgTransformer());
@@ -62,9 +62,8 @@ public class ServiceWrapper {
 		get("/servicesupplier/:userid/works/:page", WorkRoute.getWorks, new ModelMsgTransformer());
 
 		// 服务商评价
-		get("/servicesupplier/:servicesupplierid/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());*/
+		get("/servicesupplier/:servicesupplierid/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());
 
-		//
 		get("/system/queue", SystemRoute.getQueueSize, new ModelMsgTransformer());
 
 	}

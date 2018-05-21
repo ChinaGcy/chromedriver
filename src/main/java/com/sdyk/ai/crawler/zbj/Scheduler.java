@@ -58,7 +58,7 @@ public class Scheduler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-			"t-pxfw",
+			/*"t-pxfw",
 			"t-consult",
 			"t-paperwork",
 			"t-ppsj",
@@ -77,12 +77,12 @@ public class Scheduler {
 			"t-wxptkf",
 			"t-dianlu",
 			"t-xxtg",
-			"t-yxtg"
+			"t-yxtg"*/
 	};
 
 	// 服务商频道参数
 	public static String[] service_supplier_channels = {
-			/*"pxfw",
+			"pxfw",
 			"consult",
 			"paperwork",
 			"ppsj",
@@ -101,7 +101,7 @@ public class Scheduler {
 			"wxptkf",
 			"dianlu",
 			"xxtg",
-			"yxtg"*/
+			"yxtg"
 	};
 
 	/**

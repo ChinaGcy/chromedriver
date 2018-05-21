@@ -111,35 +111,29 @@ public class TendererOrderTask extends ScanTask {
 			project.trade_type = element.select("span.order-item-type").text();
 
 			// TODO 正则获取数据
-			if (doc.select("div > div.order-item-subinfo > span").size() >= 5) {
+			// div > div.order-item-subinfo
+			String text = doc.select("div > div.order-item-subinfo").text();
 
-				project.pubdate = DateFormatUtil.parseTime(
-						element.select("div > div.order-item-subinfo > span:nth-child(3)")
-								.text()
-				);
-
-				project.origin = element.select("div > div.order-item-subinfo > span:nth-child(5)")
-						.text()
-						.replace("来自：", "");
-
-				if (!element.select("div > div.order-item-subinfo > span:nth-child(1)")
-						.text().contains("提供服务")
-						) {
-					project.bidder_new_num = Integer.parseInt(element.select("div > div.order-item-subinfo > span:nth-child(1)")
-							.text()
-							.split("位")[0]);
-				} else {
-					project.bidder_new_num = 1;
-				}
+			if (text.contains("提供服务")) {
+				project.bidder_new_num = 1;
 			} else {
-				project.pubdate = DateFormatUtil.parseTime(
-						element.select("div > div.order-item-subinfo > span:nth-child(1)")
-								.text()
-				);
+				Pattern pattern = Pattern.compile("(?<T>\\d+)位服务商参与");
+				Matcher matcher = pattern.matcher(text);
+				if (matcher.find()) {
+					project.bidder_new_num = Integer.parseInt(matcher.group("T"));
+				}
+			}
+			Pattern pattern_time = Pattern.compile("\\d+-\\d+-\\d+ \\d+:\\d+:\\d+");
+			Matcher matcher_time = pattern_time.matcher(text);
+			if (matcher_time.find()) {
+				project.pubdate = DateFormatUtil.parseTime(matcher_time.group());
+			}
 
-				project.origin = element.select("div > div.order-item-subinfo > span:nth-child(3)")
-						.text()
-						.replace("来自：", "");
+			Pattern pattern_origin = Pattern.compile("来自：(?<T>.+?)$");
+			Matcher matcher_origin = pattern_origin.matcher(text);
+			if (matcher_origin.find()) {
+
+				project.origin = matcher_origin.group("T");
 			}
 
 			try {

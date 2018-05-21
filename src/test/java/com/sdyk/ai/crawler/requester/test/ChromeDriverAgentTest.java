@@ -74,4 +74,19 @@ public class ChromeDriverAgentTest {
 		}
 
 	}
+
+	@Test
+	public void testIP() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException {
+
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		agent.start();
+
+		Task task = new Task("http://www.zbj.com");
+
+		for(int a = 0; a< 2000 ; a++) {
+			agent.submit(task);
+		}
+
+	}
+
 }

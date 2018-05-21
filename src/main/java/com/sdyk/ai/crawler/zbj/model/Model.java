@@ -111,6 +111,10 @@ public abstract class Model implements JSONable<Model> {
 
 	public static String rewriteBinaryUrl(String src) {
 
+		if (src == null) {
+			return src;
+		}
+
 		Pattern p = Pattern.compile("(?<=href=\")[\\w\\d]{32}");
 		Matcher m = p.matcher(src);
 

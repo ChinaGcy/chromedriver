@@ -96,6 +96,10 @@ task copyFiles(group: 'tetra') << {
         into 'src/main/dist'
     }
     copy {
+        from 'docker.pem'
+        into 'src/main/dist'
+    }
+    copy {
         from 'lib'
         into 'src/main/dist'
     }

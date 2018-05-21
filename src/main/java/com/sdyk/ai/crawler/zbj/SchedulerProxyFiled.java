@@ -117,7 +117,7 @@ public class SchedulerProxyFiled {
 			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
 
 			// 创建阿里云host
-			//AliyunHost.batchBuild(driverCount + 2);
+			//AliyunHost.batchBuild(driverCount);
 
 			// 删除所有docker container
 			//DockerHostManager.getInstance().delAllDockerContainers();
@@ -175,7 +175,8 @@ public class SchedulerProxyFiled {
 							//ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
 							//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
-							ChromeDriverAgent agent = new ChromeDriverAgent();
+
+							ChromeDriverAgent agent = new ChromeDriverAgent(proxy);
 
 							// agent 添加异常回调
 							agent.addAccountFailedCallback(()->{
