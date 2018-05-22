@@ -1,17 +1,12 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
-import com.j256.ormlite.stmt.query.In;
 import com.sdyk.ai.crawler.zbj.task.Task;
-import com.sdyk.ai.crawler.zbj.util.StatManager;
 import com.sdyk.ai.crawler.zbj.util.StringUtil;
 import com.sdyk.ai.crawler.zbj.model.Project;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.NoSuchElementException;
 import one.rewind.txt.DateFormatUtil;
-import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -80,7 +75,7 @@ public class ProjectTask extends Task {
 
 						logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
 
-						pageOne(doc, src, header, tasks);
+						procTypeA(doc, src, header, tasks);
 						try {
 							project.insert();
 						} catch (Exception e) {
@@ -90,7 +85,7 @@ public class ProjectTask extends Task {
 					// B2 页面格式2 ：http://task.zbj.com/12954086/
 					else if (pageType(header) == PageType.ReqDetail) {
 
-						pageTwo(doc, header, tasks);
+						procTypeB(doc, header, tasks);
 						try {
 							project.insert();
 						} catch (Exception e) {
@@ -287,7 +282,7 @@ public class ProjectTask extends Task {
 	 * @param head 页面格式
 	 * @param tasks
 	 */
-	public void pageOne(Document doc, String src, String head, List<Task> tasks) {
+	public void procTypeA(Document doc, String src, String head, List<Task> tasks) {
 
 		try {
 
@@ -367,7 +362,7 @@ public class ProjectTask extends Task {
 				logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Error handle page type 1, {}, ", getUrl(), e);
 		}
 	}
 
@@ -376,7 +371,7 @@ public class ProjectTask extends Task {
 	 * 数据采取
 	 * @param head
 	 */
-	public void pageTwo(Document doc, String head, List<Task> tasks) {
+	public void procTypeB(Document doc, String head, List<Task> tasks) {
 
 		try {
 
@@ -455,8 +450,9 @@ public class ProjectTask extends Task {
 			} catch (MalformedURLException | URISyntaxException e) {
 				logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
 			}
-		}catch (Exception e) {
-			logger.error(e);
+		}
+		catch (Exception e) {
+			logger.error("Error handle page type 2, {}, ", getUrl(), e);
 		}
 	}
 }

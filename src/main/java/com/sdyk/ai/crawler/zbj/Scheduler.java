@@ -12,8 +12,10 @@ import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
+import one.rewind.db.DaoManager;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
@@ -58,7 +60,7 @@ public class Scheduler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-			/*"t-pxfw",
+			"t-pxfw", //
 			"t-consult",
 			"t-paperwork",
 			"t-ppsj",
@@ -77,7 +79,7 @@ public class Scheduler {
 			"t-wxptkf",
 			"t-dianlu",
 			"t-xxtg",
-			"t-yxtg"*/
+			"t-yxtg"
 	};
 
 	// 服务商频道参数
@@ -112,10 +114,36 @@ public class Scheduler {
 		init();
 	}
 
+	/**
+	 *
+	 * @throws Exception
+	 */
+	public void resetAccountAndProxy() throws Exception {
+
+		List<ProxyImpl> proxies = DaoManager.getDao(ProxyImpl.class).queryForAll();
+		for(ProxyImpl proxy : proxies) {
+			proxy.status = Proxy.Status.Free;
+			proxy.update();
+		}
+
+		List<AccountImpl> accounts = DaoManager.getDao(AccountImpl.class).queryForAll();
+		for(AccountImpl account : accounts) {
+			account.status = Account.Status.Free;
+			account.update();
+		}
+	}
+
 	// 初始化方法
 	public void init() {
 
 		Requester.URL_VISITS.clear();
+
+		// TODO 根据情况使用
+		try {
+			resetAccountAndProxy();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		String domain = "zbj.com";
 		int driverCount = num;

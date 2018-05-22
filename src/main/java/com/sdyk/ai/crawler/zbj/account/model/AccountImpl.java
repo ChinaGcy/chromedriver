@@ -1,10 +1,14 @@
 package com.sdyk.ai.crawler.zbj.account.model;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.DatabaseTable;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 import one.rewind.io.requester.account.Account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Date;
 
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "accounts")
@@ -19,5 +23,18 @@ public class AccountImpl extends Account {
 	public AccountImpl(String domain, String username, String password) {
 
 		super(domain, username, password);
+	}
+
+	public boolean update() throws Exception{
+
+		update_time = new Date();
+
+		Dao dao = DaoManager.getDao(this.getClass());
+
+		if (dao.update(this) == 1) {
+			return true;
+		}
+
+		return false;
 	}
 }

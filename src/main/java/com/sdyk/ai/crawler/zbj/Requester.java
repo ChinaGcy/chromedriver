@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
+import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
@@ -40,7 +41,20 @@ public class Requester extends ChromeDriverRequester {
 
 		String hash = hash(task.getUrl());
 
-		if(! URL_VISITS.containsKey(hash) || WHITE_URLS.contains(task.getUrl())) {
+		// 列表扫描任务的处理
+		if(task instanceof ScanTask) {
+
+			// TODO 任务队列中包含相同URL的Task，该Task不需要提交
+			task.addDoneCallback(() -> {
+
+				StatManager.getInstance().count();
+			});
+
+			queue.offer(task);
+
+		}
+		// Model采集任务
+		else if(! URL_VISITS.containsKey(hash) || WHITE_URLS.contains(task.getUrl())) {
 
 			URL_VISITS.put(hash, new Date());
 

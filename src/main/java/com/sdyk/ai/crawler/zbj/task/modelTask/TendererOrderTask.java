@@ -96,7 +96,7 @@ public class TendererOrderTask extends ScanTask {
 
 		for (Element element : elements) {
 
-			String url = element.select("div > div.order-item-title > a").attr("href");
+			String url = element.select("div > div.order-item-title > a").attr("href")+"/";
 
 			logger.info(url);
 

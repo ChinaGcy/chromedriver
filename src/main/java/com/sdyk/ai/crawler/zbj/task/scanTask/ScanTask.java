@@ -59,8 +59,9 @@ public abstract class ScanTask extends Task{
 
 			return page < maxPage;
 
-		} catch (NoSuchElementException | ArrayIndexOutOfBoundsException e) {
-			logger.error(e);
+		}
+		catch (NoSuchElementException | NullPointerException | ArrayIndexOutOfBoundsException e) {
+			logger.error("{}", getUrl(), e);
 			return false;
 		}
 	}
