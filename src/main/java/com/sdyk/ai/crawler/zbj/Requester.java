@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.zbj;
 
 import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.util.StatManager;
 import one.rewind.db.RedissonAdapter;
@@ -48,6 +49,16 @@ public class Requester extends ChromeDriverRequester {
 			task.addDoneCallback(() -> {
 
 				StatManager.getInstance().count();
+			});
+
+			task.addDoneCallback(() -> {
+
+				TaskTrace tt = ((ScanTask) task).getTaskTrace();
+				try {
+					tt.insert();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			});
 
 			queue.offer(task);

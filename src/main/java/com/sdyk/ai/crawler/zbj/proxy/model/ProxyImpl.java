@@ -127,5 +127,4 @@ public class ProxyImpl extends Proxy {
 	public boolean timeout() throws Exception {
 		return true;
 	}
-
 }

@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 import com.j256.ormlite.stmt.query.In;
 import com.sdyk.ai.crawler.zbj.model.Project;
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
@@ -27,15 +28,15 @@ public class TendererOrderTask extends ScanTask {
 	 * 翻页
 	 * @param url
 	 * @param page
-	 * @param webId
+	 * @param userId
 	 * @return
 	 */
-	public static TendererOrderTask generateTask(String url, int page, String webId) {
+	public static TendererOrderTask generateTask(String url, int page, String userId) {
 
 		TendererOrderTask t = null;
 		String url_ = url+ "/?op=" + page;
 		try {
-			t = new TendererOrderTask(url_, page, webId);
+			t = new TendererOrderTask(url_, page, userId);
 			t.setBuildDom();
 			return t;
 		} catch (MalformedURLException | URISyntaxException e) {
@@ -44,10 +45,10 @@ public class TendererOrderTask extends ScanTask {
 		return t;
 	}
 
-	public TendererOrderTask(String url, int page, String webId) throws MalformedURLException, URISyntaxException {
+	public TendererOrderTask(String url, int page, String userId) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("page", page);
-		this.setParam("webId", webId);
+		this.setParam("userId", userId);
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
@@ -59,7 +60,7 @@ public class TendererOrderTask extends ScanTask {
 
 			// 获取历史数据（简略）
 			try {
-				tasks.addAll(getSimpleProjectTask(doc, webId));
+				tasks.addAll(getSimpleProjectTask(doc, userId));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -67,7 +68,7 @@ public class TendererOrderTask extends ScanTask {
 			if (pageTurning("#order > div > div.pagination-wrapper > div > ul >li", op_page)) {
 				// 翻页
 				Task t = generateTask("https://home.zbj.com/"
-						+ this.getParamString("webId"), ++op_page, this.getParamString("webId"));
+						+ this.getParamString("userId"), ++op_page, this.getParamString("userId"));
 				if (t != null) {
 					t.setPriority(Priority.MEDIUM);
 					t.setBuildDom();
@@ -88,7 +89,7 @@ public class TendererOrderTask extends ScanTask {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public static List<Task> getSimpleProjectTask(Document doc, String webId) throws Exception {
+	public static List<Task> getSimpleProjectTask(Document doc, String userId) throws Exception {
 
 		List<Task> tasks = new ArrayList<>();
 
@@ -97,7 +98,7 @@ public class TendererOrderTask extends ScanTask {
 		for (Element element : elements) {
 
 			// 与project的url一致，更新数据库。
-			String url = element.select("div > div.order-item-title > a").attr("href") + "/";
+			String url = element.select("div > div.order-item-title > a").attr("href");
 
 			logger.info(url);
 
@@ -105,7 +106,7 @@ public class TendererOrderTask extends ScanTask {
 
 			project.tenderer_name = doc.select("#utopia_widget_1 > div > div.topinfo-top > div > h2").text();
 
-			project.tenderer_id = webId;
+			project.tenderer_id = userId;
 
 			project.title = element.select("div > div.order-item-title > a").text();
 
@@ -155,5 +156,11 @@ public class TendererOrderTask extends ScanTask {
 		}
 
 		return tasks;
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+
+		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
 	}
 }

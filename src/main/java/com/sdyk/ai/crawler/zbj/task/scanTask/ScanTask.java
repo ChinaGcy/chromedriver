@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
@@ -65,5 +66,7 @@ public abstract class ScanTask extends Task{
 			return false;
 		}
 	}
+
+	public abstract TaskTrace getTaskTrace();
 
 }

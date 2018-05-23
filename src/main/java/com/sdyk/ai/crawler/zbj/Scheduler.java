@@ -88,7 +88,6 @@ public class Scheduler {
 			"yxtg",                // 营销传播
 			"ppglzxzbj",           // 品牌咨询管理
 			"dsyxfwzbj"            // 电商营销服务
-
 	};
 
 	/**

@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.modelTask;
 
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
@@ -25,12 +26,12 @@ public class TendererRatingTask extends ScanTask {
 
 	TendererRating tendererRating;
 
-	public static TendererRatingTask generateTask(String url, int page, String webId) {
+	public static TendererRatingTask generateTask(String url, int page, String userId) {
 
 		TendererRatingTask t = null;
 		String url_ = url+ "/?ep=" + page;
 		try {
-			t = new TendererRatingTask(url_, page, webId);
+			t = new TendererRatingTask(url_, page, userId);
 			return t;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -41,10 +42,10 @@ public class TendererRatingTask extends ScanTask {
 		return t;
 	}
 
-	public TendererRatingTask(String url, int page, String webId) throws MalformedURLException, URISyntaxException {
+	public TendererRatingTask(String url, int page, String userId) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("page", page);
-		this.setParam("webId", webId);
+		this.setParam("userId", userId);
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
@@ -164,12 +165,17 @@ public class TendererRatingTask extends ScanTask {
 			Task t = null;
 			try {
 				t = new TendererRatingTask("https://home.zbj.com/"
-						+ this.getParamString("webId"), ++page, this.getParamString("webId"));
+						+ this.getParamString("userId"), ++page, this.getParamString("userId"));
 				return t;
 			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract url: {}, ", getUrl(), e);
+				logger.error("Error extract channel: {}, ", getUrl(), e);
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
 	}
 }

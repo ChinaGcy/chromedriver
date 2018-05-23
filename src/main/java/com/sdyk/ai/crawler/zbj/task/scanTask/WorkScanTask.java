@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.modelTask.WorkTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -104,4 +105,8 @@ public class WorkScanTask extends ScanTask {
 
 	}
 
+	@Override
+	public TaskTrace getTaskTrace() {
+		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+	}
 }

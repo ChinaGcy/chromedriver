@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -22,9 +23,9 @@ public class CaseScanTask extends ScanTask {
 	public static List<String> list = new ArrayList<>();
 
 	//   http://shop.zbj.com/7523816/
-	public static CaseScanTask generateTask(String header, int page) {
+	public static CaseScanTask generateTask(String uid, int page) {
 
-		String url = header + "servicelist-p" + page + ".html";
+		String url = "http://shop.zbj.com/" + uid + "/servicelist-p" + page + ".html";
 
 		try {
 			CaseScanTask t = new CaseScanTask(url, page);
@@ -37,8 +38,19 @@ public class CaseScanTask extends ScanTask {
 		return null;
 	}
 
+	/**
+	 *
+	 * @param url
+	 * @param page
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 */
 	public CaseScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
+
 		super(url);
+		String uid = this.getUrl().split("/")[3];
+
+		this.setParam("uid", uid);
 		this.setParam("page", page);
 		this.setBuildDom();
 
@@ -49,13 +61,11 @@ public class CaseScanTask extends ScanTask {
 				String src = getResponse().getText();
 
 				// http://shop.zbj.com/17788555/servicelist-p1.html
-				String webId = this.getUrl().split("/")[3];
-
 				List<Task> tasks = new ArrayList<>();
 
 				// 判断是否翻页
 				if (!src.contains("暂时还没有此类服务！") && backtrace) {
-					Task t = generateTask("https://shop.zbj.com/" + webId + "/", page + 1);
+					Task t = generateTask(uid, page + 1);
 					if (t != null) {
 						t.setPriority(Priority.HIGH);
 						tasks.add(t);
@@ -101,9 +111,15 @@ public class CaseScanTask extends ScanTask {
 				for (Task t : tasks) {
 					ChromeDriverRequester.getInstance().submit(t);
 				}
-			}catch (Exception e) {
+
+			} catch (Exception e) {
 				logger.error(e);
 			}
 		});
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+		return new TaskTrace(this.getClass(), this.getParamString("uid"), this.getParamString("page"));
 	}
 }

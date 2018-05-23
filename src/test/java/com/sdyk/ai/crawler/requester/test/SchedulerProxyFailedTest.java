@@ -1,8 +1,9 @@
-package com.sdyk.ai.crawler.zbj;
+package com.sdyk.ai.crawler.requester.test;
 
+import com.sdyk.ai.crawler.zbj.Requester;
+import com.sdyk.ai.crawler.zbj.Scheduler;
 import com.sdyk.ai.crawler.zbj.account.AccountManager;
 import com.sdyk.ai.crawler.zbj.account.model.AccountImpl;
-import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
 import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
@@ -11,7 +12,6 @@ import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ServiceScanTask;
-import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
@@ -24,21 +24,21 @@ import java.util.concurrent.CountDownLatch;
 /**
  * 单机完整测试代理更换（无docker环境下）
  */
-public class SchedulerProxyFiled {
+public class SchedulerProxyFailedTest {
 
 	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
 	public static int num = 1;
 
-	protected static SchedulerProxyFiled instance;
+	protected static SchedulerProxyFailedTest instance;
 
-	public static SchedulerProxyFiled getInstance() {
+	public static SchedulerProxyFailedTest getInstance() {
 
 		if (instance == null) {
 
-			synchronized (SchedulerProxyFiled.class) {
+			synchronized (SchedulerProxyFailedTest.class) {
 				if (instance == null) {
-					instance = new SchedulerProxyFiled();
+					instance = new SchedulerProxyFailedTest();
 				}
 			}
 		}
@@ -98,7 +98,7 @@ public class SchedulerProxyFiled {
 	 * TODO 初始化ChromeDriverAgent
 	 * 增加Exception Callbacks
 	 */
-	public SchedulerProxyFiled() {
+	public SchedulerProxyFailedTest() {
 		init();
 	}
 
@@ -335,12 +335,12 @@ public class SchedulerProxyFiled {
 		if (args.length == 2 && args[0].equals("H")) {
 			// 获取历史数据
 			logger.info("历史数据");
-			SchedulerProxyFiled.getInstance().getHistoricalData();
+			SchedulerProxyFailedTest.getInstance().getHistoricalData();
 
 		} else {
 			// 监控数据
 			logger.info("监控数据");
-			SchedulerProxyFiled.getInstance().monitor();
+			SchedulerProxyFailedTest.getInstance().monitor();
 		}
 	}
 }

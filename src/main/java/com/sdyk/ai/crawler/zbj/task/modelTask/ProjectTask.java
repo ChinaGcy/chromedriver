@@ -49,7 +49,7 @@ public class ProjectTask extends Task {
 					// 初始化 必须传入url 生成主键id
 					project = new Project(getUrl());
 				} catch (MalformedURLException | URISyntaxException e) {
-					logger.error("Error extract url: {}, ", getUrl(), e);
+					logger.error("Error extract channel: {}, ", getUrl(), e);
 				}
 
 				if (src.contains("操作失败请稍后重试")) {
@@ -60,7 +60,7 @@ public class ProjectTask extends Task {
 						logger.error(e);
 					}
 				}
-				// TODO 补充示例页面 url: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
+				// TODO 补充示例页面 channel: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
 				// A 无法请求页面内容
 				if (pageAccessible(src)) {
@@ -359,7 +359,7 @@ public class ProjectTask extends Task {
 			try {
 				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
 			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+				logger.error("Error extract channel: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
 			}
 		} catch (Exception e) {
 			logger.error("Error handle page type 1, {}, ", getUrl(), e);
@@ -448,7 +448,7 @@ public class ProjectTask extends Task {
 			try {
 				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
 			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract url: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
+				logger.error("Error extract channel: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
 			}
 		}
 		catch (Exception e) {

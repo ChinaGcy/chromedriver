@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -24,7 +25,7 @@ public class ServiceScanTask extends ScanTask {
 		String url = "https://www.zbj.com/" + channel + "/pk" + page + ".html";
 
 		try {
-			ServiceScanTask t = new ServiceScanTask(url, page);
+			ServiceScanTask t = new ServiceScanTask(url, channel, page);
 			return t;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -42,9 +43,11 @@ public class ServiceScanTask extends ScanTask {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ServiceScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
+	public ServiceScanTask(String url, String channel, int page) throws MalformedURLException, URISyntaxException {
 
 		super(url);
+		this.setParam("page", page);
+		this.setParam("channel", channel);
 		this.setPriority(Priority.HIGH);
 		this.setBuildDom();
 
@@ -96,5 +99,9 @@ public class ServiceScanTask extends ScanTask {
 				logger.error(e);
 			}
 		});
+	}
+	@Override
+	public TaskTrace getTaskTrace() {
+		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
 	}
 }

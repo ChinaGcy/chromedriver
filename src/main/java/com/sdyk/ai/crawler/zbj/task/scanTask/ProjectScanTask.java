@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.zbj.task.scanTask;
 
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import org.jsoup.nodes.Document;
@@ -56,6 +57,8 @@ public class ProjectScanTask extends ScanTask {
 
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
+		this.setParam("page", page);
+		this.setParam("channel", page);
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
@@ -69,7 +72,7 @@ public class ProjectScanTask extends ScanTask {
 				// 生成任务
 				Map<String, Task> tasks = new HashMap<>();
 
-				Pattern pattern = Pattern.compile("task.zbj.com/\\d+/");
+				Pattern pattern = Pattern.compile("task.zbj.com/\\d+");
 				Matcher matcher = pattern.matcher(src);
 
 				while (matcher.find()) {
@@ -112,5 +115,10 @@ public class ProjectScanTask extends ScanTask {
 			}
 
 		});
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
 	}
 }
