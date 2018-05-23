@@ -1,21 +1,17 @@
 package com.sdyk.ai.crawler.requester.test;
 
-import com.sdyk.ai.crawler.zbj.Requester;
-import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
-import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
-import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
-import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
-import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.Requester;
+import com.sdyk.ai.crawler.proxy.AliyunHost;
+import com.sdyk.ai.crawler.proxy.ProxyManager;
+import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
+import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
+import com.sdyk.ai.crawler.specific.zbj.task.Task;
 
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 
 public class ProxyFailedTest {
 

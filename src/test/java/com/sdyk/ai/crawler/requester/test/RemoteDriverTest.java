@@ -1,9 +1,9 @@
 package com.sdyk.ai.crawler.requester.test;
 
-import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
-import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
-import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
-import com.sdyk.ai.crawler.zbj.task.Task;
+import com.sdyk.ai.crawler.docker.DockerHostManager;
+import com.sdyk.ai.crawler.docker.model.DockerHostImpl;
+import com.sdyk.ai.crawler.proxy.ProxyManager;
+import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.concurrent.CountDownLatch;
 
 import static one.rewind.io.requester.chrome.ChromeDriverRequester.buildBMProxy;
 

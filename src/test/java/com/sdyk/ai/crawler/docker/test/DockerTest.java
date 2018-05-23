@@ -1,11 +1,12 @@
 package com.sdyk.ai.crawler.docker.test;
 
-import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.zbj.Scheduler;
-import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
-import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
+import com.sdyk.ai.crawler.Scheduler;
+import com.sdyk.ai.crawler.docker.model.DockerHostImpl;
+import com.sdyk.ai.crawler.proxy.AliyunHost;
+import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.db.Refacter;
-import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.requester.account.Account;
 import one.rewind.io.ssh.SshManager;
 import org.junit.Test;
 import org.openqa.selenium.*;
@@ -13,8 +14,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
+import com.sdyk.ai.crawler.docker.DockerHostManager;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
@@ -69,7 +72,43 @@ public class DockerTest {
 		AliyunHost.stopAndDelete(aliyunHosts);
 
 		// 执行登录操作
-		Scheduler scheduler = new Scheduler();
+		Scheduler scheduler = new Scheduler("zbj.com", 1) {
+			/**
+			 * @param account
+			 * @return
+			 * @throws MalformedURLException
+			 * @throws URISyntaxException
+			 */
+			@Override
+			public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
+				return null;
+			}
+
+			/**
+			 * @param backtrace
+			 * @return
+			 */
+			@Override
+			public List<ScanTask> getTask(boolean backtrace) {
+				return null;
+			}
+
+			/**
+			 * 获取历史数据
+			 */
+			@Override
+			public void getHistoricalData() {
+
+			}
+
+			/**
+			 * 监控调度
+			 */
+			@Override
+			public void monitoring() {
+
+			}
+		};
 
 		Thread.sleep(300000);
 

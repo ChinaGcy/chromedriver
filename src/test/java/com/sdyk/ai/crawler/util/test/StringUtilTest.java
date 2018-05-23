@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.util.test;
 
-import com.sdyk.ai.crawler.zbj.util.StringUtil;
+import com.sdyk.ai.crawler.util.StringUtil;
 
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;

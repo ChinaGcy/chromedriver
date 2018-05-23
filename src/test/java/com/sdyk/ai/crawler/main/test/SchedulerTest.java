@@ -1,23 +1,26 @@
 package com.sdyk.ai.crawler.main.test;
 
-import com.sdyk.ai.crawler.zbj.Requester;
-import com.sdyk.ai.crawler.zbj.Scheduler;
-import com.sdyk.ai.crawler.zbj.account.AccountManager;
-import com.sdyk.ai.crawler.zbj.account.model.AccountImpl;
-import com.sdyk.ai.crawler.zbj.docker.DockerHostManager;
-import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
-import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
-import com.sdyk.ai.crawler.zbj.proxy.ProxyManager;
-import com.sdyk.ai.crawler.zbj.proxy.exception.NoAvailableProxyException;
-import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
-import com.sdyk.ai.crawler.zbj.task.Task;
-import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import com.sdyk.ai.crawler.Requester;
+import com.sdyk.ai.crawler.Scheduler;
+import com.sdyk.ai.crawler.account.AccountManager;
+import com.sdyk.ai.crawler.account.model.AccountImpl;
+import com.sdyk.ai.crawler.docker.DockerHostManager;
+import com.sdyk.ai.crawler.docker.model.DockerHostImpl;
+import com.sdyk.ai.crawler.proxy.AliyunHost;
+import com.sdyk.ai.crawler.proxy.ProxyManager;
+import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
+import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
+import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
+import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import org.apache.logging.log4j.LogManager;
 import org.junit.Test;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -33,14 +36,50 @@ public class SchedulerTest {
 
 		AliyunHost.stopAndDeleteAll();
 
-		Scheduler scheduler = new Scheduler();
+		Scheduler scheduler = new Scheduler("zbj.com", 1) {
+			/**
+			 * @param account
+			 * @return
+			 * @throws MalformedURLException
+			 * @throws URISyntaxException
+			 */
+			@Override
+			public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
+				return null;
+			}
+
+			/**
+			 * @param backtrace
+			 * @return
+			 */
+			@Override
+			public List<ScanTask> getTask(boolean backtrace) {
+				return null;
+			}
+
+			/**
+			 * 获取历史数据
+			 */
+			@Override
+			public void getHistoricalData() {
+
+			}
+
+			/**
+			 * 监控调度
+			 */
+			@Override
+			public void monitoring() {
+
+			}
+		};
 		Thread.sleep(6000000);
 
 	}
 
 	@Test
 	public void scheduleTest() {
-		Scheduler.getInstance();
+		//Scheduler.getInstance();
 		try {
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {

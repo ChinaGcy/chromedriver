@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.requester.test;
 
 import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
+import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import one.rewind.db.DaoManager;
 
 import java.util.List;
