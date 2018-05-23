@@ -28,14 +28,14 @@ public class TaskTrace implements JSONable {
 	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, uniqueCombo = true)
 	public String type;
 
-	@DatabaseField(dataType = DataType.STRING, width = 1024, canBeNull = false, uniqueCombo = true)
+	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, uniqueCombo = true)
 	public String channel;
 
 	@DatabaseField(dataType = DataType.STRING, width = 11, canBeNull = false, uniqueCombo = true)
 	public String page;
 
 	@DatabaseField(dataType = DataType.DATE, canBeNull = false)
-	public transient Date insert_time = new Date();
+	public Date insert_time = new Date();
 
 	public TaskTrace() {};
 

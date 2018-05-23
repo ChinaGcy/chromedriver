@@ -66,7 +66,7 @@ public class ServiceSupplierTask extends Task {
 					logger.error("insert/update error {}", e);
 				}
 				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-				tasks.add(ServiceRatingTask.generateTask("https://shop.zbj.com/evaluation/evallist-uid-" + serviceSupplier.website_id + "-type-1-page-", 1));
+				tasks.add(ServiceRatingTask.generateTask(serviceSupplier.website_id, 1));
 				tasks.add(CaseScanTask.generateTask(getUrl(), 1));
 				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
@@ -80,7 +80,7 @@ public class ServiceSupplierTask extends Task {
 
 	}
 
-	/**
+	/**3
 	 *
 	 * @param doc
 	 * @param src

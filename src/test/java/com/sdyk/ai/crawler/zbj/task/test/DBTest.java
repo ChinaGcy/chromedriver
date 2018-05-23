@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.test;
 
 import com.sdyk.ai.crawler.zbj.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.zbj.model.Project;
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.model.TendererRating;
 import com.sdyk.ai.crawler.zbj.proxy.AliyunHost;
 import com.sdyk.ai.crawler.zbj.proxy.model.ProxyImpl;
@@ -20,8 +21,8 @@ public class DBTest {
 
 	@Test
 	public void Con() throws Exception {
-		Refacter.dropTable(ProxyImpl.class);
-		Refacter.createTable(ProxyImpl.class);
+		//Refacter.dropTable(ProxyImpl.class);
+		Refacter.createTable(TaskTrace.class);
 		/*try {
 
 			DockerHostImpl host = new DockerHostImpl("10.0.0.62", 22, "root");

@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.zbj.task.modelTask;
 
 
 import com.sdyk.ai.crawler.zbj.model.SupplierRating;
+import com.sdyk.ai.crawler.zbj.model.TaskTrace;
 import com.sdyk.ai.crawler.zbj.task.Task;
 import com.sdyk.ai.crawler.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -20,12 +21,12 @@ public class ServiceRatingTask extends ScanTask {
 	SupplierRating serviceRating;
 
 	// http://shop.zbj.com/evaluation/evallist-uid-7791034-type-1-isLazyload-0-page-1.html
-	public static ServiceRatingTask generateTask(String url, int page) {
+	public static ServiceRatingTask generateTask(String userId, int page) {
 
-		String url_ = url + page + ".html";
+		String url_ = "http://shop.zbj.com/evaluation/evallist-uid-" + userId + "-type-1-isLazyload-0-page-" + page + ".html";
 
 		try {
-			ServiceRatingTask t = new ServiceRatingTask(url_, page);
+			ServiceRatingTask t = new ServiceRatingTask(url_, userId, page);
 			return t;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -36,9 +37,10 @@ public class ServiceRatingTask extends ScanTask {
 		return null;
 	}
 
-	public ServiceRatingTask(String url, int page) throws MalformedURLException, URISyntaxException {
+	public ServiceRatingTask(String url, String userId, int page) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("page", page);
+		this.setParam("userId", userId);
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
@@ -76,7 +78,7 @@ public class ServiceRatingTask extends ScanTask {
 
 				// 翻页
 				if (pageTurning("#userlist > div.pagination > ul", page)) {
-					Task task = generateTask("https://shop.zbj.com/evaluation/evallist-uid-" + getUrl().split("-")[2] + "-type-1-isLazyload-0-page-", page + 1);
+					Task task = generateTask(userId, page + 1);
 					tasks.add(task);
 				}
 
@@ -129,5 +131,10 @@ public class ServiceRatingTask extends ScanTask {
 			logger.error("serviceRating  rating_time {}", e);
 		}
 
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
 	}
 }

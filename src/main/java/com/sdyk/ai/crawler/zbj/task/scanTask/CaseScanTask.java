@@ -28,11 +28,9 @@ public class CaseScanTask extends ScanTask {
 		String url = "http://shop.zbj.com/" + uid + "/servicelist-p" + page + ".html";
 
 		try {
-			CaseScanTask t = new CaseScanTask(url, page);
+			CaseScanTask t = new CaseScanTask(url, uid, page);
 			return t;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
+		} catch (MalformedURLException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -45,10 +43,9 @@ public class CaseScanTask extends ScanTask {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public CaseScanTask(String url, int page) throws MalformedURLException, URISyntaxException {
+	public CaseScanTask(String url, String uid, int page) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-		String uid = this.getUrl().split("/")[3];
 
 		this.setParam("uid", uid);
 		this.setParam("page", page);
