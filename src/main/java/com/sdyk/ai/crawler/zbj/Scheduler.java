@@ -60,50 +60,35 @@ public class Scheduler {
 
 	// 项目频道参数
 	public String[] project_channels = {
-			"t-pxfw", //
-			"t-consult",
-			"t-paperwork",
-			"t-ppsj",
-			"t-sign",
-			"t-ad",
-			"t-dhsjzbj",
-			"t-video",
-			"t-xcpzzzbj",
-			"t-uisheji",
-			"t-rjkf",
-			"t-ydyykf",
-			"t-wzkf",
-			"t-vrthreed",
-			"t-hkaifa",
-			"t-zhjjfazbjzbj",
-			"t-wxptkf",
-			"t-dianlu",
-			"t-xxtg",
-			"t-yxtg"
+			"t-paperwork",         // 策划
+			"t-ppsj",              // 品牌设计
+			"t-sign",              // 广告设计
+			"t-ad",                // 媒介投放
+			"t-xcpzzzbj",          // 宣传片制作
+			"t-wzkf",              // 网站建设
+			"t-hkaifa",            // H5开发
+			"t-wxptkf",            // 微信开发
+			"t-xxtg",              // 公关活动/线下地推/会议展览
+			"t-yxtg",              // 营销传播
+			"t-ppglzxzbj",         // 品牌咨询管理
+			"t-dsyxfwzbj"          // 电商营销服务
 	};
 
 	// 服务商频道参数
 	public static String[] service_supplier_channels = {
-			"pxfw",
-			"consult",
-			"paperwork",
-			"ppsj",
-			"sign",
-			"ad",
-			"dhsjzbj",
-			"video",
-			"xcpzzzbj",
-			"uisheji",
-			"rjkf",
-			"ydyykf",
-			"wzkf",
-			"vrthreed",
-			"hkaifa",
-			"zhjjfazbjzbj",
-			"wxptkf",
-			"dianlu",
-			"xxtg",
-			"yxtg"
+			"paperwork",           // 策划
+			"ppsj",                // 品牌设计
+			"sign",                // 广告设计
+			"ad",                  // 媒介投放
+			"xcpzzzbj",            // 宣传片制作
+			"wzkf",                // 网站建设
+			"hkaifa",              // H5开发
+			"wxptkf",              // 微信开发
+			"xxtg",                // 公关活动/线下地推/会议展览
+			"yxtg",                // 营销传播
+			"ppglzxzbj",           // 品牌咨询管理
+			"dsyxfwzbj"            // 电商营销服务
+
 	};
 
 	/**

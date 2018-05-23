@@ -96,7 +96,8 @@ public class TendererOrderTask extends ScanTask {
 
 		for (Element element : elements) {
 
-			String url = element.select("div > div.order-item-title > a").attr("href")+"/";
+			// 与project的url一致，更新数据库。
+			String url = element.select("div > div.order-item-title > a").attr("href") + "/";
 
 			logger.info(url);
 
