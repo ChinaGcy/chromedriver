@@ -44,6 +44,10 @@ public class CaseTask extends Task {
 						}
 					} else {
 						// 天蓬网页面2：http://shop.tianpeng.com/17773550/sid-1126164.html
+						try {
+							pageTwo(doc);
+						} catch (Exception e) {}
+
 					}
 
 					// 以下是两个页面共有的信息
@@ -165,7 +169,7 @@ public class CaseTask extends Task {
 	}
 
 	/**
-	 * 天棚网服务页面
+	 * 天蓬网服务页面
 	 */
 	public void pageTwo(Document doc) {
 

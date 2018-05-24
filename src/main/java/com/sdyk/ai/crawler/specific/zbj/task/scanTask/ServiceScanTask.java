@@ -82,8 +82,10 @@ public class ServiceScanTask extends ScanTask {
 
 				// 当前页数
 				int i = (page - 1) / 40 + 1;
+
+				// #utopia_widget_18 > div.pagination > ul > li:nth-child(1)
 				// 翻页
-				if (pageTurning("div.pagination > ul > li", i)) {
+				if (pageTurning("#utopia_widget_18 > div.pagination > ul > li", i)) {
 					Task t = ServiceScanTask.generateTask(getUrl().split("/")[3], page + 40);
 					tasks.add(t);
 				}

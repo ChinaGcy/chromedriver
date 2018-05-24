@@ -36,7 +36,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 项目频道参数
     public String[] project_channels = {
-            "t-paperwork",         // 策划
+            /*"t-paperwork",         // 策划
             "t-ppsj",              // 品牌设计
             "t-sign",              // 广告设计
             "t-ad",                // 媒介投放
@@ -47,12 +47,12 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "t-xxtg",              // 公关活动/线下地推/会议展览
             "t-yxtg",              // 营销传播
             "t-ppglzxzbj",         // 品牌咨询管理
-            "t-dsyxfwzbj"          // 电商营销服务
+            "t-dsyxfwzbj"          // 电商营销服务*/
     };
 
     // 服务商频道参数
     public static String[] service_supplier_channels = {
-            "paperwork",           // 策划
+            /*"paperwork",           // 策划
             "ppsj",                // 品牌设计
             "sign",                // 广告设计
             "ad",                  // 媒介投放
@@ -62,7 +62,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "wxptkf",              // 微信开发
             "xxtg",                // 公关活动/线下地推/会议展览
             "yxtg",                // 营销传播
-            "ppglzxzbj",           // 品牌咨询管理
+            "ppglzxzbj",*/           // 品牌咨询管理
             "dsyxfwzbj"            // 电商营销服务
     };
 
@@ -168,7 +168,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             num = Integer.parseInt(args[1]);
         }
 
-        Scheduler scheduler = new Scheduler("zbj.com", 1);
+        Scheduler scheduler = new Scheduler("zbj.com", num);
 
         /**
          *

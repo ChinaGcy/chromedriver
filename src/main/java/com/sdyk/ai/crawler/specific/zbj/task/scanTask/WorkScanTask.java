@@ -36,6 +36,7 @@ public class WorkScanTask extends ScanTask {
 	}
 
 	public WorkScanTask(String url, int page, String userId) throws MalformedURLException, URISyntaxException {
+
 		super(url);
 		this.setParam("page", page);
 		this.setParam("userId", userId);
@@ -85,7 +86,8 @@ public class WorkScanTask extends ScanTask {
 					}
 				}
 
-				if (pageTurning("div.pagination > ul > li", page)) {
+				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
+				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
 					Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId") + "/works", page + 1);
 					if (t != null) {

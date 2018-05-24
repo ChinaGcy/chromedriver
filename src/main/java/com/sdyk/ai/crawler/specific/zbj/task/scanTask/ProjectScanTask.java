@@ -56,7 +56,7 @@ public class ProjectScanTask extends ScanTask {
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
 		this.setParam("page", page);
-		this.setParam("channel", page);
+		this.setParam("channel", channel);
 		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
@@ -84,7 +84,7 @@ public class ProjectScanTask extends ScanTask {
 					}
 				}
 
-				if (pageTurning("div.pagination > ul > li", page)) {
+				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul > li", page)) {
 
 					Task next_t = generateTask(channel, page + 1);
 

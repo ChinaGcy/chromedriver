@@ -186,7 +186,7 @@ public class ProjectTask extends Task {
         String bidderNum = CrawlerAction.getNumbers(bidder);
         if(bidderNum!=null&&!"".equals(bidderNum)){
             try {
-                project.bidder_new_num = Integer.valueOf(bidderNum);
+                project.bids_num = Integer.valueOf(bidderNum);
             } catch (Exception e) {
                 logger.error("error on String"+bidderNum +"To Integer", e);
             }

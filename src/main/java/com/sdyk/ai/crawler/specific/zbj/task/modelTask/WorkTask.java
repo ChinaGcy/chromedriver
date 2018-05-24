@@ -99,8 +99,11 @@ public class WorkTask extends Task {
 				.text().contains("面议")) {
 			work.pricee = 0.00;
 		} else {
-			work.pricee = Double.parseDouble(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
-					.text().split("￥")[1]);
+			try {
+				work.pricee = Double.parseDouble(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
+						.text().split("￥")[1]);
+			} catch (Exception e) {}
+
 		}
 	}
 

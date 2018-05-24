@@ -102,7 +102,7 @@ public class StringUtil {
 			String budget = doc.select(path).text();
 
 			// 4.判断格式
-			if (budget.equals("可议价")) {
+			if (budget.equals("可议价") || budget.equals("待设置")) {
 				return new double[] {0.00, 0.00};
 			}
 			else if (budget.contains("￥") && budget.contains("-")) {

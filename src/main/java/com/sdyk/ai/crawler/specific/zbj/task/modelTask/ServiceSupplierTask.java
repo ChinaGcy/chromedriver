@@ -46,14 +46,14 @@ public class ServiceSupplierTask extends Task {
 					// 天棚网服务商信息
 					try {
 						pageOne(src, serviceSupplier, doc);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						logger.error(e);
 					}
 				} else {
 					// 猪八戒服务商信息
 					try {
 						pageTwo(src, serviceSupplier, doc);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						logger.error(e);
 					}
 				}
@@ -65,7 +65,7 @@ public class ServiceSupplierTask extends Task {
 				}
 				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
 				tasks.add(ServiceRatingTask.generateTask(serviceSupplier.website_id, 1));
-				tasks.add(CaseScanTask.generateTask(getUrl(), 1));
+				tasks.add(CaseScanTask.generateTask(serviceSupplier.website_id, 1));
 				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
 				for (Task t : tasks) {
@@ -85,8 +85,8 @@ public class ServiceSupplierTask extends Task {
 	 */
 	public void shareData(Document doc, String src) {
 
-		serviceSupplier.website_id = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc").attr("data-userid");
-
+		//https://shop.zbj.com/15774587/
+		serviceSupplier.website_id = this.getUrl().split("/")[3];
 
 		// 获取等级
 		if (src.contains("<img align=\"absmiddle\" src=\"https://t5.zbjimg.com/t5s/common/img/user-level/level-")) {
@@ -109,9 +109,10 @@ public class ServiceSupplierTask extends Task {
 						.replaceAll("(?s)^.+?收藏量：", "")
 						.replaceAll(" *人", "");
 
-				serviceSupplier.collection_num = Integer
-						.parseInt(text);
-
+				if (!(text.equals("") || text == null)) {
+					serviceSupplier.collection_num = Integer
+							.parseInt(text);
+				}
 			}
 
 			// body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div:nth-child(5)
@@ -131,7 +132,7 @@ public class ServiceSupplierTask extends Task {
 	 * @param src
 	 * @param serviceSupplier
 	 */
-	public void pageOne(String src, ServiceSupplier serviceSupplier, Document doc) throws IOException {
+	public void pageOne(String src, ServiceSupplier serviceSupplier, Document doc) {
 
 		serviceSupplier.name = doc.select("body > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc > a > strong").text();
 		if (src.contains("专业店")) {
@@ -141,19 +142,23 @@ public class ServiceSupplierTask extends Task {
 		}
 
 		Elements webElements = doc.select("body > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-evaluate.clearfix > div.shop-evaluate-det > span");
-		serviceSupplier.service_quality = Double.parseDouble(webElements.get(0).text());
-		serviceSupplier.service_speed = Double.parseDouble(webElements.get(2).text());
-		serviceSupplier.service_attitude = Double.parseDouble(webElements.get(4).text());
-
-		try {
-
-			serviceSupplier.good_rating_num = Integer.parseInt(doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-right > div:nth-child(3) > div.shop-evaluation-newstyle > div > div > div > div > div.filter-comment.J-filter-comment.lh-25 > label.icon-wrap.good.highlight > span")
-					.text().replace("好评(", "").replace(")", ""));
-			serviceSupplier.bad_rating_num = Integer.parseInt(doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-right > div:nth-child(3) > div.shop-evaluation-newstyle > div > div > div > div > div.filter-comment.J-filter-comment.lh-25 > label.icon-wrap.bad > span")
-					.text().replace("差评(", "").replace(")", ""));
-		} catch (NoSuchElementException e) {
-
+		if (webElements.get(0).text() != null && !webElements.get(0).text().equals("")) {
+			serviceSupplier.service_quality = Double.parseDouble(webElements.get(0).text());
 		}
+		if (webElements.get(2).text() != null && !webElements.get(0).text().equals("")) {
+			serviceSupplier.service_speed = Double.parseDouble(webElements.get(2).text());
+		}
+		if (webElements.get(4).text() != null && !webElements.get(0).text().equals("")) {
+			serviceSupplier.service_attitude = Double.parseDouble(webElements.get(4).text());
+		}
+		try {
+			serviceSupplier.good_rating_num = Integer.parseInt(doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-right > div:nth-child(3) > div.shop-evaluation-newstyle > div > div > div > div > div.filter-comment.J-filter-comment.lh-25 > label.icon-wrap.good.highlight > span")
+					.text()
+					.replace("好评(", "").replace(")", ""));
+			serviceSupplier.bad_rating_num = Integer.parseInt(doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-right > div:nth-child(3) > div.shop-evaluation-newstyle > div > div > div > div > div.filter-comment.J-filter-comment.lh-25 > label.icon-wrap.bad > span")
+					.text()
+					.replace("差评(", "").replace(")", ""));
+		} catch (NumberFormatException e) {}
 
 		webPageUcenter();
 	}
@@ -183,29 +188,37 @@ public class ServiceSupplierTask extends Task {
 	/**
 	 *服务商信息
 	 */
-	public void webPageUcenter() throws IOException {
+	public void webPageUcenter() {
 
-		Document doc = Jsoup.connect("https://ucenter.zbj.com/rencai/view/" + getUrl().split("/")[3]).get();
-
+		Document doc = null;
 		try {
-			serviceSupplier.location = doc.select("#utopia_widget_3 > div.shop-center-tit.clearfix > span.fr.active-address")
-					.text();
-		} catch (NoSuchElementException e) {
-			serviceSupplier.location = "";
+			doc = Jsoup.connect("https://ucenter.zbj.com/rencai/view/" + getUrl().split("/")[3]).get();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
+		serviceSupplier.location = doc.select("#utopia_widget_3 > div.shop-center-tit.clearfix > span.fr.active-address")
+					.text();
 
 		serviceSupplier.skills = doc.select("#utopia_widget_5 > p.label-box-wrap")
 				.text();
-		serviceSupplier.rating = Integer.parseInt(doc.select("#power").text().replaceAll("", "0"));
+		try {
+			serviceSupplier.rating = Integer.parseInt(doc.select("#power").text().replaceAll("", "0"));
+		}catch (Exception e) {}
 
 		serviceSupplier.description = doc.select("#utopia_widget_3 > div.user-about > div > span").text();
 
-		serviceSupplier.rating_num = Integer.parseInt(doc.select("#utopia_widget_4 > div > div.clearfix > span")
-				.text().split("（")[1].split("）")[0]);
+		try {
+			serviceSupplier.rating_num = Integer.parseInt(doc.select("#utopia_widget_4 > div > div.clearfix > span")
+					.text().split("（")[1].split("）")[0]);
+		}catch (Exception e) {}
+
 		String recommendation = doc.select("#evaluationwrap > ul.evaluation-option.clearfix.J-evaluation-option > li:nth-child(6) > a")
 				.text();
 
-		serviceSupplier.recommendation_num = Integer.parseInt(recommendation.split("\\(")[1].split("\\)")[0]);
+		try {
+			serviceSupplier.recommendation_num = Integer.parseInt(recommendation.split("\\(")[1].split("\\)")[0]);
+		} catch (Exception e) {}
 
 	}
 
@@ -219,20 +232,35 @@ public class ServiceSupplierTask extends Task {
 
 		Elements webElements = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-evaluate.clearfix > div.shop-evaluate-det > span");
 
-		serviceSupplier.service_quality = Double.parseDouble(webElements.get(0).text());
-		serviceSupplier.service_speed = Double.parseDouble(webElements.get(2).text());
-		serviceSupplier.service_attitude = Double.parseDouble(webElements.get(4).text());
-
-		serviceSupplier.revenue = Double.parseDouble(doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-balance > span:nth-child(1)")
-				.text().replaceAll(",", ""));
-		serviceSupplier.project_num = Integer.parseInt(doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-balance > span:nth-child(2)")
-				.text());
-		serviceSupplier.success_ratio = (float) (1 - Double.parseDouble(doc.select("body > div.main > div > div.wk-r > div.w-con.shop-service-wrap > div.con.clearfix > div.shop-service-bd > div.fl.shop-service-left > div:nth-child(3) > div.td.td4")
-				.text().replaceAll("%", "")) * 0.01);
-		serviceSupplier.good_rating_num = Integer.parseInt(doc.select("body > div.main > div > div.wk-r > div:nth-child(3) > div.con.clearfix > div.shop-comment-bd > div.shop-comment-l > div > div:nth-child(4) > span:nth-child(1)")
-				.text());
-		serviceSupplier.bad_rating_num = Integer.parseInt(doc.select("body > div.main > div > div.wk-r > div:nth-child(3) > div.con.clearfix > div.shop-comment-bd > div.shop-comment-l > div > div:nth-child(4) > span:nth-child(3)")
-				.text());
+		try {
+			serviceSupplier.service_quality = Double.parseDouble(webElements.get(0).text());
+		} catch (Exception e) {}
+		try {
+			serviceSupplier.service_speed = Double.parseDouble(webElements.get(2).text());
+		} catch (Exception e) {}
+		try {
+			serviceSupplier.service_attitude = Double.parseDouble(webElements.get(4).text());
+		} catch (Exception e) {}
+		try {
+			serviceSupplier.revenue = Double.parseDouble(doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-balance > span:nth-child(1)")
+					.text().replaceAll(",", ""));
+		} catch (Exception e) {}
+		try {
+			serviceSupplier.project_num = Integer.parseInt(doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-balance > span:nth-child(2)")
+					.text());
+		} catch (Exception e) {}
+		try {
+			serviceSupplier.success_ratio = (float) (1 - Double.parseDouble(doc.select("body > div.main > div > div.wk-r > div.w-con.shop-service-wrap > div.con.clearfix > div.shop-service-bd > div.fl.shop-service-left > div:nth-child(3) > div.td.td4")
+					.text().replaceAll("%", "")) * 0.01);
+		} catch (Exception e) {}
+		try {
+			serviceSupplier.good_rating_num = Integer.parseInt(doc.select("body > div.main > div > div.wk-r > div:nth-child(3) > div.con.clearfix > div.shop-comment-bd > div.shop-comment-l > div > div:nth-child(4) > span:nth-child(1)")
+					.text());
+		} catch (Exception e) {}
+		try {
+			serviceSupplier.bad_rating_num = Integer.parseInt(doc.select("body > div.main > div > div.wk-r > div:nth-child(3) > div.con.clearfix > div.shop-comment-bd > div.shop-comment-l > div > div:nth-child(4) > span:nth-child(3)")
+					.text());
+		} catch (Exception e) {}
 	}
 
 	/**
@@ -252,9 +280,7 @@ public class ServiceSupplierTask extends Task {
 					qq = qq + " " + webElement.select("a").attr("data-qq");
 				}
 				serviceSupplier.qq = qq;
-			} catch (Exception e) {
-			}
-
+			} catch (Exception e) {}
 			try {
 				Elements list_phone = doc.select("body > div.shop-fixed-im.sidebar-show > div.shop-fixed-im-hover.shop-customer.j-shop-fixed-im > div.shop-fix-im-qq > div.time-item");
 
@@ -263,8 +289,7 @@ public class ServiceSupplierTask extends Task {
 					phone = phone + " " + webElement.select("a").attr("data-phone");
 				}
 				serviceSupplier.cellphone = phone;
-			} catch (Exception e) {
-			}
+			} catch (Exception e) {}
 		}
 	}
 }

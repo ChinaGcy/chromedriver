@@ -80,11 +80,11 @@ public class Project extends Model {
 
 	// 采集时刻可投标人数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int bidder_num = 0;
+	public int bids_available = 0;
 
 	// 采集时刻已经投标数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int bidder_new_num;
+	public int bids_num;
 
 	// 招标人ID
 	@DatabaseField(dataType = DataType.STRING, width = 32)
@@ -108,7 +108,7 @@ public class Project extends Model {
 
 	// 赏金分配
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String reward_type;
+	public String reward_distribution;
 
 	// 浏览次数
 	@DatabaseField(dataType = DataType.INTEGER)
@@ -116,8 +116,7 @@ public class Project extends Model {
 
 	// 收藏人数
 	@DatabaseField(dataType = DataType.INTEGER)
-
-	public int collect_num;
+	public int fav_num;
 
 	public Project() {}
 

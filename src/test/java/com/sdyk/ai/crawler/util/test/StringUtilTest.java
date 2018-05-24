@@ -14,18 +14,59 @@ import java.util.regex.Pattern;
 
 public class StringUtilTest {
 
-	String text_1 ="<div class=\"taskinfo-title\"><i></i><span>任务需求</span></div>\n" +
-			"                        <div class=\"task-info-content\">\n" +
-			"                            <p>装修公司（高档整装）核心优势关注环保，品牌这两个字</p><p>（容易记忆，琅琅上口，接地气点最好，要么当下流行的词语或有关于重庆历史文化与重庆接地气的名字）</p><p><br></p><p>要求可以注册。</p>                        </div>\n" +
-			"                                                                                                                        <div class=\"taskinfo-title\">\n" +
-			"                                        <i></i>\n" +
-			"                                        <span>需求补充</span>\n" +
-			"                                                                                    <font class=\"font12 c396 f_l ml_10 mt_10 pt_5\">2018-03-27 10:52:31 客服审核通过</font>\n" +
-			"                                                                            </div>\n" +
-			"                                    <div class=\"clearfix pt_10 pb_10 font14 c666\">\n" +
-			"                                        取名字要求.装修公司（高档整装）.核心优势工艺领先.关注环保.品牌就两个字（容易记忆.琅琅上口.针对全国市场.接地气点最好.要么当下流行的词语或有点历史的词语）                                    </div>\n" +
-			"                                                                                                                                    <div class=\"task-info-tipsy mt_10\">温馨提示：请不要轻信需要交钱（报名费、抵押金之类）才能承接的任务。如有遇到请第一时间联系客服。</div>\n" +
-			"                        <div class=\"clear\"></div>";
+	String text_1 ="<div class=\"task-detail wrapper\">\n" +
+			"<div class=\"task-detail-content content\">\n" +
+			"<p class=\"title\">具体要求：</p>\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"<p class=\"task-content\">\n" +
+			"\n" +
+			"我需要找一名兼职的设计师，设计过瓷砖、马赛克、石材背景墙等相关的，负责新图案的开发设计，出具立面图、效果图等。熟练操作AutoCAD,3Dmax, Photoshop,CoreloDRAW等专业电脑软件。价格可以按量计算也可以按设计师要求而定。附件是效果图与实物图。<br><br>周期 预算：商议\n" +
+			"</p>\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"<p class=\"title\">附件:</p>\n" +
+			"\n" +
+			"<p>\n" +
+			"<span class=\"download-file-name\">201407100932275937566.jpg</span>\n" +
+			"<a class=\"download-link\" target=\"_blank\" href=\"//rms.zhubajie.com/resource/redirect?key=mobile/newwap/201407100932275937566.jpg/origine/bce26c57-08ee-4eb2-a820-665a367f9376\">下载</a>\n" +
+			"</p>\n" +
+			"\n" +
+			"<p>\n" +
+			"<span class=\"download-file-name\">AE-K001-2.jpg</span>\n" +
+			"<a class=\"download-link\" target=\"_blank\" href=\"//rms.zhubajie.com/resource/redirect?key=mobile/newwap/AE-K001-2.jpg/origine/84524609-5166-49a2-a530-5e6f9c7a1cfd\">下载</a>\n" +
+			"</p>\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"\n" +
+			"<div class=\"more-info\">\n" +
+			"\n" +
+			"\n" +
+			"<span>\n" +
+			"<i class=\"lbs\"></i>上海-上海-青浦\n" +
+			"</span>\n" +
+			"\n" +
+			"<span>\n" +
+			"<i></i>来自：猪八戒\n" +
+			"</span>\n" +
+			"\n" +
+			"</div>\n" +
+			"</div>\n" +
+			"\n" +
+			"<div class=\"open-close\">\n" +
+			"\n" +
+			"<a class=\"close-item\" href=\"javascript:;\">收起 ∧</a>\n" +
+			"<a class=\"open-item hide\" href=\"javascript:;\">显示全部 ∨</a>\n" +
+			"</div>\n" +
+			"\n" +
+			"</div>";
 	/**
 	 * 测试清洗HTML标签
 	 */

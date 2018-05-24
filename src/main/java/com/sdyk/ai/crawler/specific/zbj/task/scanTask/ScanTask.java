@@ -50,14 +50,15 @@ public abstract class ScanTask extends Task{
 
 			// div.pagination > ul > li
 			Elements pageList = getResponse().getDoc().select(path);
-
-			// TODO 获取最大页数 此处不能正常解析
-			int maxPage = Integer.parseInt(pageList.get(pageList.size() - 2).text());
-
-			return page < maxPage;
-
+			if (pageList == null || pageList.size() < 3) {
+				return false;
+			}else {
+				// TODO 获取最大页数 此处不能正常解析
+				int maxPage = Integer.parseInt(pageList.get(pageList.size() - 2).text());
+				return page < maxPage;
+			}
 		}
-		catch (NoSuchElementException | NullPointerException | ArrayIndexOutOfBoundsException e) {
+		catch (NullPointerException | ArrayIndexOutOfBoundsException e) {
 			logger.error("{}", getUrl(), e);
 			return false;
 		}

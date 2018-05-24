@@ -52,7 +52,7 @@ public class ProjectTask extends Task {
 					logger.error("Error extract channel: {}, ", getUrl(), e);
 				}
 
-				if (src.contains("操作失败请稍后重试")) {
+				if (src.contains("操作失败请稍后重试") || src.contains("此页面内部错误")) {
 					try {
 						ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
 						return;
@@ -223,20 +223,25 @@ public class ProjectTask extends Task {
 	 */
 	public void getTendererIdName(Document doc, String src) {
 
-		String link = doc.select("#j-content > div > div.user-toltit > dl > dt > a > img").attr("src").split("\\.")[2];
+		// #j-content > div > div.user-toltit > dl > dt > img
+		// #j-content > div > div.user-toltit > dl > dt > a > img
+		String link = doc.select("#j-content > div > div.user-toltit > dl > dt")
+				.select("img")
+				.attr("src")
+				.split("\\.")[2];
 
 		String[] links = link.split("/");
 
-		String ss = links[4].split("_")[2];
+		String ss = link.split("_")[2];
 
-		project.tenderer_id = Integer.parseInt(links[1] + links[2] + links[3] + ss)+"";
+		project.tenderer_id = "" + links[1] + links[2] + links[3] + ss;
 
-		project.tenderer_name = doc.select("#j-content > div > div.user-toltit > dl > dt > a > img").attr("alt");
+		project.tenderer_name = doc.select("#j-content > div > div.user-toltit > dl > dt").select("img").attr("alt");
 
 		Pattern pattern = Pattern.compile("<div class=\"taskmode-inline\" id=\"reward-all\">\\s+赏金分配：<em class=\"gray6\">(?<rewardType>.+?)</em>");
 		Matcher matcher = pattern.matcher(src);
 		if (matcher.find()) {
-			project.reward_type = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
+			project.reward_distribution = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
 
 	}
@@ -250,12 +255,12 @@ public class ProjectTask extends Task {
 		// 1.1 项目已完成
 		if (src.contains("<div class=\"banner-task-summary clearfix\">")) {
 
-			project.bidder_num = getInt(
+			project.bids_available = getInt(
 					"#anytime-back > div.banner-task-summary.clearfix > div.summary-right > h4:nth-child(2) > em:nth-child(2)",
 					"个|名");
 
-			if (project.bidder_num == 0) {
-				project.bidder_num = getInt(
+			if (project.bids_available == 0) {
+				project.bids_available = getInt(
 						"body > div.main.task-details > div.main-con.user-page > div.banner-task-summary.clearfix > div.summary-right.clearfix > h4:nth-child(2) > em:nth-child(2)",
 						"个|名");
 			}
@@ -269,7 +274,7 @@ public class ProjectTask extends Task {
 						"#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(1)");
 
 				//#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(2)
-				project.bidder_num = StringUtil.getBidderNum(doc,
+				project.bids_available = StringUtil.getBidderNum(doc,
 						"#j-ibid-list > div > div.ibid-total.clearfix > b");
 			}
 		}
@@ -290,7 +295,10 @@ public class ProjectTask extends Task {
 			finishProject(src, doc);
 
 			project.title = getString("#ed-tit > div.tctitle.clearfix > h1", "");
-
+			if (project.title == null && project.title.equals("")) {
+				ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
+				return;
+			}
 			project.area = getString("#j-receiptcon > span.ads", "");
 
 			project.origin = getString("#j-receiptcon > a", "");
@@ -349,10 +357,10 @@ public class ProjectTask extends Task {
 				project.view_num = Integer.parseInt(matcher_view.group("T"));
 			}
 			while (matcher_bidder.find()) {
-				project.bidder_new_num = Integer.parseInt(matcher_bidder.group("T"));
+				project.bids_num = Integer.parseInt(matcher_bidder.group("T"));
 			}
 			while (matcher_collect.find()) {
-				project.collect_num = Integer.parseInt(matcher_collect.group("T"));
+				project.fav_num = Integer.parseInt(matcher_collect.group("T"));
 			}
 
 			// 进入雇主页
@@ -397,6 +405,10 @@ public class ProjectTask extends Task {
 			project.title = getString(
 					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > h1", "");
 
+			if (project.title == null && project.title.equals("")) {
+				ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
+				return;
+			}
 			project.req_no = getString(
 					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
 
@@ -437,7 +449,7 @@ public class ProjectTask extends Task {
 			// 投标总数与投标人数
 			project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
 					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
-			project.bidder_num = StringUtil.getBidderNum(doc,
+			project.bids_available = StringUtil.getBidderNum(doc,
 					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
 
 			project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");

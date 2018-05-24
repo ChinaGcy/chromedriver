@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.specific.zbj.task.test;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
 
+import one.rewind.io.requester.Task;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -17,29 +18,25 @@ public class ProjectTaskTest {
 	@Test
 	public void projectTest() throws Exception {
 
-		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
+		;
 		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 
-		requester.addAgent(agent);
+		ChromeDriverRequester.getInstance().addAgent(agent);
 
 		agent.start();
 
-		one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("http://www.zbj.com");
-		task.setBuildDom();
-		requester.submit(task);
+		Task task = new Task("http://www.zbj.com");
 		ChromeAction action = new LoginWithGeetestAction(account);
 		task.addAction(action);
-		requester.submit(task);
+		ChromeDriverRequester.getInstance().submit(task);
 
-		ProjectTask task1 = new ProjectTask("http://task.zbj.com/13437412/");
-		task1.setBuildDom();
+		task = new ProjectTask("https://task.zbj.com/13430329/");
+		task.setBuildDom();
 
-		Thread.sleep(5000);
-		requester.submit(task1);
-
-		Thread.sleep(1000000);
+		ChromeDriverRequester.getInstance().submit(task);
+		Thread.sleep(100000);
 	}
 
 	@Test

@@ -112,12 +112,12 @@ public class TendererOrderTask extends ScanTask {
 			String text = doc.select("div > div.order-item-subinfo").text();
 
 			if (text.contains("提供服务")) {
-				project.bidder_new_num = 1;
+				project.bids_num = 1;
 			} else {
 				Pattern pattern = Pattern.compile("(?<T>\\d+)位服务商参与");
 				Matcher matcher = pattern.matcher(text);
 				if (matcher.find()) {
-					project.bidder_new_num = Integer.parseInt(matcher.group("T"));
+					project.bids_num = Integer.parseInt(matcher.group("T"));
 				}
 			}
 			Pattern pattern_time = Pattern.compile("\\d+-\\d+-\\d+ \\d+:\\d+:\\d+");
