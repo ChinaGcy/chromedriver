@@ -81,8 +81,6 @@ public class Requester extends ChromeDriverRequester {
 			});
 
 			queue.offer(task);
-		}else{
-			queue.offer(task);
 		}
 	}
 
