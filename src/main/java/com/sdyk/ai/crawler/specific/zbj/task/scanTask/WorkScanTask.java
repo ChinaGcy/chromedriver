@@ -4,6 +4,8 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.WorkTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -48,7 +50,7 @@ public class WorkScanTask extends ScanTask {
 
 				String src = getResponse().getText();
 
-				List<Task> tasks = new ArrayList<>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				//http://shop.zbj.com/works/detail-wid-131609.html
 				Pattern pattern = Pattern.compile("http://shop.zbj.com/works/detail-wid-\\d+.html");
@@ -89,14 +91,14 @@ public class WorkScanTask extends ScanTask {
 				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
 				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
-					Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId")+"/", page + 1);
+					com.sdyk.ai.crawler.task.Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId")+"/", page + 1);
 					if (t != null) {
 						t.setPriority(Priority.HIGH);
 						tasks.add(t);
 					}
 				}
 
-				for (Task t : tasks) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					ChromeDriverRequester.getInstance().submit(t);
 				}
 			} catch (Exception e) {
@@ -109,5 +111,10 @@ public class WorkScanTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return null;
 	}
 }

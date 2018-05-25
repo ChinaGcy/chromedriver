@@ -30,7 +30,7 @@ public class TendererTask extends Task {
 
 				Document doc = getResponse().getDoc();
 
-				List<Task> tasks = new ArrayList<>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				Tenderer tenderer = new Tenderer(getUrl());
 
@@ -93,7 +93,7 @@ public class TendererTask extends Task {
 				// 评价任务
 				tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.website_id));
 
-				for (Task t : tasks) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					t.setBuildDom();
 					ChromeDriverRequester.getInstance().submit(t);
 				}

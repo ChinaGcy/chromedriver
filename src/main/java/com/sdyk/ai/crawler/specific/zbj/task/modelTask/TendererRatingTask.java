@@ -5,6 +5,8 @@ import com.sdyk.ai.crawler.model.TendererRating;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.NoSuchElementException;
@@ -49,7 +51,7 @@ public class TendererRatingTask extends ScanTask {
 
 			try {
 
-				List<Task> tasks = new ArrayList<>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 				Document doc = getResponse().getDoc();
 
 				// 防止数据为空
@@ -76,7 +78,7 @@ public class TendererRatingTask extends ScanTask {
 					}
 
 					// 翻页
-					Task t = pageTurn(page);
+					com.sdyk.ai.crawler.task.Task t = pageTurn(page);
 
 					if (t != null) {
 						t.setPriority(Priority.LOW);
@@ -84,7 +86,7 @@ public class TendererRatingTask extends ScanTask {
 					}
 				}
 
-				for (Task t : tasks) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					t.setBuildDom();
 					ChromeDriverRequester.getInstance().submit(t);
 				}
@@ -154,12 +156,12 @@ public class TendererRatingTask extends ScanTask {
 	 * @param page
 	 * @return
 	 */
-	public Task pageTurn(int page) {
+	public com.sdyk.ai.crawler.task.Task pageTurn(int page) {
 
 		// 判断是否翻页
 		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul", page)) {
 
-			Task t = null;
+			com.sdyk.ai.crawler.task.Task t = null;
 			try {
 				t = new TendererRatingTask("https://home.zbj.com/"
 						+ this.getParamString("userId"), ++page, this.getParamString("userId"));
@@ -174,5 +176,10 @@ public class TendererRatingTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return null;
 	}
 }

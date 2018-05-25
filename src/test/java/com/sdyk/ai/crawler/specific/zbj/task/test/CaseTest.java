@@ -34,9 +34,9 @@ public class CaseTest {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 
-		Task t = CaseScanTask.generateTask("http://shop.zbj.com/19308846/",1);
+		com.sdyk.ai.crawler.task.Task t = CaseScanTask.generateTask("http://shop.zbj.com/19308846/",1);
 
-		Queue<Task> queue = new LinkedBlockingQueue<>();
+		Queue<com.sdyk.ai.crawler.task.Task> queue = new LinkedBlockingQueue<>();
 
 		queue.add(t);
 

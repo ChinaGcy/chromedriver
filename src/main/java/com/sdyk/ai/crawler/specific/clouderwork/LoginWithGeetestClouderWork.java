@@ -7,10 +7,10 @@ import org.openqa.selenium.WebElement;
 
 public class LoginWithGeetestClouderWork extends LoginAction {
 
-    public String url = "https://passport.clouderwork.com/signin";
-    public String usernameCssPath = "#app > div > div > div > section > dl > dd:nth-child(1) > input[type=\"text\"]";
-    public String passwordCssPath = "#app > div > div > div > section > dl > dd:nth-child(2) > input[type=\"password\"]";
-    public String loginButtonCssPath = "#app > div > div > div > section > button:nth-child(3)";
+    public String url;
+    public String usernameCssPath;
+    public String passwordCssPath;
+    public String loginButtonCssPath;
     public String errorMsgReg = "账号或密码错误";
     transient boolean success = false;
     transient Account account;
@@ -19,8 +19,12 @@ public class LoginWithGeetestClouderWork extends LoginAction {
 
     }
 
-    public LoginWithGeetestClouderWork(Account account){
+    public LoginWithGeetestClouderWork(Account account, String url, String usernameCssPath, String passwordCssPath, String loginButtonCssPath){
         this.account = account;
+        this.url = url;
+        this.usernameCssPath = usernameCssPath;
+        this.passwordCssPath = passwordCssPath;
+        this.loginButtonCssPath = loginButtonCssPath;
     }
 
     public void setAccount(Account account) {

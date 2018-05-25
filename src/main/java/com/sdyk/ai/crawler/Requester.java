@@ -25,7 +25,7 @@ public class Requester extends ChromeDriverRequester {
 	}*/
 
 	public static List<String> WHITE_URLS = Arrays.asList(
-			"http://www.zbj.com"
+			"http://www.zbj.com","https://passport.clouderwork.com/signin","https://www.mihuashi.com/login"
 	);
 
 	public Requester() {}
@@ -55,7 +55,9 @@ public class Requester extends ChromeDriverRequester {
 
 				TaskTrace tt = ((ScanTask) task).getTaskTrace();
 				try {
-					tt.insert();
+					if(tt!=null){
+						tt.insert();
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -74,6 +76,8 @@ public class Requester extends ChromeDriverRequester {
 				StatManager.getInstance().count();
 			});
 
+			queue.offer(task);
+		}else{
 			queue.offer(task);
 		}
 	}

@@ -4,6 +4,8 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -57,11 +59,11 @@ public class CaseScanTask extends ScanTask {
 				String src = getResponse().getText();
 
 				// http://shop.zbj.com/17788555/servicelist-p1.html
-				List<Task> tasks = new ArrayList<>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				// 判断是否翻页
 				if (!src.contains("暂时还没有此类服务！") && backtrace) {
-					Task t = generateTask(uid, page + 1);
+					com.sdyk.ai.crawler.task.Task t = generateTask(uid, page + 1);
 					if (t != null) {
 						t.setPriority(Priority.HIGH);
 						tasks.add(t);
@@ -104,7 +106,7 @@ public class CaseScanTask extends ScanTask {
 					}
 				}
 
-				for (Task t : tasks) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					ChromeDriverRequester.getInstance().submit(t);
 				}
 
@@ -117,5 +119,10 @@ public class CaseScanTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 		return new TaskTrace(this.getClass(), this.getParamString("uid"), this.getParamString("page"));
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return null;
 	}
 }

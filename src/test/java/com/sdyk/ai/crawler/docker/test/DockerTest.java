@@ -89,7 +89,7 @@ public class DockerTest {
 			 * @return
 			 */
 			@Override
-			public List<ScanTask> getTask(boolean backtrace) {
+			public List<com.sdyk.ai.crawler.task.Task> getTask(boolean backtrace) {
 				return null;
 			}
 

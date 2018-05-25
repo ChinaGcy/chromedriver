@@ -5,6 +5,8 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -48,7 +50,7 @@ public class TendererOrderTask extends ScanTask {
 
 		this.addDoneCallback(() -> {
 
-			List<Task> tasks = new ArrayList<>();
+			List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 			Document doc = getResponse().getDoc();
 
 			int op_page = this.getParamInt("page");
@@ -62,7 +64,7 @@ public class TendererOrderTask extends ScanTask {
 
 			if (pageTurning("#order > div > div.pagination-wrapper > div > ul >li", op_page)) {
 				// 翻页
-				Task t = generateTask("https://home.zbj.com/"
+				com.sdyk.ai.crawler.task.Task t = generateTask("https://home.zbj.com/"
 						+ this.getParamString("userId"), ++op_page, this.getParamString("userId"));
 				if (t != null) {
 					t.setPriority(Priority.MEDIUM);
@@ -71,7 +73,7 @@ public class TendererOrderTask extends ScanTask {
 				}
 			}
 
-			for(Task t : tasks) {
+			for(com.sdyk.ai.crawler.task.Task t : tasks) {
 				t.setBuildDom();
 				ChromeDriverRequester.getInstance().submit(t);
 			}
@@ -157,5 +159,10 @@ public class TendererOrderTask extends ScanTask {
 	public TaskTrace getTaskTrace() {
 
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return null;
 	}
 }

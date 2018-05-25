@@ -4,6 +4,8 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
@@ -58,7 +60,7 @@ public class ServiceScanTask extends ScanTask {
 
 				Document document = getResponse().getDoc();
 
-				List<Task> tasks = new ArrayList<>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				Pattern pattern = Pattern.compile("//shop.zbj.com/\\d+/");
 				Matcher matcher = pattern.matcher(src);
@@ -86,11 +88,11 @@ public class ServiceScanTask extends ScanTask {
 				// #utopia_widget_18 > div.pagination > ul > li:nth-child(1)
 				// 翻页
 				if (pageTurning("#utopia_widget_18 > div.pagination > ul > li", i)) {
-					Task t = ServiceScanTask.generateTask(getUrl().split("/")[3], page + 40);
+					com.sdyk.ai.crawler.task.Task t = ServiceScanTask.generateTask(getUrl().split("/")[3], page + 40);
 					tasks.add(t);
 				}
 
-				for (Task t : tasks) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					ChromeDriverRequester.getInstance().submit(t);
 				}
 
@@ -104,5 +106,10 @@ public class ServiceScanTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return null;
 	}
 }

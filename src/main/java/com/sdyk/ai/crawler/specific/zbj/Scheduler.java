@@ -1,32 +1,18 @@
 package com.sdyk.ai.crawler.specific.zbj;
 
-import com.sdyk.ai.crawler.account.AccountManager;
-import com.sdyk.ai.crawler.docker.DockerHostManager;
-import com.sdyk.ai.crawler.account.model.AccountImpl;
-import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
-import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
-import com.sdyk.ai.crawler.proxy.AliyunHost;
-import com.sdyk.ai.crawler.proxy.ProxyManager;
+
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
-import one.rewind.db.DaoManager;
-import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
-import one.rewind.io.requester.proxy.Proxy;
-import org.apache.logging.log4j.LogManager;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
-import static spark.route.HttpMethod.get;
 
 /**
  * 任务生成器
@@ -89,9 +75,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
      * @param backtrace
      * @return
      */
-    public List<ScanTask> getTask(boolean backtrace) {
+    public List<com.sdyk.ai.crawler.task.Task> getTask(boolean backtrace) {
 
-        List<ScanTask> tasks = new ArrayList<>();
+        List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
         for(String channel : project_channels) {
             ScanTask t = ProjectScanTask.generateTask(channel, 1);
@@ -118,7 +104,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
     public void getHistoricalData() {
 
         // 需求
-        for (Task task : getTask(true)) {
+        for (com.sdyk.ai.crawler.task.Task task : getTask(true)) {
             ChromeDriverRequester.getInstance().submit(task);
         }
     }
@@ -137,7 +123,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
                 public void run() {
 
-                    for (Task task : getTask(false)) {
+                    for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
 
                         task.setBuildDom();
                         ChromeDriverRequester.getInstance().submit(task);

@@ -35,7 +35,7 @@ public class ServiceSupplierTask extends Task {
 				String src = getResponse().getText();
 				Document doc = getResponse().getDoc();
 
-				List<Task> tasks = new ArrayList<Task>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<com.sdyk.ai.crawler.task.Task>();
 
 				serviceSupplier = new ServiceSupplier(getUrl());
 
@@ -68,7 +68,7 @@ public class ServiceSupplierTask extends Task {
 				tasks.add(CaseScanTask.generateTask(serviceSupplier.website_id, 1));
 				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
-				for (Task t : tasks) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					ChromeDriverRequester.getInstance().submit(t);
 				}
 			} catch(Exception e) {

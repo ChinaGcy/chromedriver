@@ -1,9 +1,10 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
+import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.Tenderer;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.jsoup.nodes.Document;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class TendererTask extends Task {
      */
     public void crawlawJob (Document doc) throws MalformedURLException, URISyntaxException {
 
-        List<Task> tasks = new ArrayList<>();
+        List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
         Tenderer tenderer = new Tenderer(getUrl());
         Pattern pattern = Pattern.compile("[0-9]*");
@@ -95,6 +96,10 @@ public class TendererTask extends Task {
         if(userId!=null&&!"".equals(userId)){
             String psUrl = "https://www.clouderwork.com/api/v2/jobs/client?pagesize=20&user_id=" + userId+"&pagenum=1";
             tasks.add(new ProjectScanTask(psUrl,1));
+        }
+        for(com.sdyk.ai.crawler.task.Task t : tasks){
+            t.setBuildDom();
+            ChromeDriverRequester.getInstance().submit(t);
         }
         tenderer.insert();
     }

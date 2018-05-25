@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.sdyk.ai.crawler.model.Case;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

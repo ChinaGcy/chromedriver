@@ -1,9 +1,9 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 
+import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.Project;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -44,7 +44,6 @@ public class ProjectTask extends Task {
             //抓取页面
             crawlJob(doc,tasks);
             for(Task t : tasks) {
-                t.setBuildDom();
                 ChromeDriverRequester.getInstance().submit(t);
             }
         });

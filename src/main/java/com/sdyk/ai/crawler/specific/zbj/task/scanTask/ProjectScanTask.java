@@ -4,6 +4,8 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -86,7 +88,7 @@ public class ProjectScanTask extends ScanTask {
 
 				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul > li", page)) {
 
-					Task next_t = generateTask(channel, page + 1);
+					com.sdyk.ai.crawler.task.Task next_t = generateTask(channel, page + 1);
 
 					logger.info("Next page: {}", next_t.getUrl());
 
@@ -95,7 +97,7 @@ public class ProjectScanTask extends ScanTask {
 						next_t.setPriority(Priority.HIGH);
 
 						try {
-							tasks.put(next_t.getUrl(), next_t);
+							tasks.put(next_t.getUrl(), (Task) next_t);
 						} catch (Exception e) {
 							logger.error(e);
 						}
@@ -118,5 +120,10 @@ public class ProjectScanTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return null;
 	}
 }

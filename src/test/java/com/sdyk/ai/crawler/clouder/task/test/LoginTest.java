@@ -15,7 +15,7 @@ public class LoginTest {
     @Test
     public void test() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
-        String domain = "passport.clouderwork.com";
+/*        String domain = "passport.clouderwork.com";
         AccountImpl account = new AccountImpl(domain,"17600485107","123456");
         ChromeDriverAgent agent = new ChromeDriverAgent();
         Task t = new Task("https://passport.clouderwork.com/signin");
@@ -24,7 +24,7 @@ public class LoginTest {
         t.addAction(new LoginWithGeetestClouderWork(account));
         agent.submit(t);
         Thread.sleep(10000);
-        agent.stop();
+        agent.stop();*/
     }
 
 }

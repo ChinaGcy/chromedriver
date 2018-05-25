@@ -3,8 +3,9 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,7 +13,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectScanTask extends ScanTask {
+public class ProjectScanTask extends com.sdyk.ai.crawler.specific.clouderwork.task.ScanTask {
 
     public static ProjectScanTask generateTask(int page){
 
@@ -60,17 +61,14 @@ public class ProjectScanTask extends ScanTask {
                 logger.info("error on add task",e);
             }
 
-            try {
-                if(!judjeMaxPage(page,sign,getUrl())){
-                    Task t = generateTask(page + 1);
-                    if (t != null) {
-                        t.setBuildDom();
-                        t.setPriority(Priority.HIGH);
-                        task.add(t);
-                    }
+
+            if(pageTurning("project", page)){
+                Task t = generateTask(page + 1);
+                if (t != null) {
+                    t.setBuildDom();
+                    t.setPriority(Priority.HIGH);
+                    task.add(t);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
             logger.info("Task driverCount: {}", task.size());
@@ -82,4 +80,10 @@ public class ProjectScanTask extends ScanTask {
         });
 
     }
+
+    @Override
+    public TaskTrace getTaskTrace() {
+        return null;
+    }
+
 }

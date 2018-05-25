@@ -285,7 +285,7 @@ public class SchedulerProxyFailedTest {
 	public void getHistoricalData() {
 
 		// 需求
-		for (Task task : getTask(true)) {
+		for (com.sdyk.ai.crawler.task.Task task : getTask(true)) {
 
 			ChromeDriverRequester.getInstance().submit(task);
 
@@ -306,7 +306,7 @@ public class SchedulerProxyFailedTest {
 
 				public void run() {
 
-					for (Task task : getTask(false)) {
+					for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
 
 						task.setBuildDom();
 						ChromeDriverRequester.getInstance().submit(task);

@@ -7,27 +7,18 @@ import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
+import com.sdyk.ai.crawler.task.Task;
 import one.rewind.db.DaoManager;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
-import static spark.route.HttpMethod.get;
-
 /**
  * 任务生成器
  */
@@ -238,7 +229,7 @@ public abstract class Scheduler {
 	 * @param backtrace
 	 * @return
 	 */
-	public abstract List<ScanTask> getTask(boolean backtrace);
+	public abstract List<Task> getTask(boolean backtrace);
 
 	/**
 	 * 获取历史数据

@@ -15,93 +15,15 @@ import java.util.*;
 
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "tasks")
-public class Task extends one.rewind.io.requester.Task {
-
-	public static final Logger logger = LogManager.getLogger(Task.class.getName());
+public class Task extends com.sdyk.ai.crawler.task.Task {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
-		setBuildDom();
 	}
-
-	public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {
-		super(url, post_data);
-	}
-
-	public Task(String url, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
-		super(url, post_data, cookies, ref);
-	}
-
-	public Task(String url, HashMap<String, String> headers, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
-		super(url, headers, post_data, cookies, ref);
-	}
-
-	public String getString(String path, String... clean) {
-
-		String found = null;
-		if(getResponse().getDoc() != null) {
-			found = getResponse().getDoc().select(path).text();
-			for(String c : clean) {
-				found = found.replaceAll(c, "");
-			}
-		}
-
-		return found;
-	}
-
-	public int getInt(String path, String... clean) {
-		try {
-			return Integer.parseInt(getString(path, clean));
-		} catch (NumberFormatException e) {
-			return 0;
-		}
-	}
-
-	public float getFloat(String path, String... clean) {
-		try {
-			return Float.parseFloat(getString(path, clean));
-		} catch (NumberFormatException e) {
-			return 0.0f;
-		}
-	}
-
-	public double getDouble(String path, String... clean) {
-		try {
-			return Double.parseDouble(getString(path, clean));
-		} catch (NumberFormatException e) {
-			return 0.0d;
-		}
-	}
-
-	/**
-	 * 对源代码中的附件进行下载，并替换链接
-	 * @param src 包含附件链接的源代码
-	 * @return 替换后的内容
-	 */
-	public String download(String src) {
-
-		Set<String> img_urls = new HashSet<>();
-		Set<String> a_urls = new HashSet<>();
-		List<String> fileName = new ArrayList<>();
-
-		String des_src = StringUtil.cleanContent(src, img_urls, a_urls, fileName);
-
-		if (img_urls.size() != 0 ) {
-			des_src = BinaryDownloader.download(des_src, img_urls, getUrl(), null);
-		}
-
-		if (a_urls.size() != 0) {
-			des_src = BinaryDownloader.download(des_src, a_urls, getUrl(), fileName);
-		}
-
-		return des_src;
-	}
-
 
 	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
 
 		// throw new ProxyException.Failed();
-
 		// throw new UnreachableBrowserException("chromedriver is bad");
 		if (getResponse().getText().contains("您的访问存在异常")) {
 			throw new ProxyException.Failed();

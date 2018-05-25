@@ -6,6 +6,8 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
 import one.rewind.txt.DateFormatUtil;
@@ -49,7 +51,7 @@ public class ServiceRatingTask extends ScanTask {
 
 				Document doc = getResponse().getDoc();
 
-				List<Task> tasks = new ArrayList<>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				// 判断当前页面有多少评论
 				int size = 0;
@@ -78,11 +80,11 @@ public class ServiceRatingTask extends ScanTask {
 
 				// 翻页 #userlist > div.pagination > ul > li.disabled
 				if (pageTurning("#userlist > div.pagination > ul > li", page)) {
-					Task task = generateTask(userId, page + 1);
+					com.sdyk.ai.crawler.task.Task task = generateTask(userId, page + 1);
 					tasks.add(task);
 				}
 
-				for (Task t : tasks) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					ChromeDriverRequester.getInstance().submit(t);
 				}
 			} catch (Exception e) {
@@ -136,5 +138,10 @@ public class ServiceRatingTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return null;
 	}
 }

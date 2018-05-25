@@ -29,7 +29,7 @@ public class PageTurningTest {
 
 		agent.start();
 
-		Task task = new Task("http://www.zbj.com");
+		com.sdyk.ai.crawler.task.Task task = new Task("http://www.zbj.com");
 		task.addAction(new LoginWithGeetestAction(account));
 		requester.submit(task);
 

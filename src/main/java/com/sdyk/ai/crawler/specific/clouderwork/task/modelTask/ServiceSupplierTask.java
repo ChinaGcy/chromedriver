@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.sdyk.ai.crawler.model.Resume;
 import com.sdyk.ai.crawler.model.ServiceSupplier;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -27,7 +27,6 @@ public class ServiceSupplierTask extends Task {
         this.setBuildDom();
         this.addDoneCallback(() -> {
 
-            String src = getResponse().getText();
             Document doc = getResponse().getDoc();
             serviceSupplier = new ServiceSupplier(getUrl());
 
