@@ -76,8 +76,8 @@ public class ServiceRatingTask extends ScanTask {
 					}
 				}
 
-				// 翻页
-				if (pageTurning("#userlist > div.pagination > ul", page)) {
+				// 翻页 #userlist > div.pagination > ul > li.disabled
+				if (pageTurning("#userlist > div.pagination > ul > li", page)) {
 					Task task = generateTask(userId, page + 1);
 					tasks.add(task);
 				}

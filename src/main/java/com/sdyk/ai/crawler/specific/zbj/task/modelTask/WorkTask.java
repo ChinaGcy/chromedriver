@@ -43,6 +43,10 @@ public class WorkTask extends Task {
 					pageTwo(doc);
 				}
 
+				if (work.name == null) {
+					ChromeDriverRequester.getInstance().submit(this);
+				}
+
 				try {
 					work.insert();
 				} catch (Exception e) {

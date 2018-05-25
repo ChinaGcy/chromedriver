@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.specific.zbj.task.test;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceRatingTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -21,10 +22,17 @@ public class ServiceSupplierTest {
 	public void ServiceSupplierTaskTest() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
+		ChromeDriverRequester.getInstance().addAgent(agent);
 		agent.start();
 		ServiceSupplierTask serviceSupplierTask = new ServiceSupplierTask("http://shop.zbj.com/18751471/");
 		serviceSupplierTask.setBuildDom();
-		agent.submit(serviceSupplierTask);
+		ChromeDriverRequester.getInstance().submit(serviceSupplierTask);
+		try {
+			Thread.sleep(1000000);
+		} catch (InterruptedException e) {
+
+		}
+
 	}
 
 	/**

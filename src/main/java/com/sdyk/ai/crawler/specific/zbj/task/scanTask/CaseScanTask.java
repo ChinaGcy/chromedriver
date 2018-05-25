@@ -81,6 +81,7 @@ public class CaseScanTask extends ScanTask {
 
 					if (!list.contains(new_url)) {
 						list.add(new_url);
+						System.err.println(new_url);
 						try {
 							tasks.add(new CaseTask(new_url));
 						} catch (MalformedURLException | URISyntaxException e) {

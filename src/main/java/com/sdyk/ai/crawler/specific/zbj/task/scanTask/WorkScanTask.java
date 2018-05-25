@@ -51,9 +51,9 @@ public class WorkScanTask extends ScanTask {
 				List<Task> tasks = new ArrayList<>();
 
 				//http://shop.zbj.com/works/detail-wid-131609.html
-				Pattern pattern = Pattern.compile("https://shop.zbj.com/works/detail-wid-\\d+.html");
+				Pattern pattern = Pattern.compile("http://shop.zbj.com/works/detail-wid-\\d+.html");
 				Matcher matcher = pattern.matcher(src);
-				Pattern pattern_tp = Pattern.compile("https://shop.tianpeng.com/works/detail-wid-\\d+.html");
+				Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/works/detail-wid-\\d+.html");
 				Matcher matcher_tp = pattern_tp.matcher(src);
 
 				List<String> list = new ArrayList<>();
@@ -62,8 +62,8 @@ public class WorkScanTask extends ScanTask {
 
 					String new_url = matcher.group();
 
-					if (!list.contains(url)) {
-						list.add(url);
+					if (!list.contains(new_url)) {
+						list.add(new_url);
 						try {
 							tasks.add(new WorkTask(new_url, userId));
 						} catch (MalformedURLException | URISyntaxException e) {
@@ -89,7 +89,7 @@ public class WorkScanTask extends ScanTask {
 				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
 				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
-					Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId") + "/works", page + 1);
+					Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId")+"/", page + 1);
 					if (t != null) {
 						t.setPriority(Priority.HIGH);
 						tasks.add(t);
