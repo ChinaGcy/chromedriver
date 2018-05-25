@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.TaskTrace;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.RedissonAdapter;
@@ -10,9 +11,7 @@ import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.redisson.api.RMap;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class Requester extends ChromeDriverRequester {
 
@@ -28,7 +27,12 @@ public class Requester extends ChromeDriverRequester {
 			"http://www.zbj.com","https://passport.clouderwork.com/signin","https://www.mihuashi.com/login"
 	);
 
-	public Requester() {}
+	public Map<String, List<Task>> taskMap = new HashMap<>();
+
+	public Requester() {
+
+
+	}
 
 	public long getTaskQueueSize() {
 		return queue.size();
