@@ -46,7 +46,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 
         scanTaskList.add(ServiceScanTask.generateTask(1));
 
-        scanTaskList.add(ProjectScanTask.generateTask(1));
+        scanTaskList.add(ProjectScanTask.generateTask(10));
 
         return  scanTaskList;
     }
