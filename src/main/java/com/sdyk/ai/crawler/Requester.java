@@ -29,10 +29,7 @@ public class Requester extends ChromeDriverRequester {
 
 	public Map<String, List<Task>> taskMap = new HashMap<>();
 
-	public Requester() {
-
-
-	}
+	public Requester() { }
 
 	public long getTaskQueueSize() {
 		return queue.size();
@@ -83,6 +80,7 @@ public class Requester extends ChromeDriverRequester {
 			queue.offer(task);
 		}
 	}
+
 
 	public String hash(String url) {
 		return one.rewind.txt.StringUtil.MD5(url);

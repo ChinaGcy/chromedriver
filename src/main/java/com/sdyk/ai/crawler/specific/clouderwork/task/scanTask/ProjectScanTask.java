@@ -54,21 +54,21 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.clouderwork.ta
                     String pUrl = "https://www.clouderwork.com/jobs/"+node.get(i).get("id").toString().replace("\"","");
                     task.add(new ProjectTask(pUrl));
                 }
+                //添加下一页任务
+                if(node.size()>0){
+                    Task t = generateTask(page + 1);
+                    if (t != null) {
+                        t.setBuildDom();
+                        t.setPriority(Priority.HIGH);
+                        task.add(t);
+                    }
+                }
+
                 logger.info("projectTaskSize",task.size());
             } catch (IOException e) {
                 logger.info("error on String to Json",e);
             } catch (URISyntaxException e) {
                 logger.info("error on add task",e);
-            }
-
-
-            if(pageTurning("project", page)){
-                Task t = generateTask(page + 1);
-                if (t != null) {
-                    t.setBuildDom();
-                    t.setPriority(Priority.HIGH);
-                    task.add(t);
-                }
             }
 
             logger.info("Task driverCount: {}", task.size());
