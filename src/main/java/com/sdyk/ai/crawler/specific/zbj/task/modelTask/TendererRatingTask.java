@@ -61,7 +61,7 @@ public class TendererRatingTask extends ScanTask {
 					// 每页中的评价数
 					for (int i = 1; i <= doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
 
-						tendererRating = new TendererRating(getUrl());
+						tendererRating = new TendererRating(getUrl() + "&" + i);
 
 						tendererRating.tenderer_url = getUrl().split("\\?")[0];
 
@@ -159,7 +159,7 @@ public class TendererRatingTask extends ScanTask {
 	public com.sdyk.ai.crawler.task.Task pageTurn(int page) {
 
 		// 判断是否翻页
-		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul", page)) {
+		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul > li", page)) {
 
 			com.sdyk.ai.crawler.task.Task t = null;
 			try {

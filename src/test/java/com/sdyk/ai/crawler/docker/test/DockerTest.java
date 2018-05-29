@@ -4,7 +4,6 @@ import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.db.Refacter;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.ssh.SshManager;

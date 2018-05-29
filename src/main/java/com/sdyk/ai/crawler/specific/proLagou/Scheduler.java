@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.proLagou;
 
 import com.sdyk.ai.crawler.ServiceWrapper;
-import com.sdyk.ai.crawler.model.ServiceSupplier;
 import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
 import com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;

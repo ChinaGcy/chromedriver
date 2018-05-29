@@ -62,7 +62,7 @@ public class TendererOrderTask extends ScanTask {
 				e.printStackTrace();
 			}
 
-			if (pageTurning("#order > div > div.pagination-wrapper > div > ul >li", op_page)) {
+			if (pageTurning("#order > div > div.pagination-wrapper > div > ul > li", op_page)) {
 				// 翻页
 				com.sdyk.ai.crawler.task.Task t = generateTask("https://home.zbj.com/"
 						+ this.getParamString("userId"), ++op_page, this.getParamString("userId"));

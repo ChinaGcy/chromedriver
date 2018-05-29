@@ -1,9 +1,7 @@
 package com.sdyk.ai.crawler.specific.mihuashi;
 
-import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
 import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
-import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ServiceScanTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;

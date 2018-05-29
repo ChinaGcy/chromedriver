@@ -6,13 +6,16 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
 import one.rewind.io.requester.account.Account;
+
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static spark.route.HttpMethod.get;
 
 /**
  * 任务生成器
@@ -22,23 +25,23 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 项目频道参数
     public String[] project_channels = {
-            "t-paperwork",         // 策划
+           /* "t-paperwork",         // 策划
             "t-ppsj",              // 品牌设计
             "t-sign",              // 广告设计
             "t-ad",                // 媒介投放
             "t-xcpzzzbj",          // 宣传片制作
             "t-wzkf",              // 网站建设
-            "t-hkaifa",            // H5开发
-            "t-wxptkf",            // 微信开发
-            "t-xxtg",              // 公关活动/线下地推/会议展览
+            "t-hkaifa",            // H5开发*/
+            "t-wxptkf"            // 微信开发
+           /* "t-xxtg",              // 公关活动/线下地推/会议展览
             "t-yxtg",              // 营销传播
             "t-ppglzxzbj",         // 品牌咨询管理
-            "t-dsyxfwzbj"          // 电商营销服务
+            "t-dsyxfwzbj"          // 电商营销服务*/
     };
 
     // 服务商频道参数
     public static String[] service_supplier_channels = {
-            "paperwork",           // 策划
+           /* "paperwork",           // 策划
             "ppsj",                // 品牌设计
             "sign",                // 广告设计
             "ad",                  // 媒介投放
@@ -49,7 +52,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "xxtg",                // 公关活动/线下地推/会议展览
             "yxtg",                // 营销传播
             "ppglzxzbj",           // 品牌咨询管理
-            "dsyxfwzbj"            // 电商营销服务
+            "dsyxfwzbj"            // 电商营销服务*/
     };
 
     public Scheduler(String domain, int driverCount) {
@@ -118,8 +121,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
             it.sauronsoftware.cron4j.Scheduler s = new it.sauronsoftware.cron4j.Scheduler();
 
-            // 每隔十分钟，生成实时扫描任务
-            s.schedule("*/10 * * * *", new Runnable() {
+            // 每隔30分钟，生成实时扫描任务
+            s.schedule("*/30 * * * *", new Runnable() {
 
                 public void run() {
 

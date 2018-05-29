@@ -4,6 +4,8 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
 import com.sdyk.ai.crawler.model.Project;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import one.rewind.txt.DateFormatUtil;
@@ -27,9 +29,8 @@ public class ProjectTask extends Task {
 	}
 
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
-		super(url);
 
-		this.setBuildDom();
+		super(url);
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
 
@@ -40,26 +41,23 @@ public class ProjectTask extends Task {
 				String src = getResponse().getText();
 				Document doc = getResponse().getDoc();
 
-
 				FileUtil.writeBytesToFile(src.getBytes(), "project.html");
 
 				List<Task> tasks = new ArrayList();
 
 				try {
 					// 初始化 必须传入url 生成主键id
-					project = new Project(getUrl());
+					project = new Project(url);
 				} catch (MalformedURLException | URISyntaxException e) {
 					logger.error("Error extract channel: {}, ", getUrl(), e);
 				}
 
-				if (src.contains("操作失败请稍后重试") || src.contains("此页面内部错误")) {
-					try {
-						ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
-						return;
-					} catch (MalformedURLException | URISyntaxException e) {
-						logger.error(e);
-					}
+				//
+				if (src.contains("操作失败请稍后重试") || src.contains("很抱歉，此页面内部错误！")) {
+					this.setRetry();
+					return;
 				}
+
 				// TODO 补充示例页面 channel: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
 				// A 无法请求页面内容
@@ -67,8 +65,12 @@ public class ProjectTask extends Task {
 
 					String header;
 
-					// #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-					header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
+					// #headerNavWrap > div:nth-child(1) > div > a
+					header = doc.select("#headerNavWrap > div:nth-child(1) > div > a").text();
+
+					if (header == null) {
+						header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
+					}
 
 					// B1 页面格式1 ：http://task.zbj.com/12954152/
 					if (pageType(header) == PageType.OrderDetail) {
@@ -94,11 +96,20 @@ public class ProjectTask extends Task {
 					}
 				}
 
+				// TODO 调用需求评分接口
+				try {
+					/*project.id;*/
+
+				} catch (Exception e) {
+					logger.error("Error calculate project rating. ", e);
+				}
+
 				for (Task t : tasks) {
 					t.setBuildDom();
 					ChromeDriverRequester.getInstance().submit(t);
 				}
-			}catch (Exception e) {
+
+			} catch (Exception e) {
 				logger.error(e);
 			}
 		});
@@ -270,12 +281,13 @@ public class ProjectTask extends Task {
 		else {
 
 			if (src.contains("该需求可接受")) {
+				//#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p > span:nth-child(1)
 				project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
-						"#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(1)");
+						"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p > span:nth-child(1)");
 
-				//#j-ibid-list > div > div.ibid-total.clearfix > b:nth-child(2)
+				//#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p > span:nth-child(1)
 				project.bids_available = StringUtil.getBidderNum(doc,
-						"#j-ibid-list > div > div.ibid-total.clearfix > b");
+						"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p > span:nth-child(2)");
 			}
 		}
 	}
@@ -413,7 +425,7 @@ public class ProjectTask extends Task {
 					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
 
 			project.category = getString(
-					"#utopia_widget_3",
+					"#utopia_widget_2",
 					"");
 
 			String description_src = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")
@@ -466,5 +478,10 @@ public class ProjectTask extends Task {
 		catch (Exception e) {
 			logger.error("Error handle page type 2, {}, ", getUrl(), e);
 		}
+	}
+
+	@Override
+	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
+		return super.validate();
 	}
 }

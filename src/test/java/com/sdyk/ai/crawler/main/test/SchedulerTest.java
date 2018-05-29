@@ -11,7 +11,6 @@ import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;

@@ -103,9 +103,26 @@ public abstract class Model implements JSONable<Model> {
 				dao.update(this);
 				return true;
 			} catch (SQLException e1) {
-				logger.error("insert update error {}", e1);
+				logger.error("Insert Update error {}", e1);
 				return false;
 			}
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean update(){
+
+		Dao dao = daoMap.get(this.getClass().getSimpleName());
+
+		try {
+			dao.update(this);
+			return true;
+		} catch (SQLException e) {
+			logger.error("Insert Update error {}", e);
+			return false;
 		}
 	}
 

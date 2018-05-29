@@ -29,7 +29,7 @@ public class ProjectScanTask extends ScanTask {
 	 */
 	public static ProjectScanTask generateTask(String channel, int page) {
 
-		String url = "http://task.zbj.com/" + channel + "/p" + page + "s5.html?o=7";
+		String url = "http://task.zbj.com/" + channel + "/p" + page + "s5.html?o=1";
 
 		try {
 			ProjectScanTask t = new ProjectScanTask(url, page, channel);
@@ -70,7 +70,7 @@ public class ProjectScanTask extends ScanTask {
 				String src = getResponse().getText();
 
 				// 生成任务
-				Map<String, Task> tasks = new HashMap<>();
+				Map<String, com.sdyk.ai.crawler.task.Task> tasks = new HashMap<>();
 
 				Pattern pattern = Pattern.compile("task.zbj.com/\\d+");
 				Matcher matcher = pattern.matcher(src);
@@ -97,7 +97,7 @@ public class ProjectScanTask extends ScanTask {
 						next_t.setPriority(Priority.HIGH);
 
 						try {
-							tasks.put(next_t.getUrl(), (Task) next_t);
+							tasks.put(next_t.getUrl(), next_t);
 						} catch (Exception e) {
 							logger.error(e);
 						}
@@ -106,7 +106,7 @@ public class ProjectScanTask extends ScanTask {
 
 				logger.info("Task driverCount: {}", tasks.size());
 
-				for (Task t : tasks.values()) {
+				for (com.sdyk.ai.crawler.task.Task t : tasks.values()) {
 					ChromeDriverRequester.getInstance().submit(t);
 				}
 

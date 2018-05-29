@@ -35,7 +35,7 @@ public class ServiceSupplierTask extends Task {
 				String src = getResponse().getText();
 				Document doc = getResponse().getDoc();
 
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<com.sdyk.ai.crawler.task.Task>();
+				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				serviceSupplier = new ServiceSupplier(getUrl());
 

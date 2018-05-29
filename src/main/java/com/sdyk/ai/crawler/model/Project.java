@@ -118,6 +118,15 @@ public class Project extends Model {
 	@DatabaseField(dataType = DataType.INTEGER)
 	public int fav_num;
 
+	@DatabaseField(dataType = DataType.DOUBLE)
+	public double rating;
+
+	@DatabaseField(dataType = DataType.DOUBLE)
+	public double spend;
+
+	@DatabaseField(dataType = DataType.STRING, width = 32)
+	public String cellphone;
+
 	public Project() {}
 
 	public Project(String url) throws MalformedURLException, URISyntaxException {
