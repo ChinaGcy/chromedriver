@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
+import com.sdyk.ai.crawler.model.TendererRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
@@ -7,6 +8,9 @@ import com.sdyk.ai.crawler.model.Tenderer;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import javax.lang.model.util.Elements;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -56,26 +60,49 @@ public class TendererTask extends Task {
         tenderer.website_id = urlarray[1];
         //招标人名字
         String name = doc.select("#profile > div > div > section > section > div.prjectBox > p.name-p").text();
-        if(name!=null&&!"".equals(name)){
+        if( name!=null && !"".equals(name) ){
             tenderer.name = name;
         }
         //招标人描述
         tenderer.description = doc.select("#profile > div > div > section > section > div.prjectBox > p.overview-p").html();
         //线上消费金额
         String totalSpendingt =doc.select("#profile > div > div > section > section > div.prjectBox > section > span:nth-child(1)").text().replaceAll("￥","");
-        if(totalSpendingt!=null&&!"".equals(totalSpendingt)){
-            if(totalSpendingt.contains("万")){
+        if( totalSpendingt!= null &&!"".equals(totalSpendingt) ){
+            if( totalSpendingt.contains("万") ){
                 totalSpendingt = totalSpendingt.replace("万","").replace(",","");
                 tenderer.total_spending = Double.valueOf(totalSpendingt)*10000;
-            }else{
+            }
+            //单位为元
+            else {
                 tenderer.total_spending = Double.valueOf(totalSpendingt);
             }
         }
         //雇佣人数
         String totalHires = doc.select("#profile > div > div > section > section > div.prjectBox > section > span:nth-child(3)").text();
         totalHires = CrawlerAction.getNumbers(totalHires);
-        if(totalHires!=null&&!"".equals(totalHires)&&pattern.matcher(totalHires).matches()){
+        if( totalHires!=null && !"".equals(totalHires) && pattern.matcher(totalHires).matches() ){
             tenderer.total_hires = Integer.valueOf(totalHires);
+        }
+        //评论
+        org.jsoup.select.Elements elements = doc.getElementsByClass("company");
+        if( elements!=null && elements.size()>0 ){
+            for(Element element : elements){
+
+                TendererRating tendererRating = new TendererRating(getUrl());
+                //雇主URL
+                tendererRating.tenderer_url = getUrl();
+                //服务商名称
+                tendererRating.facilitator_name = element.getElementsByClass("comp-name").text();
+                //评价内容
+                tendererRating.maluation_tag = element.getElementsByClass("comp-desc").text();
+                //合作愉快度
+                String happy_num = element.getElementsByClass("score-num").text()
+                        .replace(".","").replace("0","");
+                String happy = CrawlerAction.getNumbers(happy_num);
+                tendererRating.work_happy_num = Integer.valueOf(happy);
+                tendererRating.insert();
+
+            }
         }
         //评价数
         String ratingNumAndGood = doc.select("#profile > div > div > div.evaluation > p.only-sys").text();

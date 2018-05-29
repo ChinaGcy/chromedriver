@@ -20,10 +20,9 @@ public class ScanTask extends com.sdyk.ai.crawler.task.ScanTask {
         super(url);
     }
 
-    public boolean judjeMaxPage(int page, String sign, String url){
+    public boolean judgeMaxPage(int page, String sign, String url){
+
         boolean maxPageFlag = false;
-
-
         return  maxPageFlag;
     }
 

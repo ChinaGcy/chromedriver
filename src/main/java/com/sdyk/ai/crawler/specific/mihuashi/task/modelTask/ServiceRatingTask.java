@@ -81,7 +81,8 @@ public class ServiceRatingTask extends Task {
             String spand = element.getElementsByClass("budget-interval").text();
             if(spand.contains("~")){
                 String[] spands = spand.split("~");
-                supplierRating.spend = Integer.valueOf(CrawlerAction.getNumbers(spands[0]));
+                supplierRating.spend_lb = Integer.valueOf(CrawlerAction.getNumbers(spands[0]));
+                supplierRating.spend_up = Integer.valueOf(CrawlerAction.getNumbers(spands[1]));
             }
 
             //项目URL
@@ -103,10 +104,10 @@ public class ServiceRatingTask extends Task {
 
         }
 
-        for(Task t : tasks){
+        /*for(Task t : tasks){
             t.setBuildDom();
             ChromeDriverRequester.getInstance().submit(t);
-        }
+        }*/
     }
 
     @Override

@@ -41,6 +41,17 @@ public class ProjectTask extends Task {
         this.addDoneCallback(() -> {
             Document doc = getResponse().getDoc();
             String src = getResponse().getText();
+
+            //页面错误
+            if (src.contains("非常抱歉")||src.contains("权限不足")) {
+                try {
+                    ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
+                    return;
+                } catch (MalformedURLException | URISyntaxException e) {
+                    logger.error(e);
+                }
+            }
+
             //下载页面
             FileUtil.writeBytesToFile(src.getBytes(), "project.html");
             //抓取页面

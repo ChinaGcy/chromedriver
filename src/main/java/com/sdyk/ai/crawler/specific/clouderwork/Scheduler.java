@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.specific.clouderwork;
 
+import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ServiceScanTask;
@@ -46,7 +47,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 
         scanTaskList.add(ServiceScanTask.generateTask(1));
 
-        scanTaskList.add(ProjectScanTask.generateTask(10));
+        scanTaskList.add(ProjectScanTask.generateTask(60));
 
         return  scanTaskList;
     }
@@ -64,10 +65,18 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 
     }
 
-    //程序入口
+    /**
+     * 程序入口
+     * @param args
+     */
     public static void main(String[] args){
 
-        Scheduler scheduler = new Scheduler("passport.clouderwork.com", 1);
+        //调用sparkjava查看队列任务
+        new Thread(()->{
+            new ServiceWrapper();
+        }).start();
+
+        Scheduler scheduler = new Scheduler("passport.clouderwork.com", 2);
         if(args.length>0){
             scheduler.monitoring();
         }else{

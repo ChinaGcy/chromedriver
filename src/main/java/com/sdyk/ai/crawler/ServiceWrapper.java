@@ -1,8 +1,12 @@
 package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.route.*;
+import one.rewind.io.requester.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
+import java.util.Map;
 
 import static spark.Spark.get;
 import static spark.Spark.port;
@@ -64,7 +68,11 @@ public class ServiceWrapper {
 		// 服务商评价
 		get("/servicesupplier/:servicesupplierid/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());
 
+		//
 		get("/system/queue", SystemRoute.getQueueSize, new ModelMsgTransformer());
+
+		//
+		get("/system/taskStat", SystemRoute.getTaskStat, new ModelMsgTransformer());
 
 	}
 

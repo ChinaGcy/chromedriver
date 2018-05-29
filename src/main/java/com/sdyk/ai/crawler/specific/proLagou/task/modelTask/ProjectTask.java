@@ -28,7 +28,7 @@ public class ProjectTask extends Task {
             String src = getResponse().getText();
             //下载页面
             FileUtil.writeBytesToFile(src.getBytes(), "project.html");
-            if (src.contains("失败")||src.contains("错误")) {
+            if ( src.contains("失败") || src.contains("错误") ) {
                 try {
                     ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
                     return;

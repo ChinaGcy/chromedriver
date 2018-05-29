@@ -19,26 +19,32 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.clouderwork.ta
         StringBuffer url = new StringBuffer("https://www.clouderwork.com/api/v2/freelancers/search?pagesize=10&pagenum=");
         url.append(page);
         try {
-            System.out.println("创建 ServiceScanTask");
-            ServiceScanTask t = new ServiceScanTask(url.toString(),page);
-            return t;
+            ServiceScanTask ta = new ServiceScanTask(url.toString(),page);
+            return ta;
         } catch (MalformedURLException e) {
-            logger.info("error on creat serviceScanTask",e);
+            logger.info("error on creat ckouderWork serviceScanTask",e);
         } catch (URISyntaxException e) {
-            logger.info("error on creat serviceScanTask",e);
+            logger.info("error on creat ckouderWork serviceScanTask",e);
         }
         return null;
     }
 
+    /**
+     *
+     * @param url
+     * @param page
+     * @throws MalformedURLException
+     * @throws URISyntaxException
+     */
+    public ServiceScanTask (String url, int page) throws MalformedURLException, URISyntaxException {
 
-
-    public ServiceScanTask (String url,int page) throws MalformedURLException, URISyntaxException {
         super(url);
+
         this.setPriority(Priority.HIGH);
         this.setBuildDom();
+
         String sign = "users";
         this.addDoneCallback(() -> {
-            logger.info("执行搜索任务ServiceScanTask");
             String src = getResponse().getDoc().text().replace("/U",",U ");
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);

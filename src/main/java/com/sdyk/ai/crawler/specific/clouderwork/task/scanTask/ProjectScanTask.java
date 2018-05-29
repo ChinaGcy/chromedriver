@@ -43,8 +43,8 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.clouderwork.ta
         String sign = "jobs";
 
         this.addDoneCallback(() -> {
-            logger.info("执行搜索任务ProjectScanTask");
-            String src = getResponse().getDoc().text().replace("/U",",U ");
+
+            String src = getResponse().getDoc().text().replace("/UE",",UE");
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
             List<Task> task = new ArrayList<>();

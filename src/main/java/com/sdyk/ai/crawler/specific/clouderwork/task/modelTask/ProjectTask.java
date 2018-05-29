@@ -81,7 +81,8 @@ public class ProjectTask extends Task {
         Double budget_up = Double.valueOf(0);
         //当数据为  人/月
         if(budget.contains("/")){
-            if(budget.contains("万")){                //以万元为单位时
+            //以万元为单位时
+            if(budget.contains("万")){
                 budget = budget.substring(0,budget.length()-5);
                 if(budget.contains(",")){
                     budget = budget.replace(",","");
@@ -93,7 +94,9 @@ public class ProjectTask extends Task {
                     logger.error("error on String"+budget+"To Double", e);
                 }
 
-            }else{
+            }
+            //不以万元为单位
+            else {
                 budget = budget.substring(0,budget.length()-4);
                 if(budget.contains(",")){
                     budget = budget.replace(",","");
@@ -105,8 +108,11 @@ public class ProjectTask extends Task {
                 }
             }
             budget_up = budget_lb;
-        }else if(budget.contains("～")){                                  //当数据为预算区间时
+        }
+        //当数据为预算区间时
+        else if (budget.contains("～")){
             String[] budgetArray = budget.split("～");
+            //最低价以万元为单位
             if(budgetArray[0].contains("万")){
                 if(budgetArray[0].contains(",")){
                     budgetArray[0] = budgetArray[0].replace(",","");
@@ -117,7 +123,9 @@ public class ProjectTask extends Task {
                 } catch (Exception e) {
                     logger.error("error on String"+budgetArray[0] +"To Double", e);
                 }
-            }else{
+            }
+            //最低价不以万元为单位
+            else {
                 if(budgetArray[0].contains(",")){
                     budgetArray[0] = budgetArray[0].replace(",","");
                 }
@@ -127,6 +135,7 @@ public class ProjectTask extends Task {
                     logger.error("error on String"+budgetArray[0] +"To Double", e);
                 }
             }
+            //最高价以万元为单位
             if(budgetArray[1].contains("万")){
                 if(budgetArray[1].contains(",")){
                     budgetArray[1] = budgetArray[1].replace(",","");
@@ -137,7 +146,9 @@ public class ProjectTask extends Task {
                 } catch (Exception e) {
                     logger.error("error on String"+budgetArray[1] +"To Double", e);
                 }
-            }else{
+            }
+            //最高价不以万元为单位
+            else {
                 if(budgetArray[1].contains(",")){
                     budgetArray[1] = budgetArray[1].replace(",","");
                 }
@@ -152,7 +163,7 @@ public class ProjectTask extends Task {
         project.budget_up = budget_up;
         //项目工期
         String timeLimit = doc.select("#project-detail > div > div.main-top > div.op-main > div.detail-row > div.budgets.workload > p.budget > span").text();
-        if(timeLimit!=null&&!"".equals(timeLimit)){
+        if( timeLimit!=null && !"".equals(timeLimit) ){
             try {
                 project.time_limit = Integer.valueOf(timeLimit);
             } catch (Exception e) {
@@ -173,7 +184,7 @@ public class ProjectTask extends Task {
         project.pubdate = pubdate;
         String numberP = doc.select("#project-detail > div > div.main-top > div.job-main > div.project-info > p:nth-child(3) > span").text();
         //可投标人数
-        if(numberP!=null&&!"".equals(numberP)){
+        if( numberP!=null && !"".equals(numberP) ){
             try {
                 project.bidder_total_num = Integer.valueOf(numberP);
             } catch (Exception e) {
@@ -183,7 +194,7 @@ public class ProjectTask extends Task {
         //已投标人数
         String bidder = doc.select("#project-detail > div > div.main-top > div.op-main > div.row > span").text();
         String bidderNum = CrawlerAction.getNumbers(bidder);
-        if(bidderNum!=null&&!"".equals(bidderNum)){
+        if( bidderNum!=null && !"".equals(bidderNum) ){
             try {
                 project.bids_num = Integer.valueOf(bidderNum);
             } catch (Exception e) {
@@ -193,14 +204,14 @@ public class ProjectTask extends Task {
         }
         //招商人ID
         String tendererId =doc.select("#project-detail > div > div.main-top > div.job-main > div.client > div > a").attr("href");
-        if(tendererId!=null&&!"".equals(tendererId)){
+        if( tendererId!=null && !"".equals(tendererId) ){
             project.tenderer_id = tendererId;
         }
 
         //采集招标人信息
-        if(tendererId!=null&&!"".equals(tendererId)){
-
-            authorUrl = "https://www.clouderwork.com"+tendererId;      //招标人详情页url
+        if( tendererId!=null && !"".equals(tendererId) ){
+            //招标人详情页url
+            authorUrl = "https://www.clouderwork.com"+tendererId;
 
             try {
                 tasks.add(new TendererTask(authorUrl));

@@ -1,13 +1,15 @@
 package com.sdyk.ai.crawler.route;
 
+import com.sdyk.ai.crawler.Requester;
+import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.server.Msg;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  *二进制路由
@@ -29,4 +31,16 @@ public class SystemRoute {
 		}
 	};
 
+	/**
+	 * 简单统计未执行任务类型接口
+	 */
+	public static Route getTaskStat = (Request request, Response response ) -> {
+
+		try{
+			return new Msg<Map<String, Integer>>(Msg.SUCCESS, Requester.taskStat);
+		} catch (Exception e) {
+			return new Msg<>(Msg.KERNEL_FAILURE);
+		}
+
+	};
 }

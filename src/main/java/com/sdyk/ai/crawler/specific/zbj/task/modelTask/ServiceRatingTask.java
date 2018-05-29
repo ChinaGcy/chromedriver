@@ -114,8 +114,9 @@ public class ServiceRatingTask extends ScanTask {
 		serviceRating.tenderer_name = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
 				.text().split("成交价格：")[0];
 
-		serviceRating.spend = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
+		serviceRating.spend_lb = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
 				.text().split("成交价格：")[1].replaceAll("元", ""));
+		serviceRating.spend_up = serviceRating.spend_lb;
 
 		serviceRating.description = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
 				.text();

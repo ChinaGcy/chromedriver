@@ -17,7 +17,8 @@ public class TendererRatingActive extends ChromeAction {
         this.url = url;
     }
 
-    public void getmore(){
+    public boolean getmore(){
+        Boolean clickRating = true;
         try {
             //获取页面
             this.agent.getUrl(this.url);
@@ -41,8 +42,10 @@ public class TendererRatingActive extends ChromeAction {
                 }
             }while (clc!=null);
         } catch (SocketException e) {
-            e.printStackTrace();
+            logger.error("error on clickRating",e);
+            return  false;
         }
+        return clickRating;
     }
 
     public void run() {

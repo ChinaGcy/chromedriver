@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.specific.mihuashi;
 
+import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
 import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
 import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ProjectScanTask;
@@ -58,8 +59,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 
         List<com.sdyk.ai.crawler.task.Task> scanTaskList = new ArrayList<>();
         scanTaskList.add(ServiceScanTask.generateTask(1));
-        scanTaskList.add(ProjectScanTask.generateTask("1", 1));
-        scanTaskList.add(ProjectScanTask.generateTask("2", 1));
+        /*scanTaskList.add(ProjectScanTask.generateTask("1", 1));
+        scanTaskList.add(ProjectScanTask.generateTask("2", 1));*/
 
         return scanTaskList;
 
@@ -101,6 +102,11 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
      * 程序入口
      */
     public static void main(String[] args){
+
+       /* //调用sparkjava查看队列任务
+        new Thread(()->{
+            new ServiceWrapper();
+        }).start();*/
 
         Scheduler scheduler = new Scheduler("mihuashi.com", 1);
         if(args.length>0){

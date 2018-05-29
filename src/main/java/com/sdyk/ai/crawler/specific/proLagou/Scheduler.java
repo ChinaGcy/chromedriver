@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.specific.proLagou;
 
+import com.sdyk.ai.crawler.ServiceWrapper;
+import com.sdyk.ai.crawler.model.ServiceSupplier;
 import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
 import com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
@@ -49,7 +51,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
     public List<com.sdyk.ai.crawler.task.Task> getTask(boolean backtrace) {
 
         List<com.sdyk.ai.crawler.task.Task> scanTaskList = new ArrayList<>();
-        scanTaskList.add(ProjectScanTask.generateTask(1));
+        scanTaskList.add(ProjectScanTask.generateTask(90));
         return scanTaskList;
     }
 
@@ -87,7 +89,11 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
     //程序入口
     public static void main(String[] args){
 
-        Scheduler scheduler = new Scheduler("pro.lagou.com", 1);
+        new Thread(()->{
+            new ServiceWrapper();
+        }).start();
+
+        Scheduler scheduler = new Scheduler("pro.lagou.com", 2);
         if(args.length>0){
             scheduler.monitoring();
         }else{

@@ -54,7 +54,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
             }
         }
         //名称
-        tenderer.name = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > h5 > span").text();
+        tenderer.name = doc.getElementsByClass("name").text();
         //评价数
         String ratingNum = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span").text();
         ratingNum = CrawlerAction.getNumbers(ratingNum);
@@ -62,7 +62,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
             tenderer.rating_num = Integer.valueOf(ratingNum);
         }
         //简介
-        tenderer.description = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__summary-wrapper").html();
+        tenderer.description = doc.getElementsByClass("profile__summary-wrapper").text();
 
         Elements elements =doc.getElementsByClass("project-cell__title-link");
         for(Element element : elements){

@@ -94,7 +94,6 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
                 }
             }
 
-
             //判断是否为最大页
             if( pageTurning(pagePath, page) )
             {

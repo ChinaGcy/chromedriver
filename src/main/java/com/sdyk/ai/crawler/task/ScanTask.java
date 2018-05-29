@@ -13,7 +13,9 @@ public abstract class ScanTask extends Task {
 	public boolean backtrace = true;
 
 	public ScanTask(String url) throws MalformedURLException, URISyntaxException {
+
 		super(url);
+
 		/*this.addDoneCallback(() -> {
 			FileUtil.appendLineToFile(
 					url + "\t" + DateFormatUtil.dff.print(System.currentTimeMillis()),
