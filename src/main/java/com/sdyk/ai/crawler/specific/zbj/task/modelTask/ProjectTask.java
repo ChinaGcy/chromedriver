@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
 import com.sdyk.ai.crawler.model.Project;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -28,11 +29,19 @@ public class ProjectTask extends Task {
 		OrderDetail, ReqDetail
 	}
 
+	/**
+	 *
+	 * @param url
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 */
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
+
+		this.addAction(new RefreshAction());
 
 		this.addDoneCallback(() -> {
 
@@ -459,10 +468,12 @@ public class ProjectTask extends Task {
 			projectStateTwo(doc);
 
 			// 投标总数与投标人数
+			//#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-user-info > span
 			project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
 					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(1)");
+			//#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p > span:nth-child(2)
 			project.bids_available = StringUtil.getBidderNum(doc,
-					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span");
+					"#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-task-info > span:nth-child(2)");
 
 			project.status = getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
 

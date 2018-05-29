@@ -87,7 +87,7 @@ public abstract class Scheduler {
 			DockerHostManager.getInstance().delAllDockerContainers();
 
 			// 创建 container
-			DockerHostManager.getInstance().createDockerContainers(driverCount);
+			DockerHostManager.getInstance().createDockerContainers(driverCount + 1);
 
 			// 读取有效账户 driverCount 个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
@@ -207,6 +207,17 @@ public abstract class Scheduler {
 			}
 
 			latch.await();
+
+			logger.info("Normal ChromeDriverAgents are ready.");
+
+			Account account = AccountManager.getAccountByDomain(domain, "");
+
+			Task task = getLoginTask(account);
+
+			ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+
+			//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
+			ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container);
 
 			logger.info("All ChromeDriverAgents are ready.");
 

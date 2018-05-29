@@ -31,7 +31,6 @@ public class AccountManager {
 
 	public AccountManager() {}
 
-
 	/**
 	 *
 	 * @param domain
@@ -58,6 +57,41 @@ public class AccountManager {
 		return null;
 	}
 
+	/**
+	 *
+	 * @param domain
+	 * @param group
+	 * @return
+	 * @throws Exception
+	 */
+	public synchronized static Account getAccountByDomain(String domain, String group) throws Exception {
+
+		Dao<AccountImpl, String> dao = DaoManager.getDao(AccountImpl.class);
+
+		AccountImpl account = dao.queryBuilder().limit(1L).
+				where().eq("domain", domain)
+				.and().eq("status", Account.Status.Free)
+				.and().eq("group", group)
+				.queryForFirst();
+
+		if(account != null) {
+
+			account.status = Account.Status.Occupied;
+			account.update_time = new Date();
+			dao.update(account);
+			return account;
+		}
+
+		return null;
+	}
+
+	/**
+	 *
+	 * @param domain
+	 * @param num
+	 * @return
+	 * @throws Exception
+	 */
 	public synchronized static List<AccountImpl> getAccountByDomain(String domain, long num) throws Exception {
 
 		Dao<AccountImpl, String> dao = DaoManager.getDao(AccountImpl.class);
@@ -65,6 +99,7 @@ public class AccountManager {
 		List<AccountImpl> accounts = dao.queryBuilder().limit(num).
 				where().eq("domain", domain)
 				.and().eq("status", Account.Status.Free)
+				.and().eq("group", null)
 				.query();
 
 		logger.info("Get {} {} accounts.", domain, accounts.size());

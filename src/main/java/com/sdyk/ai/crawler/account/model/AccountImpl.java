@@ -1,6 +1,8 @@
 package com.sdyk.ai.crawler.account.model;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
@@ -13,6 +15,10 @@ import java.util.Date;
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "accounts")
 public class AccountImpl extends Account {
+
+	// 分组
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String group;
 
 	public static final Logger logger = LogManager.getLogger(AccountImpl.class.getName());
 
