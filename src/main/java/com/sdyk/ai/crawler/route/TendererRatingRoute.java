@@ -19,7 +19,7 @@ public class TendererRatingRoute {
 
 	public static Route getTendererRatings = (Request request, Response response) -> {
 
-		int tendererId = Integer.parseInt(request.params(":tendererid"));
+		int tendererId = Integer.parseInt(request.params(":id"));
 		int page = Integer.parseInt(request.params(":page"));
 		if(page < 1) page = 1;
 

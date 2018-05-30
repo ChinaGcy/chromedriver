@@ -1,10 +1,17 @@
 package com.sdyk.ai.crawler.specific.zbj.task.action;
 
 import com.sdyk.ai.crawler.model.Project;
+import io.netty.handler.codec.http.HttpResponse;
+import net.lightbody.bmp.filters.ResponseFilter;
+import net.lightbody.bmp.util.HttpMessageContents;
+import net.lightbody.bmp.util.HttpMessageInfo;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import org.openqa.selenium.By;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class GetProjectContactAction extends ChromeAction {
 
@@ -93,6 +100,8 @@ public class GetProjectContactAction extends ChromeAction {
 
 		// 获取手机号
 		project.cellphone = agent.getDriver().findElement(By.cssSelector("body > div.pup-servicedry-phone > div > div.min-phone > span")).getText();
+
+		String url = "";
 
 		// G 点击关闭
 		agent.getDriver().findElement(By.cssSelector("body > div.pup-servicedry-phone > div > div.pup-close")).click();

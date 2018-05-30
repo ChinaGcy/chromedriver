@@ -45,7 +45,7 @@ public class ProjectTaskTest {
 		Refacter.dropTable(Project.class);
 		Refacter.createTable(Project.class);
 
-		Project p = new Project("http://www.baidu.com/test");
+		Project p = new Project("http://www.baidu.com/NumberExtractTest");
 		p.insert();
 	}
 }

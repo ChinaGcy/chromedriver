@@ -37,7 +37,7 @@ public class CaseRoute {
 	 */
 	public static Route getCases = (Request request, Response response) -> {
 
-		String serviceSupplier = request.params(":userid");
+		String user_id = request.params(":id");
 
 		int page = Integer.parseInt(request.params(":page"));
 		if(page < 1) page = 1;
@@ -58,7 +58,7 @@ public class CaseRoute {
 
 		ServiceWrapper.logger.info(qb.prepareStatementString());
 
-		List<Case> cs = qb.where().eq("user_id",serviceSupplier).query();
+		List<Case> cs = qb.where().eq("user_id", user_id).query();
 
 		for(Case c : cs) {
 			c.description = rewriteBinaryUrl(c.description);
