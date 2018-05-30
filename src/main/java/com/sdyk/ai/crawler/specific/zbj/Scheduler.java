@@ -25,18 +25,18 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 项目频道参数
     public String[] project_channels = {
-           /* "t-paperwork",         // 策划
+            "t-paperwork",         // 策划
             "t-ppsj",              // 品牌设计
             "t-sign",              // 广告设计
             "t-ad",                // 媒介投放
             "t-xcpzzzbj",          // 宣传片制作
             "t-wzkf",              // 网站建设
-            "t-hkaifa",            // H5开发*/
-            "t-wxptkf"            // 微信开发
-           /* "t-xxtg",              // 公关活动/线下地推/会议展览
+            "t-hkaifa",            // H5开发
+            "t-wxptkf",           // 微信开发
+            "t-xxtg",              // 公关活动/线下地推/会议展览
             "t-yxtg",              // 营销传播
             "t-ppglzxzbj",         // 品牌咨询管理
-            "t-dsyxfwzbj"          // 电商营销服务*/
+            "t-dsyxfwzbj"          // 电商营销服务
     };
 
     // 服务商频道参数

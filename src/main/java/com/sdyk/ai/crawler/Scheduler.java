@@ -7,6 +7,8 @@ import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
+import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
+import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.db.DaoManager;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
@@ -210,7 +212,7 @@ public abstract class Scheduler {
 
 			logger.info("Normal ChromeDriverAgents are ready.");
 
-			Account account = AccountManager.getAccountByDomain(domain, "");
+			Account account = AccountManager.getAccountByDomain(domain, "A");
 
 			Task task = getLoginTask(account);
 
@@ -218,6 +220,12 @@ public abstract class Scheduler {
 
 			//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
 			ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container);
+
+			AuthorizedRequester.getInstance().addAgent(agent);
+
+			agent.start();
+
+			AuthorizedRequester.getInstance().submit(task);
 
 			logger.info("All ChromeDriverAgents are ready.");
 

@@ -51,8 +51,6 @@ public class AuthorizedRequester extends ChromeDriverRequester {
 		return instance;
 	}
 
-	public ChromeDriverAgent agent;
-
 	ThreadPoolExecutor executor = new ThreadPoolExecutor(
 			10,
 			20,
@@ -91,11 +89,5 @@ public class AuthorizedRequester extends ChromeDriverRequester {
 
 		// 使用本地IP
 		// 读取一个特定账户
-
-		try {
-			this.addAgent(agent);
-		} catch (ChromeDriverException.IllegalStatusException e) {
-			e.printStackTrace();
-		}
 	}
 }

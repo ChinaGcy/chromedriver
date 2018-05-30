@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 public class ProjectTask extends Task {
 
-	Project project;
+	public Project project;
 
 	public enum PageType {
 		OrderDetail, ReqDetail
