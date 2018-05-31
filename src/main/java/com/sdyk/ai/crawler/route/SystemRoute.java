@@ -12,10 +12,13 @@ import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
- *二进制路由
+ * 系统信息路由
  */
 public class SystemRoute {
 
+	/**
+	 * 获取队列未执行任务数量 & 空闲ChromeDriverAgent
+	 */
 	public static Route getQueueSize = (Request request, Response response ) -> {
 
 		try {

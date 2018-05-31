@@ -14,6 +14,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.*;
 
+/**
+ *
+ */
 public class AuthorizedRequester extends ChromeDriverRequester {
 
 	public static AuthorizedRequester instance;
@@ -52,22 +55,22 @@ public class AuthorizedRequester extends ChromeDriverRequester {
 	}
 
 	ThreadPoolExecutor executor = new ThreadPoolExecutor(
-			10,
-			20,
+			1,
+			1,
 			0, TimeUnit.MICROSECONDS,
 			new SynchronousQueue<>()
 	);
 
 	ThreadPoolExecutor post_executor = new ThreadPoolExecutor(
-			10,
-			10,
+			1,
+			1,
 			0, TimeUnit.MICROSECONDS,
 			new LinkedBlockingQueue<>()
 	);
 
 	ThreadPoolExecutor restart_executor = new ThreadPoolExecutor(
-			4,
-			4,
+			1,
+			1,
 			0, TimeUnit.MICROSECONDS,
 			new LinkedBlockingQueue<>()
 	);
@@ -87,7 +90,15 @@ public class AuthorizedRequester extends ChromeDriverRequester {
 		restart_executor.setThreadFactory(new ThreadFactoryBuilder()
 				.setNameFormat("ChromeDriverRequester-RestartWorker-%d").build());
 
-		// 使用本地IP
-		// 读取一个特定账户
+	}
+
+	// 增加每天执行次数统计，超过次数拒绝任务
+	public boolean submit_(Task task) {
+		if(true) {
+			this.queue.offer(task);
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

@@ -11,7 +11,7 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 /**
- *二进制路由
+ * 二进制文件路由
  */
 public class BinaryRoute {
 
@@ -37,7 +37,6 @@ public class BinaryRoute {
 		} else {
 			return new Msg<>(Msg.OBJECT_NOT_FOUND);
 		}
-
 	};
 
 }

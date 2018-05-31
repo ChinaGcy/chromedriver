@@ -1,12 +1,21 @@
 package com.sdyk.ai.crawler.specific.zbj;
 
 
+import com.sdyk.ai.crawler.ServiceWrapper;
+import com.sdyk.ai.crawler.account.AccountManager;
+import com.sdyk.ai.crawler.docker.DockerHostManager;
+import com.sdyk.ai.crawler.proxy.AliyunHost;
+import com.sdyk.ai.crawler.proxy.ProxyManager;
+import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
+import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
+import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 
@@ -41,7 +50,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 服务商频道参数
     public static String[] service_supplier_channels = {
-           /* "paperwork",           // 策划
+            "paperwork",           // 策划
             "ppsj",                // 品牌设计
             "sign",                // 广告设计
             "ad",                  // 媒介投放
@@ -52,11 +61,60 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "xxtg",                // 公关活动/线下地推/会议展览
             "yxtg",                // 营销传播
             "ppglzxzbj",           // 品牌咨询管理
-            "dsyxfwzbj"            // 电商营销服务*/
+            "dsyxfwzbj"            // 电商营销服务
     };
+
+    public String cron = "*/30 * * * *";
 
     public Scheduler(String domain, int driverCount) {
         super(domain, driverCount);
+    }
+
+    /**
+     *
+     */
+    public void initAuthorizedRequester() {
+
+        try {
+
+            Account account = AccountManager.getAccountByDomain(domain, "select");
+
+            com.sdyk.ai.crawler.task.Task task = getLoginTask(account);
+
+            // 创建一个新的container
+            DockerHostManager.getInstance().createDockerContainers(1);
+
+            ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+
+            // 不使用代理
+            ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container);
+
+            // agent 添加异常回调
+            agent.addAccountFailedCallback(()->{
+
+                logger.info("Account {}:{} failed.", account.domain, account.username);
+
+            }).addTerminatedCallback(()->{
+
+                logger.info("Container {} {}:{} Terminated.", container.name, container.ip, container.vncPort);
+
+            }).addNewCallback(()->{
+
+                try {
+                    agent.submit(task, 300000);
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            });
+
+            AuthorizedRequester.getInstance().addAgent(agent);
+            agent.start();
+
+            logger.info("ChromeDriverAgents are ready.");
+
+        } catch (Exception e) {
+            logger.error("Error init authorized requester. ", e);
+        }
     }
 
     /**
@@ -86,7 +144,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             ScanTask t = ProjectScanTask.generateTask(channel, 1);
             t.backtrace = backtrace;
             tasks.add(t);
-            System.out.println("PROJECT:" + channel);
+            logger.info("PROJECT:" + channel);
         }
 
         if (backtrace == true) {
@@ -94,7 +152,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
                 ScanTask t = ServiceScanTask.generateTask(channel, 1);
                 t.backtrace = backtrace;
                 tasks.add(t);
-                System.out.println("SERVICE:" + channel);
+                logger.info("SERVICE:" + channel);
             }
         }
 
@@ -122,15 +180,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             it.sauronsoftware.cron4j.Scheduler s = new it.sauronsoftware.cron4j.Scheduler();
 
             // 每隔30分钟，生成实时扫描任务
-            s.schedule("*/30 * * * *", new Runnable() {
-
-                public void run() {
-
-                    for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
-
-                        task.setBuildDom();
-                        ChromeDriverRequester.getInstance().submit(task);
-                    }
+            s.schedule(cron, () -> {
+                for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
+                    ChromeDriverRequester.getInstance().submit(task);
                 }
             });
 
@@ -138,7 +190,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
         } catch (Exception e) {
 
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -148,31 +200,26 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
      */
     public static void main(String[] args) {
 
+        new Thread(() -> {
+            ServiceWrapper.getInstance();
+        });
+
         int num = 1;
 
         /**
          *
          */
-        if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {
-            num = Integer.parseInt(args[1]);
+        if (!args[0].equals("") && Integer.parseInt(args[0]) > 1) {
+            num = Integer.parseInt(args[0]);
         }
 
         Scheduler scheduler = new Scheduler("zbj.com", num);
 
-        /**
-         *
-         */
-        if (args.length == 2 && args[0].equals("H")){
-            // 获取历史数据
-            System.out.println("历史数据");
-            scheduler.getHistoricalData();
+        scheduler.initAuthorizedRequester();
 
-        }
-        else {
-            // 监控数据
-            System.out.println("监控数据");
-            scheduler.monitoring();
-        }
+        scheduler.getHistoricalData();
+        scheduler.monitoring();
+
     }
 
 }
