@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj;
 
 
+import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
@@ -49,7 +50,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 服务商频道参数
     public static String[] service_supplier_channels = {
-           /* "paperwork",           // 策划
+            "paperwork",           // 策划
             "ppsj",                // 品牌设计
             "sign",                // 广告设计
             "ad",                  // 媒介投放
@@ -60,7 +61,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "xxtg",                // 公关活动/线下地推/会议展览
             "yxtg",                // 营销传播
             "ppglzxzbj",           // 品牌咨询管理
-            "dsyxfwzbj"            // 电商营销服务*/
+            "dsyxfwzbj"            // 电商营销服务
     };
 
     public String cron = "*/30 * * * *";
@@ -76,7 +77,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
         try {
 
-            Account account = AccountManager.getAccountByDomain(domain, "A");
+            Account account = AccountManager.getAccountByDomain(domain, "select");
 
             com.sdyk.ai.crawler.task.Task task = getLoginTask(account);
 
@@ -199,16 +200,22 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
      */
     public static void main(String[] args) {
 
+        new Thread(() -> {
+            ServiceWrapper.getInstance();
+        });
+
         int num = 1;
 
         /**
          *
          */
-        if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {
-            num = Integer.parseInt(args[1]);
+        if (!args[0].equals("") && Integer.parseInt(args[0]) > 1) {
+            num = Integer.parseInt(args[0]);
         }
 
         Scheduler scheduler = new Scheduler("zbj.com", num);
+
+        scheduler.initAuthorizedRequester();
 
         scheduler.getHistoricalData();
         scheduler.monitoring();

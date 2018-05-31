@@ -99,7 +99,7 @@ public class AccountManager {
 		List<AccountImpl> accounts = dao.queryBuilder().limit(num).
 				where().eq("domain", domain)
 				.and().eq("status", Account.Status.Free)
-				.and().eq("group", null)
+				.and().eq("group", " ")
 				.query();
 
 		logger.info("Get {} {} accounts.", domain, accounts.size());
