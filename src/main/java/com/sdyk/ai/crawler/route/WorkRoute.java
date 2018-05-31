@@ -12,9 +12,6 @@ import java.util.List;
 
 import static com.sdyk.ai.crawler.model.Model.rewriteBinaryUrl;
 
-/**
- * 案例路由
- */
 public class WorkRoute {
 
 	/**
@@ -34,11 +31,11 @@ public class WorkRoute {
 	};
 
 	/**
-	 * 案例列表
+	 *案例列表
 	 */
 	public static Route getWorks = (Request request, Response response) -> {
 
-		String serviceSupplier = request.params(":id");
+		String serviceSupplier = request.params(":userid");
 
 		int page = Integer.parseInt(request.params(":page"));
 		if(page < 1) page = 1;

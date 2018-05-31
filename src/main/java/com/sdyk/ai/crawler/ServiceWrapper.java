@@ -2,14 +2,14 @@ package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.route.*;
 import one.rewind.io.requester.Task;
-import one.rewind.io.server.MsgTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
 
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.port;
 
 public class ServiceWrapper {
 
@@ -30,92 +30,49 @@ public class ServiceWrapper {
 
 	private int port = 80;
 
-	/**
-	 * 定义路由路径和请求方法
-	 */
 	public ServiceWrapper() {
 
 		port(port);
 
-		before("/*", (q, a) -> logger.info("Received api call"));
-
-		// 需求列表
-		get("/projects/:page", ProjectRoute.getProjects, new ModelMsgTransformer());
-
-		// 需求详情
+		// 需求
 		get("/project/:id", ProjectRoute.getProjectById, new ModelMsgTransformer());
+
+		get("/projects/:page", ProjectRoute.getProjects, new ModelMsgTransformer());
 
 		// 下载文件
 		get("/binarys/:id", BinaryRoute.getBinaryForId, new ModelMsgTransformer());
 
-		// 雇主列表
+		// 雇主
+		get("/tenderer/:id", TendererRoute.getTendererById, new ModelMsgTransformer());
+
 		get("/tenderers/:page", TendererRoute.getTenderers, new ModelMsgTransformer());
 
-		// 服务商信息
-		path("/tenderer", () -> {
+		// 雇主评价
+		get("/tenderer/:tendererid/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());
 
-			// 雇主详情
-			get("/:id", TendererRoute.getTendererById, new ModelMsgTransformer());
+		// 服务商
+		get("/servicesupplier/:id", ServiceSupplierRoute.getServiceById, new ModelMsgTransformer());
 
-			// 雇主评价列表
-			get("/:id/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());
+		get("/servicesuppliers/:page", ServiceSupplierRoute.getServiceSuppliers, new ModelMsgTransformer());
 
-			// TODO 雇主的历史项目信息
+		// 服务商案例
+		get("/servicesupplier/case/:id", CaseRoute.getCaseById, new ModelMsgTransformer());
 
-		});
+		get("/servicesupplier/:userid/cases/:page", CaseRoute.getCases, new ModelMsgTransformer());
 
-		// 服务商列表
-		get("/service_suppliers/:page", ServiceSupplierRoute.getServiceSuppliers, new ModelMsgTransformer());
+		// 服务商服务
+		get("/servicesupplier/work/:id", WorkRoute.getWorkById, new ModelMsgTransformer());
 
-		// 服务商信息
-		path("/service_supplier", () -> {
+		get("/servicesupplier/:userid/works/:page", WorkRoute.getWorks, new ModelMsgTransformer());
 
-			get("/:id", ServiceSupplierRoute.getServiceById, new MsgTransformer());
+		// 服务商评价
+		get("/servicesupplier/:servicesupplierid/rating/:page", TendererRatingRoute.getTendererRatings, new ModelMsgTransformer());
 
-			// 服务商案例列表
-			get("/:id/cases/:page", CaseRoute.getCases, new ModelMsgTransformer());
+		//
+		get("/system/queue", SystemRoute.getQueueSize, new ModelMsgTransformer());
 
-			// 服务商案例
-			get("/case/:id", CaseRoute.getCaseById, new ModelMsgTransformer());
-
-			// 服务商服务
-			get("/:id/works/:page", WorkRoute.getWorks, new ModelMsgTransformer());
-
-			get("/work/:id", WorkRoute.getWorkById, new ModelMsgTransformer());
-
-			// 服务商评价
-			get("/:id/rating/:page", ServiceSupplierRatingRoute.getServiceSupplierRatings, new ModelMsgTransformer());
-
-		});
-
-		// 服务商信息
-		path("/system", () -> {
-
-			// 队列信息
-			get("/queue", SystemRoute.getQueueSize, new ModelMsgTransformer());
-
-			// 任务执行统计
-			get("/taskStat", SystemRoute.getTaskStat, new ModelMsgTransformer());
-
-		});
-
-		// 服务商信息
-		path("/zbj", () -> {
-
-			// 根据project_id 获取联系方式
-			post("/get_contact/:id", ZbjRoute.getContactByProjectId, new ModelMsgTransformer());
-
-		});
-
-		// 适用于跨域调用
-		after((request, response) -> {
-
-			response.header("Access-Control-Allow-Origin", "*");
-			response.header("Access-Control-Allow-Methods", "POST, OPTIONS");
-			response.header("Access-Control-Allow-Headers", "X-Custom-Header");
-			response.header("Access-Control-Max-Age", "1000");
-
-		});
+		//
+		get("/system/taskStat", SystemRoute.getTaskStat, new ModelMsgTransformer());
 
 	}
 

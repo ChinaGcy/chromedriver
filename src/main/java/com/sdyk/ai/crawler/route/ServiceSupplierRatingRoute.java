@@ -11,7 +11,7 @@ import spark.*;
 import java.util.List;
 
 /**
- * 服务商评价路由
+ * 服务商路由
  */
 public class ServiceSupplierRatingRoute {
 
@@ -20,7 +20,7 @@ public class ServiceSupplierRatingRoute {
 	 */
 	public static Route getServiceSupplierRatings = (Request request, Response response) -> {
 
-		int serviceSupplierId = Integer.parseInt(request.params(":id"));
+		int serviceSupplierId = Integer.parseInt(request.params(":servicesupplierid"));
 		int page = Integer.parseInt(request.params(":page"));
 		if(page < 1) page = 1;
 

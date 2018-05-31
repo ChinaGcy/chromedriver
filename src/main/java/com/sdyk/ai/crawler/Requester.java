@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Requester extends ChromeDriverRequester {
 
-	public static RMap<String, Date> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
+	public static RMap<String, Date> URL_VISITS = RedissonAdapter.redisson.getMap("Zbj-URL-Visits");
 
 	/*static {
 		logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
@@ -47,9 +47,7 @@ public class Requester extends ChromeDriverRequester {
 		String hash = hash(task.getUrl());
 
 		// 列表扫描任务的处理
-		if( task instanceof com.sdyk.ai.crawler.task.ScanTask
-				|| ! URL_VISITS.containsKey(hash)
-				|| WHITE_URLS.contains(task.getUrl()) ) {
+		if(task instanceof com.sdyk.ai.crawler.task.ScanTask || ! URL_VISITS.containsKey(hash) || WHITE_URLS.contains(task.getUrl())) {
 
 			URL_VISITS.put(hash, new Date());
 

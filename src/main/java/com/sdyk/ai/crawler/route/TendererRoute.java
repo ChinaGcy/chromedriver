@@ -12,9 +12,6 @@ import spark.Route;
 
 import java.util.List;
 
-/**
- * 雇主路由
- */
 public class TendererRoute {
 
 	/**
