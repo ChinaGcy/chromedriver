@@ -33,11 +33,7 @@ public class SupplierRating extends Model{
 
 	// 项目花费
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double spend_lb;
-
-	// 项目花费
-	@DatabaseField(dataType = DataType.DOUBLE)
-	public double spend_up;
+	public double spend;
 
 	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")

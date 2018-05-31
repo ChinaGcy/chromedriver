@@ -3,7 +3,6 @@ package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 import com.sdyk.ai.crawler.model.SupplierRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
@@ -81,8 +80,8 @@ public class ServiceRatingTask extends Task {
             String spand = element.getElementsByClass("budget-interval").text();
             if(spand.contains("~")){
                 String[] spands = spand.split("~");
-                supplierRating.spend_lb = Integer.valueOf(CrawlerAction.getNumbers(spands[0]));
-                supplierRating.spend_up = Integer.valueOf(CrawlerAction.getNumbers(spands[1]));
+                supplierRating.spend = Integer.valueOf(CrawlerAction.getNumbers(spands[0]));
+                supplierRating.spend = Integer.valueOf(CrawlerAction.getNumbers(spands[1]));
             }
 
             //项目URL
