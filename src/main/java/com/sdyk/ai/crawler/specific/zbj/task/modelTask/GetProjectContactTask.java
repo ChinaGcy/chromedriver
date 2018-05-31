@@ -12,8 +12,11 @@ public class GetProjectContactTask extends com.sdyk.ai.crawler.specific.zbj.task
 
 		try {
 			Project project = DaoManager.getDao(Project.class).queryForId(project_id);
+
 			GetProjectContactTask task = new GetProjectContactTask(project.url);
+
 			task.addAction(new GetProjectContactAction(project));
+
 			return task;
 
 		} catch (Exception e) {

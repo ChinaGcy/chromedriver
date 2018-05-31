@@ -7,6 +7,7 @@ import net.lightbody.bmp.util.HttpMessageContents;
 import net.lightbody.bmp.util.HttpMessageInfo;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.ChromeAction;
+import one.rewind.io.requester.chrome.action.GeetestAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import org.openqa.selenium.By;
 
@@ -33,9 +34,7 @@ public class GetProjectContactAction extends ChromeAction {
 	 */
 	public void run() {
 
-		ChromeDriverAgent agent = this.agent;
-
-		// A 点击投标
+		/*// A 点击投标
 		agent.getElementWait("#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > a").click();
 
 		// 加延时等待加载
@@ -49,7 +48,7 @@ public class GetProjectContactAction extends ChromeAction {
 
 		// body > div.geetest_panel.geetest_wind > div.geetest_panel_box.geetest_panelshowslide > div.geetest_panel_next
 		// 执行拖拽操作
-		LoginWithGeetestAction action = new LoginWithGeetestAction();
+		GeetestAction action = new GeetestAction();
 		action.geetestWindowCssPath = "body > div.geetest_panel.geetest_wind > div.geetest_panel_box.geetest_panelshowslide > div.geetest_panel_next > div > div.geetest_wrap > div.geetest_widget > div > a > div.geetest_canvas_img.geetest_absolute > canvas";
 		action.geetestSliderButtonCssPath = "body > div.geetest_panel.geetest_wind > div.geetest_panel_box.geetest_panelshowslide > div.geetest_panel_next > div > div.geetest_wrap > div.geetest_slider.geetest_ready > div.geetest_slider_button";
 		action.geetestResetTipCssPath = "body > div.geetest_panel.geetest_wind > div.geetest_panel_box > div.geetest_panel_error > div.geetest_panel_error_content";
@@ -65,8 +64,7 @@ public class GetProjectContactAction extends ChromeAction {
 
 		// D 确认投标
 		this.agent.getElementWait("body > div > div.ui-dialog.newbid-bid-dialog > div > div.ui-dialog-container > div.ui-dialog-operation > div.ui-dialog-confirm > a")
-				.click();
-
+				.click();*/
 		// 加延时更新
 		try {
 			Thread.sleep(5000);
@@ -74,9 +72,9 @@ public class GetProjectContactAction extends ChromeAction {
 			logger.error(e);
 		}
 
-		// E 点击 电话联系
+		// E 点击 电话联系   #taskTabs > div > div > ul > li > div > div > p > a.info-item-btns-linker.anonymous-btn > span > span.button-text
 		agent.getDriver()
-				.findElement(By.cssSelector("#taskTabs > div > div > ul > li.oc-node-item.oc-node-now > div > div > p > a.info-item-btns-linker.anonymous-btn > span > span.button-text"))
+				.findElement(By.cssSelector("#taskTabs > div > div > ul > li > div > div > p > a.info-item-btns-linker.anonymous-btn > span > span.button-text"))
 				.click();
 
 		// 等待 手机号对话框 加载
@@ -86,9 +84,9 @@ public class GetProjectContactAction extends ChromeAction {
 			logger.error(e);
 		}
 
-		// F 点击获取手机号按钮
+		/*// F 点击获取手机号按钮
 		agent.getDriver()
-				.findElement(By.cssSelector("body > div.pupzhenshi-phones > div > a"))
+				.findElement(By.cssSelector("#taskTabs > div > div > ul > li.oc-node-item.oc-node-now > div > div > p > a.info-item-btns-linker.anonymous-btn"))
 				.click();
 
 		// 等待获取手机号
@@ -96,17 +94,10 @@ public class GetProjectContactAction extends ChromeAction {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			logger.error(e);
-		}
+		}*/
 
-		// 获取手机号
-		project.cellphone = agent.getDriver().findElement(By.cssSelector("body > div.pup-servicedry-phone > div > div.min-phone > span")).getText();
-
-		String url = "";
-
-		// G 点击关闭
-		agent.getDriver().findElement(By.cssSelector("body > div.pup-servicedry-phone > div > div.pup-close")).click();
-
-		project.update();
+		// G 点击关闭 body > div.pupzhenshi-phones > div > div.pup-close
+		/*agent.getDriver().findElement(By.cssSelector("body > div.pupzhenshi-phones > div > div.pup-close")).click();*/
 
 		/*// 继续跟进
 		chromeDriverAgent.getDriver().findElement(By.cssSelector("#taskTabs > div > div > ul > li.oc-node-item.oc-node-now > div > div > div > button.oc-btn-dark.j-follow-up-countdown.already-contact-btn")).click();

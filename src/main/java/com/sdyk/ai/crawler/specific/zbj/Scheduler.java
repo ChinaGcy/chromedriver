@@ -18,6 +18,7 @@ import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.proxy.Proxy;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -79,6 +80,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
             Account account = AccountManager.getAccountByDomain(domain, "select");
 
+            Proxy proxy = new one.rewind.io.requester.proxy.ProxyImpl("10.0.0.51", 49999, null, null);
+
             com.sdyk.ai.crawler.task.Task task = getLoginTask(account);
 
             // 创建一个新的container
@@ -87,7 +90,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
             // 不使用代理
-            ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, ChromeDriverAgent.Flag.MITM);
+            ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy, ChromeDriverAgent.Flag.MITM);
 
             // agent 添加异常回调
             agent.addAccountFailedCallback(()->{
@@ -200,11 +203,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
      */
     public static void main(String[] args) {
 
-        new Thread(() -> {
-            ServiceWrapper.getInstance();
-        });
-
-        int num = 1;
+        int num = 0;
 
         /**
          *
