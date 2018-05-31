@@ -87,7 +87,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
             // 不使用代理
-            ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container);
+            ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, ChromeDriverAgent.Flag.MITM);
 
             // agent 添加异常回调
             agent.addAccountFailedCallback(()->{
@@ -209,7 +209,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
         /**
          *
          */
-        if (!args[0].equals("") && Integer.parseInt(args[0]) > 1) {
+        if (args.length > 1 && !args[0].equals("") && Integer.parseInt(args[0]) > 1) {
             num = Integer.parseInt(args[0]);
         }
 
@@ -217,9 +217,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
         scheduler.initAuthorizedRequester();
 
-        scheduler.getHistoricalData();
-        scheduler.monitoring();
+        /*scheduler.getHistoricalData();
 
+        scheduler.monitoring();*/
     }
 
 }
