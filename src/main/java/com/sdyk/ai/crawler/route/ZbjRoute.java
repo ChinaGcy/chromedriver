@@ -18,21 +18,11 @@ public class ZbjRoute {
 
 		GetProjectContactTask task = GetProjectContactTask.getTask(id);
 
-		task.setResponseFilter((req, contents, messageInfo) -> {
-
-			if(messageInfo.getOriginalUrl().contains("getANumByTask")) {
-				ServiceWrapper.logger.info(messageInfo.getOriginalUrl());
-				ServiceWrapper.logger.info(contents.getTextContents());
-			}
-		});
-
 		task.setResponseFilter((res, contents, messageInfo) -> {
 
 			if(messageInfo.getOriginalUrl().contains("getANumByTask")) {
 
 				ServiceWrapper.logger.info(messageInfo.getOriginalUrl());
-
-
 
 				if(contents != null) {
 					String src = new String(contents.getBinaryContents());
@@ -50,8 +40,6 @@ public class ZbjRoute {
 		});
 
 		boolean result = AuthorizedRequester.getInstance().submit_(task);
-
-
 
 		return new Msg<Boolean> (Msg.SUCCESS, result);
 	};

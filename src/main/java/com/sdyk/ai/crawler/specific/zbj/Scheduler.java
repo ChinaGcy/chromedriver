@@ -80,7 +80,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
             Account account = AccountManager.getAccountByDomain(domain, "select");
 
-            Proxy proxy = new one.rewind.io.requester.proxy.ProxyImpl("10.0.0.51", 49999, null, null);
+            //Proxy proxy = new one.rewind.io.requester.proxy.ProxyImpl("10.0.0.51", 49999, null, null);
 
             com.sdyk.ai.crawler.task.Task task = getLoginTask(account);
 
@@ -90,12 +90,12 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
             // 不使用代理
-            ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy, ChromeDriverAgent.Flag.MITM);
+            ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, ChromeDriverAgent.Flag.MITM);
 
             // agent 添加异常回调
             agent.addAccountFailedCallback(()->{
 
-                logger.info("Account {}:{} failed.", account.domain, account.username);
+                logger.info("Account {}:{} failed.", account.getDomain(), account.getUsername());
 
             }).addTerminatedCallback(()->{
 

@@ -62,8 +62,8 @@ public class AuthorizedRequester extends ChromeDriverRequester {
 	);
 
 	ThreadPoolExecutor post_executor = new ThreadPoolExecutor(
-			1,
-			1,
+			2,
+			2,
 			0, TimeUnit.MICROSECONDS,
 			new LinkedBlockingQueue<>()
 	);
