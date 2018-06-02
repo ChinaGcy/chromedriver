@@ -4,6 +4,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
 import com.sdyk.ai.crawler.model.Project;
+import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
@@ -107,8 +108,11 @@ public class ProjectTask extends Task {
 
 				// TODO 调用需求评分接口
 				try {
-					/*project.id;*/
 
+					String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
+					one.rewind.io.requester.Task t = new one.rewind.io.requester.Task(Project_url);
+					t.setPut();
+					BasicRequester.getInstance().submit(t);
 				} catch (Exception e) {
 					logger.error("Error calculate project rating. ", e);
 				}

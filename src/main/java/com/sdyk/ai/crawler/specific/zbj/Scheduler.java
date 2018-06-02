@@ -65,7 +65,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "dsyxfwzbj"            // 电商营销服务
     };
 
-    public String cron = "*/30 * * * *";
+    public String cron = "*/15 * * * *";
 
     public Scheduler(String domain, int driverCount) {
         super(domain, driverCount);
@@ -182,7 +182,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
             it.sauronsoftware.cron4j.Scheduler s = new it.sauronsoftware.cron4j.Scheduler();
 
-            // 每隔30分钟，生成实时扫描任务
+            // 每隔15分钟，生成实时扫描任务
             s.schedule(cron, () -> {
                 for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
                     ChromeDriverRequester.getInstance().submit(task);
@@ -208,7 +208,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
         /**
          *
          */
-        if (args.length > 1 && !args[0].equals("") && Integer.parseInt(args[0]) > 1) {
+        if (args.length >= 1 && !args[0].equals("") && Integer.parseInt(args[0]) > 1) {
             num = Integer.parseInt(args[0]);
         }
 
@@ -216,9 +216,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
         scheduler.initAuthorizedRequester();
 
-        /*scheduler.getHistoricalData();
+        scheduler.getHistoricalData();
 
-        scheduler.monitoring();*/
+        scheduler.monitoring();
     }
 
 }

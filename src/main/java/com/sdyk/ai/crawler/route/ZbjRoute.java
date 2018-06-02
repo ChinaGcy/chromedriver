@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.route;
 
+import com.google.gson.Gson;
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
@@ -10,34 +11,20 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ZbjRoute {
 
 	public static Route getContactByProjectId = (Request request, Response response ) -> {
 
 		String id = request.params(":id");
 
-		GetProjectContactTask task = GetProjectContactTask.getTask(id);
+		// 获取精选需求
+		Project project = DaoManager.getDao(Project.class).queryForId(id);
 
-		task.setResponseFilter((res, contents, messageInfo) -> {
-
-			if(messageInfo.getOriginalUrl().contains("getANumByTask")) {
-
-				ServiceWrapper.logger.info(messageInfo.getOriginalUrl());
-
-				if(contents != null) {
-					String src = new String(contents.getBinaryContents());
-					System.err.println(src);
-
-					task.getResponse().setVar("cellphone", src);
-				}
-
-			}
-		});
-
-		task.addDoneCallback(()-> {
-			task.project.cellphone = task.getResponse().getVar("cellphone");
-			task.project.update();
-		});
+		// 生成任务
+		GetProjectContactTask task = GetProjectContactTask.getTask(project);
 
 		boolean result = AuthorizedRequester.getInstance().submit_(task);
 

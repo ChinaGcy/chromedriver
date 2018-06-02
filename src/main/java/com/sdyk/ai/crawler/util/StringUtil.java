@@ -77,8 +77,10 @@ public class StringUtil {
 		try {
 			if (doc.select(path).size() > 1) {
 				return Integer.parseInt(doc.select(path).get(1).text());
-			} else {
+			} else if (doc.select(path).size() == 1) {
 				return Integer.parseInt(doc.select(path).get(0).text());
+			} else {
+				return 0;
 			}
 		}catch (NumberFormatException e) {
 			return 0;

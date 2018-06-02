@@ -91,8 +91,12 @@ public class SparkJavaTest {
 
 	@Test
 	public void testDao() throws Exception {
-		Project project = DaoManager.getDao(Project.class).queryForId("984f9e1224cad0f27bcbaea18aef85d4");
 
-		System.err.println(project.toJSON());
+
+		List<AccountImpl> accounts = AccountManager.getAccountByDomain("zbj.com", 10);
+
+		//Project project = DaoManager.getDao(Project.class).queryForId("984f9e1224cad0f27bcbaea18aef85d4");
+
+		System.err.println(accounts.size());
 	}
 }
