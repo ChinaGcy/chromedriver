@@ -15,36 +15,36 @@ import java.util.Date;
 public class Project extends Model {
 
 	// 原网站 domain
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String domain;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int domain_id;
 
 	// 名称
 	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String title;
 
-	// 需求号
-	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String req_no;
+	// 原网站id
+	@DatabaseField(dataType = DataType.STRING, width = 32)
+	public String origin_id;
 
 	// 地点
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String area;
+	public String location;
 
 	// 来自
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String origin;
+	public String origin_from;
 
 	// 定位到栏目大类
-	@DatabaseField(dataType = DataType.STRING, width = 64)
+	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String category;
 
 	// 小标题
-	@DatabaseField(dataType = DataType.STRING, width = 128)
+	@DatabaseField(dataType = DataType.STRING, width = 256)
 	public String tags;
 
 	// 项目描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String description;
+	public String content;
 
 	// 预算下限
 	@DatabaseField(dataType = DataType.DOUBLE)
@@ -52,38 +52,34 @@ public class Project extends Model {
 
 	// 预算上限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_up;
+	public double budget_ub;
 
 	// 工期
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int time_limit;
 
 	// 交易模式
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String trade_type;
 
-	// 当前状态
-	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String current_status;
-
-	// 剩余时间
+	// 截止日期
 	@DatabaseField(dataType = DataType.DATE)
-	public Date remaining_time;
+	public Date due_time;
 
 	// 发布时间
 	@DatabaseField(dataType = DataType.DATE)
 	public Date pubdate;
 
 	// 可接受投标数
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 32)
 	public int bidder_total_num = 0;
 
 	// 采集时刻可投标人数
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 32)
 	public int bids_available = 0;
 
 	// 采集时刻已经投标数
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 32)
 	public int bids_num;
 
 	// 招标人ID
@@ -108,30 +104,35 @@ public class Project extends Model {
 
 	// 赏金分配
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String reward_distribution;
+	public String reward_type;
 
 	// 浏览次数
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int view_num;
 
 	// 收藏人数
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int fav_num;
 
-	@DatabaseField(dataType = DataType.DOUBLE)
-	public double rating;
+	// 点赞人数
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int like_num;
 
-	@DatabaseField(dataType = DataType.DOUBLE)
-	public double spend;
-
+	// 电话
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String cellphone;
 
+	// 推荐人数
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int rcmd_num;
+
+	// 交付步骤付款占比
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String delivery_steps;
+
 	public Project() {}
 
-	public Project(String url) throws MalformedURLException, URISyntaxException {
+	public Project(String url) {
 		super(url);
-		this.domain = URLUtil.getRootDomainName(URLUtil.getDomainName(url));
-		this.req_no = url.split("/")[3];
 	}
 }

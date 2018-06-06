@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
-
-import com.sdyk.ai.crawler.model.SupplierRating;
+import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -19,12 +18,12 @@ import java.util.List;
 
 public class ServiceRatingTask extends ScanTask {
 
-	SupplierRating serviceRating;
+	ServiceProviderRating serviceRating;
 
 	// http://shop.zbj.com/evaluation/evallist-uid-7791034-type-1-isLazyload-0-page-1.html
 	public static ServiceRatingTask generateTask(String userId, int page) {
 
-		String url_ = "http://shop.zbj.com/evaluation/evallist-uid-" + userId + "-type-1-isLazyload-0-page-" + page + ".html";
+		String url_ = "http://shop.zbj.com/evaluation/evallist-uid-" + userId + "-category-1-isLazyload-0-page-" + page + ".html";
 
 		try {
 			ServiceRatingTask t = new ServiceRatingTask(url_, userId, page);
@@ -42,7 +41,6 @@ public class ServiceRatingTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("userId", userId);
-		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 
@@ -65,7 +63,7 @@ public class ServiceRatingTask extends ScanTask {
 				for (int i = 1; i <= size; i++) {
 
 					// 防止每个评论的url一样导致id相同
-					serviceRating = new SupplierRating(getUrl() + "--number:" + i);
+					serviceRating = new ServiceProviderRating(getUrl() + "--number:" + i);
 
 					// 每个评价
 					ratingData(doc, i);
@@ -98,25 +96,25 @@ public class ServiceRatingTask extends ScanTask {
 	 */
 	public void ratingData(Document doc, int i) {
 
-		serviceRating.service_supplier_id = getUrl().split("-")[2];
+		serviceRating.service_provider_id = getUrl().split("-")[2];
 
 		String[] ss = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dt > img")
 				.attr("src").split("/");
 
 		serviceRating.tenderer_id = ss[3].substring(1)+ss[4]+ss[5]+ss[6].split("_")[2].split(".jpg")[0];
 
-		serviceRating.tenderer_url = "https://home.zbj.com/" + serviceRating.tenderer_id;
+	//	serviceRating.tenderer_url = "https://home.zbj.com/" + serviceRating.tenderer_id;
 
-		serviceRating.project_url = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a")
+		serviceRating.project_id = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a")
 				.attr("href");
 
-		serviceRating.tenderer_name = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
-				.text().split("成交价格：")[0];
+	//	serviceRating.tenderer_name = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
+	//			.text().split("成交价格：")[0];
 
-		serviceRating.spend = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
+		serviceRating.price = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
 				.text().split("成交价格：")[1].replaceAll("元", ""));
 
-		serviceRating.description = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
+		serviceRating.content = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
 				.text();
 		try {
 			serviceRating.tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
@@ -127,9 +125,9 @@ public class ServiceRatingTask extends ScanTask {
 		}
 
 		try {
-			serviceRating.rating_time = DateFormatUtil.parseTime(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd.mint > p").text());
+			serviceRating.pubdate = DateFormatUtil.parseTime(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd.mint > p").text());
 		} catch (ParseException e) {
-			logger.error("serviceRating  rating_time {}", e);
+			logger.error("serviceRating  pubdate {}", e);
 		}
 
 	}

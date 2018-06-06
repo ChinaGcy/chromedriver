@@ -38,7 +38,7 @@ public class TendererRatingRoute {
 				.orderBy("update_time", false);
 
 		// TODO 可能有问题
-		List<TendererRating> ps = qb.where().eq("tenderer_url", "http://home.zbj.com/"+tendererId+"/").query();;
+		List<TendererRating> ps = qb.where().eq("user_id", "http://home.zbj.com/"+tendererId+"/").query();;
 
 		ServiceWrapper.logger.info(qb.prepareStatementString());
 

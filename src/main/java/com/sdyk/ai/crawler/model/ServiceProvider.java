@@ -8,18 +8,22 @@ import one.rewind.db.DBName;
 import java.util.Date;
 
 @DBName(value = "crawler")
-@DatabaseTable(tableName = "service_suppliers")
-public class ServiceSupplier extends Model {
+@DatabaseTable(tableName = "service_providers")
+public class ServiceProvider extends Model {
 
 	// 来源网站
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String website_id;
+	public String origin_id;
 
 	// 名字
 	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String name;
 
-	// 团队/个人
+	// 公司
+	@DatabaseField(dataType = DataType.STRING, width = 64)
+	public String company_name;
+
+	// 类型
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String type;
 
@@ -29,23 +33,23 @@ public class ServiceSupplier extends Model {
 
 	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String description;
+	public String content;
 
 	// 团队成员数量
-	@DatabaseField(dataType = DataType.INTEGER)
-	public int member_num;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int team_size;
 
 	// 工作经验
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String work_experience;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int work_experience;
 
 	// 擅长领域
-	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String expertise;
+	@DatabaseField(dataType = DataType.STRING, width = 256)
+	public String category;
 
 	// 擅长技能
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String skills;
+	public String tags;
 
 	//服务质量
 	@DatabaseField(dataType = DataType.DOUBLE)
@@ -60,7 +64,7 @@ public class ServiceSupplier extends Model {
 	public double service_attitude;
 
 	// 平台项目数
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int project_num;
 
 	// 项目成功率
@@ -69,11 +73,11 @@ public class ServiceSupplier extends Model {
 
 	// 收入
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double revenue;
+	public double income;
 
 	// 进行中的交易金额
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double transact;
+	public double pending_txn;
 
 	// 注册时间
 	@DatabaseField(dataType = DataType.DATE)
@@ -113,51 +117,55 @@ public class ServiceSupplier extends Model {
 
 	// 单次
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double charge_single;
+	public double price_per_project;
 
 	// 每日
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double charge_daily;
+	public double price_per_day;
 
-	// 关注度
+	// 关注数/收藏数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int attention_num;
+	public int fav_num;
 
-	// 人气值
+	// 粉丝数
 	@DatabaseField(dataType = DataType.INTEGER)
-	public int popularity_num;
+	public int fan_num;
+
+	// 点赞数
+	@DatabaseField(dataType = DataType.INTEGER)
+	public int like_num;
+
+	// 人气值/浏览数
+	@DatabaseField(dataType = DataType.INTEGER)
+	public int view_num;
 
 	// 目前职位
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String position_now;
+	public String occupation;
 
 	// 客户评分
 	@DatabaseField(dataType = DataType.FLOAT)
 	public float rating;
 
 	// 雇主推荐
-	@DatabaseField(dataType = DataType.INTEGER)
-	public int recommendation_num;
-
-	// 收藏量
-	@DatabaseField(dataType = DataType.INTEGER)
-	public int collection_num;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int rcmd_num;
 
 	// 评价数
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int rating_num;
 
 	// 好评
-	@DatabaseField(dataType = DataType.INTEGER)
-	public int good_rating_num;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int praise_num;
 
 	// 差评
-	@DatabaseField(dataType = DataType.INTEGER)
-	public int bad_rating_num;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int bad_review_num;
 
-	public ServiceSupplier() {}
+	public ServiceProvider() {}
 
-	public ServiceSupplier(String url) {
+	public ServiceProvider(String url) {
 		super(url);
 	}
 }

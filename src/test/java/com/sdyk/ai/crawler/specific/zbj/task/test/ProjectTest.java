@@ -1,21 +1,15 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
 import com.sdyk.ai.crawler.account.AccountManager;
-import com.sdyk.ai.crawler.docker.DockerHostManager;
+import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
-import com.sdyk.ai.crawler.specific.zbj.Scheduler;
 import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.task.Task;
-import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
-import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 
 public class ProjectTest {
 
@@ -45,7 +39,10 @@ public class ProjectTest {
 
 		ProjectTask task1 = new ProjectTask("https://task.zbj.com/13501948/");
 
-		task.addAction(new GetProjectContactAction(task1.project));
+
+
+		GetProjectContactTask task2 = GetProjectContactTask.getTask(new Project());
+		task.addAction(new GetProjectContactAction(task2.evalProjects));
 
 		AuthorizedRequester.getInstance().submit(task1);
 

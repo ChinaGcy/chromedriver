@@ -59,7 +59,6 @@ public class ProjectScanTask extends ScanTask {
 		this.setPriority(Priority.HIGH);
 		this.setParam("page", page);
 		this.setParam("channel", channel);
-		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 

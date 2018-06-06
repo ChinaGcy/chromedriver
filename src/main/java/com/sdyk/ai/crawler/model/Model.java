@@ -100,7 +100,9 @@ public abstract class Model implements JSONable<Model> {
 			return true;
 		} catch (SQLException e) {
 			try {
-				dao.update(this);
+				Model model = (Model) dao.queryForId(this.id);
+				model.update_time = new Date();
+				model.update();
 				return true;
 			} catch (SQLException e1) {
 				logger.error("Insert Update error {}", e1);

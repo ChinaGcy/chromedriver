@@ -40,7 +40,7 @@ public class CaseTask extends Task {
             //抓取类型
             String[] all1 = all.split("行业：");
             if(all1[0]!=null&&!"".equals(all1[0])){
-                caseinfor.type = all1[0];
+                caseinfor.category = all1[0];
             }
             //抓取行业
             String[] all2 = all1[1].split("工期：");
@@ -58,7 +58,7 @@ public class CaseTask extends Task {
                 if(budge!=null&!"".equals(budge)&&pattern.matcher(budge).matches()){
                     try {
                         caseinfor.budget_lb = Integer.valueOf(budge);
-                        caseinfor.budget_up = Integer.valueOf(budge);
+                        caseinfor.budget_ub = Integer.valueOf(budge);
                     } catch (Exception e) {
                         logger.error("error on String to Integer", e);
                     }

@@ -12,7 +12,7 @@ import java.util.Date;
 public class Case extends Model {
 
 	// 服务商id
-	@DatabaseField(dataType = DataType.STRING, width = 16)
+	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String user_id;
 
 	// 名称
@@ -20,8 +20,12 @@ public class Case extends Model {
 	public String title;
 
 	// 类型描述
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String type;
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String category;
+
+	// 标签
+	@DatabaseField(dataType = DataType.STRING, width = 512)
+	public String tags;
 
 	// 开始时间
 	@DatabaseField(dataType = DataType.DATE)
@@ -34,10 +38,6 @@ public class Case extends Model {
 	// 是否在进行中
 	@DatabaseField(dataType = DataType.INTEGER, width = 1)
 	public int ongoing;
-
-	// 标签
-	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String tags;
 
 	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
@@ -71,7 +71,7 @@ public class Case extends Model {
 
 	// 预算上限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_up;
+	public double budget_ub;
 
 	// 预算下限
 	@DatabaseField(dataType = DataType.DOUBLE)

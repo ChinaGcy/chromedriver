@@ -12,7 +12,14 @@ public class DateFormatUtilTest {
 	public void time() throws ParseException {
 
 		String s = "1天前来过";
+		String s1 = "";
 		Date ss = DateFormatUtil.parseTime(s);
-		System.err.println(ss.getTime());
+
+		Date date = new Date();
+
+		date.setTime(date.getTime() + 60000*60*24);
+
+		System.err.println(new Date(Long.valueOf(60000*60*24) + System.currentTimeMillis()));
+		System.err.println(date);
 	}
 }

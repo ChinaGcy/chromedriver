@@ -50,7 +50,6 @@ public class CaseScanTask extends ScanTask {
 
 		this.setParam("uid", uid);
 		this.setParam("page", page);
-		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 

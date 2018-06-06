@@ -65,7 +65,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "dsyxfwzbj"            // 电商营销服务
     };
 
-    public String cron = "*/15 * * * *";
+    public String cron = "*/30 * * * *";
 
     public Scheduler(String domain, int driverCount) {
         super(domain, driverCount);

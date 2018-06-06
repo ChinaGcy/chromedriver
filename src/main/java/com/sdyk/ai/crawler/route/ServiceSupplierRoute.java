@@ -4,7 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.model.Model;
-import com.sdyk.ai.crawler.model.ServiceSupplier;
+import com.sdyk.ai.crawler.model.ServiceProvider;
 import one.rewind.io.server.Msg;
 import spark.Request;
 import spark.Response;
@@ -24,11 +24,11 @@ public class ServiceSupplierRoute {
 
 		String id = request.params(":id");
 
-		ServiceSupplier p = (ServiceSupplier) Model.daoMap.get(ServiceSupplier.class.getSimpleName()).queryForId(id);
+		ServiceProvider p = (ServiceProvider) Model.daoMap.get(ServiceProvider.class.getSimpleName()).queryForId(id);
 
 		response.header("Access-Control-Allow-Origin", "*");
 
-		return new Msg<ServiceSupplier>(Msg.SUCCESS, p);
+		return new Msg<ServiceProvider>(Msg.SUCCESS, p);
 	};
 
 	/**
@@ -47,17 +47,17 @@ public class ServiceSupplierRoute {
 
 		long offset = (page - 1) * length;
 
-		Dao<ServiceSupplier, String> dao = Model.daoMap.get(ServiceSupplier.class.getSimpleName());
+		Dao<ServiceProvider, String> dao = Model.daoMap.get(ServiceProvider.class.getSimpleName());
 
-		QueryBuilder<ServiceSupplier, String> qb = dao.queryBuilder()
+		QueryBuilder<ServiceProvider, String> qb = dao.queryBuilder()
 				.limit(length).offset(offset)
 				.orderBy("update_time", false);
 
 		ServiceWrapper.logger.info(qb.prepareStatementString());
 
-		List<ServiceSupplier> ps = qb.query();
+		List<ServiceProvider> ps = qb.query();
 
 		response.header("Access-Control-Allow-Origin", "*");
-		return new Msg<List<ServiceSupplier>>(Msg.SUCCESS, ps);
+		return new Msg<List<ServiceProvider>>(Msg.SUCCESS, ps);
 	};
 }

@@ -1,16 +1,15 @@
 package com.sdyk.ai.crawler.specific.zbj.task.action;
 
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.specific.zbj.model.EvalProjects;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.GeetestAction;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
 public class GetProjectContactAction extends ChromeAction {
 
-	Project project;
+	EvalProjects evalProjects;
 
 	// 投标按钮
 	// #taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > a
@@ -19,12 +18,14 @@ public class GetProjectContactAction extends ChromeAction {
 	// 投标后获取电话联系方式按钮
 	public String cellphontContactButtonAfterBidCssPath = ".info-item-btns-linker.anonymous-btn";
 
+	// 获取花费信息
 	public String spendMsgCssPath = ".ui-dialog-message > p > span";
 
+	// 确认投标按钮
 	public String confirmBidCssPath = ".ui-dialog-confirm > a";
 
-	public GetProjectContactAction(Project project) {
-		this.project = project;
+	public GetProjectContactAction(EvalProjects evalProjects) {
+		this.evalProjects = evalProjects;
 	}
 
 	/**
@@ -60,9 +61,8 @@ public class GetProjectContactAction extends ChromeAction {
 			String status = bidButton.getAttribute("title");
 
 			if (status.contains("标数已满") || status.contains("暂停投标")) {
-				logger.info("Project:{} bidder is full.", project.id);
+				logger.info("Project:{} bidder is full.", evalProjects.id);
 				// 更新项目状态
-				project.bids_available = 0;
 				return;
 			}
 
@@ -85,7 +85,7 @@ public class GetProjectContactAction extends ChromeAction {
 		bidButton.click();
 
 		// A2 将滚动条拖的顶层
-		(agent.getDriver()).executeScript("scrollTo(0,1)");
+		agent.getDriver().executeScript("scrollTo(0,1)");
 
 
 		// 加延时等待加载
@@ -133,11 +133,11 @@ public class GetProjectContactAction extends ChromeAction {
 
 		// C 取得投标花费（猪币）
 		// body > div:nth-child(21) > div.ui-dialog.newbid-bid-dialog > div > div.ui-dialog-container > div.ui-dialog-message > p > span
-		project.spend = Double.parseDouble(this.agent.getDriver()
+		evalProjects.cost = Double.parseDouble(this.agent.getDriver()
 				.findElement(By.cssSelector(spendMsgCssPath))
 				.getText());
 
-		logger.info("spend : {}", project.spend);
+		logger.info("cost : {}", evalProjects.cost);
 
 		// D 确认投标
 		this.agent.getElementWait(confirmBidCssPath).click();

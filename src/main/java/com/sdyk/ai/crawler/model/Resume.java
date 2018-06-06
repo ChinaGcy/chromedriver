@@ -24,7 +24,7 @@ public class Resume extends Model {
 
     //学校公司
     @DatabaseField(dataType = DataType.STRING, width = 64)
-    public String unit;
+    public String org;
 
     //院系
     @DatabaseField(dataType = DataType.STRING, width = 64)
@@ -32,7 +32,7 @@ public class Resume extends Model {
 
     //学位、职位
     @DatabaseField(dataType = DataType.STRING, width = 64)
-    public String degree_position;
+    public String degree_occupation;
 
     //是否在读、在职
     @DatabaseField(dataType = DataType.INTEGER, width = 1)

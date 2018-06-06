@@ -50,7 +50,6 @@ public class ServiceScanTask extends ScanTask {
 		this.setParam("page", page);
 		this.setParam("channel", channel);
 		this.setPriority(Priority.HIGH);
-		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 

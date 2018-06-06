@@ -4,7 +4,6 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
 import com.sdyk.ai.crawler.model.Project;
-import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
@@ -55,12 +54,8 @@ public class ProjectTask extends Task {
 
 				List<Task> tasks = new ArrayList();
 
-				try {
-					// 初始化 必须传入url 生成主键id
-					project = new Project(url);
-				} catch (MalformedURLException | URISyntaxException e) {
-					logger.error("Error extract channel: {}, ", getUrl(), e);
-				}
+				// 初始化 必须传入url 生成主键id
+				project = new Project(url);
 
 				//
 				if (src.contains("操作失败请稍后重试") || src.contains("很抱歉，此页面内部错误！")) {
@@ -109,10 +104,10 @@ public class ProjectTask extends Task {
 				// TODO 调用需求评分接口
 				try {
 
-					String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
+					/*String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
 					one.rewind.io.requester.Task t = new one.rewind.io.requester.Task(Project_url);
 					t.setPut();
-					BasicRequester.getInstance().submit(t);
+					BasicRequester.getInstance().submit(t);*/
 				} catch (Exception e) {
 					logger.error("Error calculate project rating. ", e);
 				}
@@ -174,28 +169,23 @@ public class ProjectTask extends Task {
 	public void projectStateOne(Document doc) {
 
 
-		project.current_status = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > p")
+		/*project.current_status = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > p")
 					.text().split("2")[0];
 		// 已经完成
 		if (project.current_status == null || project.current_status.equals("")) {
 			project.current_status = "评价";
-		}
+		}*/
 
 
 		// 剩余时间
-		try {
-			String time = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > span.taskmode-clock.o-time > em")
-					.text();
-			if (time.equals("") || time == null) {
-				// 无法找到剩余时间
-				project.remaining_time = null;
-			}else {
-				project.remaining_time = DateFormatUtil.parseTime(time);
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
+		String time = doc.select("#j-content > div > div.taskmode-block.clearfix > div.modecont.ullen7.ullen7-curstep3 > ul > li.cur > span.taskmode-clock.o-time > em")
+				.text();
+		if (time.equals("") || time == null) {
+			// 无法找到剩余时间
+			project.due_time = null;
+		}else {
+			project.due_time = new Date(Long.valueOf(time) + System.currentTimeMillis());
 		}
-
 	}
 
 	/**
@@ -204,27 +194,22 @@ public class ProjectTask extends Task {
 	 */
 	public void projectStateTwo(Document doc) {
 
-		// 项目状态
+		/*// 项目状态
 		project.current_status = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(3)")
 					.text();
 		// 已经完成
 		if (project.current_status == null || project.current_status.equals("")) {
 			project.current_status = "评价";
-		}
+		}*/
 
-		String time = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > div.clock.absolute-1 > em")
-				.text();
+		String time = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > div.clock.absolute-1").attr("data-difftime");
 		// 无法找到剩余时间
 		if (time == null || time.equals("")) {
-			project.remaining_time = null;
+			project.due_time = null;
 		}
 		else {
 			// 剩余时间
-			try {
-				project.remaining_time = DateFormatUtil.parseTime(time);
-			} catch (ParseException e) {
-				logger.error("projectTask remaining is error {}", e);
-			}
+			project.due_time = new Date(Long.valueOf(time) + System.currentTimeMillis());
 		}
 
 
@@ -265,7 +250,7 @@ public class ProjectTask extends Task {
 		Pattern pattern = Pattern.compile("<div class=\"taskmode-inline\" id=\"reward-all\">\\s+赏金分配：<em class=\"gray6\">(?<rewardType>.+?)</em>");
 		Matcher matcher = pattern.matcher(src);
 		if (matcher.find()) {
-			project.reward_distribution = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
+			project.reward_type = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
 
 	}
@@ -324,9 +309,9 @@ public class ProjectTask extends Task {
 				ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
 				return;
 			}
-			project.area = getString("#j-receiptcon > span.ads", "");
+			project.location = getString("#j-receiptcon > span.ads", "");
 
-			project.origin = getString("#j-receiptcon > a", "");
+			project.origin_from = getString("#j-receiptcon > a", "");
 
 			// body > div.main.task-details > div.grid > ul
 			project.category = getString("body > div.main.task-details > div.grid > ul", "");
@@ -336,16 +321,16 @@ public class ProjectTask extends Task {
 					.html()
 					.replaceAll("<a class=\"check-all-btn\".+?>查看全部</a>", "");
 
-			project.description = download(description_src);
+			project.content = download(description_src);
 
-			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
+			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.content));
 
 			// 预算处理  #ed-tit > div.micon > div.fl.money-operate > p > u
 			double[] budget = StringUtil.budget_all(doc,
 					"#ed-tit > div.micon > div.fl.money-operate > p > u",
-					project.description);
+					project.content);
 			project.budget_lb = budget[0];
-			project.budget_up = budget[1];
+			project.budget_ub = budget[1];
 
 			// 发布时间
 			String pubdate = doc.select("#j-receiptcon > span.time").text();
@@ -395,7 +380,7 @@ public class ProjectTask extends Task {
 				logger.error("Error extract channel: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
 			}
 		} catch (Exception e) {
-			logger.error("Error handle page type 1, {}, ", getUrl(), e);
+			logger.error("Error handle page category 1, {}, ", getUrl(), e);
 		}
 	}
 
@@ -434,7 +419,7 @@ public class ProjectTask extends Task {
 				ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
 				return;
 			}
-			project.req_no = getString(
+			project.origin_id = getString(
 					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.wrapper.header-block-div > p.task-describe > span:nth-child(1) > b", "");
 
 			project.category = getString(
@@ -445,28 +430,28 @@ public class ProjectTask extends Task {
 					.toString();
 
 			// 下载
-			project.description = download(description_src);
+			project.content = download(description_src);
 
-			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.description));
+			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.content));
 
 			// 获取地点，来源
 			if (doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span").size() == 2) {
-				project.area = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+				project.location = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
 						.text().replace("-", " ");
-				project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
+				project.origin_from = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
 						.text().replace("来自：", "");
 			} else {
-				project.origin = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+				project.origin_from = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
 						.text().replace("来自：", "");
 			}
 
 			// 预算处理
 
 			double[] budget = StringUtil.budget_all(doc,
-					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.price-describe > span:nth-child(1) > b",
-					project.description);
+					"#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.mb4.cost-describe > span:nth-child(1) > b",
+					project.content);
 			project.budget_lb = budget[0];
-			project.budget_up = budget[1];
+			project.budget_ub = budget[1];
 
 			// 项目状态，剩余时间
 			projectStateTwo(doc);
@@ -491,7 +476,7 @@ public class ProjectTask extends Task {
 			}
 		}
 		catch (Exception e) {
-			logger.error("Error handle page type 2, {}, ", getUrl(), e);
+			logger.error("Error handle page category 2, {}, ", getUrl(), e);
 		}
 	}
 

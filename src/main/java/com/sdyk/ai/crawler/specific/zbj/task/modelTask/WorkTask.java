@@ -23,7 +23,6 @@ public class WorkTask extends Task {
 	public WorkTask(String url, String user_id) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("user_id",user_id);
-		this.setBuildDom();
 
 		this.addDoneCallback(()-> {
 
@@ -43,9 +42,9 @@ public class WorkTask extends Task {
 					pageTwo(doc);
 				}
 
-				if (work.name == null) {
+				/*if (work.name == null) {
 					ChromeDriverRequester.getInstance().submit(this);
-				}
+				}*/
 
 				try {
 					work.insert();
@@ -66,8 +65,8 @@ public class WorkTask extends Task {
 	 */
 	public void pageOne(Document doc) {
 
-		work.name = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-head.fl > div")
-				.text();
+		//work.name = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-head.fl > div")
+		//		.text();
 		work.user_id = this.getParamString("user_id");
 
 		// 获取work类型
@@ -85,18 +84,18 @@ public class WorkTask extends Task {
 			work.tenderer_name = matcher.group("T");
 		}
 		if (matcher_type.find()) {
-			work.type = matcher_type.group("T");
+		//	work.type = matcher_type.group("T");
 		}
 		if (matcher_field.find()) {
-			work.field = matcher_field.group("T");
+			work.category = matcher_field.group("T");
 		}
 
 		// 下载二进制文件
 		String description_src = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-left.fl")
 				.html();
 
-		work.description = download(description_src)
-				.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
+	//	work.description = download(description_src)
+	//			.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
 
 		// 价格
 		if(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
@@ -119,8 +118,8 @@ public class WorkTask extends Task {
 		try {
 
 			work.user_id = this.getParamString("user_id");
-			work.name = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-title > h2")
-					.text();
+			//work.name = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-title > h2")
+			//		.text();
 			work.tenderer_name = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-customer > em")
 					.text();
 			work.pricee = Double.parseDouble(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-amount > em")
@@ -130,8 +129,8 @@ public class WorkTask extends Task {
 			String description_src = doc.select("body > div.tp-works-bd > div > div.works-bd-content > div")
 					.html();
 			// 二进制文件下载
-			work.description = download(description_src)
-					.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
+			//work.description = download(description_src)
+			//		.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
 
 		}catch (Exception e) {
 			e.printStackTrace();

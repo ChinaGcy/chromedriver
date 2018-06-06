@@ -31,9 +31,9 @@ public class ClouderWorkLogin {
             logger.info("error on agent submit task",e);
         }
         WebDriver webDriver = agent.getDriver();
-        WebElement usernameInput = webDriver.findElement(By.cssSelector("#app > div > div > div > section > dl > dd:nth-child(1) > input[type=\"text\"]"));
+        WebElement usernameInput = webDriver.findElement(By.cssSelector("#app > div > div > div > section > dl > dd:nth-child(1) > input[category=\"text\"]"));
         usernameInput.sendKeys("17600485107");
-        WebElement passwordInput = webDriver.findElement(By.cssSelector("#app > div > div > div > section > dl > dd:nth-child(2) > input[type=\"password\"]"));
+        WebElement passwordInput = webDriver.findElement(By.cssSelector("#app > div > div > div > section > dl > dd:nth-child(2) > input[category=\"password\"]"));
         passwordInput.sendKeys("123456");
         WebElement click = webDriver.findElement(By.cssSelector("#app > div > div > div > section > button:nth-child(3)"));
         click.click();

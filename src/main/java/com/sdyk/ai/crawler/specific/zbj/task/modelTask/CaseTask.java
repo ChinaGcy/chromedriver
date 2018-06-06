@@ -23,8 +23,6 @@ public class CaseTask extends Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.addDoneCallback(() -> {
 
 			try {
@@ -52,7 +50,7 @@ public class CaseTask extends Task {
 
 					// 以下是两个页面共有的信息
 					// 二进制文件下载
-					String description_src = doc.select("#J-description").html();
+					String description_src = doc.select("#J-content").html();
 
 					try {
 						ca.description = download(description_src);
@@ -78,17 +76,17 @@ public class CaseTask extends Task {
 	public void budgetZBJ(Document doc) {
 
 		try {
-			double[] budget = StringUtil.budget_all(doc,"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode > dl.price-panel.app-price-panel.hot-price > dd > span.price",
+			double[] budget = StringUtil.budget_all(doc,"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-cost-warp.yahei.clearfix.qrcode-version > div.cost-with-qrcode > dl.cost-panel.app-cost-panel.hot-cost > dd > span.cost",
 					"");
 			if (budget[0] == 0.00 && budget[1] == 0.00) {
-				budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode.no-app-price > dl:nth-child(1) > dd > span.price",
+				budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-cost-warp.yahei.clearfix.qrcode-version > div.cost-with-qrcode.no-app-cost > dl:nth-child(1) > dd > span.cost",
 						"");
 				ca.budget_lb = budget[0];
-				ca.budget_up = budget[1];
+				ca.budget_ub = budget[1];
 			}
 			else {
 				ca.budget_lb = budget[0];
-				ca.budget_up = budget[1];
+				ca.budget_ub = budget[1];
 			}
 		}
 		catch (Exception e) {
@@ -102,14 +100,14 @@ public class CaseTask extends Task {
 	public void budgetTPW(Document doc) {
 
 		try {
-			double[] budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.price",
+			double[] budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-cost-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.cost",
 					"");
 			ca.budget_lb = budget[0];
-			ca.budget_up = budget[1];
+			ca.budget_ub = budget[1];
 		}
 		catch (Exception e) {
 			ca.budget_lb = 0.00;
-			ca.budget_up = 0.00;
+			ca.budget_ub = 0.00;
 		}
 	}
 
@@ -158,7 +156,7 @@ public class CaseTask extends Task {
 		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
 		Matcher matcher_tags = pattern_tags.matcher(caseTask_des);
 
-		ca.type = caseTask_des;
+		ca.category = caseTask_des;
 
 		if (matcher_tags.find()) {
 			ca.tags = matcher_tags.group("T");
@@ -178,11 +176,11 @@ public class CaseTask extends Task {
 
 		budgetTPW(doc);
 
-		ca.type = doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
+		ca.category = doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
 				.text();
 
 		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
-		Matcher matcher_tags = pattern_tags.matcher(ca.type );
+		Matcher matcher_tags = pattern_tags.matcher(ca.category);
 
 		if (matcher_tags.find()) {
 			ca.tags = matcher_tags.group("T");

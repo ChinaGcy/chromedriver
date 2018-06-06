@@ -25,8 +25,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
     public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
 
         String url = "https://passport.clouderwork.com/signin";
-        String usernameCssPath = "#app > div > div > div > section > dl > dd:nth-child(1) > input[type=\"text\"]";
-        String passwordCssPath = "#app > div > div > div > section > dl > dd:nth-child(2) > input[type=\"password\"]";
+        String usernameCssPath = "#app > div > div > div > section > dl > dd:nth-child(1) > input[category=\"text\"]";
+        String passwordCssPath = "#app > div > div > div > section > dl > dd:nth-child(2) > input[category=\"password\"]";
         String loginButtonCssPath = "#app > div > div > div > section > button:nth-child(3)";
 
         Task task = new Task("https://passport.clouderwork.com/signin");

@@ -2,7 +2,6 @@ package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.model.TendererRating;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.AccountException;
@@ -45,7 +44,6 @@ public class TendererRatingTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("userId", userId);
-		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 
@@ -63,7 +61,7 @@ public class TendererRatingTask extends ScanTask {
 
 						tendererRating = new TendererRating(getUrl() + "&" + i);
 
-						tendererRating.tenderer_url = getUrl().split("\\?")[0];
+						tendererRating.user_id = getUrl().split("\\?")[0];
 
 						// 每个评价
 						ratingData(doc, i);
@@ -102,23 +100,23 @@ public class TendererRatingTask extends ScanTask {
 	 */
 	public void ratingData(Document doc, int i) {
 
-		tendererRating.facilitator_name =
+		/*tendererRating.facilitator_name =
 				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.who > a")
-						.text();
+						.text();*/
 
-		tendererRating.facilitator_url =
+		/*tendererRating.facilitator_url =
 				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.who > a")
-						.attr("href");
+						.attr("href");*/
 
-		tendererRating.maluation =
+		tendererRating.content =
 				shareData(doc, "#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-text > p")
 						.text();
 
-		tendererRating.maluation_tag =
+		tendererRating.tags =
 				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-tags.clearfix")
 						.text();
 		try {
-			tendererRating.maluation_time =
+			tendererRating.pubdate =
 					DateFormatUtil.parseTime(
 							shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.when")
 									.text());
@@ -127,16 +125,16 @@ public class TendererRatingTask extends ScanTask {
 			logger.error("Error: {}, ", e);
 		}
 		try {
-			tendererRating.pay_timeliness_num =
+			tendererRating.payment_rating =
 					shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-intime > span.stars-group > i")
 							.size();
-			tendererRating.work_happy_num =
+			tendererRating.coop_rating =
 					shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-scores.clearfix > div.scores-item.scores-delight > span.stars-group > i")
 							.size();
 
 		} catch (NoSuchElementException e) {
-			tendererRating.pay_timeliness_num = 0;
-			tendererRating.work_happy_num = 0;
+			tendererRating.payment_rating = 0;
+			tendererRating.coop_rating = 0;
 		}
 	}
 

@@ -26,7 +26,7 @@ public class WorkRoute {
 
 		Work k = (Work) Model.daoMap.get(Work.class.getSimpleName()).queryForId(id);
 
-		k.description = rewriteBinaryUrl(k.description);
+		//k.description = rewriteBinaryUrl(k.description);
 
 		response.header("Access-Control-Allow-Origin", "*");
 
@@ -62,7 +62,7 @@ public class WorkRoute {
 		List<Work> ws = qb.where().eq("user_id",serviceSupplier).query();
 
 		for(Work w : ws) {
-			w.description = rewriteBinaryUrl(w.description);
+		//	w.description = rewriteBinaryUrl(w.description);
 		}
 
 		response.header("Access-Control-Allow-Origin", "*");

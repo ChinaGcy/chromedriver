@@ -46,7 +46,6 @@ public class TendererOrderTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("userId", userId);
-		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 
@@ -107,7 +106,7 @@ public class TendererOrderTask extends ScanTask {
 
 			project.title = element.select("div > div.order-item-title > a").text();
 
-			project.trade_type = element.select("span.order-item-type").text();
+			project.trade_type = element.select("span.order-item-category").text();
 
 			// TODO 正则获取数据
 			// div > div.order-item-subinfo
@@ -132,18 +131,18 @@ public class TendererOrderTask extends ScanTask {
 			Matcher matcher_origin = pattern_origin.matcher(text);
 			if (matcher_origin.find()) {
 
-				project.origin = matcher_origin.group("T");
+				project.origin_from = matcher_origin.group("T");
 			}
 
 			try {
-				project.budget_up = Double.parseDouble(element.select("span.order-item-budget.fr > em")
+				project.budget_ub = Double.parseDouble(element.select("span.order-item-budget.fr > em")
 						.text()
 						.replace("￥", ""));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			project.budget_lb = project.budget_up;
+			project.budget_lb = project.budget_ub;
 
 			project.status = element.select("div > div.order-item-title > span").text();
 

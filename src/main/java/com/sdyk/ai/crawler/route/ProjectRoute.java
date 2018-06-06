@@ -28,7 +28,7 @@ public class ProjectRoute {
 
 		Project p = (Project) Model.daoMap.get(Project.class.getSimpleName()).queryForId(id);
 
-		p.description = rewriteBinaryUrl(p.description);
+		p.content = rewriteBinaryUrl(p.content);
 
 		response.header("Access-Control-Allow-Origin", "*");
 
@@ -62,7 +62,7 @@ public class ProjectRoute {
 		List<Project> ps = qb.query();
 
 		for(Project p : ps) {
-			p.description = rewriteBinaryUrl(p.description);
+			p.content = rewriteBinaryUrl(p.content);
 		}
 
 		response.header("Access-Control-Allow-Origin", "*");

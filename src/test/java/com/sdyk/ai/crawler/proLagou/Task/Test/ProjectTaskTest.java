@@ -27,8 +27,8 @@ public class ProjectTaskTest {
 		agent.start();
 		String url = "https://passport.lagou.com/pro/login.html";
 		String usernameCssPath = "#user_name";
-		String passwordCssPath = "#main > form > div:nth-child(2) > input[type=\"password\"]";
-		String loginButtonCssPath = "#main > form > div.clearfix.btn_login > input[type=\"submit\"]";
+		String passwordCssPath = "#main > form > div:nth-child(2) > input[category=\"password\"]";
+		String loginButtonCssPath = "#main > form > div.clearfix.btn_login > input[category=\"submit\"]";
 		Account account = new AccountImpl(url,"17600485107","123456");
 		Task task = new Task(url);
 		task.addAction(new LoginWithGeetestClouderWork(account,url,usernameCssPath,passwordCssPath,loginButtonCssPath));

@@ -21,14 +21,17 @@ public abstract class Task extends one.rewind.io.requester.Task {
 
 	public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {
 		super(url, post_data);
+		setBuildDom();
 	}
 
 	public Task(String url, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
 		super(url, post_data, cookies, ref);
+		setBuildDom();
 	}
 
 	public Task(String url, HashMap<String, String> headers, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
 		super(url, headers, post_data, cookies, ref);
+		setBuildDom();
 	}
 
 	public String getString(String path, String... clean) {

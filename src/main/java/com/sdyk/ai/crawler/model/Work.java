@@ -18,45 +18,37 @@ public class Work extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String user_id;
 
-	// 服务名
-	@DatabaseField(dataType = DataType.STRING, width = 64)
-	public String name;
-
 	// 雇主名
 	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String tenderer_name;
 
-	// 类型
-	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String type;
+	// 标签
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String tags;
 
 	// 领域
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String field;
-
-	// 描述
-	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String description;
+	public String category;
 
 	// 内容
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String content;
 
+	// 作品名称
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
+	public String work_name;
+
 	// 收藏
-	@DatabaseField(dataType = DataType.INTEGER)
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int fav_num;
 
 	// 点赞
-	@DatabaseField(dataType = DataType.INTEGER)
-	public int like_sum;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int like_num;
 
 	// 浏览量
-	@DatabaseField(dataType = DataType.INTEGER)
-	public int view_sum;
-
-	// 标签
-	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String tags;
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int view_num;
 
 	// 价格
 	@DatabaseField(dataType = DataType.DOUBLE)

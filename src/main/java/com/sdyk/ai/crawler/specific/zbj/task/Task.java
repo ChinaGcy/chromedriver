@@ -21,7 +21,6 @@ public class Task extends com.sdyk.ai.crawler.task.Task {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
-		setBuildDom();
 	}
 
 	public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {

@@ -4,7 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.model.Model;
-import com.sdyk.ai.crawler.model.SupplierRating;
+import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import one.rewind.io.server.Msg;
 import spark.*;
 
@@ -32,20 +32,20 @@ public class ServiceSupplierRatingRoute {
 
 		long offset = (page - 1) * length;
 
-		Dao<SupplierRating, String> dao = Model.daoMap.get(SupplierRating.class.getSimpleName());
+		Dao<ServiceProviderRating, String> dao = Model.daoMap.get(ServiceProviderRating.class.getSimpleName());
 
-		QueryBuilder<SupplierRating, String> qb = dao.queryBuilder()
+		QueryBuilder<ServiceProviderRating, String> qb = dao.queryBuilder()
 				.limit(length).offset(offset)
 				.orderBy("update_time", false);
 
 		// TODO 可能有问题
-		List<SupplierRating> ps = qb.where().eq("service_supplier_id", serviceSupplierId).query();;
+		List<ServiceProviderRating> ps = qb.where().eq("service_provider_id", serviceSupplierId).query();;
 
 		ServiceWrapper.logger.info(qb.prepareStatementString());
 
 		response.header("Access-Control-Allow-Origin", "*");
 
-		return new Msg<List<SupplierRating>>(Msg.SUCCESS, ps);
+		return new Msg<List<ServiceProviderRating>>(Msg.SUCCESS, ps);
 	};
 
 }

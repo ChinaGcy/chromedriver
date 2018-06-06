@@ -43,7 +43,7 @@ public class ServiceSupplierTest {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 		agent.start();
-		ServiceRatingTask serviceRatingTask = new ServiceRatingTask("http://shop.zbj.com/evaluation/evallist-uid-7394304-type-1-isLazyload-0-page-10.html", "7394304",10);
+		ServiceRatingTask serviceRatingTask = new ServiceRatingTask("http://shop.zbj.com/evaluation/evallist-uid-7394304-category-1-isLazyload-0-page-10.html", "7394304",10);
 		serviceRatingTask.setBuildDom();
 		agent.submit(serviceRatingTask);
 	}

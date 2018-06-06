@@ -22,7 +22,6 @@ public class TendererTask extends Task {
 
 		super(url);
 		this.setPriority(Priority.MEDIUM);
-		this.setBuildDom();
 
 		this.addDoneCallback(()->{
 
@@ -34,16 +33,16 @@ public class TendererTask extends Task {
 
 				Tenderer tenderer = new Tenderer(getUrl());
 
-				tenderer.website_id = getUrl().split("com/")[1];
+				tenderer.origin_id = getUrl().split("com/")[1];
 				tenderer.name = getString(
 						"#utopia_widget_1 > div > div.topinfo-top > div > h2",
 						"");
 				try {
-					tenderer.area = getString(
+					tenderer.location = getString(
 							"#utopia_widget_1 > div > div.topinfo-top > div > div > span.location",
 							"");
 				} catch (NoSuchElementException e) {
-					tenderer.area = "";
+					tenderer.location = "";
 				}
 				try {
 					tenderer.login_time =
@@ -59,7 +58,7 @@ public class TendererTask extends Task {
 						Integer.parseInt(doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-trade > div.statistics-item-val > strong")
 								.text().replaceAll("-", "0"));
 
-				tenderer.industry =
+				tenderer.category =
 						doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div:nth-child(3) > div.statistics-item-val")
 								.text();
 
@@ -67,14 +66,14 @@ public class TendererTask extends Task {
 						doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-time > div.statistics-item-val")
 								.text();
 
-				tenderer.enterprise_size =
+				tenderer.company_type =
 						doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-scale > div.statistics-item-val")
 								.text();
 
-				tenderer.description =
+				tenderer.content =
 						doc.select("#utopia_widget_4 > div > div > p").text();
 
-				tenderer.demand_forecast =
+				tenderer.req_forecast =
 						doc.select("#utopia_widget_5 > div > div > h5").text();
 
 				tenderer.total_spending =
@@ -88,10 +87,10 @@ public class TendererTask extends Task {
 				}
 
 				// 添加projectTask
-				tasks.add(TendererOrderTask.generateTask(getUrl(), 1, tenderer.website_id));
+				tasks.add(TendererOrderTask.generateTask(getUrl(), 1, tenderer.origin_id));
 
 				// 评价任务
-				tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.website_id));
+				tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.origin_id));
 
 				for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					t.setBuildDom();

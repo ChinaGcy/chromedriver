@@ -56,21 +56,17 @@ public class ProjectTask extends Task {
      */
     public void crawlJob(Document doc,List<Task> tasks ){
         String authorUrl = null;
-        try {
-            project = new Project(getUrl());
-        } catch (MalformedURLException e) {
-            logger.info("error on creat projectMode",e);
-        } catch (URISyntaxException e) {
-            logger.info("error on creat projectMode",e);
-        }
+
+        project = new Project(getUrl());
+
         //项目名称
         project.title = doc.select("#project-detail > div > div.main-top > div.job-main > h3").text()
                 .replaceAll(" ","")
                 .replaceAll("招募中","").replaceAll("开发中","");
         //工作地点
-        project.area = doc.select("#project-detail > div > div.main-top > div.job-main > div.project-info > p.loc").text();
+        project.location = doc.select("#project-detail > div > div.main-top > div.job-main > div.project-info > p.loc").text();
         //项目描述
-        project.description = doc.select("#project-detail > div > div.main-detail > section > div").html();
+        project.content = doc.select("#project-detail > div > div.main-detail > section > div").html();
         //项目状态
         project.status = doc.select("#project-detail > div > div.main-top > div.job-main > h3 > span").text();
         //项目类别
@@ -160,7 +156,7 @@ public class ProjectTask extends Task {
             }
         }
         project.budget_lb = budget_lb;
-        project.budget_up = budget_up;
+        project.budget_ub = budget_up;
         //项目工期
         String timeLimit = doc.select("#project-detail > div > div.main-top > div.op-main > div.detail-row > div.budgets.workload > p.budget > span").text();
         if( timeLimit!=null && !"".equals(timeLimit) ){

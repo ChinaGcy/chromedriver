@@ -25,13 +25,14 @@ public class TaskTrace implements JSONable {
 	@DatabaseField(generatedId = true)
 	private transient Long id;
 
-	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, uniqueCombo = true)
+	// 删除 uniqueCombo = true 配置，实时数据重采出错
+	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, indexName = "scanindex")
 	public String type;
 
-	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, uniqueCombo = true)
+	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, indexName = "scanindex")
 	public String channel;
 
-	@DatabaseField(dataType = DataType.STRING, width = 11, canBeNull = false, uniqueCombo = true)
+	@DatabaseField(dataType = DataType.STRING, width = 11, canBeNull = false, indexName = "scanindex")
 	public String page;
 
 	@DatabaseField(dataType = DataType.DATE, canBeNull = false)
@@ -72,7 +73,7 @@ public class TaskTrace implements JSONable {
 	public static TaskTrace getTaskTrace(String code, Class clazz, String page) throws Exception {
 		Dao<TaskTrace, String> dao = DaoManager.getDao(TaskTrace.class);
 		return dao.queryBuilder().where().eq("url", code)
-				.and().eq("type", clazz.getSimpleName())
+				.and().eq("category", clazz.getSimpleName())
 				.and().eq("page", page).queryForFirst();
 
 	}

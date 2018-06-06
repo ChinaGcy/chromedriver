@@ -48,7 +48,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
         while(matcher.find()) {
             try {
                 String web = URLDecoder.decode(matcher.group("username"), "UTF-8")+"?role=employer";
-                tenderer.website_id = web;
+                tenderer.origin_id = web;
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -62,7 +62,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
             tenderer.rating_num = Integer.valueOf(ratingNum);
         }
         //简介
-        tenderer.description = doc.getElementsByClass("profile__summary-wrapper").text();
+        tenderer.content = doc.getElementsByClass("profile__summary-wrapper").text();
 
         Elements elements =doc.getElementsByClass("project-cell__title-link");
         for(Element element : elements){

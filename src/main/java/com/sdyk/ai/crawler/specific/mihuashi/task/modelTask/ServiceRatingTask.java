@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
-import com.sdyk.ai.crawler.model.SupplierRating;
+import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.exception.AccountException;
@@ -49,30 +49,30 @@ public class ServiceRatingTask extends Task {
         Pattern pattern1 = Pattern.compile("/users/(?<username>.+?)\\?role=employer");
         int i = 0;
         for(Element element : elements){
-            SupplierRating supplierRating = new SupplierRating(getUrl()+"&num="+i);
+            ServiceProviderRating serviceProviderRating = new ServiceProviderRating(getUrl()+"&num="+i);
             i++;
             //服务商ID
-            supplierRating.service_supplier_id = web;
+            serviceProviderRating.service_provider_id = web;
             //甲方名字\URL\ID
             Elements name = element.getElementsByClass("name");
-            supplierRating.tenderer_name = name.get(1).text();
+           // serviceProviderRatings.tenderer_name = name.get(1).text();
             try {
                 String url = URLDecoder.decode(name.get(1).attr("href"), "UTF-8");
-                supplierRating.tenderer_url = url;
+         //       serviceProviderRatings.tenderer_url = url;
                 Matcher matcher1 = pattern1.matcher(url);
                 while(matcher1.find()) {
                     String id = URLDecoder.decode(matcher1.group("username"), "UTF-8");
-                    supplierRating.tenderer_id = id;
+                    serviceProviderRating.tenderer_id = id;
                 }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
             //描述
-            supplierRating.description = element.getElementsByClass("content").text();
+            serviceProviderRating.content = element.getElementsByClass("content").text();
             //发布时间
             String time = element.getElementsByClass("commented-time").text();
             try {
-                supplierRating.rating_time = DateFormatUtil.parseTime(time);
+                serviceProviderRating.pubdate = DateFormatUtil.parseTime(time);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -80,8 +80,8 @@ public class ServiceRatingTask extends Task {
             String spand = element.getElementsByClass("budget-interval").text();
             if(spand.contains("~")){
                 String[] spands = spand.split("~");
-                supplierRating.spend = Integer.valueOf(CrawlerAction.getNumbers(spands[0]));
-                supplierRating.spend = Integer.valueOf(CrawlerAction.getNumbers(spands[1]));
+                serviceProviderRating.price = Integer.valueOf(CrawlerAction.getNumbers(spands[0]));
+                serviceProviderRating.price = Integer.valueOf(CrawlerAction.getNumbers(spands[1]));
             }
 
             //项目URL
@@ -91,7 +91,7 @@ public class ServiceRatingTask extends Task {
             while (matcher2.find()) {
                 try {
                     String projectUrl = "https://www.mihuashi.com"+matcher2.group();
-                    supplierRating.project_url = projectUrl;
+                    serviceProviderRating.project_id = projectUrl;
                     Task t = new ProjectTask(projectUrl);
                     tasks.add(t);
                 } catch (Exception e) {
@@ -99,7 +99,7 @@ public class ServiceRatingTask extends Task {
                 }
             }
 
-            supplierRating.insert();
+            serviceProviderRating.insert();
 
         }
 

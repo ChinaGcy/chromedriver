@@ -42,7 +42,6 @@ public class WorkScanTask extends ScanTask {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("userId", userId);
-		this.setBuildDom();
 
 		this.addDoneCallback(() -> {
 

@@ -109,7 +109,7 @@ public class BinaryDownloader {
 
 			for (Map.Entry<String, List<String>> entry : t_.getResponse().getHeader().entrySet()) {
 
-				if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-type")) {
+				if (entry.getKey() != null && entry.getKey().toLowerCase().equals("content-category")) {
 
 					binary.content_type = entry.getValue().toString();
 				}

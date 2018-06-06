@@ -61,15 +61,11 @@ public class ProjectTask extends Task {
 
     public void crawlJob(Document doc){
 
-        try {
-            project = new Project(getUrl());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+
+        project = new Project(getUrl());
+
         List<Task> tasks = new ArrayList();
-        project.domain = "mihuashi.com";
+      //  project.domain = "mihuashi.com";
         String authorUrl = null;
 
         //项目名
@@ -97,15 +93,15 @@ public class ProjectTask extends Task {
                 String budget_lb = CrawlerAction.getNumbers(budgets[0]);
                 String budget_uo = CrawlerAction.getNumbers(budgets[1]);
                 project.budget_lb = Integer.valueOf(budget_lb);
-                project.budget_up = Integer.valueOf(budget_uo);
+                project.budget_ub = Integer.valueOf(budget_uo);
             }else{
-                project.budget_up=project.budget_lb=Integer.valueOf(budget);
+                project.budget_ub =project.budget_lb=Integer.valueOf(budget);
             }
         }
         //剩余时间
         String remainingTime = doc.select("#aside-rail > div > aside > span").text().replace("后关闭应征","");
         try {
-            project.remaining_time = DateFormatUtil.parseTime(remainingTime);
+            project.due_time = DateFormatUtil.parseTime(remainingTime);
         } catch (ParseException e) {
             logger.error("error on String to date",e);
         }
@@ -119,9 +115,9 @@ public class ProjectTask extends Task {
             e.printStackTrace();
         }
         //描述
-        project.description = doc.select("#project-detail").html();
+        project.content = doc.select("#project-detail").html();
         //赏金分配
-        project.reward_distribution = doc.select("#projects-show > div.container-fluid > div.project__main-section > div.project__info-section > section > div.deposit-phases__wrapper").text();
+        project.reward_type = doc.select("#projects-show > div.container-fluid > div.project__main-section > div.project__info-section > section > div.deposit-phases__wrapper").text();
         //采集时刻以投标数
         String bidderNewNum = doc.select("#projects-show > div.container-fluid > div.project__main-section > div.project__application-section > section > h5 > div > span.applications-count")
                 .text().replace("本企划共应征画师","").replace("名","");

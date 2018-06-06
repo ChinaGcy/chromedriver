@@ -1,13 +1,12 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.sdyk.ai.crawler.model.Resume;
-import com.sdyk.ai.crawler.model.ServiceSupplier;
-import com.sdyk.ai.crawler.model.SupplierRating;
+import com.sdyk.ai.crawler.model.ServiceProvider;
+import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
-import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -21,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class ServiceSupplierTask extends Task {
 
-    ServiceSupplier serviceSupplier;
+    ServiceProvider serviceProvider;
 
     Resume resume;
 
@@ -32,7 +31,7 @@ public class ServiceSupplierTask extends Task {
         this.addDoneCallback(() -> {
 
             Document doc = getResponse().getDoc();
-            serviceSupplier = new ServiceSupplier(getUrl());
+            serviceProvider = new ServiceProvider(getUrl());
             resume = new Resume(getUrl());
 
             try {
@@ -56,22 +55,22 @@ public class ServiceSupplierTask extends Task {
         String url = getUrl();
         Pattern pattern = Pattern.compile("[0-9]*");
         String[] urls = url.split("com");
-        serviceSupplier.website_id =urls[1];
+        serviceProvider.origin_id =urls[1];
 
         //名字
         String name = doc.getElementsByClass("name-box").text();
         if( name!=null && !"".equals(name) ){
-            serviceSupplier.name = name;
+            serviceProvider.name = name;
         }
         //类型
         String type = doc.select("#profile > div > div > section.left > div.team > p").text();
         if( type!=null && !"".equals(type) ){
             String team = doc.getElementsByClass("team-s-title").text();
-            serviceSupplier.type = team;
+            serviceProvider.type = team;
         }
         //没有团队时类型为个人
         else {
-            serviceSupplier.type = "个人";
+            serviceProvider.type = "个人";
         }
 
         String all =doc.select("#profile > div > div > section.basic > section > div:nth-child(8)").text().replace("擅长领域：","");
@@ -80,19 +79,19 @@ public class ServiceSupplierTask extends Task {
             String expertise = all1[0];
             //擅长领域
             if( expertise!=null && !"".equals(expertise) ){
-                serviceSupplier.expertise = expertise;
+                serviceProvider.category = expertise;
             }
             String[] all2 = all1[1].split("所在城市：");
             //擅长技能
             String skills = all2[0];
             if( skills!=null && !"".equals(skills) ){
-                serviceSupplier.skills = skills;
+                serviceProvider.tags = skills;
             }
             String[] all3 = all2[1].split("工作经验：");
             //地点
             String location = all3[0];
             if( location!=null && !"".equals(location) ){
-                serviceSupplier.location = location;
+                serviceProvider.location = location;
             }
         }
         //当行数据出现收藏标志时
@@ -102,7 +101,7 @@ public class ServiceSupplierTask extends Task {
             String expertise = all1[0];
             //擅长领域
             if(expertise!=null&&!"".equals(expertise)){
-                serviceSupplier.expertise = expertise;
+                serviceProvider.category = expertise;
             }
             String[] all2 = all1[1].split("所在城市：");
             //擅长技能
@@ -116,20 +115,20 @@ public class ServiceSupplierTask extends Task {
                 skills = all2[0];
             }
             if( skills!=null && !"".equals(skills) ){
-                serviceSupplier.skills = skills;
+                serviceProvider.tags = skills;
             }
             String[] all3 = all2[1].split("工作经验：");
             //地点
             String location = all3[0];
             if(location!=null&&!"".equals(location)){
-                serviceSupplier.location = location;
+                serviceProvider.location = location;
             }
         }
 
         //工作经验
         String workExperience = doc.getElementsByClass("main-item").text();
         if( workExperience!=null && !"".equals(workExperience) ){
-            serviceSupplier.work_experience =workExperience;
+            //serviceProvider.work_experience =workExperience;
         }
 
 
@@ -139,43 +138,43 @@ public class ServiceSupplierTask extends Task {
             String[] memberNums = memberNum.split("名");
             String Num = memberNums[0].substring(1,memberNums[0].length());
             if( Num!=null && !"".equals(Num) && pattern.matcher(Num).matches() ){
-                serviceSupplier.member_num = Integer.valueOf(Num);
+                serviceProvider.team_size = Integer.valueOf(Num);
             }
         }
         //当为非团队时，成员数量为1
         else {
-            serviceSupplier.member_num = Integer.valueOf(1);
+            serviceProvider.team_size = Integer.valueOf(1);
         }
         //平台项目数
         String projectNum = doc.select("#profile > div > div > section.left > div.evaluation > p.eva-desc > span:nth-child(1)").text();
         if( projectNum!=null && !"".equals(projectNum) && pattern.matcher(projectNum).matches()){
-            serviceSupplier.project_num = Integer.valueOf(projectNum);
+            serviceProvider.project_num = Integer.valueOf(projectNum);
         }
         //平台成功率
         String successRatio = doc.select("#profile > div > div > section.left > div.evaluation > p.eva-desc > span:nth-child(2)").text().replace("%","");
         if( successRatio!=null && !"".equals(successRatio) ){
-            serviceSupplier.success_ratio = Float.valueOf(successRatio);
+            serviceProvider.success_ratio = Float.valueOf(successRatio);
         }
         //顾客评分
         String rating = doc.select("#profile > div > div > section.left > div.evaluation > div > span").text().replace("分","");
         if( rating!=null && !"".equals(rating) ){
-            serviceSupplier.rating = Float.valueOf(rating);
+            serviceProvider.rating = Float.valueOf(rating);
         }
         //评价数
         String ratingNum = doc.select("#profile > div > div > section.left > div.evaluation > p.only-sys").text();
         String[] ratingNums = ratingNum.split("个");
         if( ratingNums[0]!=null && !"".equals(ratingNums[0]) ){
-            serviceSupplier.rating_num = Integer.valueOf(ratingNums[0]);
+            serviceProvider.rating_num = Integer.valueOf(ratingNums[0]);
             //好评数
             if( ratingNums.length>1 && ratingNums[1].contains("好评") ){
-                serviceSupplier.good_rating_num = serviceSupplier.rating_num;
+                serviceProvider.praise_num = serviceProvider.rating_num;
             }
         }
 
         //教育经历
         String eduAll = doc.getElementsByClass("main-content edu").text();
         if( eduAll!=null && !"".equals(eduAll) ){
-            resume.user_id = serviceSupplier.website_id.split("cers/")[1];
+            resume.user_id = serviceProvider.origin_id.split("cers/")[1];
             String eduTime = doc.getElementsByClass("edu-time").text().replace("年","");
             if( eduTime!=null && !"".equals(eduTime) ){
                 String[] times = eduTime.split("-");
@@ -191,14 +190,14 @@ public class ServiceSupplierTask extends Task {
             }
             String eduSchool = doc.getElementsByClass("edu-school").text();
             if( eduSchool!=null && !"".equals(eduSchool) ){
-                resume.unit = eduSchool;
+                resume.org = eduSchool;
             }
             String eduCity = doc.getElementsByClass("edu-city").text();
             if( eduCity!=null && !"".equals(eduCity) ){
                 resume.dep = eduCity;
                 String[] edu_position = eduAll.split(eduCity);
                 if(edu_position.length > 1){
-                    resume.degree_position = edu_position[1];
+                    resume.degree_occupation = edu_position[1];
                 }
             }
             try {
@@ -213,14 +212,14 @@ public class ServiceSupplierTask extends Task {
         Elements ratingElements = doc.getElementsByClass("company");
         if( ratingElements != null && ratingElements.size() > 0 ){
             for(Element element : ratingElements){
-                SupplierRating supplierRating = new SupplierRating(getUrl());
+                ServiceProviderRating serviceProviderRating = new ServiceProviderRating(getUrl());
                 //服务商ID
-                supplierRating.service_supplier_id = getUrl().split("freelancers/")[1];
+                serviceProviderRating.service_provider_id = getUrl().split("freelancers/")[1];
                 //雇主名称
-                supplierRating.tenderer_name = doc.getElementsByClass("comp-name").text();
+              //  serviceProviderRatings.tenderer_name = doc.getElementsByClass("comp-name").text();
                 //评价内容
-                supplierRating.description = doc.getElementsByClass("comp-desc").text();
-                supplierRating.insert();
+                serviceProviderRating.content = doc.getElementsByClass("comp-desc").text();
+                serviceProviderRating.insert();
             }
         }
 
@@ -238,11 +237,11 @@ public class ServiceSupplierTask extends Task {
                 fileName.add(element.attr("download"));
             }
             String description = BinaryDownloader.download(description2,fileUrl,url,fileName);
-            serviceSupplier.description = description1+description;
+            serviceProvider.content = description1+description;
         }
         //不含附件
         else {
-            serviceSupplier.description = description1;
+            serviceProvider.content = description1;
         }
 
         //抓取乙方项目
@@ -264,9 +263,9 @@ public class ServiceSupplierTask extends Task {
             }
         }
         try {
-            serviceSupplier.insert();
+            serviceProvider.insert();
         } catch (Exception e) {
-            logger.error("error on insert serviceSupplier", e);
+            logger.error("error on insert serviceProvider", e);
         }
     }
 

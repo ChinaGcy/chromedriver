@@ -14,7 +14,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,17 +49,17 @@ public class TendererRatingTask extends Task {
             TendererRating tendererRating = new TendererRating(getUrl()+"&num="+i);
             i++;
             //雇主URl
-            tendererRating.tenderer_url = web;
+            tendererRating.user_id = web;
             //服务商名称
-            tendererRating.facilitator_name = element.getElementsByClass("name").text();
+          //  tendererRating.facilitator_name = element.getElementsByClass("name").text();
             //服务商URL
-            tendererRating.facilitator_url = element.getElementsByClass("name").attr("href");
+         //   tendererRating.facilitator_url = element.getElementsByClass("name").attr("href");
             //评价
-            tendererRating.maluation = element.getElementsByClass("content").text();
+            tendererRating.content = element.getElementsByClass("content").text();
             //评价时间
             String time = element.getElementsByClass("commented-time").text();
             try {
-                tendererRating.maluation_time = DateFormatUtil.parseTime(time);
+                tendererRating.pubdate = DateFormatUtil.parseTime(time);
             } catch (ParseException e) {
                 e.printStackTrace();
             }

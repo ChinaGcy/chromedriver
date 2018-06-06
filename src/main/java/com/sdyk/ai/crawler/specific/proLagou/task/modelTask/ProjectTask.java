@@ -44,14 +44,8 @@ public class ProjectTask extends Task {
 
     public void crawlJob(Document doc){
 
-        try {
-            project = new Project(getUrl());
-        } catch (MalformedURLException e) {
-            logger.info("error on creat projectMode",e);
-        } catch (URISyntaxException e) {
-            logger.info("error on creat projectMode",e);
-        }
-        project.domain = "pro.lagou.com";
+        project = new Project(getUrl());
+        //project.domain = 1;
         //项目名
         String title = doc.select("#project_detail > div.project_info.fl > div.title > div").text();
         //状态
@@ -60,7 +54,6 @@ public class ProjectTask extends Task {
             title = title.replace("currentStatus","");
         }
         project.title = title;
-        project.current_status = currentStatus;
         //类型
         project.category = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)").text();
         //招标人
@@ -90,14 +83,14 @@ public class ProjectTask extends Task {
             if(budget.contains("-")){
                 String[] budgets = budget.split("-");
                 project.budget_lb = Integer.valueOf(budgets[0]);
-                project.budget_up = Integer.valueOf(budgets[1]);
+                project.budget_ub = Integer.valueOf(budgets[1]);
             }else{
-                project.budget_up = Integer.valueOf(budget);
+                project.budget_ub = Integer.valueOf(budget);
                 project.budget_lb = Integer.valueOf(budget);
             }
         }
         //描述
-        project.description = doc.select("#project_detail > div.project_info.fl > div.project_content > div.project_txt > pre").html();
+        project.content = doc.select("#project_detail > div.project_info.fl > div.project_content > div.project_txt > pre").html();
         //浏览人数
         String browse = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(3) > div.txt > strong").text();
         if(browse!=null&&!"".equals(browse)){
