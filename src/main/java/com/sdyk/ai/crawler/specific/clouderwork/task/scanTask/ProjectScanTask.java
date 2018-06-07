@@ -1,17 +1,19 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProjectScanTask extends com.sdyk.ai.crawler.specific.clouderwork.task.ScanTask {
 
@@ -44,33 +46,42 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.clouderwork.ta
 
         this.addDoneCallback(() -> {
 
-            String src = getResponse().getDoc().text().replace("/UE",",UE");
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
-            List<Task> task = new ArrayList<>();
-            try {
-                JsonNode node = mapper.readTree(src).get("jobs");
-                for(int i = 0;i<node.size();i++){
-                    String pUrl = "https://www.clouderwork.com/jobs/"+node.get(i).get("id").toString().replace("\"","");
-                    task.add(new ProjectTask(pUrl));
-                }
-                //添加下一页任务
-                if(node.size()>0){
-                    Task t = generateTask(page + 1);
-                    if (t != null) {
-                        t.setBuildDom();
-                        t.setPriority(Priority.HIGH);
-                        task.add(t);
-                    }
-                }
+            String src = getResponse().getDoc().text();
 
-                logger.info("projectTaskSize",task.size());
-            } catch (IOException e) {
-                logger.info("error on String to Json",e);
-            } catch (URISyntaxException e) {
-                logger.info("error on add task",e);
+            Pattern pattern = Pattern.compile("\"id\":\"(?<username>.{16}?)\",\"user_id\"");
+            Matcher matcher = pattern.matcher(src);
+
+            Set<String> usernames = new HashSet<>();
+
+            while(matcher.find()) {
+                try {
+                    usernames.add(URLDecoder.decode(matcher.group("username"), "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
 
+            List<Task> task = new ArrayList<>();
+
+            for(String user : usernames){
+                String pUrl = "https://www.clouderwork.com/jobs/" + user;
+                try {
+                    task.add(new ProjectTask(pUrl));
+                } catch (MalformedURLException e) {
+                    logger.error("error on creat task", e);
+                } catch (URISyntaxException e) {
+                    logger.error("error on creat task", e);
+                }
+            }
+
+            if( usernames.size()>0 ){
+                Task t = generateTask(page + 1);
+                if (t != null) {
+                    t.setBuildDom();
+                    t.setPriority(Priority.HIGH);
+                    task.add(t);
+                }
+            }
             logger.info("Task driverCount: {}", task.size());
 
             for(Task t : task) {

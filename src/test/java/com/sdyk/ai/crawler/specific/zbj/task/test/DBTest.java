@@ -15,8 +15,8 @@ public class DBTest {
 
 	@Test
 	public void Con() throws Exception {
-		Refacter.dropTable(EvalProjects.class);
-		Refacter.createTable(EvalProjects.class);
+		//Refacter.dropTable(EvalProjects.class);
+		Refacter.createTable(Work.class);
 		/*try {
 
 			DockerHostImpl host = new DockerHostImpl("10.0.0.62", 22, "root");

@@ -3,6 +3,9 @@
 /build/
 /.externalToolBuilders/
 /.gradle/
+/.idea/
 /.settings/
 *.log
 *.pem
+/project.html
+/scantask.txt

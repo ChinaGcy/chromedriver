@@ -33,13 +33,11 @@ public class TendererRatingTaskTest {
         Account account = new AccountImpl(url,"zhangsheng@315free.com","123456");
         Task task = new Task(url);
         task.addAction(new LoginWithGeetestClouderWork(account,url,usernameCssPath,passwordCssPath,loginButtonCssPath));
-        task.setBuildDom();
         ChromeDriverRequester.getInstance().submit(task);
         Thread.sleep(5000);
 
         com.sdyk.ai.crawler.task.Task taskTR = new TendererRatingTask("https://www.mihuashi.com/users/Harute?role=employer&rating=true");
         taskTR.addAction(new TendererRatingActive("https://www.mihuashi.com/users/Harute?role=employer&rating=true"));
-        taskTR.setBuildDom();
         ChromeDriverRequester.getInstance().submit(taskTR);
 
         Thread.sleep(10000000);

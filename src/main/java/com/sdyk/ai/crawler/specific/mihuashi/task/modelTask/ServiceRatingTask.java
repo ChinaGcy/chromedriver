@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
@@ -48,40 +49,41 @@ public class ServiceRatingTask extends Task {
         Elements elements = doc.getElementsByClass("profile__comment-cell");
         Pattern pattern1 = Pattern.compile("/users/(?<username>.+?)\\?role=employer");
         int i = 0;
+
         for(Element element : elements){
             ServiceProviderRating serviceProviderRating = new ServiceProviderRating(getUrl()+"&num="+i);
             i++;
+
             //服务商ID
-            serviceProviderRating.service_provider_id = web;
-            //甲方名字\URL\ID
+            serviceProviderRating.service_provider_id = one.rewind.txt.StringUtil.byteArrayToHex(
+		            one.rewind.txt.StringUtil.uuid(getUrl()));
+
+            //甲方名字
             Elements name = element.getElementsByClass("name");
-           // serviceProviderRatings.tenderer_name = name.get(1).text();
+	        serviceProviderRating.tenderer_name = name.get(1).text();
             try {
                 String url = URLDecoder.decode(name.get(1).attr("href"), "UTF-8");
-         //       serviceProviderRatings.tenderer_url = url;
-                Matcher matcher1 = pattern1.matcher(url);
-                while(matcher1.find()) {
-                    String id = URLDecoder.decode(matcher1.group("username"), "UTF-8");
-                    serviceProviderRating.tenderer_id = id;
-                }
+
+                //甲方ID
+                serviceProviderRating.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
+		                one.rewind.txt.StringUtil.uuid(url));
+
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+
+            //项目名称
+	        serviceProviderRating.project_name = name.get(0).text();
+
             //描述
             serviceProviderRating.content = element.getElementsByClass("content").text();
+
             //发布时间
             String time = element.getElementsByClass("commented-time").text();
             try {
                 serviceProviderRating.pubdate = DateFormatUtil.parseTime(time);
             } catch (ParseException e) {
                 e.printStackTrace();
-            }
-            //项目花费
-            String spand = element.getElementsByClass("budget-interval").text();
-            if(spand.contains("~")){
-                String[] spands = spand.split("~");
-                serviceProviderRating.price = Integer.valueOf(CrawlerAction.getNumbers(spands[0]));
-                serviceProviderRating.price = Integer.valueOf(CrawlerAction.getNumbers(spands[1]));
             }
 
             //项目URL
@@ -91,22 +93,27 @@ public class ServiceRatingTask extends Task {
             while (matcher2.find()) {
                 try {
                     String projectUrl = "https://www.mihuashi.com"+matcher2.group();
-                    serviceProviderRating.project_id = projectUrl;
+                    serviceProviderRating.project_id = one.rewind.txt.StringUtil.byteArrayToHex(
+		                    one.rewind.txt.StringUtil.uuid(projectUrl));
+
                     Task t = new ProjectTask(projectUrl);
                     tasks.add(t);
+
                 } catch (Exception e) {
                     logger.error(e);
                 }
             }
 
+
+
             serviceProviderRating.insert();
 
         }
 
-        /*for(Task t : tasks){
+        for(Task t : tasks){
             t.setBuildDom();
             ChromeDriverRequester.getInstance().submit(t);
-        }*/
+        }
     }
 
     @Override

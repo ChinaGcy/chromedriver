@@ -29,7 +29,7 @@ public class ServiceSupplierTaskTest {
 		String usernameCssPath = "#login-app > main > section > section.session__form-wrapper > section > div:nth-child(1) > input";
 		String passwordCssPath = "#login-app > main > section > section.session__form-wrapper > section > div:nth-child(2) > input";
 		String loginButtonCssPath = "#login-app > main > section > section.session__form-wrapper > section > div:nth-child(3) > button";
-		Account account = new AccountImpl(url,"zhangsheng@315free.com","123456");
+		Account account = new AccountImpl(url,"18618490756","123456");
 		Task task = new Task(url);
 		task.addAction(new LoginWithGeetestClouderWork(account,url,usernameCssPath,passwordCssPath,loginButtonCssPath));
 		task.setBuildDom();

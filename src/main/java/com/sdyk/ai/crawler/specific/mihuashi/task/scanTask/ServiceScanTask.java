@@ -3,9 +3,10 @@ package com.sdyk.ai.crawler.specific.mihuashi.task.scanTask;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceSupplierTask;
-import com.sdyk.ai.crawler.specific.mihuashi.action.TendererRatingActive;
+import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
@@ -22,34 +23,45 @@ import java.util.regex.Pattern;
 
 public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.ScanTask {
 
+    public String workFilePath = "#users-show > div.container-fluid > div.profile__container > main > header > ul > li:nth-child(2) > a";
+
+    public String morePath = "#vue-comments-app > div:nth-child(2) > a";
+
     public static ServiceScanTask generateTask(int page) {
 
         StringBuffer url = new StringBuffer("https://www.mihuashi.com/artists?page=");
         url.append(page);
+
         try {
             ServiceScanTask t = new ServiceScanTask(url.toString(),page);
             return t;
         } catch (MalformedURLException e) {
-            logger.info("error on creat serviceScanTask",e);
+            logger.error("error for creat serviceScanTask",e);
         } catch (URISyntaxException e) {
-            logger.info("error on creat serviceScanTask",e);
+            logger.error("error for creat serviceScanTask",e);
         }
+
         return null;
     }
 
 
     public ServiceScanTask(String url,int page) throws MalformedURLException, URISyntaxException {
+
         super(url);
+
         this.setPriority(Priority.HIGH);
         this.setBuildDom();
         this.addDoneCallback(() -> {
 
             String pagePath = "#artists-index > div.container-fluid > div.container > div > div > nav > span.last > a";
+
             List<Task> task = new ArrayList<>();
             Document doc = getResponse().getDoc();
             String src = getResponse().getText();
+
             Pattern pattern = Pattern.compile("/users/(?<username>.+?)\\?role=painter");
             Matcher matcher = pattern.matcher(src);
+
             Set<String> usernames = new HashSet<>();
             while(matcher.find()) {
                 try {
@@ -58,18 +70,24 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
                     e.printStackTrace();
                 }
             }
+
             for(String un : usernames){
                 try {
+
                     //添加抓取服务商信息任务
-                    task.add(new ServiceSupplierTask("https://www.mihuashi.com/users/"+un+"?role=painter"));
+                    Task taskW = new ServiceSupplierTask("https://www.mihuashi.com/users/"+un+"?role=painter");
+                    task.add(taskW);
+
                     //添加服务商评价任务
                     Task taskSR = new ServiceRatingTask("https://www.mihuashi.com/users/"+un+"?role=painter&rating=true");
-                    taskSR.addAction(new TendererRatingActive("https://www.mihuashi.com/users/"+un+"?role=painter&rating=true"));
+                    taskSR.addAction(new ClickAction( workFilePath ));
+                    taskSR.addAction(new LoadMoreContentAction(morePath));
                     task.add(taskSR);
+
                 } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                    logger.error("error for creat task", e);
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    logger.error("error for creat task", e);
                 }
             }
 
@@ -82,9 +100,11 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
                     task.add(t);
                 }
             }
+
             for(Task t : task) {
                 ChromeDriverRequester.getInstance().submit(t);
             }
+
         });
     }
 
@@ -97,13 +117,16 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
      */
     @Override
     public boolean pageTurning(String path, int page) {
+
         boolean pageTurningFlag = true;
         Document doc = getResponse().getDoc();
+
         try{
             String nextPage = doc.select(path).text();
         }catch (Exception e){
             pageTurningFlag = false;
         }
+
         return pageTurningFlag;
     }
 

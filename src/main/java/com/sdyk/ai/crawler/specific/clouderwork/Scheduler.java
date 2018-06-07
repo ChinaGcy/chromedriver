@@ -47,7 +47,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 
         scanTaskList.add(ServiceScanTask.generateTask(1));
 
-        scanTaskList.add(ProjectScanTask.generateTask(60));
+        scanTaskList.add(ProjectScanTask.generateTask(1));
 
         return  scanTaskList;
     }
@@ -76,7 +76,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
             new ServiceWrapper();
         }).start();
 
-        Scheduler scheduler = new Scheduler("passport.clouderwork.com", 2);
+        Scheduler scheduler = new Scheduler("passport.clouderwork.com", 4);
         if(args.length>0){
             scheduler.monitoring();
         }else{

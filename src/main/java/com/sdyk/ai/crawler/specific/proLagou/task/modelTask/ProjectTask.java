@@ -45,19 +45,27 @@ public class ProjectTask extends Task {
     public void crawlJob(Document doc){
 
         project = new Project(getUrl());
-        //project.domain = 1;
+
+        project.domain_id = 3;
+
         //项目名
         String title = doc.select("#project_detail > div.project_info.fl > div.title > div").text();
+
+        project.origin_id = getUrl().split("project/")[1].replace(".html","");
+
         //状态
         String currentStatus = doc.select("#project_detail > div.project_info.fl > div.title > div > span").text();
         if(currentStatus!=null&&!"".equals(currentStatus)){
             title = title.replace("currentStatus","");
         }
         project.title = title;
+
         //类型
         project.category = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)").text();
+
         //招标人
         project.tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
+
         //发布时间
         String pubdata = doc.select("#project_detail > div.project_info.fl > ul:nth-child(3) > li:nth-child(1) > span:nth-child(3)").text();
         if(pubdata!=null&&!"".equals(pubdata)){
@@ -68,15 +76,19 @@ public class ProjectTask extends Task {
                 logger.error("error on String"+ pubdata +"to Data",e);
             }
         }
+
         //小标签
         project.tags = doc.select("#project_detail > div.project_info.fl > div.category_list").text();
-        //以投标人数
+
+        //已投标人数
         String num = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(2) > div.txt > strong").text();
         if(num!=null&&!"".equals(num)){
             project.bids_num = Integer.valueOf(num);
         }
+
         //工期
         String tineLimt = doc.select("#project_detail > div.project_panel.fr > div:nth-child(2) > span.short_val").text();
+
         //预算
         String budget = doc.select("#project_detail > div.project_panel.fr > div:nth-child(1) > span.short_val").text().replace("元","").replace("以下","");
         if(budget!=null&&!"".equals(budget)){
@@ -89,8 +101,12 @@ public class ProjectTask extends Task {
                 project.budget_lb = Integer.valueOf(budget);
             }
         }
+
         //描述
-        project.content = doc.select("#project_detail > div.project_info.fl > div.project_content > div.project_txt > pre").html();
+        project.content = "<pre>" +
+		        doc.select("#project_detail > div.project_info.fl > div.project_content > div.project_txt > pre")
+				        .html() + "</pre>";
+
         //浏览人数
         String browse = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(3) > div.txt > strong").text();
         if(browse!=null&&!"".equals(browse)){

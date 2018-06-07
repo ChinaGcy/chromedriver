@@ -25,7 +25,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
     public TendererTask(String url) throws MalformedURLException, URISyntaxException {
 
         super(url);
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
         this.setBuildDom();
         this.addDoneCallback(()->{
             Document doc = getResponse().getDoc();
@@ -48,21 +48,50 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
         while(matcher.find()) {
             try {
                 String web = URLDecoder.decode(matcher.group("username"), "UTF-8")+"?role=employer";
-                tenderer.origin_id = web;
+                tenderer.origin_id = URLDecoder.decode(matcher.group("username"), "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-        //名称
-        tenderer.name = doc.getElementsByClass("name").text();
+
+        //公司名称
+	    String companyName = tenderer.origin_id;
+        if( companyName!=null && !"".equals(companyName) ){
+
+	        if( companyName.contains("公司") ){
+		        tenderer.company_name = companyName;
+		        //名称
+		        tenderer.name = companyName;
+	        }
+	        //不是公司
+	        else{
+		        tenderer.name = companyName;
+	        }
+
+        }
+        //不存在公司标签
+        else {
+        	tenderer.name = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > h5").text();
+        }
+
+
         //评价数
         String ratingNum = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span").text();
         ratingNum = CrawlerAction.getNumbers(ratingNum);
         if(ratingNum!=null&&!"".equals(ratingNum)){
             tenderer.rating_num = Integer.valueOf(ratingNum);
         }
+
         //简介
-        tenderer.content = doc.getElementsByClass("profile__summary-wrapper").text();
+        tenderer.content = doc.getElementsByClass("profile__summary-wrapper").html();
+
+        //平台项目数
+	    String projecrs = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span")
+			    .text();
+	    if( projecrs!=null && !"".equals(projecrs) ) {
+		    tenderer.total_project_num = Integer.valueOf(projecrs);
+		    tenderer.trade_num = tenderer.total_project_num;
+	    }
 
         Elements elements =doc.getElementsByClass("project-cell__title-link");
         for(Element element : elements){
@@ -75,10 +104,12 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
                 e.printStackTrace();
             }
         }
+
         for(Task t : task){
-            t.setBuildDom();
-            ChromeDriverRequester.getInstance().submit(t);
-        }
+		    t.setBuildDom();
+		    ChromeDriverRequester.getInstance().submit(t);
+	    }
+
         tenderer.insert();
     }
 

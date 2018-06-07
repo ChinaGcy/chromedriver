@@ -1,20 +1,15 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.scanTask;
 
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.mihuashi.action.TendererRatingActive;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask;
-import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceSupplierTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -70,7 +65,7 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
 
             String src = doc.select("#projects > div.grid-col-10 > div.projects__list").toString();
             // 设置页面路径
-            String pagePath = "#projects-index > div.container-fluid > div.container > div > div > nav > span.last > a";
+            String pagePath = "last";
 
             // A 获取项目任务 TODO 注意去重
             Pattern pattern = Pattern.compile("(?<=/projects/)\\d+");
@@ -85,8 +80,10 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
             }
             for(String un : usernames){
                 try {
+
                     //添加抓取服务商信息任务
                     task.add(new ProjectTask(un));
+
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (URISyntaxException e) {
@@ -124,7 +121,10 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
         boolean pageTurningFlag = true;
         Document doc = getResponse().getDoc();
         try{
-            String pagr = doc.select(path).text();
+            String pagr = doc.getElementsByClass("last").text();
+            if( pagr == null || "".equals(pagr) ) {
+                pageTurningFlag = false;
+            }
         }catch (Exception e){
             pageTurningFlag = false;
         }

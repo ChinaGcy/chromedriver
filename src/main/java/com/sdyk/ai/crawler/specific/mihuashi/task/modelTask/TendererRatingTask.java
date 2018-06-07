@@ -31,6 +31,7 @@ public class TendererRatingTask extends Task {
     }
 
     public void crawlawJob(Document doc){
+
         //雇主url
         Pattern pattern = Pattern.compile("/users/(?<username>.+?)\\?role=employer");
         Matcher matcher = pattern.matcher(getUrl());
@@ -42,20 +43,51 @@ public class TendererRatingTask extends Task {
                 e.printStackTrace();
             }
         }
+
         //抓取评价
         Elements elements = doc.getElementsByClass("profile__comment-cell");
         int i =1;
         for(Element element : elements){
             TendererRating tendererRating = new TendererRating(getUrl()+"&num="+i);
             i++;
-            //雇主URl
-            tendererRating.user_id = web;
+
+            //雇主id
+            tendererRating.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(web));
+
             //服务商名称
-          //  tendererRating.facilitator_name = element.getElementsByClass("name").text();
-            //服务商URL
-         //   tendererRating.facilitator_url = element.getElementsByClass("name").attr("href");
+            tendererRating.service_provider_name = element.getElementsByClass("name").text();
+
+            String allStr = element.toString();
+	        Pattern pattern1 = Pattern.compile("(?<=/projects/)\\d+");
+	        Matcher matcher1 = pattern1.matcher(allStr);
+	        while (matcher1.find()) {
+		        try {
+			        String projectUrl = "https://www.mihuashi.com/projects/" + matcher1.group();
+
+			        //项目ID
+			        tendererRating.project_id = one.rewind.txt.StringUtil.byteArrayToHex(
+			        		one.rewind.txt.StringUtil.uuid(projectUrl));
+
+		        } catch (Exception e) {
+			        logger.error(e);
+		        }
+	        }
+
+	        //项目名称
+			Elements elementsName = element.getElementsByClass("name");
+	        tendererRating.project_name = elementsName.get(0).text();
+
+            //服务商ID
+            tendererRating.service_provider_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(
+		            elementsName.get(1).attr("href")
+            ));
+
+            //服务商名字
+	        tendererRating.service_provider_name = elementsName.get(1).text();
+
             //评价
             tendererRating.content = element.getElementsByClass("content").text();
+
             //评价时间
             String time = element.getElementsByClass("commented-time").text();
             try {
@@ -63,7 +95,14 @@ public class TendererRatingTask extends Task {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            tendererRating.insert();
+
+	        //合作愉快度
+	        Elements happy = element.getElementsByClass("fa fa-star selected");
+	        int happyNum = happy.size();
+	        tendererRating.coop_rating = (happyNum/3);
+
+	        System.out.println(tendererRating.toJSON());
+	        tendererRating.insert();
         }
     }
 

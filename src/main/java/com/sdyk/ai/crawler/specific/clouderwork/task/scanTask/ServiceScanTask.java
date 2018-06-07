@@ -8,10 +8,16 @@ import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceSupplierTa
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ServiceScanTask extends com.sdyk.ai.crawler.specific.clouderwork.task.ScanTask {
     public static ServiceScanTask generateTask(int page) {
@@ -43,33 +49,47 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.clouderwork.ta
         this.setPriority(Priority.HIGH);
         this.setBuildDom();
 
-        String sign = "users";
         this.addDoneCallback(() -> {
-            String src = getResponse().getDoc().text().replace("/U",",U ");
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
-            List<Task> tasks = new ArrayList<>();
-            try {
-                JsonNode node = mapper.readTree(src).get("users");
-                for(int i = 0;i<node.size();i++){
-                    tasks.add(new ServiceSupplierTask("https://www.clouderwork.com/freelancers/"+node.get(i).get("id").toString().replace("\"","")));
+
+            String src = getResponse().getDoc().text();
+
+            Pattern pattern = Pattern.compile("\"id\":\"(?<username>.{16}?)\",\"plus_type\"");
+            Matcher matcher = pattern.matcher(src);
+
+            Set<String> usernames = new HashSet<>();
+
+            while(matcher.find()) {
+                try {
+                    usernames.add(URLDecoder.decode(matcher.group("username"), "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
-                logger.info("ServiceSupplierTaskSize",tasks.size());
-            } catch (IOException e) {
-                logger.info("error on String to Json",e);
-            } catch (URISyntaxException e) {
-                logger.info("error on add task",e);
             }
 
+            List<Task> task = new ArrayList<>();
 
-            if(pageTurning("service", page)){
-                Task t = ServiceScanTask.generateTask(page+1);
-                tasks.add(t);
+            for(String user : usernames){
+                String pUrl = "https://www.clouderwork.com/freelancers/" + user;
+                try {
+                    task.add(new ServiceSupplierTask(pUrl));
+                } catch (MalformedURLException e) {
+                    logger.error("error on creat task", e);
+                } catch (URISyntaxException e) {
+                    logger.error("error on creat task", e);
+                }
             }
 
-            logger.info("Task driverCount: {}", tasks.size());
+            if( usernames.size()>0 ){
+                Task t = generateTask(page + 1);
+                if (t != null) {
+                    t.setPriority(Priority.HIGH);
+                    task.add(t);
+                }
+            }
 
-            for(Task t : tasks) {
+            logger.info("Task driverCount: {}", task.size());
+
+            for(Task t : task) {
                 ChromeDriverRequester.getInstance().submit(t);
             }
 

@@ -83,7 +83,7 @@ public abstract class Scheduler {
 			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
 
 			// 创建阿里云host
-			AliyunHost.batchBuild(driverCount);
+			//AliyunHost.batchBuild(driverCount);
 
 			// 删除所有docker container
 			DockerHostManager.getInstance().delAllDockerContainers();

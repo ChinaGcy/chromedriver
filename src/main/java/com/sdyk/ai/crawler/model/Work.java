@@ -15,7 +15,7 @@ import one.rewind.db.DBName;
 public class Work extends Model {
 
 	// 服务商id
-	@DatabaseField(dataType = DataType.STRING, width = 16)
+	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String user_id;
 
 	// 雇主名
