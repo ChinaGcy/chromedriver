@@ -101,7 +101,6 @@ public class TendererRatingTask extends Task {
 	        int happyNum = happy.size();
 	        tendererRating.coop_rating = (happyNum/3);
 
-	        System.out.println(tendererRating.toJSON());
 	        tendererRating.insert();
         }
     }

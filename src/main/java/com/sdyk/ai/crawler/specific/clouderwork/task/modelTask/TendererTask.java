@@ -21,7 +21,7 @@ public class TendererTask extends Task {
 
     public TendererTask(String url) throws MalformedURLException, URISyntaxException {
         super(url);
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
         this.setBuildDom();
 
         this.addDoneCallback(()->{

@@ -26,10 +26,11 @@ public class Requester extends ChromeDriverRequester {
 			"http://www.zbj.com",
 			"https://passport.clouderwork.com/signin",
 			"https://www.mihuashi.com/login",
-			"https://passport.lagou.com/pro/login.html"
+			"https://passport.lagou.com/pro/login.html",
+			"http://www.shichangbu.com/member.php?mod=logging&action=login"
 	);
 
-	//
+
 	public static ConcurrentHashMap<String, Integer> taskStat = new ConcurrentHashMap<>();
 
 	public Requester() {}

@@ -24,11 +24,20 @@ public class ServiceSupplierTask extends com.sdyk.ai.crawler.task.Task {
 		this.setPriority(Priority.HIGH);
 		this.setBuildDom();
 		this.addDoneCallback(() -> {
+
 			Document doc = getResponse().getDoc();
-			try {
-				crawlerJob(doc);
-			} catch (ChromeDriverException.IllegalStatusException e) {
-				logger.info("error on crawlerJob",e);
+			String src = getResponse().getText();
+
+			if( src.contains("迷路啦") || src.contains("非常抱歉") ) {
+				return;
+			}
+			//页面正常
+			else{
+				try {
+					crawlerJob(doc);
+				} catch (ChromeDriverException.IllegalStatusException e) {
+					logger.info("error on crawlerJob",e);
+				}
 			}
 
 		});

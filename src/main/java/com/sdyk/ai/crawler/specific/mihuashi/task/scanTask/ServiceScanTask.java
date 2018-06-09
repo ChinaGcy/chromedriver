@@ -123,6 +123,7 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
 
         try{
             String nextPage = doc.select(path).text();
+            if ( nextPage == null || "".equals(nextPage) ) {}
         }catch (Exception e){
             pageTurningFlag = false;
         }

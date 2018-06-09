@@ -27,7 +27,7 @@ public class ServiceSupplierTask extends Task {
 
     public ServiceSupplierTask(String url) throws MalformedURLException, URISyntaxException {
         super(url);
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
         this.setBuildDom();
         this.addDoneCallback(() -> {
 
@@ -282,7 +282,6 @@ public class ServiceSupplierTask extends Task {
             }
             try {
                 resume.insert();
-                logger.info(resume.toJSON());
             } catch (Exception e) {
                 logger.error("error on insert resume", e);
             }

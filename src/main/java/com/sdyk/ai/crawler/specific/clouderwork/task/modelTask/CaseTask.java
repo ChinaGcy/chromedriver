@@ -11,7 +11,7 @@ public class CaseTask extends Task {
     public CaseTask(String url,String useUrl) throws MalformedURLException, URISyntaxException {
 
         super(url);
-        this.setBuildDom();
+        this.setPriority(Priority.MEDIUM);
         this.addDoneCallback(() -> {
 
             Document doc = getResponse().getDoc();

@@ -80,6 +80,9 @@ public class ProjectTask extends Task {
 		String renzheng = doc.select("#project-name > span").text();
 		project.title = title.replace(renzheng,"");
 
+		//原网站ID
+		project.origin_id = getUrl().split("projects/")[1];
+
 		//抓取发布时间
 		String time = doc.select("#projects-show > div.container-fluid > div.project__main-section > div.project__info-section > section > section > div.pull-left > p")
 				.text().replace("企划发布于","").replace("\"","");

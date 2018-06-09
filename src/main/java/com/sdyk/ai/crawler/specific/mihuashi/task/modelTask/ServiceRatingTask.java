@@ -104,8 +104,6 @@ public class ServiceRatingTask extends Task {
                 }
             }
 
-
-
             serviceProviderRating.insert();
 
         }

@@ -55,23 +55,26 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
         }
 
         //公司名称
-	    String companyName = tenderer.origin_id;
+	    String companyName = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > h5 > span").text();
         if( companyName!=null && !"".equals(companyName) ){
 
-	        if( companyName.contains("公司") ){
+	        if( companyName.contains("公司") || companyName.contains("工作室") ){
 		        tenderer.company_name = companyName;
 		        //名称
 		        tenderer.name = companyName;
+		        tenderer.tender_type = "团体-公司";
 	        }
 	        //不是公司
 	        else{
 		        tenderer.name = companyName;
+		        tenderer.tender_type = "个人";
 	        }
 
         }
         //不存在公司标签
         else {
         	tenderer.name = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > h5").text();
+	        tenderer.tender_type = "个人";
         }
 
 
@@ -108,6 +111,10 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
         for(Task t : task){
 		    t.setBuildDom();
 		    ChromeDriverRequester.getInstance().submit(t);
+	    }
+
+	    if( tenderer.tender_type==null || !tenderer.tender_type.equals("团体-公司") ) {
+        	tenderer.tender_type = "个人";
 	    }
 
         tenderer.insert();
