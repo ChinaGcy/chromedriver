@@ -33,6 +33,8 @@ public class CaseTask extends Task {
 				if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
 					ca = new Case(getUrl());
 
+					ca.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid("https://shop.zbj.com/" + getUrl().split("/")[3] + "/"));
+
 					if (!getUrl().contains("https://shop.tianpeng.com")) {
 						// 猪八戒页面：http://shop.zbj.com/7523816/sid-696012.html
 						try {
@@ -53,7 +55,7 @@ public class CaseTask extends Task {
 					String description_src = doc.select("#J-content").html();
 
 					try {
-						ca.description = download(description_src);
+						ca.content = download(description_src);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -116,13 +118,11 @@ public class CaseTask extends Task {
 	 */
 	public void pageOne (Document doc) {
 
-		ca.user_id = getUrl().split("/")[3];
-
 		ca.title = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2",
 				"");
 
 		// body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong
-		ca.cycle = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong",
+		ca.time_limit = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong",
 				"");
 
 		// 价格预算
@@ -148,21 +148,15 @@ public class CaseTask extends Task {
 
 		// 获取服务描述
 		String caseTask_des = "";
-		try {
-			caseTask_des = getString("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property",
+
+		caseTask_des = getString("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property",
 					"");
-		} catch (NoSuchElementException e) { }
+		ca.tags = caseTask_des;
 
 		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
 		Matcher matcher_tags = pattern_tags.matcher(caseTask_des);
-
-		ca.category = caseTask_des;
-
 		if (matcher_tags.find()) {
-			ca.tags = matcher_tags.group("T");
-		}
-		else {
-			ca.tags = "";
+			ca.category = matcher_tags.group("T");
 		}
 	}
 
@@ -171,19 +165,17 @@ public class CaseTask extends Task {
 	 */
 	public void pageTwo(Document doc) {
 
-		ca.user_id = getUrl().split("/")[3];
 		ca.title = doc.select("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2").text();
 
 		budgetTPW(doc);
 
-		ca.category = doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
+		ca.tags = doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
 				.text();
 
 		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
 		Matcher matcher_tags = pattern_tags.matcher(ca.category);
-
 		if (matcher_tags.find()) {
-			ca.tags = matcher_tags.group("T");
+			ca.category = matcher_tags.group("T");
 		}
 	}
 }

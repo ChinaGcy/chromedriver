@@ -9,7 +9,7 @@ import one.rewind.db.DBName;
  * 二进制文件
  * 网页下载资源 （文档/图片）
  */
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "binaries")
 public class Binary extends Model {
 

@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.model.Project;
-import com.sdyk.ai.crawler.specific.zbj.model.EvalProjects;
+import com.sdyk.ai.crawler.specific.zbj.model.ProjectEval;
 import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
 
 /**
@@ -12,7 +12,7 @@ public class GetProjectContactTask extends com.sdyk.ai.crawler.specific.zbj.task
 
 	public Project project;
 
-	public EvalProjects evalProjects;
+	public ProjectEval evalProjects;
 
 	public static GetProjectContactTask getTask(Project project) {
 

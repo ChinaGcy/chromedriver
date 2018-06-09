@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * 服务商评价
  */
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "tenderer_ratings")
 public class TendererRating extends Model {
 

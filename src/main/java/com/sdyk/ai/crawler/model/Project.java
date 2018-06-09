@@ -1,16 +1,23 @@
 package com.sdyk.ai.crawler.model;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
+import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
+import com.sdyk.ai.crawler.util.Range;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 import one.rewind.txt.URLUtil;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.Date;
 
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "projects")
 public class Project extends Model {
 
@@ -48,11 +55,13 @@ public class Project extends Model {
 
 	// 预算下限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_lb;
+	public transient double budget_lb;
 
 	// 预算上限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_ub;
+	public transient double budget_ub;
+
+	public Range budget;
 
 	// 工期
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
@@ -134,5 +143,53 @@ public class Project extends Model {
 
 	public Project(String url) {
 		super(url);
+	}
+
+	public void fullfill() {
+		this.budget = new Range(this.budget_lb, this.budget_ub, true);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean insert() {
+
+		this.fullfill();
+
+		try {
+
+			Dao dao = DaoManager.getDao(this.getClass());
+			dao.create(this);
+
+			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
+
+			return true;
+		}
+		catch (SQLException e) {
+
+			// 数据库中已经存在记录
+			if(e.getCause().getMessage().contains("Duplicate")) {
+
+				try {
+					ProjectSnapshot projectSnapshot = new ProjectSnapshot(this);
+					projectSnapshot.insert();
+					return true;
+				} catch (NoSuchFieldException | IllegalAccessException ex) {
+					logger.error("Error insert snapshot. ", ex);
+					return false;
+				}
+			}
+			// 可能是采集数据本事存在问题
+			else {
+				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+				return false;
+			}
+		}
+		// 数据库连接问题
+		catch (Exception e) {
+			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+			return false;
+		}
 	}
 }

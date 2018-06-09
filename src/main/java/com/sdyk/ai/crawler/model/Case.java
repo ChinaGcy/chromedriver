@@ -3,11 +3,15 @@ package com.sdyk.ai.crawler.model;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.util.Range;
 import one.rewind.db.DBName;
 
 import java.util.Date;
 
-@DBName(value = "crawler")
+/**
+ * 服务
+ */
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "cases")
 public class Case extends Model {
 
@@ -26,28 +30,15 @@ public class Case extends Model {
 	// 标签
 	@DatabaseField(dataType = DataType.STRING, width = 512)
 	public String tags;
-
-	// 开始时间
-	@DatabaseField(dataType = DataType.DATE)
-	public Date sd;
-
-	// 结束时间
-	@DatabaseField(dataType = DataType.DATE)
-	public Date ed;
-
-	// 是否在进行中
-	@DatabaseField(dataType = DataType.INTEGER, width = 1)
-	public int ongoing;
-
 	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String description;
+	public String content;
 
 	// 周期
 	// TODO 应该以天数为单位，float类型
 	// 1天 = 8小时
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String cycle;
+	public String time_limit;
 
 	// 响应时间
 	@DatabaseField(dataType = DataType.STRING, width = 32)
@@ -71,11 +62,13 @@ public class Case extends Model {
 
 	// 预算上限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_ub;
+	public transient double budget_ub;
 
 	// 预算下限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double budget_lb;
+	public transient double budget_lb;
+
+	public Range budget;
 
 	// 客户评分
 	@DatabaseField(dataType = DataType.FLOAT)
@@ -89,5 +82,20 @@ public class Case extends Model {
 
 	public Case(String url) {
 		super(url);
+	}
+
+	public void fullfill() {
+		this.budget = new Range(this.budget_lb, this.budget_ub, true);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean insert() {
+
+		this.fullfill();
+
+		return super.insert();
 	}
 }

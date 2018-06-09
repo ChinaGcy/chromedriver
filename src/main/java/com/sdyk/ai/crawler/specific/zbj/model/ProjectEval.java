@@ -9,25 +9,33 @@ import one.rewind.db.DBName;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
-@DBName(value = "crawler")
-@DatabaseTable(tableName = "eval_projects")
-public class EvalProjects extends Model{
+@DBName(value = "sdyk_raw_eval")
+@DatabaseTable(tableName = "project_evals")
+public class ProjectEval extends Model{
 
-	@DatabaseField(dataType = DataType.STRING, width = 64)
+	// 标签
+	@DatabaseField(dataType = DataType.STRING, width = 512)
 	public String tags;
 
-	@DatabaseField(dataType = DataType.STRING, width = 32)
+	// 联系方式
+	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String cellphone;
 
+	// 综合标签打分
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public double rating;
 
+	// 原网站标签打分
+	@DatabaseField(dataType = DataType.DOUBLE)
+	public double domain_rating;
+
+	// 价格
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public double cost;
 
-	public EvalProjects() {}
+	public ProjectEval() {}
 
-	public EvalProjects(String url) {
+	public ProjectEval(String url) {
 		super(url);
 	}
 }

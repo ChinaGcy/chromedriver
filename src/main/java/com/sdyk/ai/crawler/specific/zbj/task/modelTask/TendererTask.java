@@ -4,7 +4,6 @@ import com.sdyk.ai.crawler.model.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.NoSuchElementException;
 import one.rewind.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
@@ -37,19 +36,19 @@ public class TendererTask extends Task {
 				tenderer.name = getString(
 						"#utopia_widget_1 > div > div.topinfo-top > div > h2",
 						"");
-				try {
-					tenderer.location = getString(
-							"#utopia_widget_1 > div > div.topinfo-top > div > div > span.location",
-							"");
-				} catch (NoSuchElementException e) {
-					tenderer.location = "";
+
+				tenderer.location = getString(
+						"#utopia_widget_1 > div > div.topinfo-top > div > div > span.location",
+						"");
+
+				if (doc.select("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login")
+						.text().contains("个月前")) {
+
 				}
 				try {
 					tenderer.login_time =
 							DateFormatUtil.parseTime(doc.select("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login")
 									.text());
-				} catch (NoSuchElementException e) {
-					tenderer.login_time = null;
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
@@ -66,7 +65,7 @@ public class TendererTask extends Task {
 						doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-time > div.statistics-item-val")
 								.text();
 
-				tenderer.company_type =
+				tenderer.company_scale =
 						doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-scale > div.statistics-item-val")
 								.text();
 
@@ -78,13 +77,10 @@ public class TendererTask extends Task {
 
 				tenderer.total_spending =
 						Double.parseDouble(doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-pay > div.statistics-item-val > strong")
-								.text().replaceAll(",", ""));
+								.text()
+								.replaceAll(",", ""));
 
-				try {
-					tenderer.insert();
-				} catch (Exception e) {
-					logger.error(e);
-				}
+				tenderer.insert();
 
 				// 添加projectTask
 				tasks.add(TendererOrderTask.generateTask(getUrl(), 1, tenderer.origin_id));

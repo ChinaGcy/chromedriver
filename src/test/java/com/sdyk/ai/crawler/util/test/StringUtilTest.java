@@ -1,14 +1,13 @@
 package com.sdyk.ai.crawler.util.test;
 
+import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.util.StringUtil;
 
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -181,4 +180,12 @@ public class StringUtilTest {
 		System.err.println(one.rewind.txt.StringUtil.MD5("http://task.zbj.com/5190852/"));
 	}
 
+	@Test
+	public void ttest() {
+		Date date = new Date(System.currentTimeMillis());
+		Date date1 = new Date(System.currentTimeMillis() + 60*1000*60);
+
+		System.err.println(date1);
+
+	}
 }

@@ -16,12 +16,12 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceSupplierTask extends Task {
+public class ServiceProviderTask extends Task {
 
 	// 实例化
 	ServiceProvider serviceProvider;
 
-	public ServiceSupplierTask(String url) throws MalformedURLException, URISyntaxException {
+	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 		this.setPriority(Priority.MEDIUM);
@@ -62,7 +62,7 @@ public class ServiceSupplierTask extends Task {
 					logger.error("insert/update error {}", e);
 				}
 				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-				tasks.add(ServiceRatingTask.generateTask(serviceProvider.origin_id, 1));
+				tasks.add(ServiceProviderRatingTask.generateTask(serviceProvider.origin_id, 1));
 				tasks.add(CaseScanTask.generateTask(serviceProvider.origin_id, 1));
 				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
@@ -108,8 +108,8 @@ public class ServiceSupplierTask extends Task {
 						.replaceAll(" *人", "");
 
 				if (!(text.equals("") || text == null)) {
-					//serviceProvider.collection_num = Integer
-					//		.parseInt(text);
+					serviceProvider.fav_num = Integer
+							.parseInt(text);
 				}
 			}
 
@@ -153,7 +153,7 @@ public class ServiceSupplierTask extends Task {
 			serviceProvider.praise_num = Integer.parseInt(doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-right > div:nth-child(3) > div.shop-evaluation-newstyle > div > div > div > div > div.filter-comment.J-filter-comment.lh-25 > label.icon-wrap.good.highlight > span")
 					.text()
 					.replace("好评(", "").replace(")", ""));
-			serviceProvider.bad_review_num = Integer.parseInt(doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-right > div:nth-child(3) > div.shop-evaluation-newstyle > div > div > div > div > div.filter-comment.J-filter-comment.lh-25 > label.icon-wrap.bad > span")
+			serviceProvider.negative_num = Integer.parseInt(doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-right > div:nth-child(3) > div.shop-evaluation-newstyle > div > div > div > div > div.filter-comment.J-filter-comment.lh-25 > label.icon-wrap.bad > span")
 					.text()
 					.replace("差评(", "").replace(")", ""));
 		} catch (NumberFormatException e) {}
@@ -256,7 +256,7 @@ public class ServiceSupplierTask extends Task {
 					.text());
 		} catch (Exception e) {}
 		try {
-			serviceProvider.bad_review_num = Integer.parseInt(doc.select("body > div.main > div > div.wk-r > div:nth-child(3) > div.con.clearfix > div.shop-comment-bd > div.shop-comment-l > div > div:nth-child(4) > span:nth-child(3)")
+			serviceProvider.negative_num = Integer.parseInt(doc.select("body > div.main > div > div.wk-r > div:nth-child(3) > div.con.clearfix > div.shop-comment-bd > div.shop-comment-l > div > div:nth-child(4) > span:nth-child(3)")
 					.text());
 		} catch (Exception e) {}
 	}

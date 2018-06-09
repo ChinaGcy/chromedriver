@@ -14,19 +14,20 @@ mainClassName = 'com.sdyk.ai.crawler.specific.zbj.Scheduler'
 applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\"", "-Djava.library.path=/opt/opencv-3.4.1/build/lib"]
 
 repositories {
-    maven {
-        url "http://tfelab.org:60002/content/groups/public"
-        credentials {
-            username developer
-            password developer_password
-        }
-    }
+
     jcenter()
     maven {
         url "http://repo.maven.apache.org/maven2"
     }
     maven {
         url "https://jitpack.io"
+    }
+    maven {
+        url "http://tfelab.org:60002/content/groups/public"
+        credentials {
+            username developer
+            password developer_password
+        }
     }
     flatDir {
         dirs 'lib'
@@ -48,9 +49,11 @@ uploadArchives {
 
 dependencies {
 
-    compile 'one.rewind:common:1.0.81-SNAPSHOT'
+    compile 'one.rewind:common:1.0.84-SNAPSHOT'
 
     compile name: 'opencv-341'
+
+    compile group: 'org.elasticsearch.client', name: 'transport', version: '6.2.4'
 
     // https://mvnrepository.com/artifact/com.1stleg/jnativehook
     compile group: 'com.1stleg', name: 'jnativehook', version: '2.1.0'

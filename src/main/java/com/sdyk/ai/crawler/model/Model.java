@@ -3,6 +3,10 @@ package com.sdyk.ai.crawler.model;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
+import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
+import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
+import com.sdyk.ai.crawler.model.snapshot.ServiceProviderSnapshot;
+import com.sdyk.ai.crawler.model.snapshot.TendererSnapshot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
@@ -21,9 +25,9 @@ import java.util.regex.Pattern;
 /**
  *
  */
-public abstract class Model implements JSONable<Model> {
+public abstract class Model implements ESIndex {
 
-	private static final Logger logger = LogManager.getLogger(Model.class.getName());
+	public static final Logger logger = LogManager.getLogger(Model.class.getName());
 
 	public static Map<String, Dao> daoMap = new HashMap<>();
 
@@ -64,7 +68,7 @@ public abstract class Model implements JSONable<Model> {
 	public Date insert_time = new Date();
 
 	// 更新时间
-	@DatabaseField(dataType = DataType.DATE, index = true)
+	@DatabaseField(dataType = DataType.DATE)
 	public Date update_time = new Date();
 
 	public Model() {}
@@ -91,21 +95,39 @@ public abstract class Model implements JSONable<Model> {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean insert(){
+	public boolean insert() {
 
 		Dao dao = daoMap.get(this.getClass().getSimpleName());
 
 		try {
+
 			dao.create(this);
+
+			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.insertOne(this);
+
 			return true;
+
 		} catch (SQLException e) {
-			try {
-				Model model = (Model) dao.queryForId(this.id);
-				model.update_time = new Date();
-				model.update();
-				return true;
-			} catch (SQLException e1) {
-				logger.error("Insert Update error {}", e1);
+
+			// 数据库中已经存在记录
+			if(e.getCause().getMessage().contains("Duplicate")) {
+
+				try {
+
+					this.update();
+
+					if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
+
+					return true;
+
+				} catch (Exception ex) {
+					logger.error("Update error {}", ex);
+					return false;
+				}
+			}
+			// 可能是采集数据本事存在问题
+			else {
+				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
 				return false;
 			}
 		}
@@ -128,6 +150,11 @@ public abstract class Model implements JSONable<Model> {
 		}
 	}
 
+	/**
+	 *
+	 * @param src
+	 * @return
+	 */
 	public static String rewriteBinaryUrl(String src) {
 
 		if (src == null) {
@@ -144,4 +171,9 @@ public abstract class Model implements JSONable<Model> {
 		return src;
 	}
 
+	public String getId() {
+		return this.id;
+	}
+
+	public void fullfill() {}
 }

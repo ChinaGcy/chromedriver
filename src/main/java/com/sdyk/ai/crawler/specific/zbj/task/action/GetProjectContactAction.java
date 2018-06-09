@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.action;
 
-import com.sdyk.ai.crawler.specific.zbj.model.EvalProjects;
+import com.sdyk.ai.crawler.specific.zbj.model.ProjectEval;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.GeetestAction;
 import org.openqa.selenium.By;
@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 
 public class GetProjectContactAction extends ChromeAction {
 
-	EvalProjects evalProjects;
+	ProjectEval evalProjects;
 
 	// 投标按钮
 	// #taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > a
@@ -24,7 +24,7 @@ public class GetProjectContactAction extends ChromeAction {
 	// 确认投标按钮
 	public String confirmBidCssPath = ".ui-dialog-confirm > a";
 
-	public GetProjectContactAction(EvalProjects evalProjects) {
+	public GetProjectContactAction(ProjectEval evalProjects) {
 		this.evalProjects = evalProjects;
 	}
 

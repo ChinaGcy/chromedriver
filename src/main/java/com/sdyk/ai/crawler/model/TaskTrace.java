@@ -17,7 +17,7 @@ import java.util.Date;
  * 记录ScanTask翻页记录
  */
 @DatabaseTable(tableName = "task_traces")
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 public class TaskTrace implements JSONable {
 
 	private static final Logger logger = LogManager.getLogger(TaskTrace.class.getName());

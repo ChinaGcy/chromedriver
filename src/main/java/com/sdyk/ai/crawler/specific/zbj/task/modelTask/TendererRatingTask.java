@@ -61,7 +61,9 @@ public class TendererRatingTask extends ScanTask {
 
 						tendererRating = new TendererRating(getUrl() + "&" + i);
 
-						tendererRating.user_id = getUrl().split("\\?")[0];
+						tendererRating.user_id = one.rewind.txt.StringUtil.byteArrayToHex(
+								one.rewind.txt.StringUtil.uuid(
+										getUrl().split("\\?")[0]));
 
 						// 每个评价
 						ratingData(doc, i);
@@ -85,7 +87,6 @@ public class TendererRatingTask extends ScanTask {
 				}
 
 				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					t.setBuildDom();
 					ChromeDriverRequester.getInstance().submit(t);
 				}
 			}catch (Exception e) {
@@ -100,13 +101,14 @@ public class TendererRatingTask extends ScanTask {
 	 */
 	public void ratingData(Document doc, int i) {
 
-		/*tendererRating.facilitator_name =
+		tendererRating.service_provider_name =
 				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.who > a")
-						.text();*/
+						.text();
 
-		/*tendererRating.facilitator_url =
+		tendererRating.service_provider_id = one.rewind.txt.StringUtil.byteArrayToHex(
+				one.rewind.txt.StringUtil.uuid(
 				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-from > span.who > a")
-						.attr("href");*/
+						.attr("href").replace("http", "https") + "/"));
 
 		tendererRating.content =
 				shareData(doc, "#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-text > p")
@@ -159,14 +161,10 @@ public class TendererRatingTask extends ScanTask {
 		// 判断是否翻页
 		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul > li", page)) {
 
-			com.sdyk.ai.crawler.task.Task t = null;
-			try {
-				t = new TendererRatingTask("https://home.zbj.com/"
+			com.sdyk.ai.crawler.task.Task t =TendererRatingTask.generateTask("https://home.zbj.com/"
 						+ this.getParamString("userId"), ++page, this.getParamString("userId"));
-				return t;
-			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract channel: {}, ", getUrl(), e);
-			}
+			return t;
+
 		}
 		return null;
 	}

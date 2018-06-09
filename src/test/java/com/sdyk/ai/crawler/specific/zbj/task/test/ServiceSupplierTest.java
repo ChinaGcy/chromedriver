@@ -1,13 +1,12 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceRatingTask;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceSupplierTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Queue;
@@ -24,7 +23,7 @@ public class ServiceSupplierTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 		ChromeDriverRequester.getInstance().addAgent(agent);
 		agent.start();
-		ServiceSupplierTask serviceSupplierTask = new ServiceSupplierTask("http://shop.zbj.com/18751471/");
+		ServiceProviderTask serviceSupplierTask = new ServiceProviderTask("http://shop.zbj.com/18751471/");
 		serviceSupplierTask.setBuildDom();
 		ChromeDriverRequester.getInstance().submit(serviceSupplierTask);
 		try {
@@ -43,9 +42,9 @@ public class ServiceSupplierTest {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 		agent.start();
-		ServiceRatingTask serviceRatingTask = new ServiceRatingTask("http://shop.zbj.com/evaluation/evallist-uid-7394304-category-1-isLazyload-0-page-10.html", "7394304",10);
-		serviceRatingTask.setBuildDom();
-		agent.submit(serviceRatingTask);
+		ServiceProviderRatingTask serviceProviderRatingTask = new ServiceProviderRatingTask("http://shop.zbj.com/evaluation/evallist-uid-7394304-category-1-isLazyload-0-page-10.html", "7394304",10);
+		serviceProviderRatingTask.setBuildDom();
+		agent.submit(serviceProviderRatingTask);
 	}
 
 	/**
@@ -59,7 +58,7 @@ public class ServiceSupplierTest {
 
 		Queue<Task> taskQueue = new LinkedBlockingQueue<>();
 
-		taskQueue.add(new ServiceSupplierTask("http://shop.zbj.com/11622281/"));
+		taskQueue.add(new ServiceProviderTask("http://shop.zbj.com/11622281/"));
 
 		/*while(!taskQueue.isEmpty()) {
 			Task t = taskQueue.poll();

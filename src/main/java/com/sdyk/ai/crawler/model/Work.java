@@ -36,7 +36,7 @@ public class Work extends Model {
 
 	// 作品名称
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String work_name;
+	public String title;
 
 	// 收藏
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
@@ -50,9 +50,13 @@ public class Work extends Model {
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int view_num;
 
+	// 作品展示链接
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String external_url;
+
 	// 价格
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double pricee;
+	public double price;
 
 	public Work() {}
 

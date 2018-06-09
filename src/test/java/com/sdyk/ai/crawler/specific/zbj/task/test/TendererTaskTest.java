@@ -49,7 +49,7 @@ public class TendererTaskTest {
 		ChromeDriverRequester.getInstance().submit(task);
 
 
-		task = new TendererTask("https://home.zbj.com/10407343");
+		task = new TendererTask("https://home.zbj.com/13553582");
 		task.setBuildDom();
 		ChromeDriverRequester.getInstance().submit(task);
 

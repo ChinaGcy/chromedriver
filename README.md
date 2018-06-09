@@ -1,6 +1,7 @@
 添加Opencv的插件:
 VM option add:
  -Djava.library.path=D:\app\opencv\build\java\x64;D:\app\opencv\build\x64\vc15\bin
+  -Djava.library.path=C:\app\opencv3.4.1\opencv\build\java\x64;C:\app\opencv3.4.1\opencv\build\x64\vc15\bin
 
 创建阿里云主机
 详见AliyunHost.java

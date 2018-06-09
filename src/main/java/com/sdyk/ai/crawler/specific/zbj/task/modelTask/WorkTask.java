@@ -33,6 +33,10 @@ public class WorkTask extends Task {
 
 				work = new Work(getUrl());
 
+				work.user_id = one.rewind.txt.StringUtil.byteArrayToHex(
+						one.rewind.txt.StringUtil.uuid(
+								"https://shop.zbj.com/"+ user_id +"/"));
+
 				// 判断页面格式
 				if (getUrl().contains("zbj")) {
 					// 猪八戒
@@ -65,9 +69,8 @@ public class WorkTask extends Task {
 	 */
 	public void pageOne(Document doc) {
 
-		//work.name = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-head.fl > div")
-		//		.text();
-		work.user_id = this.getParamString("user_id");
+		work.title = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-head.fl > div")
+				.text();
 
 		// 获取work类型
 		String src_ = getString(
@@ -84,7 +87,7 @@ public class WorkTask extends Task {
 			work.tenderer_name = matcher.group("T");
 		}
 		if (matcher_type.find()) {
-		//	work.type = matcher_type.group("T");
+			work.tags = matcher_type.group("T");
 		}
 		if (matcher_field.find()) {
 			work.category = matcher_field.group("T");
@@ -94,16 +97,16 @@ public class WorkTask extends Task {
 		String description_src = doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-left.fl")
 				.html();
 
-	//	work.description = download(description_src)
-	//			.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
+		work.content = download(description_src)
+				.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
 
 		// 价格
 		if(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
 				.text().contains("面议")) {
-			work.pricee = 0.00;
+			work.price = 0.00;
 		} else {
 			try {
-				work.pricee = Double.parseDouble(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
+				work.price = Double.parseDouble(doc.select("body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-head > p.right-content")
 						.text().split("￥")[1]);
 			} catch (Exception e) {}
 
@@ -117,20 +120,19 @@ public class WorkTask extends Task {
 
 		try {
 
-			work.user_id = this.getParamString("user_id");
-			//work.name = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-title > h2")
-			//		.text();
+			work.title = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-title > h2")
+					.text();
 			work.tenderer_name = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-customer > em")
 					.text();
-			work.pricee = Double.parseDouble(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-amount > em")
+			work.price = Double.parseDouble(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-amount > em")
 					.text().replaceAll("¥", "").replaceAll(",", ""));
 			work.tags = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > ul").text();
 
 			String description_src = doc.select("body > div.tp-works-bd > div > div.works-bd-content > div")
 					.html();
 			// 二进制文件下载
-			//work.description = download(description_src)
-			//		.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
+			work.content = download(description_src)
+					.replace("<img src=\"https://t5.zbjimg.com/t5s/common/img/space.gif\">", "");
 
 		}catch (Exception e) {
 			e.printStackTrace();

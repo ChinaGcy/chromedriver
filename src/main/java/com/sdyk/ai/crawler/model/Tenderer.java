@@ -1,16 +1,23 @@
 package com.sdyk.ai.crawler.model;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
+import com.sdyk.ai.crawler.model.snapshot.TendererSnapshot;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 
+import java.sql.SQLException;
 import java.util.Date;
 
 /**
  * 雇主
  */
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "tenderers")
 public class Tenderer extends Model {
 
@@ -44,7 +51,7 @@ public class Tenderer extends Model {
 
 	// 企业规模
 	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String company_type;
+	public String company_scale;
 
 	// 雇主介绍描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
@@ -72,7 +79,7 @@ public class Tenderer extends Model {
 
 	// 好评数
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
-	public int praise_time;
+	public int praise_num;
 
 	// 评价数
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
@@ -98,6 +105,48 @@ public class Tenderer extends Model {
 
 	public Tenderer(String url) {
 		super(url);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean insert() {
+
+		try {
+
+			Dao dao = DaoManager.getDao(this.getClass());
+			dao.create(this);
+
+			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
+
+			return true;
+		}
+		catch (SQLException e) {
+
+			// 数据库中已经存在记录
+			if(e.getCause().getMessage().contains("Duplicate")) {
+
+				try {
+					TendererSnapshot snapshot = new TendererSnapshot(this);
+					snapshot.insert();
+					return true;
+				} catch (NoSuchFieldException | IllegalAccessException ex) {
+					logger.error("Error insert snapshot. ", ex);
+					return false;
+				}
+			}
+			// 可能是采集数据本事存在问题
+			else {
+				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+				return false;
+			}
+		}
+		// 数据库连接问题
+		catch (Exception e) {
+			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+			return false;
+		}
 	}
 }
 

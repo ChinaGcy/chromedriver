@@ -7,7 +7,7 @@ import one.rewind.db.DBName;
 
 import java.util.Date;
 
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "domains")
 public class Domain {
 

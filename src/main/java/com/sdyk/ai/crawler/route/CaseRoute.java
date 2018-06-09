@@ -25,7 +25,7 @@ public class CaseRoute {
 
 		Case c = (Case) Model.daoMap.get(Case.class.getSimpleName()).queryForId(id);
 
-		c.description = rewriteBinaryUrl(c.description);
+		c.content = rewriteBinaryUrl(c.content);
 
 		response.header("Access-Control-Allow-Origin", "*");
 
@@ -61,7 +61,7 @@ public class CaseRoute {
 		List<Case> cs = qb.where().eq("user_id", user_id).query();
 
 		for(Case c : cs) {
-			c.description = rewriteBinaryUrl(c.description);
+			c.content = rewriteBinaryUrl(c.content);
 		}
 
 		response.header("Access-Control-Allow-Origin", "*");

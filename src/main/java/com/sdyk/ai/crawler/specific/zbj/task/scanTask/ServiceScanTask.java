@@ -1,8 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceSupplierTask;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
@@ -74,7 +73,7 @@ public class ServiceScanTask extends ScanTask {
 
 						list.add(new_url);
 						try {
-							tasks.add(new ServiceSupplierTask(new_url));
+							tasks.add(new ServiceProviderTask(new_url));
 						} catch (MalformedURLException | URISyntaxException e) {
 							logger.error(e);
 						}

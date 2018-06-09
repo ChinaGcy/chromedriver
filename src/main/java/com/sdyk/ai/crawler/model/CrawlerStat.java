@@ -11,7 +11,7 @@ import one.rewind.util.NetworkUtil;
 
 import java.util.Date;
 
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "crawler_stats")
 public class CrawlerStat {
 

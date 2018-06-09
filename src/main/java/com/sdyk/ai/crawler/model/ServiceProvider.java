@@ -1,13 +1,21 @@
 package com.sdyk.ai.crawler.model;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
+import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
+import com.sdyk.ai.crawler.model.snapshot.ServiceProviderSnapshot;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 
+import java.sql.SQLException;
 import java.util.Date;
 
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "service_providers")
 public class ServiceProvider extends Model {
 
@@ -95,6 +103,10 @@ public class ServiceProvider extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String cellphone;
 
+	// 固定电话
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String telephone;
+
 	// qq
 	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String qq;
@@ -161,11 +173,55 @@ public class ServiceProvider extends Model {
 
 	// 差评
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
-	public int bad_review_num;
+	public int negative_num;
 
 	public ServiceProvider() {}
 
 	public ServiceProvider(String url) {
 		super(url);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean insert() {
+
+		this.fullfill();
+
+		try {
+
+			Dao dao = DaoManager.getDao(this.getClass());
+			dao.create(this);
+
+			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
+
+			return true;
+		}
+		catch (SQLException e) {
+
+			// 数据库中已经存在记录
+			if(e.getCause().getMessage().contains("Duplicate")) {
+
+				try {
+					ServiceProviderSnapshot snapshot = new ServiceProviderSnapshot(this);
+					snapshot.insert();
+					return true;
+				} catch (NoSuchFieldException | IllegalAccessException ex) {
+					logger.error("Error insert snapshot. ", ex);
+					return false;
+				}
+			}
+			// 可能是采集数据本事存在问题
+			else {
+				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+				return false;
+			}
+		}
+		// 数据库连接问题
+		catch (Exception e) {
+			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+			return false;
+		}
 	}
 }

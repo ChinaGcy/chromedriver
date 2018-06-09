@@ -134,9 +134,9 @@ public class AliyunHost {
 		createInstance.setPassword("SdYK@315Fr##");
 
 		// 按时间计费
-		createInstance.setInternetChargeType("PayByBandwidth");
+		createInstance.setInternetChargeType("PayByTraffic");
 		// 带宽
-		createInstance.setInternetMaxBandwidthOut(4);
+		createInstance.setInternetMaxBandwidthOut(100);
 
 		// 发起请求
 		try {

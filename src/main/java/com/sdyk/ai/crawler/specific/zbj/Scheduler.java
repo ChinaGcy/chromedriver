@@ -51,7 +51,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 服务商频道参数
     public static String[] service_supplier_channels = {
-            "paperwork",           // 策划
+           /* "paperwork",           // 策划
             "ppsj",                // 品牌设计
             "sign",                // 广告设计
             "ad",                  // 媒介投放
@@ -62,7 +62,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "xxtg",                // 公关活动/线下地推/会议展览
             "yxtg",                // 营销传播
             "ppglzxzbj",           // 品牌咨询管理
-            "dsyxfwzbj"            // 电商营销服务
+            "dsyxfwzbj"            // 电商营销服务*/
     };
 
     public String cron = "*/30 * * * *";

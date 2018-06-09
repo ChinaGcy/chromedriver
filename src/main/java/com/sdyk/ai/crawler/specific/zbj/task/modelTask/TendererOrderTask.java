@@ -100,17 +100,22 @@ public class TendererOrderTask extends ScanTask {
 
 			Project project = new Project(url);
 
+			project.domain_id = 1;
+
 			project.tenderer_name = doc.select("#utopia_widget_1 > div > div.topinfo-top > div > h2").text();
 
-			project.tenderer_id = userId;
+			project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
+					one.rewind.txt.StringUtil.uuid(
+							"https://home.zbj.com/" + userId));
 
 			project.title = element.select("div > div.order-item-title > a").text();
 
 			project.trade_type = element.select("span.order-item-category").text();
 
 			// TODO 正则获取数据
+			//#order > div > div.panel-content > ul > li:nth-child(2) > div > div.order-item-subinfo
 			// div > div.order-item-subinfo
-			String text = doc.select("div > div.order-item-subinfo").text();
+			String text = element.select("div > div.order-item-subinfo").text();
 
 			if (text.contains("提供服务")) {
 				project.bids_num = 1;
@@ -130,7 +135,6 @@ public class TendererOrderTask extends ScanTask {
 			Pattern pattern_origin = Pattern.compile("来自：(?<T>.+?)$");
 			Matcher matcher_origin = pattern_origin.matcher(text);
 			if (matcher_origin.find()) {
-
 				project.origin_from = matcher_origin.group("T");
 			}
 

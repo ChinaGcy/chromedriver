@@ -1,11 +1,14 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
+import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
 import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
+import one.rewind.db.DaoManager;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
@@ -21,7 +24,7 @@ public class ProjectTest {
 	@Test
 	public void test() throws Exception {
 
-		Account account = AccountManager.getAccountByDomain("zbj.com", "A");
+		Account account = AccountManager.getAccountByDomain("zbj.com");
 
 		//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
 
@@ -48,5 +51,13 @@ public class ProjectTest {
 
 		Thread.sleep(10000000);
 
+	}
+
+	@Test
+	public void testBuildSnapshot() throws Exception {
+		Dao<Project, String> dao = DaoManager.getDao(Project.class);
+		Project project = dao.queryForId("0d2c6b93bcbbc7bd58e286438364868b");
+		ProjectSnapshot snapshot = new ProjectSnapshot(project);
+		System.err.println(snapshot.toJSON());
 	}
 }

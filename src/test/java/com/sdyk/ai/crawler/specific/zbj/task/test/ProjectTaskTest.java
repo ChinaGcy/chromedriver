@@ -32,7 +32,7 @@ public class ProjectTaskTest {
 		task.addAction(action);
 		ChromeDriverRequester.getInstance().submit(task);
 
-		task = new ProjectTask("https://task.zbj.com/13430329/");
+		task = new ProjectTask("http://task.zbj.com/13558791");
 		task.setBuildDom();
 
 		ChromeDriverRequester.getInstance().submit(task);

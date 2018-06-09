@@ -16,17 +16,17 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceRatingTask extends ScanTask {
+public class ServiceProviderRatingTask extends ScanTask {
 
-	ServiceProviderRating serviceRating;
+	ServiceProviderRating serviceProviderRating;
 
 	// http://shop.zbj.com/evaluation/evallist-uid-7791034-type-1-isLazyload-0-page-1.html
-	public static ServiceRatingTask generateTask(String userId, int page) {
+	public static ServiceProviderRatingTask generateTask(String userId, int page) {
 
 		String url_ = "http://shop.zbj.com/evaluation/evallist-uid-" + userId + "-category-1-isLazyload-0-page-" + page + ".html";
 
 		try {
-			ServiceRatingTask t = new ServiceRatingTask(url_, userId, page);
+			ServiceProviderRatingTask t = new ServiceProviderRatingTask(url_, userId, page);
 			return t;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -37,7 +37,7 @@ public class ServiceRatingTask extends ScanTask {
 		return null;
 	}
 
-	public ServiceRatingTask(String url, String userId, int page) throws MalformedURLException, URISyntaxException {
+	public ServiceProviderRatingTask(String url, String userId, int page) throws MalformedURLException, URISyntaxException {
 		super(url);
 		this.setParam("page", page);
 		this.setParam("userId", userId);
@@ -63,13 +63,13 @@ public class ServiceRatingTask extends ScanTask {
 				for (int i = 1; i <= size; i++) {
 
 					// 防止每个评论的url一样导致id相同
-					serviceRating = new ServiceProviderRating(getUrl() + "--number:" + i);
+					serviceProviderRating = new ServiceProviderRating(getUrl() + "--number:" + i);
 
 					// 每个评价
-					ratingData(doc, i);
+					ratingData(doc, i, userId);
 
 					try {
-						serviceRating.insert();
+						serviceProviderRating.insert();
 					} catch (Exception e) {
 						logger.error("Error insert: {}, ", e);
 					}
@@ -94,40 +94,40 @@ public class ServiceRatingTask extends ScanTask {
 	 * 获取数据
 	 * @param i
 	 */
-	public void ratingData(Document doc, int i) {
+	public void ratingData(Document doc, int i, String userId) {
 
-		serviceRating.service_provider_id = getUrl().split("-")[2];
+		serviceProviderRating.service_provider_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid("https://shop.zbj.com/"+ userId +"/"));
 
 		String[] ss = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dt > img")
 				.attr("src").split("/");
 
-		serviceRating.tenderer_id = ss[3].substring(1)+ss[4]+ss[5]+ss[6].split("_")[2].split(".jpg")[0];
+		String url = "https://home.zbj.com/" + ss[3].substring(1)+ss[4]+ss[5]+ss[6].split("_")[2].split(".jpg")[0];
 
-	//	serviceRating.tenderer_url = "https://home.zbj.com/" + serviceRating.tenderer_id;
+		serviceProviderRating.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(url));
 
-		serviceRating.project_id = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a")
+		// http://task.zbj.com/13420593/
+		String proUrl = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit > a")
 				.attr("href");
+		serviceProviderRating.project_id = one.rewind.txt.StringUtil.byteArrayToHex(
+				one.rewind.txt.StringUtil.uuid(
+						proUrl.substring(0, proUrl.length()-2)));
 
-	//	serviceRating.tenderer_name = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
-	//			.text().split("成交价格：")[0];
+		serviceProviderRating.tenderer_name = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
+				.text().split("成交价格：")[0];
 
-		serviceRating.price = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
+		serviceProviderRating.price = Double.parseDouble(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.name-tit")
 				.text().split("成交价格：")[1].replaceAll("元", ""));
 
-		serviceRating.content = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
+		serviceProviderRating.content = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
 				.text();
-		try {
-			serviceRating.tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
+
+		serviceProviderRating.tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
 					.text().split("印象：")[1];
 
-		} catch (NoSuchElementException e) {
-			serviceRating.tags ="";
-		}
-
 		try {
-			serviceRating.pubdate = DateFormatUtil.parseTime(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd.mint > p").text());
+			serviceProviderRating.pubdate = DateFormatUtil.parseTime(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd.mint > p").text());
 		} catch (ParseException e) {
-			logger.error("serviceRating  pubdate {}", e);
+			logger.error("serviceProviderRating  pubdate {}", e);
 		}
 
 	}

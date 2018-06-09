@@ -98,7 +98,7 @@ public class StringUtil {
 		// 1.描述中拿预算
 		double budget_all = StringUtil.detectBudget(des_src);
 		// 2.判断拿到的预算是否为0，如果拿不到就从预算栏中获取预算；拿到预算直接赋值。
-		if (budget_all == 0) {
+		if (budget_all == 0 || budget_all > Integer.MAX_VALUE) {
 
 			// 3.拿到预算栏中的数据
 			String budget = doc.select(path).text();
@@ -153,8 +153,6 @@ public class StringUtil {
 				"季度", 90,
 				"年", 365
 		);
-		Pattern pattern;
-		Matcher matcher;
 
 		Set<String> set = mapper.keySet();
 		Set<String> set1 = mapper1.keySet();
