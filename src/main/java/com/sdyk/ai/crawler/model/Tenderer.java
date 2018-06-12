@@ -29,6 +29,10 @@ public class Tenderer extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String name;
 
+	// 头像
+	@DatabaseField(dataType = DataType.STRING, width = 32)
+	public String head_portrait;
+
 	// 地点
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String location;
@@ -84,6 +88,14 @@ public class Tenderer extends Model {
 	// 评价数
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int rating_num;
+
+	// 需求选定率
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int selection_ratio;
+
+	// 需求成功率
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int success_ratio;
 
 	// 等级
 	@DatabaseField(dataType = DataType.STRING, width = 16)
