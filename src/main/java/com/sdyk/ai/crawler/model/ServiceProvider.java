@@ -27,9 +27,25 @@ public class ServiceProvider extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String name;
 
-	// 公司
+	// 头像
 	@DatabaseField(dataType = DataType.STRING, width = 64)
+	public String head_portrait;
+
+	// 平台认证
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String platform_certification;
+
+	// 公司
+	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String company_name;
+
+	// 公司地址
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String company_address;
+
+	// 公司网址
+	@DatabaseField(dataType = DataType.STRING, width = 1025)
+	public String company_website;
 
 	// 类型
 	@DatabaseField(dataType = DataType.STRING, width = 16)
@@ -153,7 +169,11 @@ public class ServiceProvider extends Model {
 
 	// 目前职位
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String occupation;
+	public String position;
+
+	// 存放图片
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String cover_images;
 
 	// 客户评分
 	@DatabaseField(dataType = DataType.FLOAT)
