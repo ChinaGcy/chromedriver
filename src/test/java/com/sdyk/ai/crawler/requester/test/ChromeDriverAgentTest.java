@@ -12,6 +12,7 @@ import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.proxy.ProxyImpl;
 import org.junit.Test;
+import org.openqa.selenium.By;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -87,6 +88,22 @@ public class ChromeDriverAgentTest {
 			agent.submit(task);
 		}
 
+	}
+
+
+	@Test
+	public void test1() throws Exception {
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		agent.start();
+		Task task = new Task("http://testwww.315free.com/customer/demands-add");
+		agent.submit(task);
+		agent.getDriver().findElement(By.cssSelector("#addDemand > div.login > div > div > button")).click();
+
+		Thread.sleep(5000);
+
+		agent.getDriver().findElement(By.cssSelector("body > div.el-message-box__wrapper > div > div.el-message-box__btns > button.el-button.el-button--default.el-button--small.el-button--primary")).click();
+
+		Thread.sleep(10000000);
 	}
 
 }

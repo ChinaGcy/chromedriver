@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 @DatabaseTable(tableName = "project_snapshots")
 public class ProjectSnapshot extends Project {
 
+	// 原网站id
 	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
 	public String id_;
 
@@ -32,9 +33,11 @@ public class ProjectSnapshot extends Project {
 		}
 
 		this.id = StringUtil.byteArrayToHex(
-			StringUtil.uuid(project.url + " " + project.insert_time.getTime())
+			StringUtil.uuid(project.url + " " + System.currentTimeMillis())
 		);
 
 		this.id_ = project.id;
+		this.url = project.url;
+
 	}
 }

@@ -1,55 +1,58 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.model.TendererRating;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.NoSuchElementException;
-import one.rewind.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 雇主评价
  */
 public class TendererRatingTask extends ScanTask {
 
-	TendererRating tendererRating;
-
-	public static TendererRatingTask generateTask(String url, int page, String userId) {
-
-		TendererRatingTask t = null;
-		String url_ = url+ "/?ep=" + page;
-		try {
-			t = new TendererRatingTask(url_, page, userId);
-			return t;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		return t;
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://home.zbj.com/{{user_id}}/?ep={{page}}";
 	}
 
-	public TendererRatingTask(String url, int page, String userId) throws MalformedURLException, URISyntaxException {
-		super(url);
-		this.setParam("page", page);
-		this.setParam("userId", userId);
+	TendererRating tendererRating;
 
-		this.addDoneCallback(() -> {
+	public TendererRatingTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+		super(url);
+
+		this.addDoneCallback((t) -> {
+
+			// 获取url参数
+			String userId = null;
+			int page = 0;
+
+			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>.+?)\\/\\?ep=(?<page>.+?)$");
+
+			Matcher matcher = pattern.matcher(url);
+
+			if (matcher.find()) {
+				userId = matcher.group("userId");
+				page = Integer.parseInt(matcher.group("page"));
+			}
 
 			try {
 
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 				Document doc = getResponse().getDoc();
 
 				// 防止数据为空
@@ -78,17 +81,9 @@ public class TendererRatingTask extends ScanTask {
 					}
 
 					// 翻页
-					com.sdyk.ai.crawler.task.Task t = pageTurn(page);
-
-					if (t != null) {
-						t.setPriority(Priority.LOW);
-						tasks.add(t);
-					}
+					pageTurn(page, userId);
 				}
 
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					ChromeDriverRequester.getInstance().submit(t);
-				}
 			}catch (Exception e) {
 				logger.error(e);
 			}
@@ -156,26 +151,29 @@ public class TendererRatingTask extends ScanTask {
 	 * @param page
 	 * @return
 	 */
-	public com.sdyk.ai.crawler.task.Task pageTurn(int page) {
+	public void pageTurn(int page, String userId) {
 
 		// 判断是否翻页
 		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul > li", page)) {
 
-			com.sdyk.ai.crawler.task.Task t =TendererRatingTask.generateTask("https://home.zbj.com/"
-						+ this.getParamString("userId"), ++page, this.getParamString("userId"));
-			return t;
-
+			try {
+				URLUtil.PostTask(this.getClass(),
+						 null,
+						 ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)),
+						null,
+						 null,
+						 null,
+						 null,
+						 null);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
-		return null;
+
 	}
 
 	@Override
 	public TaskTrace getTaskTrace() {
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
-	}
-
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
 	}
 }

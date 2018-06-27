@@ -1,11 +1,10 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -14,21 +13,21 @@ import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TendererOrderTask extends ScanTask {
 
-	/**
-	 * 翻页
-	 * @param url
-	 * @param page
-	 * @param userId
-	 * @return
-	 */
-	public static TendererOrderTask generateTask(String url, int page, String userId) {
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://home.zbj.com/{{user_id}}/?op={{page}}";
+	}
+
+	/*public static TendererOrderTask generateTask(String url, int page, String userId) {
 
 		TendererOrderTask t = null;
 		String url_ = url+ "/?op=" + page;
@@ -36,46 +35,59 @@ public class TendererOrderTask extends ScanTask {
 			t = new TendererOrderTask(url_, page, userId);
 			t.setBuildDom();
 			return t;
-		} catch (MalformedURLException | URISyntaxException e) {
+		} catch (MalformedURLException | URISyntaxException | ProxyException.Failed e) {
 			e.printStackTrace();
 		}
 		return t;
-	}
+	}*/
 
-	public TendererOrderTask(String url, int page, String userId) throws MalformedURLException, URISyntaxException {
+	public TendererOrderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
-		this.setParam("page", page);
-		this.setParam("userId", userId);
 
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
 
-			List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
+			String userId = null;
+			int page = 0;
+			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>)\\/\\?op=(?<page>.+?)$");
+			Matcher matcher = pattern.matcher(url);
+			if (matcher.find()) {
+				userId = matcher.group("userId");
+				page = Integer.parseInt(matcher.group("page"));
+			}
+
 			Document doc = getResponse().getDoc();
-
-			int op_page = this.getParamInt("page");
 
 			// 获取历史数据（简略）
 			try {
-				tasks.addAll(getSimpleProjectTask(doc, userId));
+				getSimpleProjectTask(doc, userId);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			if (pageTurning("#order > div > div.pagination-wrapper > div > ul > li", op_page)) {
+			if (pageTurning("#order > div > div.pagination-wrapper > div > ul > li", page)) {
 				// 翻页
-				com.sdyk.ai.crawler.task.Task t = generateTask("https://home.zbj.com/"
+				/*com.sdyk.ai.crawler.task.Task t = generateTask("https://home.zbj.com/"
 						+ this.getParamString("userId"), ++op_page, this.getParamString("userId"));
 				if (t != null) {
 					t.setPriority(Priority.MEDIUM);
 					t.setBuildDom();
 					tasks.add(t);
-				}
+				}*/
+
+				URLUtil.PostTask(this.getClass(),
+						 null,
+						 ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)),
+						 0,
+						 null,
+						 null,
+						 null,
+						 null);
 			}
 
-			for(com.sdyk.ai.crawler.task.Task t : tasks) {
+			/*for(com.sdyk.ai.crawler.task.Task t : tasks) {
 				t.setBuildDom();
 				ChromeDriverRequester.getInstance().submit(t);
-			}
+			}*/
 		});
 	}
 
@@ -85,9 +97,7 @@ public class TendererOrderTask extends ScanTask {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public static List<Task> getSimpleProjectTask(Document doc, String userId) throws Exception {
-
-		List<Task> tasks = new ArrayList<>();
+	public static void getSimpleProjectTask(Document doc, String userId) throws Exception {
 
 		Elements elements = doc.select("#order > div > div.panel-content > ul > li");
 
@@ -152,20 +162,14 @@ public class TendererOrderTask extends ScanTask {
 
 			project.insert();
 
-			tasks.add(new ProjectTask(url));
 		}
 
-		return tasks;
+
 	}
 
 	@Override
 	public TaskTrace getTaskTrace() {
 
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
-	}
-
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
 	}
 }

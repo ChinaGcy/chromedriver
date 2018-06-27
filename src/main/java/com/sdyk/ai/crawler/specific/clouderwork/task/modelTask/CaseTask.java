@@ -54,7 +54,7 @@ public class CaseTask extends Task {
             //抓取工期
             String[] all3 = all2[1].split("报价：");
             if(all3[0]!=null&&!"".equals(all3[0])){
-                caseinfor.cycle = all3[0];
+                caseinfor.time_limit = all3[0];
             }
 
             //抓取报价
@@ -74,7 +74,7 @@ public class CaseTask extends Task {
         //抓取描述
         String descreption = doc.getElementsByClass("desc simditor-content").html();
         if(descreption!=null&&!"".equals(descreption)){
-            caseinfor.description = descreption;
+            caseinfor.content = descreption;
         }
 
         try {

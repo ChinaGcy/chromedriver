@@ -1,10 +1,9 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
@@ -15,15 +14,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 乙方项目列表
+ * 乙方服务列表
  * 1. 找到url
  * 2. 翻页
  */
 public class CaseScanTask extends ScanTask {
 
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("user_id", String.class,"page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html";
+	}
+
 	public static List<String> list = new ArrayList<>();
 
-	//   http://shop.zbj.com/7523816/
+	/*//   http://shop.zbj.com/7523816/
 	public static CaseScanTask generateTask(String uid, int page) {
 
 		String url = "http://shop.zbj.com/" + uid + "/servicelist-p" + page + ".html";
@@ -31,42 +39,41 @@ public class CaseScanTask extends ScanTask {
 		try {
 			CaseScanTask t = new CaseScanTask(url, uid, page);
 			return t;
-		} catch (MalformedURLException | URISyntaxException e) {
+		} catch (MalformedURLException | URISyntaxException | ProxyException.Failed e) {
 			e.printStackTrace();
 		}
 		return null;
-	}
+	}*/
 
 	/**
 	 *
 	 * @param url
-	 * @param page
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public CaseScanTask(String url, String uid, int page) throws MalformedURLException, URISyntaxException {
+	public CaseScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 
-		this.setParam("uid", uid);
-		this.setParam("page", page);
+		// http://shop.zbj.com/17788555/servicelist-p1.html
+		this.addDoneCallback((t) -> {
 
-		this.addDoneCallback(() -> {
+			String userId = null;
+			int page = 0;
+			Pattern pattern_url = Pattern.compile("http://shop.zbj.com/(?<userId>.+?)\\/servicelist-p(?<page>.+?).html");
+			Matcher matcher_url = pattern_url.matcher(url);
+			if (matcher_url.find()) {
+				userId = matcher_url.group("userId");
+				page = Integer.parseInt(matcher_url.group("page"));
+			}
 
 			try {
 
 				String src = getResponse().getText();
 
-				// http://shop.zbj.com/17788555/servicelist-p1.html
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
-
 				// 判断是否翻页
-				if (!src.contains("暂时还没有此类服务！") && backtrace) {
-					com.sdyk.ai.crawler.task.Task t = generateTask(uid, page + 1);
-					if (t != null) {
-						t.setPriority(Priority.HIGH);
-						tasks.add(t);
-					}
+				if (src.contains("暂时还没有此类服务")) {
+					return;
 				}
 
 				// 获取猪八戒， 天蓬网的服务地址
@@ -75,42 +82,23 @@ public class CaseScanTask extends ScanTask {
 				Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/\\d+/sid-\\d+.html");
 				Matcher matcher_tp = pattern_tp.matcher(src);
 
-				// 猪八戒url
-				while (matcher.find()) {
+				getCaseUrl(matcher, userId);
 
-					String new_url = matcher.group();
-
-					if (!list.contains(new_url)) {
-						list.add(new_url);
-						try {
-							tasks.add(new CaseTask(new_url));
-						} catch (MalformedURLException | URISyntaxException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-
-				// 天蓬网url
-				while (matcher_tp.find()) {
-
-					String new_url = matcher_tp.group();
-
-					if (!list.contains(new_url)) {
-						list.add(new_url);
-						try {
-							tasks.add(new CaseTask(new_url));
-						} catch (MalformedURLException | URISyntaxException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					ChromeDriverRequester.getInstance().submit(t);
-				}
+				getCaseUrl(matcher_tp, userId);
 
 			} catch (Exception e) {
 				logger.error(e);
+			}
+
+			if (pageTurning("#contentBox > div > div.pagination > ul > li", page)) {
+				URLUtil.PostTask(this.getClass(),
+						null,
+						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)),
+						null,
+						null,
+						null,
+						null,
+						null);
 			}
 		});
 	}
@@ -120,8 +108,38 @@ public class CaseScanTask extends ScanTask {
 		return new TaskTrace(this.getClass(), this.getParamString("uid"), this.getParamString("page"));
 	}
 
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
+	/**
+	 * 添加Case任务
+	 * @param matcher
+	 * @param userId
+	 */
+	public void getCaseUrl(Matcher matcher, String userId) {
+		// 猪八戒url
+		while (matcher.find()) {
+
+			String new_url = matcher.group();
+
+			String case_id = new_url.split("/")[4]
+					.replace("sid_", "")
+					.replace(".html", "");
+
+			if (!list.contains(new_url)) {
+				list.add(new_url);
+
+				try {
+					URLUtil.PostTask(CaseTask.class,
+							null,
+							ImmutableMap.of("user_id", userId, "case_id", case_id),
+							null,
+							null,
+							null,
+							null,
+							null);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
 	}
 }

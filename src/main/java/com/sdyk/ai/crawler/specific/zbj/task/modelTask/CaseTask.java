@@ -1,14 +1,14 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.model.Case;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
-import com.sdyk.ai.crawler.model.Case;
+import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.NoSuchElementException;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,13 +17,22 @@ import java.util.regex.Pattern;
  */
 public class CaseTask extends Task {
 
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("user_id", String.class,"case_id", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://shop.zbj.com/{{user_id}}/sid-{{case_id}}.html";
+	}
+
 	Case ca;
 
-	public CaseTask(String url) throws MalformedURLException, URISyntaxException {
+	public CaseTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
 
 			try {
 

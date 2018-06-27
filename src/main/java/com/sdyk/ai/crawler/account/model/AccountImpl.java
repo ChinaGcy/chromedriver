@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
 
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "accounts")
 public class AccountImpl extends Account {
 

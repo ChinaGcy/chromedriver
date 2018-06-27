@@ -1,8 +1,9 @@
 package com.sdyk.ai.crawler.route;
 
 import com.sdyk.ai.crawler.Requester;
-import one.rewind.io.requester.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+
 import one.rewind.io.server.Msg;
 import spark.Request;
 import spark.Response;
@@ -25,8 +26,8 @@ public class SystemRoute {
 
 			Map<String, Object> data = new TreeMap<>();
 
-			data.put("taskQueueNum", ChromeDriverRequester.getInstance().queue.size());
-			data.put("idleAgentNum", ChromeDriverRequester.getInstance().idleAgentQueue.size());
+			/*data.put("taskQueueNum", ChromeDriverRequester.getInstance().queue.size());
+			data.put("idleAgentNum", ChromeDriverDistributor.getInstance().idleAgentQueue.size());*/
 
 			return new Msg<Map<String, Object>>(Msg.SUCCESS, data);
 		} catch (Exception e) {

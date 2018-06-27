@@ -140,7 +140,7 @@ public class ProxyManager {
 
 			String sql = "SELECT COUNT(*) as num FROM proxies WHERE status = 'Free' AND enable = 1;";
 
-			conn = PooledDataSource.getDataSource("crawler").getConnection();
+			conn = PooledDataSource.getDataSource("sdyk_raw").getConnection();
 			stmt = conn.createStatement();
 			ResultSet result = stmt.executeQuery(sql);
 

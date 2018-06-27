@@ -10,7 +10,7 @@ import one.rewind.db.DBName;
  * @author
  * @date
  */
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "works")
 public class Work extends Model {
 
@@ -37,6 +37,10 @@ public class Work extends Model {
 	// 作品名称
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String title;
+
+	// 职位
+	@DatabaseField(dataType = DataType.STRING, width = 64)
+	public String position;
 
 	// 收藏
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)

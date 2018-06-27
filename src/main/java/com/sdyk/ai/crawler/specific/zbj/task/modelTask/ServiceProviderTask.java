@@ -1,10 +1,13 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.ServiceProvider;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
+import com.sdyk.ai.crawler.util.StringUtil;
+import com.sdyk.ai.crawler.util.URLUtil;
+import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,19 +17,32 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ServiceProviderTask extends Task {
+
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("user_id", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://shop.zbj.com/{{user_id}}/";
+	}
 
 	// 实例化
 	ServiceProvider serviceProvider;
 
-	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
+	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 		this.setPriority(Priority.MEDIUM);
 
-		this.addDoneCallback(() -> {
+		serviceProvider = new ServiceProvider(getUrl());
+
+		this.addDoneCallback((t) -> {
 
 			try {
 
@@ -34,8 +50,6 @@ public class ServiceProviderTask extends Task {
 				Document doc = getResponse().getDoc();
 
 				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
-
-				serviceProvider = new ServiceProvider(getUrl());
 
 				shareData(doc, src);
 
@@ -62,13 +76,38 @@ public class ServiceProviderTask extends Task {
 					logger.error("insert/update error {}", e);
 				}
 				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-				tasks.add(ServiceProviderRatingTask.generateTask(serviceProvider.origin_id, 1));
+				/*tasks.add(ServiceProviderRatingTask.generateTask(serviceProvider.origin_id, 1));
 				tasks.add(CaseScanTask.generateTask(serviceProvider.origin_id, 1));
 				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
 				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					ChromeDriverRequester.getInstance().submit(t);
-				}
+					ChromeTaskScheduler.getInstance().submit(t);
+				}*/
+
+				URLUtil.PostTask(ServiceProviderRatingTask.class,
+						"",
+						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1)),
+						0,
+						null,
+						null,
+						null,
+						null);
+				URLUtil.PostTask(CaseScanTask.class,
+						"",
+						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1)),
+						0,
+						null,
+						null,
+						null,
+						null);
+				URLUtil.PostTask(WorkScanTask.class,
+						"",
+						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1)),
+						0,
+						null,
+						null,
+						null,
+						null);
 			} catch(Exception e) {
 				logger.error(e);
 			}
@@ -132,7 +171,7 @@ public class ServiceProviderTask extends Task {
 	 */
 	public void pageOne(String src, ServiceProvider serviceProvider, Document doc) {
 
-		serviceProvider.name = doc.select("body > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc > a > strong").text();
+		serviceProvider.name = doc.select("body > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc > a").attr("title");
 		if (src.contains("专业店")) {
 			serviceProvider.type = "专业店";
 		}else if (src.contains("旗舰店")){
@@ -159,6 +198,11 @@ public class ServiceProviderTask extends Task {
 		} catch (NumberFormatException e) {}
 
 		webPageUcenter();
+		try {
+			TPSalerinfo();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -168,7 +212,7 @@ public class ServiceProviderTask extends Task {
 	 */
 	public void pageTwo(String src, ServiceProvider serviceProvider, Document doc) throws IOException {
 
-		serviceProvider.name = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc > a > strong")
+		serviceProvider.name = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc > a > h1")
 				.text();
 		if (doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc > img")
 				.size() >= 2) {
@@ -201,7 +245,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.tags = doc.select("#utopia_widget_5 > p.label-box-wrap")
 				.text();
 		try {
-			serviceProvider.rating = Integer.parseInt(doc.select("#power").text().replaceAll("", "0"));
+			serviceProvider.rating = Float.parseFloat(doc.select("#power").text().replaceAll("", "0"))/20;
 		}catch (Exception e) {}
 
 		serviceProvider.content = doc.select("#utopia_widget_3 > div.user-about > div > span").text();
@@ -218,6 +262,13 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.rcmd_num = Integer.parseInt(recommendation.split("\\(")[1].split("\\)")[0]);
 		} catch (Exception e) {}
 
+		// 获取头像
+		String head = doc.select("body > div.grid > div.sidebar > div > div > div > div.w-head-pic > img").html();
+		Set<String> head_img = new HashSet<>();
+		String head1 = StringUtil.cleanContent(head, head_img,null, null);
+		this.download(head);
+		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
+				one.rewind.txt.StringUtil.uuid(head1));;
 	}
 
 	/**
@@ -259,6 +310,38 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.negative_num = Integer.parseInt(doc.select("body > div.main > div > div.wk-r > div:nth-child(3) > div.con.clearfix > div.shop-comment-bd > div.shop-comment-l > div > div:nth-child(4) > span:nth-child(3)")
 					.text());
 		} catch (Exception e) {}
+
+		// 获取头像 body > div.main > div > div.wk-l > div > div.w-head-pic > img
+		String head = doc.select("body > div.main > div > div.wk-l > div > div.w-head-pic > img").outerHtml();
+		Set<String> head_img = new HashSet<>();
+		String head1 = StringUtil.cleanContent(head, head_img,null, null);
+		this.download(head);
+		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
+				one.rewind.txt.StringUtil.uuid(head1));;
+	}
+
+	// 天棚网 服务商信息  https://shop.tianpeng.com/15199471/salerinfo.html
+	public void TPSalerinfo() throws IOException {
+
+		Document doc = Jsoup.connect(getUrl() + "salerinfo.html").get();
+		serviceProvider.company_name = serviceProvider.name;
+
+		serviceProvider.company_address = doc.select("body > div.grid > div.main-wrap > div > div > div > div.introduce-content.introduce-content-first > div > dl > dd").text();
+
+		serviceProvider.content = doc.select("body > div.grid > div.main-wrap > div > div > div > div.introduce-content.introduce-content-first > p.introduce-company-msg").text();
+
+		String head = doc.select("body > div.grid > div.main-wrap > div > div > div > div > ul > li.license-item.fl > div.license-item-pic").html();
+		Set<String> head_img = new HashSet<>();
+		String head1 = StringUtil.cleanContent(head, head_img,null, null);
+		this.download(head);
+		serviceProvider.cover_images = one.rewind.txt.StringUtil.byteArrayToHex(
+				one.rewind.txt.StringUtil.uuid(head1));
+
+		serviceProvider.tags = doc.select("body > div.grid > div.main-wrap > div > div > div > div.introduce-content > div").text();
+
+
+
+
 	}
 
 	/**
@@ -282,11 +365,21 @@ public class ServiceProviderTask extends Task {
 			try {
 				Elements list_phone = doc.select("body > div.shop-fixed-im.sidebar-show > div.shop-fixed-im-hover.shop-customer.j-shop-fixed-im > div.shop-fix-im-qq > div.time-item");
 
-				String phone = "";
+				String cellphone = "";
+				String telephone = "";
 				for (Element webElement : list_phone) {
-					phone = phone + " " + webElement.select("a").attr("data-phone");
+
+					if (!webElement.select("a").attr("data-phone").contains("-")) {
+						cellphone = cellphone + " " + webElement.select("a").attr("data-phone");
+					} else {
+						telephone = telephone + " " + webElement.select("a").attr("data-phone");
+					}
 				}
-				serviceProvider.cellphone = phone;
+				if (!cellphone.equals("") && !telephone.equals("")) {
+					serviceProvider.cellphone = cellphone;
+					serviceProvider.telephone = telephone;
+				}
+
 			} catch (Exception e) {}
 		}
 	}

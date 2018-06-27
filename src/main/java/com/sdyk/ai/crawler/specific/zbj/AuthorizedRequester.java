@@ -3,11 +3,13 @@ package com.sdyk.ai.crawler.specific.zbj;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.typesafe.config.Config;
 import one.rewind.io.requester.BasicRequester;
-import one.rewind.io.requester.Task;
+
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+
 import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.util.Configs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +19,7 @@ import java.util.concurrent.*;
 /**
  *
  */
-public class AuthorizedRequester extends ChromeDriverRequester {
+public class AuthorizedRequester extends ChromeDriverDistributor {
 
 	public static AuthorizedRequester instance;
 
@@ -47,7 +49,7 @@ public class AuthorizedRequester extends ChromeDriverRequester {
 			synchronized (AuthorizedRequester.class) {
 				if (instance == null) {
 					instance = new AuthorizedRequester();
-					requester_executor.submit(instance);
+					requester_executor.submit((Runnable) instance);
 				}
 			}
 		}
@@ -93,9 +95,9 @@ public class AuthorizedRequester extends ChromeDriverRequester {
 	}
 
 	// 增加每天执行次数统计，超过次数拒绝任务
-	public boolean submit_(Task task) {
+	public boolean submit_(ChromeTask task) {
 		if(true) {
-			this.queue.offer(task);
+			/*this.queues.offer(task);*/
 			return true;
 		} else {
 			return false;

@@ -18,7 +18,6 @@ public class ProjectTaskTest {
 	@Test
 	public void projectTest() throws Exception {
 
-		;
 		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
@@ -32,11 +31,11 @@ public class ProjectTaskTest {
 		task.addAction(action);
 		ChromeDriverRequester.getInstance().submit(task);
 
-		task = new ProjectTask("http://task.zbj.com/13558791");
+		task = new ProjectTask("https://task.zbj.com/7506601");
 		task.setBuildDom();
 
 		ChromeDriverRequester.getInstance().submit(task);
-		Thread.sleep(100000);
+		Thread.sleep(100000000);
 	}
 
 	@Test

@@ -1,29 +1,21 @@
 package com.sdyk.ai.crawler.specific.zbj;
 
 
-import com.sdyk.ai.crawler.ServiceWrapper;
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
-import com.sdyk.ai.crawler.proxy.AliyunHost;
-import com.sdyk.ai.crawler.proxy.ProxyManager;
-import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
-import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
+import com.sdyk.ai.crawler.specific.zbj.task.ZbjLoginTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
-
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
-import one.rewind.io.requester.proxy.Proxy;
+import one.rewind.io.requester.task.ChromeTask;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static spark.route.HttpMethod.get;
 
@@ -35,7 +27,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 项目频道参数
     public String[] project_channels = {
-            "t-paperwork",         // 策划
+            /*"t-paperwork",         // 策划
             "t-ppsj",              // 品牌设计
             "t-sign",              // 广告设计
             "t-ad",                // 媒介投放
@@ -46,12 +38,32 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "t-xxtg",              // 公关活动/线下地推/会议展览
             "t-yxtg",              // 营销传播
             "t-ppglzxzbj",         // 品牌咨询管理
-            "t-dsyxfwzbj"          // 电商营销服务
+            "t-dsyxfwzbj"          // 电商营销服务*/
+            "o-paperwork",         // 策划
+            "o-game",               // 游戏
+            "o-dsspfw",               // 电商视频服务
+            "o-yxzxzbj",               // 营销咨询
+            "o-video",               // 影视制作
+            "o-dhsjzbj",               // 动画设计
+            "o-rjkf",               // 软件开发
+            "o-wdfw",               // 电商设计服务
+            "o-wdfw",               // 电商设计服务
+            "o-ppsj",              // 品牌设计
+            "o-sign",              // 广告设计
+            "o-ad",                // 媒介投放
+            "o-xcpzzzbj",          // 宣传片制作
+            "o-wzkf",              // 网站建设
+            "o-hkaifa",            // H5开发
+            "o-wxptkf",           // 微信开发
+            "o-xxtg",              // 公关活动/线下地推/会议展览
+            "o-yxtg",              // 营销传播
+            "o-ppglzxzbj",         // 品牌咨询管理
+            "o-dsyxfwzbj"          // 电商营销服务
     };
 
     // 服务商频道参数
     public static String[] service_supplier_channels = {
-           /* "paperwork",           // 策划
+            /*"paperwork",           // 策划
             "ppsj",                // 品牌设计
             "sign",                // 广告设计
             "ad",                  // 媒介投放
@@ -66,6 +78,10 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
     };
 
     public String cron = "*/30 * * * *";
+
+    public Scheduler() {
+        super();
+    }
 
     public Scheduler(String domain, int driverCount) {
         super(domain, driverCount);
@@ -82,8 +98,6 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
             //Proxy proxy = new one.rewind.io.requester.proxy.ProxyImpl("10.0.0.51", 49999, null, null);
 
-            com.sdyk.ai.crawler.task.Task task = getLoginTask(account);
-
             // 创建一个新的container
             DockerHostManager.getInstance().createDockerContainers(1);
 
@@ -93,25 +107,24 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, ChromeDriverAgent.Flag.MITM);
 
             // agent 添加异常回调
-            agent.addAccountFailedCallback(()->{
+            agent.addAccountFailedCallback((a, t)->{
 
                 logger.info("Account {}:{} failed.", account.getDomain(), account.getUsername());
 
-            }).addTerminatedCallback(()->{
+            }).addTerminatedCallback((t)->{
 
                 logger.info("Container {} {}:{} Terminated.", container.name, container.ip, container.vncPort);
 
-            }).addNewCallback(()->{
+            }).addNewCallback((t)->{
 
                 try {
-                    agent.submit(task, 300000);
+					getLoginTask();
                 } catch (Exception e) {
                     logger.error(e);
                 }
             });
 
-            AuthorizedRequester.getInstance().addAgent(agent);
-            agent.start();
+			ChromeDriverDistributor.getInstance().addAgent(agent);
 
             logger.info("ChromeDriverAgents are ready.");
 
@@ -122,44 +135,77 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     /**
      *
-     * @param account
      * @return
      * @throws MalformedURLException
      * @throws URISyntaxException
      */
-    public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
+    public void getLoginTask() throws MalformedURLException, URISyntaxException {
 
-        Task task = new Task("https://www.zbj.com");
-        task.addAction(new LoginWithGeetestAction(account));
-        return task;
-    }
+		try {
+			URLUtil.PostTask(ZbjLoginTask.class,
+					null,
+					ImmutableMap.of("domain", "zbj"),
+					null,
+					null,
+					null,
+					null,
+					null);
+		} catch (ClassNotFoundException e) {
+			logger.error("", e);
+		}
+
+	}
 
     /**
      *
      * @param backtrace
      * @return
      */
-    public List<com.sdyk.ai.crawler.task.Task> getTask(boolean backtrace) {
-
-        List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
+    public void getTask(boolean backtrace) {
 
         for(String channel : project_channels) {
-            ScanTask t = ProjectScanTask.generateTask(channel, 1);
+
+			try {
+				URLUtil.PostTask(com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask.class,
+						null,
+						ImmutableMap.of("channel", channel,"page", "1"),
+						null,
+						null,
+						null,
+						null,
+						null);
+
+				logger.info("PROJECT:" + channel);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			/* ScanTask t = ProjectScanTask.generateTask(channel, 1);
+            *//*ScanTask t = ProjectSuccessSacnTask.generateTask(channel, 1);*//*
             t.backtrace = backtrace;
-            tasks.add(t);
-            logger.info("PROJECT:" + channel);
+            tasks.add(t);*/
+
         }
 
         if (backtrace == true) {
             for (String channel : service_supplier_channels) {
-                ScanTask t = ServiceScanTask.generateTask(channel, 1);
-                t.backtrace = backtrace;
-                tasks.add(t);
-                logger.info("SERVICE:" + channel);
-            }
-        }
+				try {
+					URLUtil.PostTask(ServiceScanTask.class,
+							null,
+							ImmutableMap.of("channel", channel,"page", "1"),
+							null,
+							null,
+							null,
+							null,
+							null);
 
-        return tasks;
+					logger.info("PROJECT:" + channel);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+
+			}
+        }
     }
 
     /**
@@ -168,9 +214,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
     public void getHistoricalData() {
 
         // 需求
-        for (com.sdyk.ai.crawler.task.Task task : getTask(true)) {
-            ChromeDriverRequester.getInstance().submit(task);
-        }
+		getTask(true);
     }
 
     /**
@@ -178,23 +222,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
      */
     public void monitoring() {
 
-        try {
-
-            it.sauronsoftware.cron4j.Scheduler s = new it.sauronsoftware.cron4j.Scheduler();
-
-            // 每隔15分钟，生成实时扫描任务
-            s.schedule(cron, () -> {
-                for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
-                    ChromeDriverRequester.getInstance().submit(task);
-                }
-            });
-
-            s.start();
-
-        } catch (Exception e) {
-
-            logger.error(e);
-        }
+		getTask(false);
     }
 
     /**
@@ -216,9 +244,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
         scheduler.initAuthorizedRequester();
 
-        scheduler.getHistoricalData();
+        /*scheduler.getHistoricalData();
 
-        scheduler.monitoring();
+        scheduler.monitoring();*/
     }
 
 }

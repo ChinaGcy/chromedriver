@@ -26,7 +26,7 @@ public class Project extends Model {
 	public int domain_id;
 
 	// 名称
-	@DatabaseField(dataType = DataType.STRING, width = 64)
+	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String title;
 
 	// 原网站id
@@ -100,7 +100,7 @@ public class Project extends Model {
 	public String tenderer_name;
 
 	// 项目状态：招募，开发中，已交付
-	@DatabaseField(dataType = DataType.STRING, width = 16)
+	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String status;
 
 	// 类型

@@ -1,15 +1,11 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
-import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.Project;
-import com.sdyk.ai.crawler.model.Tenderer;
+import com.sdyk.ai.crawler.model.ProjectSuccess;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
-import com.sdyk.ai.crawler.util.URLUtil;
-import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.exception.ProxyException;
-import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -18,25 +14,15 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * 甲方需求详情
- */
-public class ProjectTask extends Task {
+public class ProjectSuccessTask extends Task {
 
-	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("project_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://task.zbj.com/{{project_id}}/";
-	}
-
-	public Project project;
+	public ProjectSuccess project;
 
 	public enum PageType {
 		OrderDetail, ReqDetail
@@ -48,7 +34,7 @@ public class ProjectTask extends Task {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ProjectTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public ProjectSuccessTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 		// 设置优先级
@@ -62,12 +48,13 @@ public class ProjectTask extends Task {
 
 				String src = getResponse().getText();
 				Document doc = getResponse().getDoc();
-				String tenderer_webId = null;
 
 				FileUtil.writeBytesToFile(src.getBytes(), "project.html");
 
+				List<Task> tasks = new ArrayList();
+
 				// 初始化 必须传入url 生成主键id
-				project = new Project(url);
+				project = new ProjectSuccess(url);
 
 				project.domain_id = 1;
 
@@ -96,47 +83,26 @@ public class ProjectTask extends Task {
 					}
 
 					// B1 页面格式1 ：http://task.zbj.com/12954152/
-					if (pageType(header) == PageType.OrderDetail) {
+					if (pageType(header) == ProjectTask.PageType.OrderDetail) {
 
-						logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
+						logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), ProjectTask.PageType.OrderDetail.name(), getUrl());
 						try {
-							tenderer_webId = procTypeA(doc, src, header);
+							procTypeA(doc, src, header, tasks);
 							project.insert();
 						} catch (Exception e) {
 							logger.error("insert error for project", e);
 						}
 					}
 					// B2 页面格式2 ：http://task.zbj.com/12954086/
-					else if (pageType(header) == PageType.ReqDetail) {
+					else if (pageType(header) == ProjectTask.PageType.ReqDetail) {
 						try {
-							tenderer_webId = procTypeB(doc, header);
+							procTypeB(doc, header, tasks);
 							project.insert();
 						} catch (Exception e) {
 							logger.error("insert error for project", e);
 						}
 					}
 				}
-
-				// TODO 调用需求评分接口
-				try {
-
-					String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
-					ChromeTask chromeTask = new ChromeTask(Project_url);
-					t.setPost();
-					BasicRequester.getInstance().submit(t);
-				} catch (Exception e) {
-					logger.error("Error calculate project rating. ", e);
-				}
-
-
-				URLUtil.PostTask(Tenderer.class,
-						"",
-						ImmutableMap.of("tenderer_id", tenderer_webId),
-						0,
-						null,
-						null,
-						null,
-						null);
 
 			} catch (Exception e) {
 				logger.error("", e);
@@ -168,18 +134,18 @@ public class ProjectTask extends Task {
 	 * 判断页面格式
 	 * @return
 	 */
-	public PageType pageType(String type) {
+	public ProjectTask.PageType pageType(String type) {
 
 		if (type == null) {
 			return null;
 		}
 		if (type.contains("订单详情")) {
 			project.type = "订单详情";
-			return PageType.OrderDetail;
+			return ProjectTask.PageType.OrderDetail;
 		}
 		else if (type.contains("需求详情")) {
 			project.type = "需求详情";
-			return PageType.ReqDetail;
+			return ProjectTask.PageType.ReqDetail;
 		}
 
 		// 找不到 header
@@ -222,7 +188,7 @@ public class ProjectTask extends Task {
 		// 项目状态  #trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.piecework.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(3)
 		//          #trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(2)
 		String status = doc.select(".timeline > div > div > ul > li.current > p:nth-child(3)")
-					.text();
+				.text();
 		String status1 = doc.select(".timeline > div > div > ul > li.current > p:nth-child(2)")
 				.text();
 		Elements elements = doc.select(".timeline > div > div > ul > li");
@@ -262,9 +228,9 @@ public class ProjectTask extends Task {
 	}
 
 	/**
-	 * 获取甲方id，昵称，webid
+	 *
 	 */
-	public String getTendererIdName(Document doc, String src) {
+	public void getTendererIdName(Document doc, String src) {
 
 		// #j-content > div > div.user-toltit > dl > dt > img
 		// #j-content > div > div.user-toltit > dl > dt > a > img
@@ -277,6 +243,7 @@ public class ProjectTask extends Task {
 
 		String ss = link.split("_")[2];
 
+		// "" + links[1] + links[2] + links[3] + ss
 		project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 				one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + links[1] + links[2] + links[3] + ss));
 
@@ -287,7 +254,6 @@ public class ProjectTask extends Task {
 		if (matcher.find()) {
 			project.reward_type = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
-		return "" + links[1] + links[2] + links[3] + ss;
 
 	}
 
@@ -330,12 +296,13 @@ public class ProjectTask extends Task {
 	 * 页面格式1
 	 * 获取信息
 	 * @param src 页面源
-	 * */
-	public String procTypeA(Document doc, String src, String head) {
+	 * @param head 页面格式
+	 * @param tasks
+	 */
+	public void procTypeA(Document doc, String src, String head, List<Task> tasks) {
 
 		try {
 
-			project.type = head;
 			// 项目是否可投标，以及投标数量
 			finishProject(src, doc);
 
@@ -383,6 +350,8 @@ public class ProjectTask extends Task {
 					logger.error("projectTask one pubdate is bad", e);
 				}
 			}
+			// 获取招标人id
+			getTendererIdName(doc, src);
 
 			// 项目状态 剩余时间
 			projectStateOne(doc);
@@ -410,18 +379,15 @@ public class ProjectTask extends Task {
 				project.fav_num = Integer.parseInt(matcher_collect.group("T"));
 			}
 
-			// 获取招标人id
-			return getTendererIdName(doc, src);
-			/*try {
+			// 进入雇主页
+			try {
 				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
 			} catch (MalformedURLException | URISyntaxException e) {
 				logger.error("Error extract channel: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
-			}*/
-
+			}
 		} catch (Exception e) {
 			logger.error("Error handle page category 1, {}, ", getUrl(), e);
 		}
-		return null;
 	}
 
 	/**
@@ -429,9 +395,28 @@ public class ProjectTask extends Task {
 	 * 数据采取
 	 * @param head
 	 */
-	public String procTypeB(Document doc, String head) {
+	public void procTypeB(Document doc, String head, List<Task> tasks) {
 
 		try {
+
+			String src = doc.head().select("#storage").toString();
+
+			Pattern pattern_name = Pattern.compile("\"buyerName\":.+?\"");
+			Matcher matcher_name = pattern_name.matcher(src);
+			if (matcher_name.find()) {
+				project.tenderer_name = matcher_name.group()
+						.replace("\"buyerName\":\"", "")
+						.replace("\"", "");
+			}
+			Pattern pattern_id = Pattern.compile("\"buyerId\":.+?,");
+			Matcher matcher_id = pattern_id.matcher(src);
+			if (matcher_id.find()) {
+				String tenderer_id = matcher_id.group()
+						.replace("\"buyerId\":", "")
+						.replace(",", "");
+				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
+						one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + tenderer_id));
+			}
 
 			project.type = head;
 
@@ -448,7 +433,7 @@ public class ProjectTask extends Task {
 				project.tags = project.tags + elements.get(i).text();
 			}
 
-			String description_src = doc.select(".order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")
+			String description_src = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.reward.header-block-with-banner > div.task-detail.wrapper.with-task-ext")
 					.toString();
 
 			// 下载
@@ -492,32 +477,18 @@ public class ProjectTask extends Task {
 			if (project.bidder_total_num > 0 ) {
 				project.trade_type = "投标";
 			}
-
-			// 获取甲方id 昵称 webId
-			String src = doc.head().select("#storage").toString();
-
-			Pattern pattern_name = Pattern.compile("\"buyerName\":.+?\"");
-			Matcher matcher_name = pattern_name.matcher(src);
-			if (matcher_name.find()) {
-				project.tenderer_name = matcher_name.group()
-						.replace("\"buyerName\":\"", "")
-						.replace("\"", "");
-			}
-			Pattern pattern_id = Pattern.compile("\"buyerId\":.+?,");
-			Matcher matcher_id = pattern_id.matcher(src);
-			if (matcher_id.find()) {
-				String webId = matcher_id.group()
-						.replace("\"buyerId\":", "")
-						.replace(",", "");
-				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
-						one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + webId));
-				return webId;
+			// 进入雇主页
+			try {
+				tasks.add(new TendererTask("https://home.zbj.com/" + project.origin_id));
+			} catch (MalformedURLException | URISyntaxException e) {
+				logger.error("Error extract channel: {}, ", "https://home.zbj.com/" + project.origin_id, e);
 			}
 		}
 		catch (Exception e) {
 			logger.error("Error handle page category 2, {}, ", getUrl(), e);
 			logger.error("error is", e);
 		}
-		return null;
 	}
 }
+
+

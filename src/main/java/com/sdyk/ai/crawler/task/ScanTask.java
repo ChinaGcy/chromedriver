@@ -15,11 +15,11 @@ public abstract class ScanTask extends Task {
 
 	public boolean backtrace = true;
 
-	public ScanTask(String url) throws MalformedURLException, URISyntaxException {
+	public ScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 	}
 
-	public ScanTask(String url, String post_data) throws MalformedURLException, URISyntaxException {
+	/*public ScanTask(String url, String post_data) throws MalformedURLException, URISyntaxException {
 		super(url, post_data);
 	}
 
@@ -29,7 +29,7 @@ public abstract class ScanTask extends Task {
 
 	public ScanTask(String url, HashMap<String, String> headers, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
 		super(url, headers, post_data, cookies, ref);
-	}
+	}*/
 
 
 	/**
@@ -45,7 +45,5 @@ public abstract class ScanTask extends Task {
 	 * @return
 	 */
 	public abstract TaskTrace getTaskTrace();
-
-	public abstract one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen;
 
 }

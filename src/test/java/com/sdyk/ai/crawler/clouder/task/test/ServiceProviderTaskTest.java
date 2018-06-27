@@ -16,7 +16,7 @@ import org.junit.Test;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
-public class ServiceSupplierTaskTest {
+public class ServiceProviderTaskTest {
 
     @Test
     public void testServiceSupplierTask() throws MalformedURLException, URISyntaxException, InterruptedException, ChromeDriverException.IllegalStatusException {

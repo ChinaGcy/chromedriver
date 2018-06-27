@@ -9,7 +9,7 @@ import one.rewind.io.docker.model.DockerHost;
 /**
  * 容器
  */
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "docker_containers")
 public class ChromeDriverDockerContainerImpl extends ChromeDriverDockerContainer{
 

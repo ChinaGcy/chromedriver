@@ -1,10 +1,9 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.WorkTask;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
@@ -13,93 +12,72 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
- * 服务商案例列表
+ * 乙方案例列表
  * 1. 找到url
  * 2. 翻页
  */
 public class WorkScanTask extends ScanTask {
 
-	public static WorkScanTask generateTask(String header, int page) {
-
-		String url = header + "works-p" + page + ".html";
-		String userId = header.split("/")[3];
-
-		try {
-			WorkScanTask t = new WorkScanTask(url, page, userId);
-			return t;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		return null;
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("userId", String.class,"page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "http://shop.zbj.com/{{userId}}/works-p{{page}}.html";
 	}
 
-	public WorkScanTask(String url, int page, String userId) throws MalformedURLException, URISyntaxException {
+	public static List<String> list = new ArrayList<>();
+
+	public WorkScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-		this.setParam("page", page);
-		this.setParam("userId", userId);
 
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
+
+			String userId = null;
+			int page = 0;
+			Pattern pattern_url = Pattern.compile("http://shop.zbj.com/(?<userId>.+?)\\/works-p(?<page>.+?).html");
+			Matcher matcher_url = pattern_url.matcher(url);
+			if (matcher_url.find()) {
+				userId = matcher_url.group("userId");
+				page = Integer.parseInt(matcher_url.group("page"));
+			}
 
 			try {
 
 				String src = getResponse().getText();
 
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
-
+				if (src.contains(" 暂无项目案例")) {
+					return;
+				}
 				//http://shop.zbj.com/works/detail-wid-131609.html
 				Pattern pattern = Pattern.compile("http://shop.zbj.com/works/detail-wid-\\d+.html");
 				Matcher matcher = pattern.matcher(src);
 				Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/works/detail-wid-\\d+.html");
 				Matcher matcher_tp = pattern_tp.matcher(src);
 
-				List<String> list = new ArrayList<>();
+				getWorkUrl(matcher);
 
-				while (matcher.find()) {
-
-					String new_url = matcher.group();
-
-					if (!list.contains(new_url)) {
-						list.add(new_url);
-						try {
-							tasks.add(new WorkTask(new_url, userId));
-						} catch (MalformedURLException | URISyntaxException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-
-				while (matcher_tp.find()) {
-
-					String new_url = matcher_tp.group();
-
-					if (!list.contains(new_url)) {
-						list.add(new_url);
-						try {
-							tasks.add(new WorkTask(new_url, userId));
-						} catch (MalformedURLException | URISyntaxException e) {
-							e.printStackTrace();
-						}
-					}
-				}
+				getWorkUrl(matcher_tp);
 
 				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
 				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
-					com.sdyk.ai.crawler.task.Task t = WorkScanTask.generateTask("https://shop.zbj.com/" + this.getParamString("userId")+"/", page + 1);
-					if (t != null) {
-						t.setPriority(Priority.HIGH);
-						tasks.add(t);
-					}
-				}
+					URLUtil.PostTask(this.getClass(),
+							null,
+							ImmutableMap.of("userId", userId,"page", String.valueOf(++page)),							null,
+							null,
+							null,
+							null,
+							null
+					);
 
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					ChromeDriverRequester.getInstance().submit(t);
-				}
+					}
+
+
 			} catch (Exception e) {
 				logger.error(e);
 			}
@@ -112,8 +90,36 @@ public class WorkScanTask extends ScanTask {
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
 	}
 
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
+	/**
+	 * 获取work任务
+	 * @param matcher
+	 */
+	public void getWorkUrl(Matcher matcher) {
+
+		while (matcher.find()) {
+
+			String new_url = matcher.group();
+
+			String work_webId = new_url.split("/")[4]
+					.replace("detail-wid-","")
+					.replace(".html","");
+
+			if (!list.contains(new_url)) {
+				list.add(new_url);
+
+				try {
+					URLUtil.PostTask(CaseTask.class,
+							null,
+							ImmutableMap.of("work_webId", work_webId),
+							null,
+							null,
+							null,
+							null,
+							null);
+				} catch (ClassNotFoundException e) {
+					logger.error(e);
+				}
+			}
+		}
 	}
 }

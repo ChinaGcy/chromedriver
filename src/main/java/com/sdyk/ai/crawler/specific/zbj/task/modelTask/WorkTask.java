@@ -1,16 +1,15 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.Work;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
 
 
 /**
@@ -18,24 +17,38 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
  */
 public class WorkTask extends Task {
 
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("work_webId", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://shop.zbj.com/works/detail-wid-{{work_webId}}.html";
+	}
+
 	Work work;
 
-	public WorkTask(String url, String user_id) throws MalformedURLException, URISyntaxException {
+	public WorkTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
-		this.setParam("user_id",user_id);
 
-		this.addDoneCallback(()-> {
+		this.addDoneCallback((t)-> {
+
+			String work_webId = null;
+			Pattern pattern = Pattern.compile("https://shop.zbj.com/works/detail-wid-(?<workWebId>.+?)\\.html");
+			Matcher matcher = pattern.matcher(url);
+			if (matcher.find()) {
+				work_webId = matcher.group("workWebId");
+			}
 
 			try {
 
 				Document doc = getResponse().getDoc();
-				List<Task> tasks = new ArrayList<>();
 
 				work = new Work(getUrl());
 
 				work.user_id = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid(
-								"https://shop.zbj.com/"+ user_id +"/"));
+								"https://shop.zbj.com/"+ work_webId +"/"));
 
 				// 判断页面格式
 				if (getUrl().contains("zbj")) {
@@ -46,19 +59,12 @@ public class WorkTask extends Task {
 					pageTwo(doc);
 				}
 
-				/*if (work.name == null) {
-					ChromeDriverRequester.getInstance().submit(this);
-				}*/
-
 				try {
 					work.insert();
 				} catch (Exception e) {
 					logger.error("insert error for Work", e);
 				}
 
-				for (Task t : tasks) {
-					ChromeDriverRequester.getInstance().submit(t);
-				}
 			}catch (Exception e) {
 				logger.error(e);
 			}

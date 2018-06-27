@@ -1,13 +1,14 @@
 package com.sdyk.ai.crawler.specific.zbj.task.action;
 
 import com.sdyk.ai.crawler.specific.zbj.model.ProjectEval;
-import one.rewind.io.requester.chrome.action.ChromeAction;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.action.Action;
 import one.rewind.io.requester.chrome.action.GeetestAction;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
-public class GetProjectContactAction extends ChromeAction {
+public class GetProjectContactAction extends Action {
 
 	ProjectEval evalProjects;
 
@@ -15,7 +16,7 @@ public class GetProjectContactAction extends ChromeAction {
 	// #taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > a
 	public String bidButtonCssPath = "div.task-wantbid-launch > a";
 
-	// 投标后获取电话联系方式按钮
+	// 投标后获取电话联系方式按钮 #taskTabs > div > div:nth-child(1) > ul > li.oc-node-item.oc-node-now > div > div > p:nth-child(1) > a.info-item-btns-linker.anonymous-btn
 	public String cellphontContactButtonAfterBidCssPath = ".info-item-btns-linker.anonymous-btn";
 
 	// 获取花费信息
@@ -38,10 +39,10 @@ public class GetProjectContactAction extends ChromeAction {
 	 *  图片 body > div.geetest_panel.geetest_wind > div.geetest_panel_box.geetest_panelshowslide > div.geetest_panel_next > div > div.geetest_wrap > div.geetest_widget > div > a > div.geetest_canvas_img.geetest_absolute > canvas
 	 *  刷新 body > div.geetest_panel.geetest_wind > div.geetest_panel_box.geetest_panelshowslide > div.geetest_panel_next > div > div.geetest_panel > div > a.geetest_refresh_1
 	 */
-	public void run() {
+	public boolean run(ChromeDriverAgent agent) {
 
 		try {
-			Thread.sleep(8000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			logger.error(e);
 		}
@@ -63,7 +64,7 @@ public class GetProjectContactAction extends ChromeAction {
 			if (status.contains("标数已满") || status.contains("暂停投标")) {
 				logger.info("Project:{} bidder is full.", evalProjects.id);
 				// 更新项目状态
-				return;
+				return false;
 			}
 
 		}
@@ -72,13 +73,13 @@ public class GetProjectContactAction extends ChromeAction {
 
 			// 如果已经投过标，直接点击获取电话联系方式
 			try {
-				clickCellphoneContactButton();
+				clickCellphoneContactButton(agent);
 			}
 			catch (Exception ex) {
 				logger.error("Can't click cellphone contact button. ", e);
 			}
 
-			return;
+			return false;
 		}
 
 		// A.1 点击投标
@@ -90,7 +91,7 @@ public class GetProjectContactAction extends ChromeAction {
 
 		// 加延时等待加载
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			logger.error(e);
 		}
@@ -109,7 +110,6 @@ public class GetProjectContactAction extends ChromeAction {
 			//geetest_panel_error_content
 			// 执行拖拽操作
 			GeetestAction action = new GeetestAction();
-			action.agent = agent;
 
 			action.geetestResetTipCssPath = ".geetest_panel_error_content";
 
@@ -117,7 +117,7 @@ public class GetProjectContactAction extends ChromeAction {
 
 			action.geetestSuccessMsgCssPath = ".ui-dialog.newbid-bid-dialog";
 
-			action.run();
+			action.run(agent);
 
 		}
 		// 没出现极验测试
@@ -133,21 +133,19 @@ public class GetProjectContactAction extends ChromeAction {
 
 		// C 取得投标花费（猪币）
 		// body > div:nth-child(21) > div.ui-dialog.newbid-bid-dialog > div > div.ui-dialog-container > div.ui-dialog-message > p > span
-		evalProjects.cost = Double.parseDouble(this.agent.getDriver()
+		evalProjects.cost = Double.parseDouble(agent.getDriver()
 				.findElement(By.cssSelector(spendMsgCssPath))
 				.getText());
 
 		logger.info("cost : {}", evalProjects.cost);
 
 		// D 确认投标
-		this.agent.getElementWait(confirmBidCssPath).click();
+		agent.getElementWait(confirmBidCssPath).click();
 
 		// E 点击 电话联系
 		try {
-
-			Thread.sleep(10000);
-
-			clickCellphoneContactButton();
+			Thread.sleep(15000);
+			clickCellphoneContactButton(agent);
 		} catch (Exception e) {
 			logger.error(e);
 		}
@@ -175,11 +173,12 @@ public class GetProjectContactAction extends ChromeAction {
 
 		// 确定
 		chromeDriverAgent.getDriver().findElement(By.cssSelector("body > div.arale-dialog-1_3_0 > div.ui-dialog.rd-dialog-ui > div > div.ui-dialog-container > div.ui-dialog-operation > div.ui-dialog-confirm > a")).click();*/
+		return true;
 	}
 
-	private void clickCellphoneContactButton() throws Exception {
+	private void clickCellphoneContactButton(ChromeDriverAgent agent) throws Exception {
 
-		this.agent.getDriver()
+		agent.getDriver()
 				.findElement(By.cssSelector(cellphontContactButtonAfterBidCssPath))
 				.click();
 

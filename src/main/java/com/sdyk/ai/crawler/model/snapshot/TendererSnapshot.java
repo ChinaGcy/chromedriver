@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 @DatabaseTable(tableName = "tenderer_snapshots")
 public class TendererSnapshot extends Tenderer {
 
+	// 原网站id
 	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
 	public String id_;
 
@@ -27,14 +28,17 @@ public class TendererSnapshot extends Tenderer {
 		Field[] fieldList = tenderer.getClass().getDeclaredFields();
 
 		for(Field f : fieldList) {
+
 			Field f_ = this.getClass().getField(f.getName());
 			f_.set(this, f.get(tenderer));
 		}
 
 		this.id = StringUtil.byteArrayToHex(
-				StringUtil.uuid(tenderer.url + " " + tenderer.insert_time.getTime())
+				StringUtil.uuid(tenderer.url + " " + System.currentTimeMillis())
 		);
 
 		this.id_ = tenderer.id;
+
+		this.url = tenderer.url;
 	}
 }

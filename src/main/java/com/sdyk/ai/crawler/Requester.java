@@ -6,13 +6,14 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
-import one.rewind.io.requester.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.task.ChromeTask;
 import org.redisson.api.RMap;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Requester extends ChromeDriverRequester {
+public class Requester extends ChromeDriverDistributor {
 
 	public static RMap<String, Date> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
 
@@ -43,7 +44,7 @@ public class Requester extends ChromeDriverRequester {
 	 * 当程序异常退出，需要重构 URL_VISITS
 	 * @param task
 	 */
-	public void submit(Task task) {
+	public void submit(ChromeTask task) {
 
 		String hash = hash(task.getUrl());
 
@@ -55,14 +56,14 @@ public class Requester extends ChromeDriverRequester {
 			URL_VISITS.put(hash, new Date());
 
 			// TODO 任务队列中包含相同URL的Task，该Task不需要提交
-			task.addDoneCallback(() -> {
+			task.addDoneCallback((t) -> {
 				StatManager.getInstance().count();
 				taskStat.put(task.getClass().getSimpleName(), taskStat.get(task.getClass().getSimpleName()) - 1);
 			});
 
 			// 对于ScanTask 记录TaskTrace
 			if(task instanceof com.sdyk.ai.crawler.task.ScanTask) {
-				task.addDoneCallback(() -> {
+				task.addDoneCallback((t) -> {
 
 					TaskTrace tt = ((ScanTask) task).getTaskTrace();
 					try {

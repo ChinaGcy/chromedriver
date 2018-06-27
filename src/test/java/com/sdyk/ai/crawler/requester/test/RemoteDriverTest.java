@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -14,6 +15,8 @@ import one.rewind.io.requester.proxy.ProxyImpl;
 import one.rewind.io.ssh.SshManager;
 import org.junit.Test;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
@@ -53,9 +56,9 @@ public class RemoteDriverTest {
 	@Test
 	public void simpleTest() throws Exception {
 
-		final Proxy proxy = new ProxyImpl("114.215.70.14", 59998, "tfelab", "TfeLAB2@15");
+		//final Proxy proxy = new ProxyImpl("114.215.70.14", 59998, "tfelab", "TfeLAB2@15");
 		final URL remoteAddress = new URL("http://10.0.0.56:4444/wd/hub");
-		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress,null,proxy);
+		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress,null);
 		agent.start();
 
 		System.err.println(ChromeDriverRequester.REQUESTER_LOCAL_IP + ":" + agent.bmProxy_port);
@@ -149,5 +152,19 @@ public class RemoteDriverTest {
 
 		Thread.sleep(100000000);
 
+	}
+
+	@Test
+	public void postTest() throws MalformedURLException, URISyntaxException {
+
+		String project_id = "8bc2056a0f60e46b732cdfc8ad126fcb";
+		String url = "http://localhost/zbj/get_contact/" + project_id;
+
+		one.rewind.io.requester.Task t = new one.rewind.io.requester.Task(url);
+		t.setPost();
+
+		BasicRequester.getInstance().submit(t);
+
+		System.err.println(t.getResponse().getText());
 	}
 }

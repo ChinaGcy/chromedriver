@@ -25,7 +25,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  *
  */
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "aliyun_hosts")
 public class AliyunHost {
 
@@ -123,8 +123,8 @@ public class AliyunHost {
 		// 操作系统
 		createInstance.setImageId("ubuntu_16_0402_64_20G_alibase_20171227.vhd");
 
-		// 服务器类型
-		createInstance.setInstanceType("ecs.xn4.small");
+		// 服务器类型 ecs.xn4.small 华南1区A
+		createInstance.setInstanceType("ecs.t5-lc2m1.nano");  // 华南1区C
 
 		// 安全组 用于开放端口
 		createInstance.setSecurityGroupId("sg-wz9ejq1i5n8kv5kp8sqo");

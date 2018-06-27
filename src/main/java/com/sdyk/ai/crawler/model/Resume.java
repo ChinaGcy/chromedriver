@@ -22,21 +22,25 @@ public class Resume extends Model {
     @DatabaseField(dataType = DataType.DATE)
     public Date ed;
 
-    //学校公司
+    // 学校公司
     @DatabaseField(dataType = DataType.STRING, width = 64)
     public String org;
 
-    //院系
+    // 院系
     @DatabaseField(dataType = DataType.STRING, width = 64)
     public String dep;
 
-    //学位、职位
+    // 学位、职位
     @DatabaseField(dataType = DataType.STRING, width = 64)
     public String degree_occupation;
 
-    //是否在读、在职
+    // 是否在读、在职
     @DatabaseField(dataType = DataType.INTEGER, width = 1)
     public int is_current;
+
+    // 描述
+    @DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
+    public String content;
 
     public Resume(){}
 

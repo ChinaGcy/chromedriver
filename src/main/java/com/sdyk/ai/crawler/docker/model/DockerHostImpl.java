@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static one.rewind.db.RedissonAdapter.redisson;
 
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "docker_hosts")
 public class DockerHostImpl extends DockerHost {
 

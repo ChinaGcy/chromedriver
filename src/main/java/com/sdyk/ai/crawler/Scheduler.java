@@ -7,15 +7,14 @@ import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
-import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
-import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
-import com.sdyk.ai.crawler.task.Task;
 import one.rewind.db.DaoManager;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+
 import one.rewind.io.requester.proxy.Proxy;
+import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -31,6 +30,8 @@ public abstract class Scheduler {
 	int driverCount = 1;
 
 	public String domain;
+
+	public Scheduler() {}
 
 	public Scheduler(String domain, int driverCount) {
 
@@ -77,10 +78,10 @@ public abstract class Scheduler {
 		try {
 
 			// 替换Requester
-			logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
+			/*logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
 
 			ChromeDriverRequester.instance = new Requester();
-			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
+			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);*/
 
 			// 创建阿里云host
 			//AliyunHost.batchBuild(driverCount);
@@ -92,12 +93,12 @@ public abstract class Scheduler {
 			DockerHostManager.getInstance().createDockerContainers(driverCount);
 
 			// 读取有效账户 driverCount 个
-			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
+			/*List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);*/
 
 			// 分别为每个账号创建容器 和 chromedriver对象
-			CountDownLatch latch = new CountDownLatch(accounts.size());
+			CountDownLatch latch = new CountDownLatch(driverCount);
 
-			for(AccountImpl account : accounts) {
+			for(int i = 0 ; i<driverCount; i++) {
 
 				Thread thread = new Thread(() -> {
 
@@ -137,7 +138,7 @@ public abstract class Scheduler {
 							});
 
 							// 生成登录任务
-							Task task = getLoginTask(account);
+
 
 							ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
@@ -145,14 +146,14 @@ public abstract class Scheduler {
 							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy);
 
 							// agent 添加异常回调
-							agent.addAccountFailedCallback(()->{
+							agent.addAccountFailedCallback((agent1 ,account)->{
 
 								logger.info("Account {}:{} failed.", account.domain, account.username);
 
-							}).addProxyFailedCallback(()->{
+							}).addProxyFailedCallback((agent1, proxy1)->{
 
 								// 代理被禁
-								logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
+								logger.info("Proxy {}:{} failed.", proxy1.host, proxy1.port);
 
 								try {
 
@@ -174,14 +175,14 @@ public abstract class Scheduler {
 									logger.error(e);
 								}
 
-							}).addTerminatedCallback(()->{
+							}).addTerminatedCallback((agent1)->{
 
 								logger.info("Container {} {}:{} Terminated.", container.name, container.ip, container.vncPort);
 
-							}).addNewCallback(()->{
+							}).addNewCallback((agent1)->{
 
 								try {
-									agent.submit(task, 300000);
+									getLoginTask();
 								} catch (Exception e) {
 									logger.error(e);
 								}
@@ -189,9 +190,7 @@ public abstract class Scheduler {
 							});
 
 							// agent.bmProxy.getClientBindAddress();
-							ChromeDriverRequester.getInstance().addAgent(agent);
-
-							agent.start();
+							ChromeDriverDistributor.getInstance().addAgent(agent);
 
 							logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
 									agent.remoteAddress,
@@ -226,19 +225,18 @@ public abstract class Scheduler {
 
 	/**
 	 *
-	 * @param account
 	 * @return
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public abstract Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException;
+	public abstract void getLoginTask() throws MalformedURLException, URISyntaxException;
 
 	/**
 	 *
 	 * @param backtrace
 	 * @return
 	 */
-	public abstract List<Task> getTask(boolean backtrace);
+	public abstract void getTask(boolean backtrace);
 
 	/**
 	 * 获取历史数据

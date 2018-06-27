@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.util;
 
 import com.sdyk.ai.crawler.model.Binary;
+import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import one.rewind.io.requester.BasicRequester;
@@ -41,7 +42,7 @@ public class BinaryDownloader {
 			try {
 
 				String oldUrl = url;
-				one.rewind.io.requester.Task t_;
+				ChromeTask t_;
 				// 2.判断地址是否有协议头
 				if (! url.contains("https") && !url.contains("http") && url.contains("//")) {
 					url = "https:" + url;
@@ -57,7 +58,7 @@ public class BinaryDownloader {
 
 
 
-				t_ = new one.rewind.io.requester.Task(url);
+				t_ = new ChromeTask(url);
 
 				Binary binary = new Binary(url);
 
@@ -97,7 +98,7 @@ public class BinaryDownloader {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	public static String getFileName(one.rewind.io.requester.Task t_, Binary binary, String url) throws UnsupportedEncodingException {
+	public static String getFileName(ChromeTask t_, Binary binary, String url) throws UnsupportedEncodingException {
 
 		String fileName = null;
 

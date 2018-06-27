@@ -3,14 +3,13 @@ package com.sdyk.ai.crawler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.util.StatManager;
+import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.client.RedisTimeoutException;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.requester.BasicRequester;
-import one.rewind.io.requester.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.proxy.IpDetector;
 import one.rewind.util.NetworkUtil;
 
@@ -57,13 +56,13 @@ public class OldCrawler {
 		}*/
 	}
 
-	private Map<Class<? extends Task>, Distributor<? extends Task>> distributors = new HashMap<>();
+	private Map<Class<? extends ChromeTask>, Distributor<? extends ChromeTask>> distributors = new HashMap<>();
 
 	private OldCrawler() {
 
 	}
 
-	public boolean tasksDone(Class<? extends Task> clazz) throws InterruptedException {
+	public boolean tasksDone(Class<? extends ChromeTask> clazz) throws InterruptedException {
 
 		int count = 0;
 		Distributor d = distributors.get(clazz);
@@ -84,18 +83,18 @@ public class OldCrawler {
 	 *
 	 * @param clazz
 	 */
-	void createDistributor(Class<? extends Task> clazz) {
+	void createDistributor(Class<? extends ChromeTask> clazz) {
 		Distributor d = new Distributor(clazz.getSimpleName() + "-queue", clazz);
 		d.setPriority(5);
 		d.start();
-		distributors.put(clazz, d);
+		/*distributors.put(clazz, d);*/
 	}
 
 	/**
 	 *
 	 * @param t
 	 */
-	public void addTask(Task t) {
+	/*public void addTask(Task t) {
 
 		if(t == null) return;
 
@@ -103,7 +102,7 @@ public class OldCrawler {
 			createDistributor(t.getClass());
 		}
 
-		/*if(t.setPriority()) {
+		if(t.setPriority()) {
 			try {
 				distributors.get(t.getClass()).distribute(t.toJSON());
 			} catch (Exception e) {
@@ -111,15 +110,15 @@ public class OldCrawler {
 			}
 		} else {
 			distributors.get(t.getClass()).taskQueue.offer(t.toJSON());
-		}*/
+		}
 
-	}
+	}*/
 
 	/**
 	 *
 	 * @param ts
 	 */
-	public void addTask(List<Task> ts) {
+	/*public void addTask(List<Task> ts) {
 
 		if(ts == null) return;
 
@@ -127,11 +126,11 @@ public class OldCrawler {
 			addTask(t);
 		}
 	}
-
+*/
 	/**
 	 * 任务指派类
 	 */
-	class Distributor<T extends Task> extends Thread {
+	class Distributor<T extends ChromeTask> extends Thread {
 
 		RBlockingQueue<String> taskQueue;
 
@@ -276,7 +275,7 @@ public class OldCrawler {
 
 			public void run() {
 
-				t.setResponse();
+				/*t.setResponse();
 
 				if(t.getRequester_class() != null
 						&& t.getRequester_class().equals(ChromeDriverRequester.class.getSimpleName()))
@@ -288,9 +287,9 @@ public class OldCrawler {
 
 				StatManager.getInstance().count();
 
-				/**
+				*//**
 				 * 重试逻辑
-				 */
+				 *//*
 				if (t.getExceptions().size() > 0) {
 
 					for(Throwable e : t.getExceptions()) {
@@ -328,7 +327,7 @@ public class OldCrawler {
 				}
 
 				logger.info("{} duration: {}", t.getUrl(), t.getDuration());
-
+*/
 			}
 		}
 	}

@@ -1,28 +1,51 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import org.jsoup.nodes.Document;
+import com.sdyk.ai.crawler.util.StringUtil;
+import com.sdyk.ai.crawler.util.URLUtil;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
+import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 雇主详情
  */
 public class TendererTask extends Task {
 
-	public TendererTask(String url) throws MalformedURLException, URISyntaxException {
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("user_id", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://task.zbj.com/{{user_id}}/";
+	}
+
+	public TendererTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 		this.setPriority(Priority.MEDIUM);
 
-		this.addDoneCallback(()->{
+		this.addDoneCallback((t)->{
+
+			String userId = null;
+			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>.+?)\\/$");
+			Matcher matcher = pattern.matcher(url);
+			if (matcher.find()) {
+				userId = matcher.group("userId");
+			}
 
 			try {
 
@@ -80,18 +103,45 @@ public class TendererTask extends Task {
 								.text()
 								.replaceAll(",", ""));
 
+				// 获取头像
+				String head = doc.select("#utopia_widget_1 > div > div.avatar")
+						.html();
+				Set<String> head_img = new HashSet<>();
+				String head1 = StringUtil.cleanContent(head, head_img,null, null);
+				this.download(head);
+				tenderer.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
+						one.rewind.txt.StringUtil.uuid("https:" + head1));
+
 				tenderer.insert();
 
 				// 添加projectTask
-				tasks.add(TendererOrderTask.generateTask(getUrl(), 1, tenderer.origin_id));
+				/*tasks.add(TendererOrderTask.generateTask(getUrl(), 1, tenderer.origin_id));*/
+				URLUtil.PostTask(TendererOrderTask.class,
+						null,
+						ImmutableMap.of("user_id", userId, "page", "1"),
+						null,
+						null,
+						null,
+						null,
+						null);
 
 				// 评价任务
-				tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.origin_id));
+				/*tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.origin_id));*/
+				URLUtil.PostTask(TendererRatingTask.class,
+						null,
+						ImmutableMap.of("user_id", userId, "page", "1"),
+						null,
+						null,
+						null,
+						null,
+						null);
 
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
+				/*for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					t.setBuildDom();
 					ChromeDriverRequester.getInstance().submit(t);
-				}
+				}*/
+
+
 			}catch (Exception e) {
 				logger.error(e);
 			}

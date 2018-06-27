@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.specific.mihuashi;
 
-import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
 import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
 import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ProjectScanTask;
@@ -55,7 +54,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
      * @return
      */
     @Override
-    public List<com.sdyk.ai.crawler.task.Task> getTask(boolean backtrace) {
+    public void getTask(boolean backtrace) {
 
         List<com.sdyk.ai.crawler.task.Task> scanTaskList = new ArrayList<>();
         scanTaskList.add(ServiceScanTask.generateTask(1));

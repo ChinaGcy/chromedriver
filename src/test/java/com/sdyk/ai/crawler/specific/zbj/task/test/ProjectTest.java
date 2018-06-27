@@ -3,7 +3,9 @@ package com.sdyk.ai.crawler.specific.zbj.task.test;
 import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.ServiceProvider;
 import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
+import com.sdyk.ai.crawler.model.snapshot.ServiceProviderSnapshot;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
 import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
@@ -45,7 +47,7 @@ public class ProjectTest {
 
 
 		GetProjectContactTask task2 = GetProjectContactTask.getTask(new Project());
-		task.addAction(new GetProjectContactAction(task2.evalProjects));
+		task.addAction(new GetProjectContactAction(task2.projectEval));
 
 		AuthorizedRequester.getInstance().submit(task1);
 
@@ -56,8 +58,21 @@ public class ProjectTest {
 	@Test
 	public void testBuildSnapshot() throws Exception {
 		Dao<Project, String> dao = DaoManager.getDao(Project.class);
-		Project project = dao.queryForId("0d2c6b93bcbbc7bd58e286438364868b");
+		Project project = dao.queryForId("00756aa02825b3193077791ea1aa1675");
 		ProjectSnapshot snapshot = new ProjectSnapshot(project);
+
+		System.out.println(project.toJSON());
+		System.err.println(snapshot.toJSON());
+	}
+
+	// 6d351586e7ed7a2ef29ee40b2e6f35b0
+	@Test
+	public void testBuildSnapshot1() throws Exception {
+		Dao<ServiceProvider, String> dao = DaoManager.getDao(ServiceProvider.class);
+		ServiceProvider serviceProvider = dao.queryForId("6d351586e7ed7a2ef29ee40b2e6f35b0");
+		ServiceProviderSnapshot snapshot = new ServiceProviderSnapshot(serviceProvider);
+
+		System.out.println(serviceProvider.toJSON());
 		System.err.println(snapshot.toJSON());
 	}
 }

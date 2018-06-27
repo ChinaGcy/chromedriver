@@ -1,9 +1,8 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
  * 服务商列表
  * 1. 找到url
@@ -20,7 +20,16 @@ import java.util.regex.Pattern;
  */
 public class ServiceScanTask extends ScanTask {
 
-	public static ServiceScanTask generateTask(String channel, int page) {
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("channel", String.class,"page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://www.zbj.com/{{channel}}/pk{page}.html";
+	}
+
+	/*public static ServiceScanTask generateTask(String channel, int page) {
 
 		String url = "https://www.zbj.com/" + channel + "/pk" + page + ".html";
 
@@ -34,31 +43,35 @@ public class ServiceScanTask extends ScanTask {
 		}
 
 		return null;
-	}
+	}*/
 
 	/**
 	 *
 	 * @param url
-	 * @param page
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ServiceScanTask(String url, String channel, int page) throws MalformedURLException, URISyntaxException {
+	public ServiceScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-		this.setParam("page", page);
-		this.setParam("channel", channel);
 		this.setPriority(Priority.HIGH);
 
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
+
+			String channel = null;
+			int page = 0;
+			Pattern pattern_url = Pattern.compile("https://www.zbj.com/(?<channel>.+?)\\/pk(?<page>.+?).html");
+			Matcher matcher_url = pattern_url.matcher(url);
+			if (matcher_url.find()) {
+				channel = matcher_url.group("channel");
+				page = Integer.parseInt(matcher_url.group("page"));
+			}
 
 			try {
 
 				String src = getResponse().getText();
 
 				Document document = getResponse().getDoc();
-
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				Pattern pattern = Pattern.compile("//shop.zbj.com/\\d+/");
 				Matcher matcher = pattern.matcher(src);
@@ -72,11 +85,7 @@ public class ServiceScanTask extends ScanTask {
 					if (!list.contains(new_url)) {
 
 						list.add(new_url);
-						try {
-							tasks.add(new ServiceProviderTask(new_url));
-						} catch (MalformedURLException | URISyntaxException e) {
-							logger.error(e);
-						}
+
 					}
 				}
 
@@ -86,15 +95,18 @@ public class ServiceScanTask extends ScanTask {
 				// #utopia_widget_18 > div.pagination > ul > li:nth-child(1)
 				// 翻页
 				if (pageTurning("#utopia_widget_18 > div.pagination > ul > li", i)) {
-					com.sdyk.ai.crawler.task.Task t = ServiceScanTask.generateTask(getUrl().split("/")[3], page + 40);
-					tasks.add(t);
+
+					URLUtil.PostTask(this.getClass(),
+							null,
+							ImmutableMap.of("channel", channel,"page", String.valueOf(page+40)),							null,
+							null,
+							null,
+							null,
+							null
+							);
 				}
 
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					ChromeDriverRequester.getInstance().submit(t);
-				}
-
-				logger.info("Task driverCount: {}", tasks.size());
+				//logger.info("Task driverCount: {}", tasks.size());
 
 			} catch (Exception e) {
 				logger.error(e);
@@ -106,8 +118,4 @@ public class ServiceScanTask extends ScanTask {
 		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
 	}
 
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
-	}
 }

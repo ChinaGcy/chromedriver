@@ -1,54 +1,66 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
-import one.rewind.txt.DateFormatUtil;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ServiceProviderRatingTask extends ScanTask {
+
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "http://shop.zbj.com/evaluation/evallist-uid-{{user_id}}-category-1-isLazyload-0-page-{{page}}.html";
+	}
 
 	ServiceProviderRating serviceProviderRating;
 
 	// http://shop.zbj.com/evaluation/evallist-uid-7791034-type-1-isLazyload-0-page-1.html
-	public static ServiceProviderRatingTask generateTask(String userId, int page) {
+	/*public static ServiceProviderRatingTask generateTask(String userId, int page) {
 
 		String url_ = "http://shop.zbj.com/evaluation/evallist-uid-" + userId + "-category-1-isLazyload-0-page-" + page + ".html";
 
 		try {
 			ServiceProviderRatingTask t = new ServiceProviderRatingTask(url_, userId, page);
 			return t;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
+		} catch (MalformedURLException | ProxyException.Failed | URISyntaxException e) {
 			e.printStackTrace();
 		}
 
 		return null;
-	}
+	}*/
 
-	public ServiceProviderRatingTask(String url, String userId, int page) throws MalformedURLException, URISyntaxException {
+	public ServiceProviderRatingTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
-		this.setParam("page", page);
-		this.setParam("userId", userId);
 
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
 
 			try {
 
-				Document doc = getResponse().getDoc();
+				String userId = null;
+				int page = 0;
+				Pattern pattern = Pattern.compile("http://shop.zbj.com/evaluation/evallist-uid-(?<userId>.+?)-category-1-isLazyload-0-page-(?<page>.+?).html");
+				Matcher matcher = pattern.matcher(url);
+				if (matcher.find()) {
+					userId = matcher.group("workWebId");
+					page = Integer.parseInt(matcher.group("page"));
+				}
 
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
+				Document doc = getResponse().getDoc();
 
 				// 判断当前页面有多少评论
 				int size = 0;
@@ -77,15 +89,19 @@ public class ServiceProviderRatingTask extends ScanTask {
 
 				// 翻页 #userlist > div.pagination > ul > li.disabled
 				if (pageTurning("#userlist > div.pagination > ul > li", page)) {
-					com.sdyk.ai.crawler.task.Task task = generateTask(userId, page + 1);
-					tasks.add(task);
+
+					URLUtil.PostTask(this.getClass(),
+							"",
+							ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)),
+							0,
+							null,
+							null,
+							null,
+							null);
 				}
 
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					ChromeDriverRequester.getInstance().submit(t);
-				}
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error("", e);
 			}
 		});
 	}
@@ -121,9 +137,12 @@ public class ServiceProviderRatingTask extends ScanTask {
 		serviceProviderRating.content = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p:nth-child(2) > span")
 				.text();
 
-		serviceProviderRating.tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
-					.text().split("印象：")[1];
+		String tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
+				.text();
+		if (tags != null && !tags.equals("")) {
+			serviceProviderRating.tags = tags.split("印象：")[1];
 
+		}
 		try {
 			serviceProviderRating.pubdate = DateFormatUtil.parseTime(doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd.mint > p").text());
 		} catch (ParseException e) {
@@ -137,8 +156,4 @@ public class ServiceProviderRatingTask extends ScanTask {
 		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
 	}
 
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
-	}
 }

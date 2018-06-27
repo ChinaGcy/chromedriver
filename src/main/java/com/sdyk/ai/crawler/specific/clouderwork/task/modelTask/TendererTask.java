@@ -149,7 +149,7 @@ public class TendererTask extends Task {
 	    tenderer.rating_num = Integer.valueOf(sRatings) + elements.size();
 
         //好评数
-	    tenderer.praise_time = Integer.valueOf(sRatings);
+	    tenderer.praise_num = Integer.valueOf(sRatings);
 
         //获取项目连接
         String[] userIds = getUrl().split("clients/");

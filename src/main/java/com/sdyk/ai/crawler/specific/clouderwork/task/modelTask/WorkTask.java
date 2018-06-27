@@ -34,7 +34,7 @@ public class WorkTask extends Task {
 		//项目名称
 		String title = doc.getElementsByClass("p-title").text();
 		if(title!=null&&!"".equals(title)){
-			workinfor.work_name = title;
+			workinfor.title = title;
 		}
 
 		String all = doc.getElementsByClass("info").text().replace("类型：","");
@@ -59,7 +59,7 @@ public class WorkTask extends Task {
 				String budge = all3[1].replace(",","").replace("¥","");
 				if(budge!=null&!"".equals(budge)&&pattern.matcher(budge).matches()){
 					try {
-						workinfor.pricee = Double.valueOf(budge);
+						workinfor.price = Double.valueOf(budge);
 					} catch (Exception e) {
 						logger.error("error on String to Integer", e);
 					}

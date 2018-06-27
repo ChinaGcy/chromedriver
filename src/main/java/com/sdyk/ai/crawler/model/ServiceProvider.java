@@ -28,7 +28,7 @@ public class ServiceProvider extends Model {
 	public String name;
 
 	// 头像
-	@DatabaseField(dataType = DataType.STRING, width = 64)
+	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String head_portrait;
 
 	// 平台认证
@@ -44,7 +44,7 @@ public class ServiceProvider extends Model {
 	public String company_address;
 
 	// 公司网址
-	@DatabaseField(dataType = DataType.STRING, width = 1025)
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String company_website;
 
 	// 类型
@@ -117,11 +117,11 @@ public class ServiceProvider extends Model {
 
 	// 电话
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String cellphone;
+	public String cellphone = "";
 
 	// 固定电话
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String telephone;
+	public String telephone = "";
 
 	// qq
 	@DatabaseField(dataType = DataType.STRING, width = 64)
@@ -172,7 +172,7 @@ public class ServiceProvider extends Model {
 	public String position;
 
 	// 存放图片
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String cover_images;
 
 	// 客户评分

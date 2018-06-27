@@ -8,16 +8,12 @@ import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * 获取项目信息
- * 1. 登录 TODO 待实现
- * 2. 找到url
- * 3. 翻页
- */
-public class ProjectScanTask extends ScanTask {
+public class ProjectSuccessSacnTask extends ScanTask {
 
 	static {
 		// init_map_class
@@ -27,14 +23,13 @@ public class ProjectScanTask extends ScanTask {
 		// url_template
 		url_template = "http://task.zbj.com/{{channel}}/p{{page}}s5.html?o=1";
 	}
-
 	/**
 	 *
 	 * @param url
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public ProjectSuccessSacnTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 
@@ -59,7 +54,9 @@ public class ProjectScanTask extends ScanTask {
 				String src = getResponse().getText();
 
 				// 生成任务
-				Pattern pattern = Pattern.compile("task.zbj.com/(?<projectId>.+?)$");
+				Map<String, com.sdyk.ai.crawler.task.Task> tasks = new HashMap<>();
+
+				Pattern pattern = Pattern.compile("http://task.zbj.com/\\d+");
 				Matcher matcher = pattern.matcher(src);
 
 				while (matcher.find()) {
@@ -81,8 +78,8 @@ public class ProjectScanTask extends ScanTask {
 					}
 				}
 
-				// 判断翻页
-				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul > li", page)) {
+				// body > div.grid.grid-inverse > div.main-wrap > div > div.list-footer > div > ul
+				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div.list-footer > div > ul > li", page)) {
 
 					URLUtil.PostTask(ProjectTask.class,
 							null,
@@ -92,18 +89,20 @@ public class ProjectScanTask extends ScanTask {
 							null,
 							null,
 							null);
-
 				}
 
-			}catch (Exception e) {
-				logger.error("projectScanTask ERROR {}", e);
+				logger.info("Task driverCount: {}", tasks.size());
+
+			} catch (Exception e) {
+				logger.error(e);
 			}
- 		});
+
+		});
 	}
 
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
+		return null;
 	}
 
 }

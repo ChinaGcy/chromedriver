@@ -3,7 +3,11 @@ package com.sdyk.ai.crawler.specific.zbj.task.test;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.action.ChromeAction;
+import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -20,9 +24,19 @@ public class ServiceSupplierTest {
 	@Test
 	public void ServiceSupplierTaskTest() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException {
 
+		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
+
 		ChromeDriverAgent agent = new ChromeDriverAgent();
+
 		ChromeDriverRequester.getInstance().addAgent(agent);
+
 		agent.start();
+
+		one.rewind.io.requester.Task task = new one.rewind.io.requester.Task("http://www.zbj.com");
+		ChromeAction action = new LoginWithGeetestAction(account);
+		task.addAction(action);
+		ChromeDriverRequester.getInstance().submit(task);
+
 		ServiceProviderTask serviceSupplierTask = new ServiceProviderTask("http://shop.zbj.com/18751471/");
 		serviceSupplierTask.setBuildDom();
 		ChromeDriverRequester.getInstance().submit(serviceSupplierTask);

@@ -31,7 +31,7 @@ public class TendererRating extends Model {
 	public String project_id;
 
 	// 项目name
-	@DatabaseField(dataType = DataType.STRING, width = 32)
+	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String project_name;
 
 	// 发布时间

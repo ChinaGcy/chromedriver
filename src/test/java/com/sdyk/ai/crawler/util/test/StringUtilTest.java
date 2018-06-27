@@ -188,4 +188,18 @@ public class StringUtilTest {
 		System.err.println(date1);
 
 	}
+
+	@Test
+	public void headTest() {
+		String s = "<img src=\"https://avatar.zbjimg.com/007/07/45/200x200_avatar_95.jpg!big\" border=\"0\" onerror=\"this.onerror=null;this.src='//t4.zbjimg.com/r/p/task/200.gif'\" alt=\"光荣网络光荣文创\">";
+
+		Set<String> head_img = new HashSet<>();
+
+		StringUtil.cleanContent(s, head_img, null, null);
+
+		for ( String ss : head_img) {
+			System.err.println(ss);
+		}
+
+	}
 }

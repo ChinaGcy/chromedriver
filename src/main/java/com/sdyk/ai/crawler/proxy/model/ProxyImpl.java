@@ -7,8 +7,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import one.rewind.db.DaoManager;
 import one.rewind.io.requester.BasicRequester;
-import one.rewind.io.requester.Task;
 import one.rewind.io.requester.proxy.Proxy;
+import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import one.rewind.db.DBName;
@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-@DBName(value = "crawler")
+@DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "proxies")
 public class ProxyImpl extends Proxy {
 
@@ -90,7 +90,7 @@ public class ProxyImpl extends Proxy {
 
 		for(int i=0; i<40; i++) {
 
-			Task t = new Task(url);
+			ChromeTask t = new ChromeTask(url);
 			BasicRequester.getInstance().submit(t);
 
 			speedAvg += (double) t.getResponse().getSrc().length / ( (double) t.getDuration() );

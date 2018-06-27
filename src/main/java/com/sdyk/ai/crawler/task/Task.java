@@ -4,22 +4,26 @@ import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public abstract class Task extends one.rewind.io.requester.Task {
+public abstract class Task extends ChromeTask {
 
 	public static final Logger logger = LogManager.getLogger(com.sdyk.ai.crawler.specific.zbj.task.Task.class.getName());
 
-	public Task(String url) throws MalformedURLException, URISyntaxException {
+	public Task(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 		setBuildDom();
+		if (getResponse().getText().contains("您的访问存在异常")) {
+			throw new ProxyException.Failed(this.getProxy());
+		}
 	}
 
-	public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {
+	/*public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {
 		super(url, post_data);
 		setBuildDom();
 	}
@@ -32,7 +36,7 @@ public abstract class Task extends one.rewind.io.requester.Task {
 	public Task(String url, HashMap<String, String> headers, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
 		super(url, headers, post_data, cookies, ref);
 		setBuildDom();
-	}
+	}*/
 
 	public String getString(String path, String... clean) {
 
@@ -95,5 +99,4 @@ public abstract class Task extends one.rewind.io.requester.Task {
 		return des_src;
 	}
 
-	public abstract one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen;
 }

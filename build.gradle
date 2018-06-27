@@ -49,7 +49,7 @@ uploadArchives {
 
 dependencies {
 
-    compile 'one.rewind:common:1.0.84-SNAPSHOT'
+    compile 'one.rewind:common:1.0.87-SNAPSHOT'
 
     compile name: 'opencv-341'
 

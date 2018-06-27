@@ -47,7 +47,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
      * @return
      */
     @Override
-    public List<com.sdyk.ai.crawler.task.Task> getTask(boolean backtrace) {
+    public void getTask(boolean backtrace) {
 
         List<com.sdyk.ai.crawler.task.Task> scanTaskList = new ArrayList<>();
         scanTaskList.add(ProjectScanTask.generateTask(90));

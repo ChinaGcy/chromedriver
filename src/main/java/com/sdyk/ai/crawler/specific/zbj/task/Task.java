@@ -4,8 +4,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.db.DBName;
-import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,11 +15,15 @@ import java.util.*;
 
 @DBName(value = "crawler")
 @DatabaseTable(tableName = "tasks")
-public class Task extends com.sdyk.ai.crawler.task.Task {
+public class Task extends ChromeTask {
 
 	public static final Logger logger = LogManager.getLogger(Task.class.getName());
 
-	public Task(String url) throws MalformedURLException, URISyntaxException {
+	public Task(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+		super(url);
+	}
+
+	/*public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 	}
 
@@ -33,7 +37,7 @@ public class Task extends com.sdyk.ai.crawler.task.Task {
 
 	public Task(String url, HashMap<String, String> headers, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
 		super(url, headers, post_data, cookies, ref);
-	}
+	}*/
 
 	public String getString(String path, String... clean) {
 
@@ -94,18 +98,5 @@ public class Task extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		return des_src;
-	}
-
-
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-
-		// throw new ProxyException.Failed();
-
-		// throw new UnreachableBrowserException("chromedriver is bad");
-		if (getResponse().getText().contains("您的访问存在异常")) {
-			throw new ProxyException.Failed();
-		}
-
-		return this;
 	}
 }

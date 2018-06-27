@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 @DatabaseTable(tableName = "service_provider_snapshots")
 public class ServiceProviderSnapshot extends ServiceProvider{
 
+	// 原网站id
 	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
 	public String id_;
 
@@ -33,9 +34,12 @@ public class ServiceProviderSnapshot extends ServiceProvider{
 		}
 
 		this.id = StringUtil.byteArrayToHex(
-				StringUtil.uuid(serviceProvider.url + " " + serviceProvider.insert_time.getTime())
+				StringUtil.uuid(serviceProvider.url + " " + System.currentTimeMillis())
 		);
 
 		this.id_ = serviceProvider.id;
+
+		this.url = serviceProvider.url;
+
 	}
 }
