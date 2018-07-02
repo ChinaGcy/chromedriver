@@ -1,5 +1,7 @@
 package com.sdyk.ai.crawler.specific.mihuashi.action;
 
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.action.Action;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -12,9 +14,11 @@ import java.net.SocketException;
  * @author zhangseng@315free.com
  * @data 2018/5/30
  */
-public class LoadMoreContentAction extends ChromeAction {
+public class LoadMoreContentAction extends Action {
 
    	String morePath ;
+
+	ChromeDriverAgent agent;
 
 	public LoadMoreContentAction(String morePath) {
 		this.morePath = morePath;

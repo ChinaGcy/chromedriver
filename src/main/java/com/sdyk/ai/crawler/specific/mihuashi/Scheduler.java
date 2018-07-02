@@ -1,67 +1,96 @@
 package com.sdyk.ai.crawler.specific.mihuashi;
 
-import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
-import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
+import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.specific.mihuashi.task.MihuashiLoginTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ServiceScanTask;
-import one.rewind.io.requester.account.Account;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import com.sdyk.ai.crawler.util.URLUtil;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  */
 public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 
-    public Scheduler(String domain, int driverCount) {
-        super(domain, driverCount);
-    }
+	public String cron = "*/30 * * * *";
+
+	public Scheduler() {
+		super();
+	}
+
+	public Scheduler(String domain, int driverCount) {
+		super(domain, driverCount);
+	}
 
     /**
-     * 添加登陆任务
-     * @param account
      * @return
      * @throws MalformedURLException
      * @throws URISyntaxException
      */
     @Override
-    public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
+    public void getLoginTask() throws MalformedURLException, URISyntaxException {
 
-        // 定义登陆url
-        String url = "https://www.mihuashi.com/login";
-        // 用户名输入 path
-        String usernameCssPath = "#login-app > main > section > section.session__form-wrapper > section > div:nth-child(1) > input";
-        // 密码输入 path
-        String passwordCssPath = "#login-app > main > section > section.session__form-wrapper > section > div:nth-child(2) > input";
-        // 登陆按钮 path
-        String loginButtonCssPath = "#login-app > main > section > section.session__form-wrapper > section > div:nth-child(3) > button";
+	    try {
+		    URLUtil.PostTask(MihuashiLoginTask.class,
+				    null,
+				    ImmutableMap.of("domain", "mihuashi"),
+				    null,
+				    null,
+				    null,
+				    null,
+				    null);
+	    } catch (ClassNotFoundException e) {
+		    logger.error("", e);
+	    }
 
-        Task task = new Task(url) {
-        };
-        task.addAction(
-                new LoginWithGeetestClouderWork(account, url, usernameCssPath, passwordCssPath, loginButtonCssPath)
-        );
-
-        return task;
     }
 
     /**
-     * 获取详情页列表
      * @param backtrace
      * @return
      */
     @Override
     public void getTask(boolean backtrace) {
 
-        List<com.sdyk.ai.crawler.task.Task> scanTaskList = new ArrayList<>();
-        scanTaskList.add(ServiceScanTask.generateTask(1));
-        scanTaskList.add(ProjectScanTask.generateTask("1", 1));
-        scanTaskList.add(ProjectScanTask.generateTask("2", 1));
+	    try {
+		    URLUtil.PostTask(ProjectScanTask.class,
+				    null,
+				    ImmutableMap.of("page", "1", "zone_id", "1"),
+				    null,
+				    null,
+				    null,
+				    null,
+				    null);
 
-        return scanTaskList;
+		    URLUtil.PostTask(ProjectScanTask.class,
+				    null,
+				    ImmutableMap.of("page", "1", "zone_id", "2"),
+				    null,
+				    null,
+				    null,
+				    null,
+				    null);
+
+	    } catch (ClassNotFoundException e) {
+		    logger.error("URLUtil.PostTask", e);
+	    }
+
+	    if( backtrace == true ){
+		    try {
+			    URLUtil.PostTask(ServiceScanTask.class,
+					    null,
+					    ImmutableMap.of("page", "1"),
+					    null,
+					    null,
+					    null,
+					    null,
+					    null);
+
+		    } catch (ClassNotFoundException e) {
+			    logger.error("URLUtil.PostTask", e);
+		    }
+	    }
 
     }
 
@@ -71,9 +100,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
     @Override
     public void getHistoricalData() {
 
-        for (com.sdyk.ai.crawler.task.Task task : getTask(true)) {
-            ChromeDriverRequester.getInstance().submit(task);
-        }
+	    // 需求
+	    getTask(true);
 
     }
 
@@ -83,36 +111,22 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
     @Override
     public void monitoring() {
 
-        it.sauronsoftware.cron4j.Scheduler s = new it.sauronsoftware.cron4j.Scheduler();
+	    getTask(false);
 
-        // 每隔十分钟，生成实时扫描任务
-        s.schedule("*/10 * * * *", new Runnable() {
-            public void run() {
-                for (com.sdyk.ai.crawler.task.Task task : getTask(true)) {
-                    ChromeDriverRequester.getInstance().submit(task);
-                }
-            }
-        });
-
-        s.start();
     }
 
-    /**
-     * 程序入口
-     */
-    public static void main(String[] args){
+	public static void main(String[] args) {
 
-        //调用sparkjava查看队列任务
-        /*new Thread(()->{
-            new ServiceWrapper();
-        }).start();*/
+		int num = 0;
 
-        Scheduler scheduler = new Scheduler("mihuashi.com", 4);
-        if(args.length>0){
-            scheduler.monitoring();
-        }else{
-            System.out.println("历史数据");
-            scheduler.getHistoricalData();
-        }
-    }
+		if (args.length >= 1 && !args[0].equals("") && Integer.parseInt(args[0]) > 1) {
+			num = Integer.parseInt(args[0]);
+		}
+
+		Scheduler scheduler = new Scheduler("mihuashi", num);
+
+		scheduler.getHistoricalData();
+
+		scheduler.monitoring();
+	}
 }

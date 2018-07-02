@@ -1,3 +1,4 @@
+/*
 package com.sdyk.ai.crawler.specific.mihuashi.action;
 
 import one.rewind.io.requester.chrome.action.ChromeAction;
@@ -5,9 +6,11 @@ import org.openqa.selenium.WebElement;
 
 import java.net.SocketException;
 
+*/
 /**
  *
- */
+ *//*
+
 public class TendererProjectActive extends ChromeAction {
 
     public String url;
@@ -53,3 +56,4 @@ public class TendererProjectActive extends ChromeAction {
         this.getMore();
     }
 }
+*/

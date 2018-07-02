@@ -1,12 +1,10 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
-import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.chrome.action.ClickAction;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
@@ -18,8 +16,6 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,32 +27,31 @@ public class ProjectTask extends Task {
 
 	public Project project;
 
-	public String moreRatingPath = "#vue-comments-app > div:nth-child(2) > a";
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("project_id", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://www.mihuashi.com/projects/{{project_id}}/";
+	}
 
-	public String moreProjectPath = "#artworks > div > section > div:nth-child(2) > a";
-
-	public String ratingPath = "#users-show > div.container-fluid > div.profile__container > main > header > ul > li:nth-child(2) > a";
-
-	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
+	public ProjectTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-		this.setBuildDom();
 
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
 
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
 			Document doc = getResponse().getDoc();
 			String src = getResponse().getText();
 
 			//页面错误
 			if ( src.contains("非常抱歉") || src.contains("权限不足") ) {
-				try {
-					ChromeDriverRequester.getInstance().submit(new ProjectTask(getUrl()));
-					return;
-				} catch (MalformedURLException | URISyntaxException e) {
-					logger.error("添加任务失败", e);
-				}
+
+				this.setRetry();
+				return;
 			}
 
 			//下载页面
@@ -71,8 +66,8 @@ public class ProjectTask extends Task {
 
 		project = new Project(getUrl());
 
-		List<Task> tasks = new ArrayList();
 		project.domain_id = 4;
+
 		String authorUrl = null;
 
 		//项目名
@@ -174,35 +169,40 @@ public class ProjectTask extends Task {
 				&& ! "".equals(tenderer_id)
 				)
 		{
-			//招标人详情页url
-			authorUrl = "https://www.mihuashi.com/users/"+tenderer_id+"?role=employer";
 
 			project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 					one.rewind.txt.StringUtil.uuid(authorUrl));
 
+			//添加甲方任务
 			try {
+				URLUtil.PostTask(TendererTask.class,
+						null,
+						ImmutableMap.of("tenderer_id", tenderer_id),
+						null,
+						null,
+						null,
+						null,
+						null);
 
-				//添加甲方任务
-				Task taskT = new TendererTask(authorUrl);
-				taskT.addAction(new LoadMoreContentAction(moreProjectPath));
-
-				tasks.add(taskT);
-
-				//添加甲方评论任务
-				Task taskTR = new TendererRatingTask(authorUrl+"&rating=true");
-
-				taskTR.addAction(new ClickAction(ratingPath));
-				taskTR.addAction(new LoadMoreContentAction(moreRatingPath));
-
-				tasks.add(taskTR);
-
-			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract url: {}, ", authorUrl, e);
+			} catch (Exception e) {
+				logger.error("error for URLUtil.PostTask TendererTask.class", e);
 			}
-		}
 
-		for(Task t : tasks){
-			ChromeDriverRequester.getInstance().submit(t);
+			//添加甲方评论任务
+			try {
+				URLUtil.PostTask(TendererRatingTask.class,
+						null,
+						ImmutableMap.of("tenderer_id", tenderer_id),
+						null,
+						null,
+						null,
+						null,
+						null);
+
+			} catch (Exception e) {
+				logger.error("error for URLUtil.PostTask TendererRatingTask.class", e);
+			}
+
 		}
 
 		try {
@@ -210,11 +210,6 @@ public class ProjectTask extends Task {
 		} catch (Exception e) {
 			logger.error("error on insert project", e);
 		}
-	}
-
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
 	}
 
 }
