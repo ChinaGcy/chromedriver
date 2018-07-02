@@ -1,9 +1,9 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -57,31 +57,26 @@ public class ProjectScanTask extends ScanTask {
             }
 
             for(String user : usernames){
-	            try {
-		            URLUtil.PostTask(ProjectTask.class,
-				            null,
-				            ImmutableMap.of("project_id", user),
-				            null,
-				            null,
-				            null,
-				            null,
-				            null);
 
-	            } catch (Exception e) {
-		            logger.error("error for URLUtil.PostTask ProjectTask.class", e);
+	            try {
+		            HttpTaskPoster.getInstance().submit(ProjectTask.class,
+				            ImmutableMap.of("project_id", user));
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+
+		            logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
 	            }
+
             }
 
             if( usernames.size()>0 ){
 
-	            URLUtil.PostTask(ProjectScanTask.class,
-			            null,
-			            ImmutableMap.of( "page", String.valueOf(++page)),
-			            null,
-			            null,
-			            null,
-			            null,
-			            null);
+	            try {
+		            HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
+				            ImmutableMap.of("page", String.valueOf(++page)));
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+
+		            logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
+	            }
 
             }
 

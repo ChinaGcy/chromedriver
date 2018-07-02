@@ -1,10 +1,16 @@
 package com.sdyk.ai.crawler.specific.clouderwork;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.specific.clouderwork.task.ClouderworkLoginTask;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ServiceScanTask;
-import com.sdyk.ai.crawler.util.URLUtil;
+import com.sdyk.ai.crawler.specific.clouderwork.util.ClouderworkLoginAction;
+import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.task.ChromeTask;
+
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
@@ -26,20 +32,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
      * @throws URISyntaxException
      */
     @Override
-    public void getLoginTask() throws MalformedURLException, URISyntaxException {
+    public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
-	    try {
-		    URLUtil.PostTask(ClouderworkLoginTask.class,
-				    null,
-				    ImmutableMap.of("domain", "clouderwork"),
-				    null,
-				    null,
-				    null,
-				    null,
-				    null);
-	    } catch (ClassNotFoundException e) {
-		    logger.error("", e);
-	    }
+	    agent.submit(new ChromeTask("https://passport.clouderwork.com/signin").addAction(new ClouderworkLoginAction(account)));
 
     }
 
@@ -51,33 +46,19 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
     public void getTask(boolean backtrace) {
 
 	    try {
-		    URLUtil.PostTask(ProjectScanTask.class,
-				    null,
-				    ImmutableMap.of("page", "1"),
-				    null,
-				    null,
-				    null,
-				    null,
-				    null);
+		    HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
+				    ImmutableMap.of("page", "1"));
+	    } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-	    } catch (ClassNotFoundException e) {
-		    logger.error("URLUtil.PostTask", e);
+	    	logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
 	    }
 
-	    if( backtrace == true ){
-		    try {
-			    URLUtil.PostTask(ServiceScanTask.class,
-					    null,
-					    ImmutableMap.of("page", "1"),
-					    null,
-					    null,
-					    null,
-					    null,
-					    null);
+	    try {
+		    HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
+				    ImmutableMap.of("page", "1"));
+	    } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-		    } catch (ClassNotFoundException e) {
-			    logger.error("URLUtil.PostTask", e);
-		    }
+		    logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
 	    }
 
     }

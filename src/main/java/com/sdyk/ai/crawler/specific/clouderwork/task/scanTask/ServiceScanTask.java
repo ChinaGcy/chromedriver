@@ -1,9 +1,9 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -67,32 +67,28 @@ public class ServiceScanTask extends ScanTask {
 
             //生成智库任务
             for(String user : usernames){
-	            try {
-		            URLUtil.PostTask(ServiceProviderTask.class,
-				            null,
-				            ImmutableMap.of("servicer_id", user),
-				            null,
-				            null,
-				            null,
-				            null,
-				            null);
 
-	            } catch (Exception e) {
-		            logger.error("error for URLUtil.PostTask ServiceProviderTask.class", e);
+	            try {
+		            HttpTaskPoster.getInstance().submit(ServiceProviderTask.class,
+				            ImmutableMap.of("servicer_id", user));
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+
+		            logger.error("error fro HttpTaskPoster.submit ServiceProviderTask.class", e);
 	            }
+
             }
 
             //生成智库列表任务
             if( usernames.size()>0 ){
 
-            	URLUtil.PostTask(ProjectScanTask.class,
-			            null,
-			            ImmutableMap.of( "page", String.valueOf(++page)),
-			            null,
-			            null,
-			            null,
-			            null,
-			            null);
+	            try {
+		            HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
+				            ImmutableMap.of("page", String.valueOf(++page)));
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+
+		            logger.error("error fro HttpTaskPoster.submit ServiceScanTask.class", e);
+	            }
+
             }
 
         });

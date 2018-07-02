@@ -2,20 +2,20 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.Project;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
+
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class ProjectTask extends Task {
 
@@ -255,17 +255,11 @@ public class ProjectTask extends Task {
 		if( tendererId!=null && !"".equals(tendererId) ){
 
 			try {
-				URLUtil.PostTask(TendererTask.class,
-						null,
-						ImmutableMap.of("tenderer_id", tendererId),
-						null,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(TendererTask.class,
+						ImmutableMap.of("tenderer_id", tendererId));
+			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-			} catch (Exception e) {
-				logger.error("error for URLUtil.PostTask TendererTask.class", e);
+				logger.error("error fro HttpTaskPoster.submit TendererTask.class", e);
 			}
 
 		}
