@@ -140,7 +140,18 @@ public class Tenderer extends Model {
 			if(e.getCause().getMessage().contains("Duplicate")) {
 
 				try {
+
+					this.insert_time = null;
+					this.update_time = null;
+
+					String hash_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(this.toJSON()));
+
+					this.insert_time = new Date();
+					this.update_time = new Date();
+
 					TendererSnapshot snapshot = new TendererSnapshot(this);
+
+					snapshot.hash_id = hash_id;
 					snapshot.insert();
 					return true;
 				} catch (NoSuchFieldException | IllegalAccessException ex) {

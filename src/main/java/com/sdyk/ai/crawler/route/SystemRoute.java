@@ -26,8 +26,7 @@ public class SystemRoute {
 
 			Map<String, Object> data = new TreeMap<>();
 
-			/*data.put("taskQueueNum", ChromeDriverRequester.getInstance().queue.size());
-			data.put("idleAgentNum", ChromeDriverDistributor.getInstance().idleAgentQueue.size());*/
+			data.put("taskQueueNum", ChromeDriverDistributor.getInstance().queues.size());
 
 			return new Msg<Map<String, Object>>(Msg.SUCCESS, data);
 		} catch (Exception e) {

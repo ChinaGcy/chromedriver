@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.route.*;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.server.MsgTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +36,8 @@ public class ServiceWrapper {
 	public ServiceWrapper() {
 
 		port(port);
+
+		ChromeDriverDistributor.getInstance();
 
 		before("/*", (q, a) -> logger.info("Received api call"));
 
@@ -120,5 +123,6 @@ public class ServiceWrapper {
 
 	public static void main(String[] args) {
 		ServiceWrapper.getInstance();
+		ChromeDriverDistributor.getInstance().buildHttpApiServer();
 	}
 }

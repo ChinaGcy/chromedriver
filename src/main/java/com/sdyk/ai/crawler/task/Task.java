@@ -18,9 +18,11 @@ public abstract class Task extends ChromeTask {
 	public Task(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 		setBuildDom();
-		if (getResponse().getText().contains("您的访问存在异常")) {
-			throw new ProxyException.Failed(this.getProxy());
-		}
+		/*if (getResponse() != null) {
+			if (getResponse().getText().contains("您的访问存在异常")) {
+				throw new ProxyException.Failed(this.getProxy());
+			}
+		}*/
 	}
 
 	/*public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {

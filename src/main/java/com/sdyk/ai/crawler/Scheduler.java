@@ -13,9 +13,14 @@ import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 
+import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
+import javax.swing.plaf.synth.SynthDesktopIconUI;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -93,12 +98,12 @@ public abstract class Scheduler {
 			DockerHostManager.getInstance().createDockerContainers(driverCount);
 
 			// 读取有效账户 driverCount 个
-			/*List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);*/
+			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 
 			// 分别为每个账号创建容器 和 chromedriver对象
-			CountDownLatch latch = new CountDownLatch(driverCount);
+			/*CountDownLatch latch = new CountDownLatch(driverCount);*/
 
-			for(int i = 0 ; i<driverCount; i++) {
+			for(AccountImpl account : accounts) {
 
 				Thread thread = new Thread(() -> {
 
@@ -138,15 +143,13 @@ public abstract class Scheduler {
 							});
 
 							// 生成登录任务
-
-
 							ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
 							//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
-							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy);
+							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container/*, proxy*/);
 
 							// agent 添加异常回调
-							agent.addAccountFailedCallback((agent1 ,account)->{
+							agent.addAccountFailedCallback((agent1 ,account1)->{
 
 								logger.info("Account {}:{} failed.", account.domain, account.username);
 
@@ -182,32 +185,31 @@ public abstract class Scheduler {
 							}).addNewCallback((agent1)->{
 
 								try {
-									getLoginTask();
+									getLoginTask(agent, account);
 								} catch (Exception e) {
 									logger.error(e);
 								}
-
 							});
 
-							// agent.bmProxy.getClientBindAddress();
 							ChromeDriverDistributor.getInstance().addAgent(agent);
 
+							/*latch.countDown();*/
 							logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
 									agent.remoteAddress,
 									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);
 						}
 
-						latch.countDown();
 					}
 					catch (Exception ex) {
-						logger.error(ex);
+						logger.error("", ex);
 					}
 				});
 
 				thread.start();
 			}
 
-			latch.await();
+
+			/*latch.await();*/
 
 			logger.info("ChromeDriverAgents are ready.");
 
@@ -229,7 +231,7 @@ public abstract class Scheduler {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public abstract void getLoginTask() throws MalformedURLException, URISyntaxException;
+	public abstract void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException;
 
 	/**
 	 *

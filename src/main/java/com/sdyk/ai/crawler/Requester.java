@@ -7,9 +7,13 @@ import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.redisson.api.RMap;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,11 +21,11 @@ public class Requester extends ChromeDriverDistributor {
 
 	public static RMap<String, Date> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
 
-	/*static {
+	static {
 		logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
-		ChromeDriverRequester.instance = new Requester();
-		requester_executor.submit(ChromeDriverRequester.instance);
-	}*/
+		/*ChromeDriverDistributor.instance = new Requester();*/
+		/*executor.submit(ChromeDriverDistributor.instance);*/
+	}
 
 	public static List<String> WHITE_URLS = Arrays.asList(
 			"http://www.zbj.com",
@@ -37,52 +41,57 @@ public class Requester extends ChromeDriverDistributor {
 	public Requester() {}
 
 	public long getTaskQueueSize() {
-		return queue.size();
+		return queues.size();
 	}
 
 	/**
 	 * 当程序异常退出，需要重构 URL_VISITS
-	 * @param task
 	 */
-	public void submit(ChromeTask task) {
+	public void submit(ChromeTaskHolder holder, ChromeDriverAgent agent) {
 
-		String hash = hash(task.getUrl());
+		try {
+			ChromeTask task = holder.build();
 
-		// 列表扫描任务的处理
-		if( task instanceof com.sdyk.ai.crawler.task.ScanTask
-				|| ! URL_VISITS.containsKey(hash)
-				|| WHITE_URLS.contains(task.getUrl()) ) {
+			String hash = hash(task.getUrl());
 
-			URL_VISITS.put(hash, new Date());
+			// 列表扫描任务的处理
+			if( task instanceof com.sdyk.ai.crawler.task.ScanTask
+					|| ! URL_VISITS.containsKey(hash)
+					|| WHITE_URLS.contains(task.getUrl()) ) {
 
-			// TODO 任务队列中包含相同URL的Task，该Task不需要提交
-			task.addDoneCallback((t) -> {
-				StatManager.getInstance().count();
-				taskStat.put(task.getClass().getSimpleName(), taskStat.get(task.getClass().getSimpleName()) - 1);
-			});
+				URL_VISITS.put(hash, new Date());
 
-			// 对于ScanTask 记录TaskTrace
-			if(task instanceof com.sdyk.ai.crawler.task.ScanTask) {
+				// TODO 任务队列中包含相同URL的Task，该Task不需要提交
 				task.addDoneCallback((t) -> {
-
-					TaskTrace tt = ((ScanTask) task).getTaskTrace();
-					try {
-						if (tt != null) {
-							tt.insert();
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					StatManager.getInstance().count();
+					taskStat.put(task.getClass().getSimpleName(), taskStat.get(task.getClass().getSimpleName()) - 1);
 				});
-			}
 
-			queue.offer(task);
+				// 对于ScanTask 记录TaskTrace
+				if(task instanceof com.sdyk.ai.crawler.task.ScanTask) {
+					task.addDoneCallback((t) -> {
 
-			if(!taskStat.contains(task.getClass().getSimpleName())) {
-				taskStat.put(task.getClass().getSimpleName(), 1);
-			} else {
-				taskStat.put(task.getClass().getSimpleName(), taskStat.get(task.getClass().getSimpleName()) + 1);
+						TaskTrace tt = ((ScanTask) task).getTaskTrace();
+						try {
+							if (tt != null) {
+								tt.insert();
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					});
+				}
+
+				queues.get(agent).offer(holder);
+
+				if(!taskStat.contains(task.getClass().getSimpleName())) {
+					taskStat.put(task.getClass().getSimpleName(), 1);
+				} else {
+					taskStat.put(task.getClass().getSimpleName(), taskStat.get(task.getClass().getSimpleName()) + 1);
+				}
 			}
+		} catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+			e.printStackTrace();
 		}
 	}
 
