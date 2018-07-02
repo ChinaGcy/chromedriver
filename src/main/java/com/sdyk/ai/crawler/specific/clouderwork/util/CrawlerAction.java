@@ -17,48 +17,6 @@ import java.util.regex.Pattern;
 public class CrawlerAction {
 
     /**
-     * 获取页面数据
-     * @param url
-     * @return
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws ChromeDriverException.IllegalStatusException
-     */
-    public static JsonNode crawlerAction(String url,ChromeDriverAgent agent) throws IOException, URISyntaxException, ChromeDriverException.IllegalStatusException {
-
-        Task task = new Task(url);
-        task.setBuildDom();
-        agent.submit(task);
-        String a = task.getResponse().getDoc().text().replace("/U",",U ");
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true) ;
-        JsonNode node = mapper.readTree(a);
-        return  node;
-    }
-
-    /**
-     * 判断是否为最大页
-     * @param nextUrl
-     * @return
-     * @throws ChromeDriverException.IllegalStatusException
-     * @throws IOException
-     * @throws URISyntaxException
-     */
-    public static boolean judjeMaxPage(String nextUrl, ChromeDriverAgent agent, ArrayList<String> signs) throws ChromeDriverException.IllegalStatusException, IOException, URISyntaxException {
-
-        boolean judge = true;
-        JsonNode nodes = crawlerAction(nextUrl,agent);
-        for(String sign : signs){
-            nodes = nodes.get(sign);
-        }
-
-        if(nodes.size()>0){
-            judge = false;
-        }
-        return  judge;
-    }
-
-    /**
      * 获取数字
      * @param content
      * @return

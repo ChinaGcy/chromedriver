@@ -17,13 +17,7 @@ public class ClouderWorkLogin {
     public static void login(ChromeDriverAgent agent) throws InterruptedException {
 
         Task task = null;
-        try {
-            task = new Task("https://passport.clouderwork.com/signin");
-        } catch (MalformedURLException e) {
-            logger.info("error on creat task",e);
-        } catch (URISyntaxException e) {
-            logger.info("error on creat task",e);
-        }
+
         task.setBuildDom();
         try {
             agent.submit(task);

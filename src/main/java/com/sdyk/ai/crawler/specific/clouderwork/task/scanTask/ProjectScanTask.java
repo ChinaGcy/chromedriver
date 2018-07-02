@@ -1,50 +1,45 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import com.sdyk.ai.crawler.util.URLUtil;
+import one.rewind.io.requester.exception.ProxyException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ProjectScanTask extends com.sdyk.ai.crawler.specific.clouderwork.task.ScanTask {
+public class ProjectScanTask extends ScanTask {
 
-    public static ProjectScanTask generateTask(int page){
-
-        //生成LIST页
-        StringBuffer url = new StringBuffer("https://www.clouderwork.com/api/v2/jobs/search?ts=pagesize=20&pagenum=");
-        url.append(page);
-
-        //创建任务
-        try {
-            ProjectScanTask t = new ProjectScanTask(url.toString(),page);
-            t.setRequester_class(ChromeDriverRequester.class.getSimpleName());
-            return t;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://www.clouderwork.com/api/v2/jobs/search?ts=pagesize=20&pagenum={{page}}";
+	}
 
     //设置任务
-    public ProjectScanTask(String url,int page) throws MalformedURLException, URISyntaxException {
-        super(url);
-        this.setPriority(Priority.HIGH);
-        this.setBuildDom();
-        String sign = "jobs";
+    public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
-        this.addDoneCallback(() -> {
+		super(url);
+
+        this.setPriority(Priority.HIGH);
+
+        this.addDoneCallback((t) -> {
+
+	        int page = 0;
+	        Pattern pattern_url = Pattern.compile("ts=pagesize=20&pagenum=(?<page>.+?)");
+	        Matcher matcher_url = pattern_url.matcher(url);
+	        if (matcher_url.find()) {
+		        page = Integer.parseInt(matcher_url.group("page"));
+	        }
 
             String src = getResponse().getDoc().text();
 
@@ -61,31 +56,33 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.clouderwork.ta
                 }
             }
 
-            List<Task> task = new ArrayList<>();
-
             for(String user : usernames){
-                String pUrl = "https://www.clouderwork.com/jobs/" + user;
-                try {
-                    task.add(new ProjectTask(pUrl));
-                } catch (MalformedURLException e) {
-                    logger.error("error on creat task", e);
-                } catch (URISyntaxException e) {
-                    logger.error("error on creat task", e);
-                }
+	            try {
+		            URLUtil.PostTask(ProjectTask.class,
+				            null,
+				            ImmutableMap.of("project_id", user),
+				            null,
+				            null,
+				            null,
+				            null,
+				            null);
+
+	            } catch (Exception e) {
+		            logger.error("error for URLUtil.PostTask ProjectTask.class", e);
+	            }
             }
 
             if( usernames.size()>0 ){
-                Task t = generateTask(page + 1);
-                if (t != null) {
-                    t.setBuildDom();
-                    t.setPriority(Priority.HIGH);
-                    task.add(t);
-                }
-            }
-            logger.info("Task driverCount: {}", task.size());
 
-            for(Task t : task) {
-                ChromeDriverRequester.getInstance().submit(t);
+	            URLUtil.PostTask(ProjectScanTask.class,
+			            null,
+			            ImmutableMap.of( "page", String.valueOf(++page)),
+			            null,
+			            null,
+			            null,
+			            null,
+			            null);
+
             }
 
         });
