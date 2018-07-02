@@ -20,16 +20,14 @@ public class ZbjLoginTask extends Task {
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("domain", "baidu");
 		// url_template
-		url_template = "https://{{domain}}.com";
+		url_template = "https://www.{{domain}}.com";
 	}
 	public ZbjLoginTask(String url) throws Exception {
 		super(url);
 
 		String domain = url.replace("https://","");
 
-		this.addDoneCallback((t) -> {
-
-		});
+		this.addDoneCallback((t) -> { });
 
 		Account account = AccountManager.getAccountByDomain(domain);
 

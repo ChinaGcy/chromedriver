@@ -1,12 +1,11 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Project;
-import com.sdyk.ai.crawler.model.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
@@ -31,9 +30,13 @@ public class ProjectTask extends Task {
 		// init_map_class
 		init_map_class = ImmutableMap.of("project_id", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("project_id", "0");
 		// url_template
 		url_template = "https://task.zbj.com/{{project_id}}/";
+
+		need_login = false;
+
+
 	}
 
 	public Project project;
@@ -51,8 +54,8 @@ public class ProjectTask extends Task {
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-		// 设置优先级
-		this.setPriority(Priority.HIGH);
+
+		this.setBuildDom();
 
 		this.addAction(new RefreshAction());
 
@@ -81,18 +84,14 @@ public class ProjectTask extends Task {
 
 				// TODO 补充示例页面 channel: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
-				// A 无法请求页面内容
+				// A 无法请求页面内容 #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
+				//#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
 				if (pageAccessible(src)) {
-
 					String header = null;
-
 					try {
-						// #headerNavWrap > div:nth-child(1) > div > a #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-						header = doc.select("#headerNavWrap > div:nth-child(1) > div > a").text();
+						header = doc.select("#headerNavWrap > div > div > div.header-nav-sub-title").text();
 					} catch (Exception e) {
-						try {
-							header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
-						} catch (Exception e1) { }
+						header = doc.select("#headerNavWrap > div:nth-child(1) > div > a").text();
 					}
 
 					// B1 页面格式1 ：http://task.zbj.com/12954152/
@@ -115,29 +114,23 @@ public class ProjectTask extends Task {
 							logger.error("insert error for project", e);
 						}
 					}
+
+
+					// TODO 调用需求评分接口
+					try {
+
+						String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
+						ChromeTask chromeTask = new ChromeTask(Project_url);
+						t.setPost();
+						BasicRequester.getInstance().submit(t);
+					} catch (Exception e) {
+						logger.error("Error calculate project rating. ", e);
+					}
+
+					HttpTaskPoster.getInstance().submit(TendererTask.class,
+							ImmutableMap.of("tenderer_id", tenderer_webId)
+							);
 				}
-
-				// TODO 调用需求评分接口
-				try {
-
-					String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
-					ChromeTask chromeTask = new ChromeTask(Project_url);
-					t.setPost();
-					BasicRequester.getInstance().submit(t);
-				} catch (Exception e) {
-					logger.error("Error calculate project rating. ", e);
-				}
-
-
-				URLUtil.PostTask(Tenderer.class,
-						"",
-						ImmutableMap.of("tenderer_id", tenderer_webId),
-						0,
-						null,
-						null,
-						null,
-						null);
-
 			} catch (Exception e) {
 				logger.error("", e);
 			}
@@ -268,17 +261,22 @@ public class ProjectTask extends Task {
 
 		// #j-content > div > div.user-toltit > dl > dt > img
 		// #j-content > div > div.user-toltit > dl > dt > a > img
+		//#j-content > div > div.user-toltit > dl > dt > img
 		String link = doc.select("#j-content > div > div.user-toltit > dl > dt")
 				.select("img")
 				.attr("src")
 				.split("\\.")[2];
 
+		System.err.println(link);
+
 		String[] links = link.split("/");
+
+		String s1 = links[1].substring(1,links[1].length());
 
 		String ss = link.split("_")[2];
 
 		project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
-				one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + links[1] + links[2] + links[3] + ss));
+				one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + s1 + links[2] + links[3] + ss));
 
 		project.tenderer_name = doc.select("#j-content > div > div.user-toltit > dl > dt").select("img").attr("alt");
 
@@ -287,7 +285,8 @@ public class ProjectTask extends Task {
 		if (matcher.find()) {
 			project.reward_type = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
-		return "" + links[1] + links[2] + links[3] + ss;
+		System.err.println("********" + s1 + links[2] + links[3] + ss);
+		return "" + s1 + links[2] + links[3] + ss;
 
 	}
 
@@ -511,6 +510,7 @@ public class ProjectTask extends Task {
 						.replace(",", "");
 				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + webId));
+
 				return webId;
 			}
 		}

@@ -1,16 +1,17 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.model.TendererRating;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.NoSuchElementException;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -26,7 +27,7 @@ public class TendererRatingTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
 		// url_template
 		url_template = "https://home.zbj.com/{{user_id}}/?ep={{page}}";
 	}
@@ -36,15 +37,17 @@ public class TendererRatingTask extends ScanTask {
 	public TendererRatingTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 
+		this.setBuildDom();
+
 		this.addDoneCallback((t) -> {
 
 			// 获取url参数
 			String userId = null;
 			int page = 0;
 
-			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>.+?)\\/\\?ep=(?<page>.+?)$");
+			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>\\d+)/\\?ep=(?<page>\\d+)");
 
-			Matcher matcher = pattern.matcher(url);
+			Matcher matcher = pattern.matcher(getUrl());
 
 			if (matcher.find()) {
 				userId = matcher.group("userId");
@@ -157,19 +160,12 @@ public class TendererRatingTask extends ScanTask {
 		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul > li", page)) {
 
 			try {
-				URLUtil.PostTask(this.getClass(),
-						 null,
-						 ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)),
-						null,
-						 null,
-						 null,
-						 null,
-						 null);
-			} catch (ClassNotFoundException e) {
+				HttpTaskPoster.getInstance().submit(this.getClass(),
+						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
+			} catch (ClassNotFoundException | UnsupportedEncodingException | URISyntaxException | MalformedURLException e) {
 				e.printStackTrace();
 			}
 		}
-
 	}
 
 	@Override

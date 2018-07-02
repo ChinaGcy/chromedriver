@@ -1,10 +1,10 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -22,7 +22,7 @@ public class TendererOrderTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
 		// url_template
 		url_template = "https://home.zbj.com/{{user_id}}/?op={{page}}";
 	}
@@ -44,22 +44,26 @@ public class TendererOrderTask extends ScanTask {
 	public TendererOrderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 
+		this.setBuildDom();
+
 		this.addDoneCallback((t) -> {
 
 			String userId = null;
 			int page = 0;
-			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>)\\/\\?op=(?<page>.+?)$");
-			Matcher matcher = pattern.matcher(url);
+			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>\\d+)/\\?op=(?<page>\\d+)");
+			Matcher matcher = pattern.matcher(getUrl());
 			if (matcher.find()) {
 				userId = matcher.group("userId");
 				page = Integer.parseInt(matcher.group("page"));
+				System.err.println(userId +"-----------------"+page);
 			}
 
 			Document doc = getResponse().getDoc();
 
 			// 获取历史数据（简略）
 			try {
-				getSimpleProjectTask(doc, userId);
+				/*getSimpleProjectTask(doc, userId);*/
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -74,14 +78,8 @@ public class TendererOrderTask extends ScanTask {
 					tasks.add(t);
 				}*/
 
-				URLUtil.PostTask(this.getClass(),
-						 null,
-						 ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)),
-						 0,
-						 null,
-						 null,
-						 null,
-						 null);
+				HttpTaskPoster.getInstance().submit(this.getClass(),
+						 ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
 			}
 
 			/*for(com.sdyk.ai.crawler.task.Task t : tasks) {
@@ -111,6 +109,8 @@ public class TendererOrderTask extends ScanTask {
 			Project project = new Project(url);
 
 			project.domain_id = 1;
+
+			project.origin_id = url.split("/")[3];
 
 			project.tenderer_name = doc.select("#utopia_widget_1 > div > div.topinfo-top > div > h2").text();
 
@@ -161,6 +161,9 @@ public class TendererOrderTask extends ScanTask {
 			project.status = element.select("div > div.order-item-title > span").text();
 
 			project.insert();
+
+			HttpTaskPoster.getInstance().submit(ProjectTask.class,
+					ImmutableMap.of("project_id", project.origin_id ));
 
 		}
 
