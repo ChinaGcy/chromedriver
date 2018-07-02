@@ -1,9 +1,14 @@
 package com.sdyk.ai.crawler.specific.proLagou;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
+import com.sdyk.ai.crawler.specific.proLagou.action.ProLagouLoginAction;
 import com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask;
-import com.sdyk.ai.crawler.specific.proginn.task.ProginnLoginTask;
-import com.sdyk.ai.crawler.util.URLUtil;
+import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.task.ChromeTask;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
@@ -25,20 +30,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
      * @throws URISyntaxException
      */
     @Override
-    public void getLoginTask() throws MalformedURLException, URISyntaxException {
+    public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
-	    try {
-		    URLUtil.PostTask(ProginnLoginTask.class,
-				    null,
-				    ImmutableMap.of("domain", "lagou"),
-				    null,
-				    null,
-				    null,
-				    null,
-				    null);
-	    } catch (ClassNotFoundException e) {
-		    logger.error("", e);
-	    }
+	    agent.submit(new ChromeTask("https://passport.lagou.com/pro/login.html").addAction(new ProLagouLoginAction(account)));
 
     }
 
@@ -50,17 +44,11 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
     public void getTask(boolean backtrace) {
 
 	    try {
-		    URLUtil.PostTask(ProjectScanTask.class,
-				    null,
-				    ImmutableMap.of("page", "1"),
-				    null,
-				    null,
-				    null,
-				    null,
-				    null);
+		    HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
+				    ImmutableMap.of("page", "1"));
 
-	    } catch (ClassNotFoundException e) {
-		    logger.error("URLUtil.PostTask", e);
+	    } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+		    logger.error("error for HttpTaskPoster.submit ProjectScanTask", e);
 	    }
 
     }
