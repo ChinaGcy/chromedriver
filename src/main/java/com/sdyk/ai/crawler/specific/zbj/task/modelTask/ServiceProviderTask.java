@@ -30,6 +30,9 @@ public class ServiceProviderTask extends Task {
 		init_map_defaults = ImmutableMap.of("user_id", "0");
 		// url_template
 		url_template = "https://shop.zbj.com/{{user_id}}/";
+
+		need_login = false;
+
 	}
 
 	// 实例化
@@ -39,6 +42,7 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 		this.setPriority(Priority.MEDIUM);
+		this.setBuildDom();
 
 		serviceProvider = new ServiceProvider(getUrl());
 

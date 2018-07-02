@@ -9,8 +9,12 @@ import com.sdyk.ai.crawler.specific.zbj.task.ZbjLoginTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.task.ChromeTask;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -86,7 +90,14 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
         super(domain, driverCount);
     }
 
-    /**
+	@Override
+	public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
+
+		agent.submit(new ChromeTask("https://www.zbj.com").addAction(new LoginWithGeetestAction(account)));
+
+	}
+
+	/**
      *
      */
     public void initAuthorizedRequester() {
@@ -117,7 +128,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             }).addNewCallback((t)->{
 
                 try {
-					getLoginTask();
+					getLoginTask(agent, account);
                 } catch (Exception e) {
                     logger.error(e);
                 }
@@ -131,23 +142,6 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             logger.error("Error init authorized requester. ", e);
         }
     }
-
-    /**
-     *
-     * @return
-     * @throws MalformedURLException
-     * @throws URISyntaxException
-     */
-    public void getLoginTask() throws MalformedURLException, URISyntaxException {
-
-		try {
-			HttpTaskPoster.getInstance().submit(ZbjLoginTask.class,
-					ImmutableMap.of("domain", "zbj"));
-		} catch (ClassNotFoundException | UnsupportedEncodingException e) {
-			logger.error("", e);
-		}
-
-	}
 
     /**
      *
@@ -166,11 +160,6 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-
-			/* ScanTask t = ProjectScanTask.generateTask(channel, 1);
-            *//*ScanTask t = ProjectSuccessSacnTask.generateTask(channel, 1);*//*
-            t.backtrace = backtrace;
-            tasks.add(t);*/
 
         }
 

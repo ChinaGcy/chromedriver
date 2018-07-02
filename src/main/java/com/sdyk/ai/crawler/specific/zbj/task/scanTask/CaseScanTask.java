@@ -28,6 +28,8 @@ public class CaseScanTask extends ScanTask {
 		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
 		// url_template
 		url_template = "http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html";
+
+		need_login = false;
 	}
 
 	public static List<String> list = new ArrayList<>();
@@ -55,6 +57,8 @@ public class CaseScanTask extends ScanTask {
 	public CaseScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
+
+		this.setBuildDom();
 
 		// http://shop.zbj.com/17788555/servicelist-p1.html
 		this.addDoneCallback((t) -> {
@@ -115,7 +119,7 @@ public class CaseScanTask extends ScanTask {
 			String new_url = matcher.group();
 
 			String case_id = new_url.split("/")[4]
-					.replace("sid_", "")
+					.replace("sid-", "")
 					.replace(".html", "");
 
 			if (!list.contains(new_url)) {

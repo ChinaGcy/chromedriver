@@ -25,38 +25,28 @@ public class ServiceProviderRatingTask extends ScanTask {
 		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
 		// url_template
 		url_template = "http://shop.zbj.com/evaluation/evallist-uid-{{user_id}}-category-1-isLazyload-0-page-{{page}}.html";
+
+		need_login = false;
 	}
 
 	ServiceProviderRating serviceProviderRating;
 
 	// http://shop.zbj.com/evaluation/evallist-uid-7791034-type-1-isLazyload-0-page-1.html
-	/*public static ServiceProviderRatingTask generateTask(String userId, int page) {
-
-		String url_ = "http://shop.zbj.com/evaluation/evallist-uid-" + userId + "-category-1-isLazyload-0-page-" + page + ".html";
-
-		try {
-			ServiceProviderRatingTask t = new ServiceProviderRatingTask(url_, userId, page);
-			return t;
-		} catch (MalformedURLException | ProxyException.Failed | URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}*/
 
 	public ServiceProviderRatingTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
+		this.setBuildDom();
 
 		this.addDoneCallback((t) -> {
 
 			try {
 
-				String userId = null;
+				String user_id = null;
 				int page = 0;
 				Pattern pattern = Pattern.compile("http://shop.zbj.com/evaluation/evallist-uid-(?<userId>.+?)-category-1-isLazyload-0-page-(?<page>.+?).html");
 				Matcher matcher = pattern.matcher(url);
 				if (matcher.find()) {
-					userId = matcher.group("workWebId");
+					user_id = matcher.group("userId");
 					page = Integer.parseInt(matcher.group("page"));
 				}
 
@@ -78,7 +68,7 @@ public class ServiceProviderRatingTask extends ScanTask {
 					serviceProviderRating = new ServiceProviderRating(getUrl() + "--number:" + i);
 
 					// 每个评价
-					ratingData(doc, i, userId);
+					ratingData(doc, i, user_id);
 
 					try {
 						serviceProviderRating.insert();
@@ -91,7 +81,7 @@ public class ServiceProviderRatingTask extends ScanTask {
 				if (pageTurning("#userlist > div.pagination > ul > li", page)) {
 
 					HttpTaskPoster.getInstance().submit(this.getClass(),
-							ImmutableMap.of("user_id", userId, "page", String.valueOf(++page))
+							ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page))
 							);
 				}
 

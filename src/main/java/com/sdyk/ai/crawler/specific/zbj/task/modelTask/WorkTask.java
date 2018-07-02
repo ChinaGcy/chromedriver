@@ -30,7 +30,7 @@ public class WorkTask extends Task {
 
 	public WorkTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
-
+		this.setBuildDom();
 
 		this.addDoneCallback((t)-> {
 

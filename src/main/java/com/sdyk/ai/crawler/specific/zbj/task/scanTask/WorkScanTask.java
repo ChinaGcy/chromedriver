@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.WorkTask;
 import one.rewind.io.requester.exception.ProxyException;
 
 import java.io.UnsupportedEncodingException;
@@ -23,11 +24,11 @@ public class WorkScanTask extends ScanTask {
 
 	static {
 		// init_map_class
-		init_map_class = ImmutableMap.of("userId", String.class,"page", String.class);
+		init_map_class = ImmutableMap.of("user_id", String.class,"page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("userId", "0", "page", "1");
+		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "1");
 		// url_template
-		url_template = "http://shop.zbj.com/{{userId}}/works-p{{page}}.html";
+		url_template = "http://shop.zbj.com/{{user_id}}/works-p{{page}}.html";
 	}
 
 	public static List<String> list = new ArrayList<>();
@@ -36,14 +37,16 @@ public class WorkScanTask extends ScanTask {
 
 		super(url);
 
+		this.setBuildDom();
+
 		this.addDoneCallback((t) -> {
 
-			String userId = null;
+			String user_id = null;
 			int page = 0;
 			Pattern pattern_url = Pattern.compile("http://shop.zbj.com/(?<userId>.+?)\\/works-p(?<page>.+?).html");
 			Matcher matcher_url = pattern_url.matcher(url);
 			if (matcher_url.find()) {
-				userId = matcher_url.group("userId");
+				user_id = matcher_url.group("userId");
 				page = Integer.parseInt(matcher_url.group("page"));
 			}
 
@@ -68,7 +71,7 @@ public class WorkScanTask extends ScanTask {
 				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
 					HttpTaskPoster.getInstance().submit(this.getClass(),
-							ImmutableMap.of("userId", userId,"page", String.valueOf(++page)));
+							ImmutableMap.of("user_id", user_id,"page", String.valueOf(++page)));
 					}
 
 
@@ -102,7 +105,7 @@ public class WorkScanTask extends ScanTask {
 				list.add(new_url);
 
 				try {
-					HttpTaskPoster.getInstance().submit(CaseTask.class,
+					HttpTaskPoster.getInstance().submit(WorkTask.class,
 							ImmutableMap.of("work_webId", work_webId)
 					);
 				} catch (ClassNotFoundException e) {

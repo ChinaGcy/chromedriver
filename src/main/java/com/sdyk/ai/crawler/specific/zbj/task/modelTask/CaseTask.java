@@ -32,6 +32,8 @@ public class CaseTask extends Task {
 
 		super(url);
 
+		this.setBuildDom();
+
 		this.addDoneCallback((t) -> {
 
 			try {

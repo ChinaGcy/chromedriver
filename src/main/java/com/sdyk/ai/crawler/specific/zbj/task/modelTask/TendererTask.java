@@ -53,8 +53,6 @@ public class TendererTask extends Task {
 
 				Document doc = getResponse().getDoc();
 
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
-
 				Tenderer tenderer = new Tenderer(getUrl());
 
 				tenderer.origin_id = getUrl().split("com/")[1];
@@ -117,20 +115,12 @@ public class TendererTask extends Task {
 				tenderer.insert();
 
 				// 添加projectTask
-				/*tasks.add(TendererOrderTask.generateTask(getUrl(), 1, tenderer.origin_id));*/
 				HttpTaskPoster.getInstance().submit(TendererOrderTask.class,
 						ImmutableMap.of("user_id", userId, "page", "1"));
 
 				// 评价任务
-				/*tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.origin_id));*/
 				HttpTaskPoster.getInstance().submit(TendererRatingTask.class,
 						ImmutableMap.of("user_id", userId, "page", "1"));
-
-				/*for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					t.setBuildDom();
-					ChromeDriverRequester.getInstance().submit(t);
-				}*/
-
 
 			}catch (Exception e) {
 				logger.error(e);

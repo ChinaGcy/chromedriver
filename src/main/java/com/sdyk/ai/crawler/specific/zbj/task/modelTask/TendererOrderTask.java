@@ -27,20 +27,6 @@ public class TendererOrderTask extends ScanTask {
 		url_template = "https://home.zbj.com/{{user_id}}/?op={{page}}";
 	}
 
-	/*public static TendererOrderTask generateTask(String url, int page, String userId) {
-
-		TendererOrderTask t = null;
-		String url_ = url+ "/?op=" + page;
-		try {
-			t = new TendererOrderTask(url_, page, userId);
-			t.setBuildDom();
-			return t;
-		} catch (MalformedURLException | URISyntaxException | ProxyException.Failed e) {
-			e.printStackTrace();
-		}
-		return t;
-	}*/
-
 	public TendererOrderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 
@@ -55,37 +41,24 @@ public class TendererOrderTask extends ScanTask {
 			if (matcher.find()) {
 				userId = matcher.group("userId");
 				page = Integer.parseInt(matcher.group("page"));
-				System.err.println(userId +"-----------------"+page);
 			}
 
 			Document doc = getResponse().getDoc();
 
 			// 获取历史数据（简略）
 			try {
-				/*getSimpleProjectTask(doc, userId);*/
+				getSimpleProjectTask(doc, userId);
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
+			// 翻页
 			if (pageTurning("#order > div > div.pagination-wrapper > div > ul > li", page)) {
-				// 翻页
-				/*com.sdyk.ai.crawler.task.Task t = generateTask("https://home.zbj.com/"
-						+ this.getParamString("userId"), ++op_page, this.getParamString("userId"));
-				if (t != null) {
-					t.setPriority(Priority.MEDIUM);
-					t.setBuildDom();
-					tasks.add(t);
-				}*/
 
 				HttpTaskPoster.getInstance().submit(this.getClass(),
 						 ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
 			}
-
-			/*for(com.sdyk.ai.crawler.task.Task t : tasks) {
-				t.setBuildDom();
-				ChromeDriverRequester.getInstance().submit(t);
-			}*/
 		});
 	}
 

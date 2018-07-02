@@ -87,11 +87,11 @@ public class ProjectTask extends Task {
 				// A 无法请求页面内容 #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
 				//#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
 				if (pageAccessible(src)) {
-					String header = null;
-					try {
-						header = doc.select("#headerNavWrap > div > div > div.header-nav-sub-title").text();
-					} catch (Exception e) {
-						header = doc.select("#headerNavWrap > div:nth-child(1) > div > a").text();
+					String header;
+					header = doc.select("#headerNavWrap > div.header-nav-width-ctrl > div.header-nav.clearfix > div.header-nav-sub-title").text();
+
+					if (header == null || header.equals("")) {
+						header = doc.select("#headerNavWrap > div.header-nav-width-ctrl > div.header-nav.clearfix > a").text();
 					}
 
 					// B1 页面格式1 ：http://task.zbj.com/12954152/
