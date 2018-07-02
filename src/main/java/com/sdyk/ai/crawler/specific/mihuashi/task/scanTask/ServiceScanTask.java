@@ -1,24 +1,17 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceProviderTask;
-import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
-import com.sdyk.ai.crawler.task.Task;
-import com.sdyk.ai.crawler.util.URLUtil;
-import one.rewind.io.requester.chrome.action.ClickAction;
-import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,51 +63,35 @@ public class ServiceScanTask extends ScanTask {
 
 	            //添加抓取服务商信息任务
 	            try {
-		            URLUtil.PostTask(ServiceProviderTask.class,
-				            null,
-				            ImmutableMap.of("service_id", un),
-				            null,
-				            null,
-				            null,
-				            null,
-				            null);
+		            HttpTaskPoster.getInstance().submit(ServiceProviderTask.class,
+				            ImmutableMap.of("service_id", un));
 
-	            } catch (Exception e) {
-		            logger.error("error for URLUtil.PostTask ServiceProviderTask.class", e);
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+		            logger.error("error for HttpTaskPoster.submit ServiceProviderTask", e);
 	            }
 
 	            //添加服务商评价任务
 	            try {
-		            URLUtil.PostTask(ServiceRatingTask.class,
-				            null,
-				            ImmutableMap.of("service_id", un),
-				            null,
-				            null,
-				            null,
-				            null,
-				            null);
+		            HttpTaskPoster.getInstance().submit(ServiceRatingTask.class,
+				            ImmutableMap.of("service_id", un));
 
-	            } catch (Exception e) {
-		            logger.error("error for URLUtil.PostTask ServiceRatingTask.class", e);
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+		            logger.error("error for HttpTaskPoster.submit ServiceProviderTask", e);
 	            }
 
             }
 
             if( pageTurning(pagePath, page) ){
                 int nextP = page+1;
-	            try {
-		            URLUtil.PostTask(ServiceScanTask.class,
-				            null,
-				            ImmutableMap.of("page", String.valueOf(nextP)),
-				            null,
-				            null,
-				            null,
-				            null,
-				            null);
 
-	            } catch (Exception e) {
-		            logger.error("error for URLUtil.PostTask ServiceRatingTask.class", e);
+	            try {
+		            HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
+				            ImmutableMap.of("page", String.valueOf(nextP)));
+
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+		            logger.error("error for HttpTaskPoster.submit ServiceScanTask", e);
 	            }
+
             }
 
         });

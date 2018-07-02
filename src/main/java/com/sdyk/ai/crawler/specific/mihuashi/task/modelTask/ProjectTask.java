@@ -1,10 +1,10 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
@@ -175,32 +175,20 @@ public class ProjectTask extends Task {
 
 			//添加甲方任务
 			try {
-				URLUtil.PostTask(TendererTask.class,
-						null,
-						ImmutableMap.of("tenderer_id", tenderer_id),
-						null,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(TendererTask.class,
+						ImmutableMap.of("tenderer_id", tenderer_id));
 
-			} catch (Exception e) {
-				logger.error("error for URLUtil.PostTask TendererTask.class", e);
+			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+				logger.error("error for HttpTaskPoster.submit TendererTask", e);
 			}
 
 			//添加甲方评论任务
 			try {
-				URLUtil.PostTask(TendererRatingTask.class,
-						null,
-						ImmutableMap.of("tenderer_id", tenderer_id),
-						null,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(TendererRatingTask.class,
+						ImmutableMap.of("tenderer_id", tenderer_id));
 
-			} catch (Exception e) {
-				logger.error("error for URLUtil.PostTask TendererRatingTask.class", e);
+			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+				logger.error("error for HttpTaskPoster.submit TendererRatingTask", e);
 			}
 
 		}

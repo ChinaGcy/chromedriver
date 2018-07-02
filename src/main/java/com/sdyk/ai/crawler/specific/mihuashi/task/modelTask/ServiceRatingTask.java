@@ -1,10 +1,10 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
@@ -114,19 +114,15 @@ public class ServiceRatingTask extends Task {
 			while (matcher2.find()) {
 
 				String project_id = matcher2.group().replace("/projects/","");
-				try {
-					URLUtil.PostTask(ProjectTask.class,
-							null,
-							ImmutableMap.of("project_id", project_id),
-							null,
-							null,
-							null,
-							null,
-							null);
 
-				} catch (Exception e) {
-					logger.error("error for URLUtil.PostTask ProjectTask.class", e);
+				try {
+					HttpTaskPoster.getInstance().submit(ProjectTask.class,
+							ImmutableMap.of("project_id", project_id));
+
+				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+					logger.error("error for HttpTaskPoster.submit ProjectTask", e);
 				}
+
 			}
 
 			serviceProviderRating.insert();

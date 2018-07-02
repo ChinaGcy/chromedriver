@@ -1,11 +1,13 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
+
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -77,17 +79,11 @@ public class ProjectScanTask extends ScanTask {
             for(String un : usernames){
 
 	            try {
-		            URLUtil.PostTask(ProjectTask.class,
-				            null,
-				            ImmutableMap.of("project_id", un),
-				            null,
-				            null,
-				            null,
-				            null,
-				            null);
+		            HttpTaskPoster.getInstance().submit(ProjectTask.class,
+				            ImmutableMap.of("project_id", un));
 
-	            } catch (Exception e) {
-		            logger.error("error for URLUtil.PostTask ProjectTask.class", e);
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+		            logger.error("error for HttpTaskPoster.submit ProjectTask", e);
 	            }
 
             }
@@ -95,14 +91,15 @@ public class ProjectScanTask extends ScanTask {
             //判断是否为最大页
             if( pageTurning(pagePath, page) )
             {
-	            URLUtil.PostTask(ProjectScanTask.class,
-			            null,
-			            ImmutableMap.of( "page", String.valueOf(++page), "zoneId", zoneId),
-			            null,
-			            null,
-			            null,
-			            null,
-			            null);
+
+	            try {
+		            HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
+				            ImmutableMap.of("page", String.valueOf(++page), "zoneId", zoneId));
+
+	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+		            logger.error("error for HttpTaskPoster.submit ProjectTask", e);
+	            }
+
             }
 
 

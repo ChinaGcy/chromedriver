@@ -1,13 +1,11 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Tenderer;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
-import com.sdyk.ai.crawler.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
-import com.sdyk.ai.crawler.util.URLUtil;
-import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -116,19 +114,15 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 		Elements elements =doc.getElementsByClass("project-cell__title-link");
 		for(Element element : elements){
 			String project_id = element.attr("href").replace("/projects/","");
-			try {
-				URLUtil.PostTask(TendererTask.class,
-						null,
-						ImmutableMap.of("project_id", project_id),
-						null,
-						null,
-						null,
-						null,
-						null);
 
-			} catch (Exception e) {
-				logger.error("error for URLUtil.PostTask TendererTask.class", e);
+			try {
+				HttpTaskPoster.getInstance().submit(TendererTask.class,
+						ImmutableMap.of("project_id", project_id));
+
+			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+				logger.error("error for HttpTaskPoster.submit TendererTask", e);
 			}
+
 		}
 
 		if( tenderer.tender_type==null || !tenderer.tender_type.equals("团体-公司") ) {
