@@ -1,21 +1,40 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class WorkTask extends Task {
 
-	public WorkTask(String url,String useUrl) throws MalformedURLException, URISyntaxException {
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("work_id", String.class, "useUrl", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://www.clouderwork.com{{work_id}}";
+	}
+
+
+	public WorkTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
+
 		this.setPriority(Priority.MEDIUM);
-		this.addDoneCallback(() -> {
+
+		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
+
+			Map<String, Object> vars = validateInitMap(ImmutableMap.of("work_id", String.class, "useUrl", String.class));
+
+			String useUrl = String.valueOf(vars.get("useUrl"));
+
 			crawlerJob(doc,useUrl);
 
 		});
