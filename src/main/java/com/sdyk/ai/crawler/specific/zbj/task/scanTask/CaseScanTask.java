@@ -1,11 +1,12 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class CaseScanTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class,"page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
 		// url_template
 		url_template = "http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html";
 	}
@@ -91,14 +92,8 @@ public class CaseScanTask extends ScanTask {
 			}
 
 			if (pageTurning("#contentBox > div > div.pagination > ul > li", page)) {
-				URLUtil.PostTask(this.getClass(),
-						null,
-						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)),
-						null,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(this.getClass(),
+						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
 			}
 		});
 	}
@@ -127,15 +122,9 @@ public class CaseScanTask extends ScanTask {
 				list.add(new_url);
 
 				try {
-					URLUtil.PostTask(CaseTask.class,
-							null,
-							ImmutableMap.of("user_id", userId, "case_id", case_id),
-							null,
-							null,
-							null,
-							null,
-							null);
-				} catch (ClassNotFoundException e) {
+					HttpTaskPoster.getInstance().submit(CaseTask.class,
+							ImmutableMap.of("user_id", userId, "case_id", case_id));
+				} catch (ClassNotFoundException | UnsupportedEncodingException | MalformedURLException | URISyntaxException e) {
 					e.printStackTrace();
 				}
 

@@ -1,12 +1,12 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.ServiceProvider;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.util.StringUtil;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,7 +27,7 @@ public class ServiceProviderTask extends Task {
 		// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("user_id", "0");
 		// url_template
 		url_template = "https://shop.zbj.com/{{user_id}}/";
 	}
@@ -84,30 +84,15 @@ public class ServiceProviderTask extends Task {
 					ChromeTaskScheduler.getInstance().submit(t);
 				}*/
 
-				URLUtil.PostTask(ServiceProviderRatingTask.class,
-						"",
-						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1)),
-						0,
-						null,
-						null,
-						null,
-						null);
-				URLUtil.PostTask(CaseScanTask.class,
-						"",
-						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1)),
-						0,
-						null,
-						null,
-						null,
-						null);
-				URLUtil.PostTask(WorkScanTask.class,
-						"",
-						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1)),
-						0,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(ServiceProviderRatingTask.class,
+						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
+						);
+				HttpTaskPoster.getInstance().submit(CaseScanTask.class,
+						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
+						);
+				HttpTaskPoster.getInstance().submit(WorkScanTask.class,
+						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
+						);
 			} catch(Exception e) {
 				logger.error(e);
 			}

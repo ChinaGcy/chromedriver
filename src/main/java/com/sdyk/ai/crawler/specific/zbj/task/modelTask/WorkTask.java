@@ -21,7 +21,7 @@ public class WorkTask extends Task {
 		// init_map_class
 		init_map_class = ImmutableMap.of("work_webId", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("work_webId", "0");
 		// url_template
 		url_template = "https://shop.zbj.com/works/detail-wid-{{work_webId}}.html";
 	}
@@ -30,6 +30,7 @@ public class WorkTask extends Task {
 
 	public WorkTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
+
 
 		this.addDoneCallback((t)-> {
 

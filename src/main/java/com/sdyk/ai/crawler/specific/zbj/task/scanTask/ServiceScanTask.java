@@ -1,8 +1,8 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 
@@ -24,7 +24,7 @@ public class ServiceScanTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("channel", String.class,"page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("channel", "all", "page", "0");
 		// url_template
 		url_template = "https://www.zbj.com/{{channel}}/pk{page}.html";
 	}
@@ -96,16 +96,9 @@ public class ServiceScanTask extends ScanTask {
 				// 翻页
 				if (pageTurning("#utopia_widget_18 > div.pagination > ul > li", i)) {
 
-					URLUtil.PostTask(this.getClass(),
-							null,
-							ImmutableMap.of("channel", channel,"page", String.valueOf(page+40)),							null,
-							null,
-							null,
-							null,
-							null
-							);
+					HttpTaskPoster.getInstance().submit(this.getClass(),
+							ImmutableMap.of("channel", channel,"page", String.valueOf(page+40)));
 				}
-
 				//logger.info("Task driverCount: {}", tasks.size());
 
 			} catch (Exception e) {

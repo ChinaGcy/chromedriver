@@ -2,18 +2,17 @@ package com.sdyk.ai.crawler.specific.zbj;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.specific.zbj.task.ZbjLoginTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
-import one.rewind.io.requester.task.ChromeTask;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
@@ -27,7 +26,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
     // 项目频道参数
     public String[] project_channels = {
-            /*"t-paperwork",         // 策划
+            "t-paperwork",         // 策划
             "t-ppsj",              // 品牌设计
             "t-sign",              // 广告设计
             "t-ad",                // 媒介投放
@@ -38,8 +37,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "t-xxtg",              // 公关活动/线下地推/会议展览
             "t-yxtg",              // 营销传播
             "t-ppglzxzbj",         // 品牌咨询管理
-            "t-dsyxfwzbj"          // 电商营销服务*/
-            "o-paperwork",         // 策划
+            "t-dsyxfwzbj"          // 电商营销服务
+            /*"o-paperwork",         // 策划
             "o-game",               // 游戏
             "o-dsspfw",               // 电商视频服务
             "o-yxzxzbj",               // 营销咨询
@@ -58,7 +57,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             "o-xxtg",              // 公关活动/线下地推/会议展览
             "o-yxtg",              // 营销传播
             "o-ppglzxzbj",         // 品牌咨询管理
-            "o-dsyxfwzbj"          // 电商营销服务
+            "o-dsyxfwzbj"          // 电商营销服务*/
     };
 
     // 服务商频道参数
@@ -142,15 +141,9 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
     public void getLoginTask() throws MalformedURLException, URISyntaxException {
 
 		try {
-			URLUtil.PostTask(ZbjLoginTask.class,
-					null,
-					ImmutableMap.of("domain", "zbj"),
-					null,
-					null,
-					null,
-					null,
-					null);
-		} catch (ClassNotFoundException e) {
+			HttpTaskPoster.getInstance().submit(ZbjLoginTask.class,
+					ImmutableMap.of("domain", "zbj"));
+		} catch (ClassNotFoundException | UnsupportedEncodingException e) {
 			logger.error("", e);
 		}
 
@@ -166,17 +159,11 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
         for(String channel : project_channels) {
 
 			try {
-				URLUtil.PostTask(com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask.class,
-						null,
-						ImmutableMap.of("channel", channel,"page", "1"),
-						null,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask.class,
+						ImmutableMap.of("channel", channel,"page", "1"));
 
 				logger.info("PROJECT:" + channel);
-			} catch (ClassNotFoundException e) {
+			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
 
@@ -190,17 +177,11 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
         if (backtrace == true) {
             for (String channel : service_supplier_channels) {
 				try {
-					URLUtil.PostTask(ServiceScanTask.class,
-							null,
-							ImmutableMap.of("channel", channel,"page", "1"),
-							null,
-							null,
-							null,
-							null,
-							null);
+					HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
+							ImmutableMap.of("channel", channel,"page", "1"));
 
 					logger.info("PROJECT:" + channel);
-				} catch (ClassNotFoundException e) {
+				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
 
@@ -240,13 +221,14 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             num = Integer.parseInt(args[0]);
         }
 
-        Scheduler scheduler = new Scheduler("zbj.com", num);
+        Scheduler scheduler = new Scheduler("zbj.com", 1);
 
-        scheduler.initAuthorizedRequester();
+        /*scheduler.initAuthorizedRequester();*/
 
-        /*scheduler.getHistoricalData();
 
-        scheduler.monitoring();*/
+        /*scheduler.getHistoricalData();*/
+
+        /*scheduler.monitoring();*/
     }
 
 }

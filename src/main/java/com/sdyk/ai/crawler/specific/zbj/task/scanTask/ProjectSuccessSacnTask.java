@@ -1,9 +1,9 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
@@ -19,7 +19,7 @@ public class ProjectSuccessSacnTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("channel", String.class,"page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("channel", "all", "page", "0");
 		// url_template
 		url_template = "http://task.zbj.com/{{channel}}/p{{page}}s5.html?o=1";
 	}
@@ -64,14 +64,8 @@ public class ProjectSuccessSacnTask extends ScanTask {
 					String project_id = matcher.group("projectId");
 
 					try {
-						URLUtil.PostTask(ProjectTask.class,
-								null,
-								ImmutableMap.of("project_id", project_id),
-								null,
-								null,
-								null,
-								null,
-								null);
+						HttpTaskPoster.getInstance().submit(ProjectTask.class,
+								ImmutableMap.of("project_id", project_id));
 
 					} catch (Exception e) {
 						logger.error(e);
@@ -81,14 +75,8 @@ public class ProjectSuccessSacnTask extends ScanTask {
 				// body > div.grid.grid-inverse > div.main-wrap > div > div.list-footer > div > ul
 				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div.list-footer > div > ul > li", page)) {
 
-					URLUtil.PostTask(ProjectTask.class,
-							null,
-							ImmutableMap.of("channel", channel, "page", String.valueOf(++page)),
-							null,
-							null,
-							null,
-							null,
-							null);
+					HttpTaskPoster.getInstance().submit(ProjectTask.class,
+							ImmutableMap.of("channel", channel, "page", String.valueOf(++page)));
 				}
 
 				logger.info("Task driverCount: {}", tasks.size());

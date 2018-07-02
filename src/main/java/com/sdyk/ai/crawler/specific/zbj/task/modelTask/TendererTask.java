@@ -1,10 +1,10 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -26,17 +26,19 @@ public class TendererTask extends Task {
 
 	static {
 		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class);
+		init_map_class = ImmutableMap.of("tenderer_id", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("tenderer_id", "0");
 		// url_template
-		url_template = "https://task.zbj.com/{{user_id}}/";
+		url_template = "https://home.zbj.com/{{tenderer_id}}/";
+
+		need_login = false;
 	}
 
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-		this.setPriority(Priority.MEDIUM);
+		this.setBuildDom();
 
 		this.addDoneCallback((t)->{
 
@@ -116,25 +118,13 @@ public class TendererTask extends Task {
 
 				// 添加projectTask
 				/*tasks.add(TendererOrderTask.generateTask(getUrl(), 1, tenderer.origin_id));*/
-				URLUtil.PostTask(TendererOrderTask.class,
-						null,
-						ImmutableMap.of("user_id", userId, "page", "1"),
-						null,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(TendererOrderTask.class,
+						ImmutableMap.of("user_id", userId, "page", "1"));
 
 				// 评价任务
 				/*tasks.add(TendererRatingTask.generateTask(getUrl(), 1, tenderer.origin_id));*/
-				URLUtil.PostTask(TendererRatingTask.class,
-						null,
-						ImmutableMap.of("user_id", userId, "page", "1"),
-						null,
-						null,
-						null,
-						null,
-						null);
+				HttpTaskPoster.getInstance().submit(TendererRatingTask.class,
+						ImmutableMap.of("user_id", userId, "page", "1"));
 
 				/*for (com.sdyk.ai.crawler.task.Task t : tasks) {
 					t.setBuildDom();

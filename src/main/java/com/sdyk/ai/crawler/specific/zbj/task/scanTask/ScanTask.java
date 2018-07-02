@@ -54,8 +54,6 @@ public abstract class ScanTask extends com.sdyk.ai.crawler.task.ScanTask{
 				// TODO 获取最大页数 此处不能正常解析
 				int maxPage = Integer.parseInt(pageList.get(pageList.size() - 2).text());
 
-				System.err.println(maxPage);
-
 				return page < maxPage;
 			}
 		}

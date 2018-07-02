@@ -1,11 +1,12 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
-import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class WorkScanTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("userId", String.class,"page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("userId", "0", "page", "1");
 		// url_template
 		url_template = "http://shop.zbj.com/{{userId}}/works-p{{page}}.html";
 	}
@@ -66,15 +67,8 @@ public class WorkScanTask extends ScanTask {
 				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
 				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
-					URLUtil.PostTask(this.getClass(),
-							null,
-							ImmutableMap.of("userId", userId,"page", String.valueOf(++page)),							null,
-							null,
-							null,
-							null,
-							null
-					);
-
+					HttpTaskPoster.getInstance().submit(this.getClass(),
+							ImmutableMap.of("userId", userId,"page", String.valueOf(++page)));
 					}
 
 
@@ -108,16 +102,13 @@ public class WorkScanTask extends ScanTask {
 				list.add(new_url);
 
 				try {
-					URLUtil.PostTask(CaseTask.class,
-							null,
-							ImmutableMap.of("work_webId", work_webId),
-							null,
-							null,
-							null,
-							null,
-							null);
+					HttpTaskPoster.getInstance().submit(CaseTask.class,
+							ImmutableMap.of("work_webId", work_webId)
+					);
 				} catch (ClassNotFoundException e) {
 					logger.error(e);
+				} catch (UnsupportedEncodingException | URISyntaxException | MalformedURLException e) {
+					e.printStackTrace();
 				}
 			}
 		}
