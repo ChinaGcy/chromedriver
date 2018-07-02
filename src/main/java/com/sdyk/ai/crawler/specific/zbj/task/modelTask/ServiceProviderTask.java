@@ -16,10 +16,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ServiceProviderTask extends Task {
 
@@ -53,8 +50,6 @@ public class ServiceProviderTask extends Task {
 				String src = getResponse().getText();
 				Document doc = getResponse().getDoc();
 
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
-
 				shareData(doc, src);
 
 				// 判断是哪个页面格式
@@ -80,14 +75,6 @@ public class ServiceProviderTask extends Task {
 					logger.error("insert/update error {}", e);
 				}
 				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-				/*tasks.add(ServiceProviderRatingTask.generateTask(serviceProvider.origin_id, 1));
-				tasks.add(CaseScanTask.generateTask(serviceProvider.origin_id, 1));
-				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
-
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
-					ChromeTaskScheduler.getInstance().submit(t);
-				}*/
-
 				HttpTaskPoster.getInstance().submit(ServiceProviderRatingTask.class,
 						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
 						);
@@ -304,9 +291,13 @@ public class ServiceProviderTask extends Task {
 		String head = doc.select("body > div.main > div > div.wk-l > div > div.w-head-pic > img").outerHtml();
 		Set<String> head_img = new HashSet<>();
 		String head1 = StringUtil.cleanContent(head, head_img,null, null);
-		this.download(head);
-		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
-				one.rewind.txt.StringUtil.uuid(head1));;
+		this.download(head1);
+
+		Iterator it = head_img.iterator();
+		while (it.hasNext()) {
+			serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
+					one.rewind.txt.StringUtil.uuid((String)it.next()));
+		}
 	}
 
 	// 天棚网 服务商信息  https://shop.tianpeng.com/15199471/salerinfo.html
@@ -322,10 +313,13 @@ public class ServiceProviderTask extends Task {
 		String head = doc.select("body > div.grid > div.main-wrap > div > div > div > div > ul > li.license-item.fl > div.license-item-pic").html();
 		Set<String> head_img = new HashSet<>();
 		String head1 = StringUtil.cleanContent(head, head_img,null, null);
-		this.download(head);
-		serviceProvider.cover_images = one.rewind.txt.StringUtil.byteArrayToHex(
-				one.rewind.txt.StringUtil.uuid(head1));
+		this.download(head1);
 
+		Iterator it = head_img.iterator();
+		while (it.hasNext()) {
+			serviceProvider.cover_images = one.rewind.txt.StringUtil.byteArrayToHex(
+					one.rewind.txt.StringUtil.uuid((String) it.next()));
+		}
 		serviceProvider.tags = doc.select("body > div.grid > div.main-wrap > div > div > div > div.introduce-content > div").text();
 
 
