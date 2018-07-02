@@ -1,11 +1,13 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.scanTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
+import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask;
-import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceSupplierTask;
+import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
@@ -21,41 +23,34 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.ScanTask {
+public class ServiceScanTask extends ScanTask {
 
-    public String workFilePath = "#users-show > div.container-fluid > div.profile__container > main > header > ul > li:nth-child(2) > a";
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("page", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://www.mihuashi.com/artists?page={{page}}";
+	}
 
-    public String morePath = "#vue-comments-app > div:nth-child(2) > a";
-
-    public static ServiceScanTask generateTask(int page) {
-
-        StringBuffer url = new StringBuffer("https://www.mihuashi.com/artists?page=");
-        url.append(page);
-
-        try {
-            ServiceScanTask t = new ServiceScanTask(url.toString(),page);
-            return t;
-        } catch (MalformedURLException e) {
-            logger.error("error for creat serviceScanTask",e);
-        } catch (URISyntaxException e) {
-            logger.error("error for creat serviceScanTask",e);
-        }
-
-        return null;
-    }
-
-
-    public ServiceScanTask(String url,int page) throws MalformedURLException, URISyntaxException {
+    public ServiceScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
         super(url);
 
         this.setPriority(Priority.HIGH);
-        this.setBuildDom();
-        this.addDoneCallback(() -> {
+
+        this.addDoneCallback((t) -> {
 
             String pagePath = "#artists-index > div.container-fluid > div.container > div > div > nav > span.last > a";
 
-            List<Task> task = new ArrayList<>();
+	        int page = 0;
+	        Pattern pattern_url = Pattern.compile("page=(?<page>.+?)");
+	        Matcher matcher_url = pattern_url.matcher(url);
+	        if (matcher_url.find()) {
+		        page = Integer.parseInt(matcher_url.group("page"));
+	        }
+
             Document doc = getResponse().getDoc();
             String src = getResponse().getText();
 
@@ -72,37 +67,54 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
             }
 
             for(String un : usernames){
-                try {
 
-                    //添加抓取服务商信息任务
-                    Task taskW = new ServiceSupplierTask("https://www.mihuashi.com/users/"+un+"?role=painter");
-                    task.add(taskW);
+	            //添加抓取服务商信息任务
+	            try {
+		            URLUtil.PostTask(ServiceProviderTask.class,
+				            null,
+				            ImmutableMap.of("service_id", un),
+				            null,
+				            null,
+				            null,
+				            null,
+				            null);
 
-                    //添加服务商评价任务
-                    Task taskSR = new ServiceRatingTask("https://www.mihuashi.com/users/"+un+"?role=painter&rating=true");
-                    taskSR.addAction(new ClickAction( workFilePath ));
-                    taskSR.addAction(new LoadMoreContentAction(morePath));
-                    task.add(taskSR);
+	            } catch (Exception e) {
+		            logger.error("error for URLUtil.PostTask ServiceProviderTask.class", e);
+	            }
 
-                } catch (MalformedURLException e) {
-                    logger.error("error for creat task", e);
-                } catch (URISyntaxException e) {
-                    logger.error("error for creat task", e);
-                }
+	            //添加服务商评价任务
+	            try {
+		            URLUtil.PostTask(ServiceRatingTask.class,
+				            null,
+				            ImmutableMap.of("service_id", un),
+				            null,
+				            null,
+				            null,
+				            null,
+				            null);
+
+	            } catch (Exception e) {
+		            logger.error("error for URLUtil.PostTask ServiceRatingTask.class", e);
+	            }
+
             }
 
             if( pageTurning(pagePath, page) ){
                 int nextP = page+1;
-                Task t = generateTask(nextP);
-                if (t != null) {
-                    t.setBuildDom();
-                    t.setPriority(one.rewind.io.requester.Task.Priority.HIGH);
-                    task.add(t);
-                }
-            }
+	            try {
+		            URLUtil.PostTask(ServiceScanTask.class,
+				            null,
+				            ImmutableMap.of("page", String.valueOf(nextP)),
+				            null,
+				            null,
+				            null,
+				            null,
+				            null);
 
-            for(Task t : task) {
-                ChromeDriverRequester.getInstance().submit(t);
+	            } catch (Exception e) {
+		            logger.error("error for URLUtil.PostTask ServiceRatingTask.class", e);
+	            }
             }
 
         });
@@ -136,8 +148,4 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
         return null;
     }
 
-    @Override
-    public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-        return null;
-    }
 }

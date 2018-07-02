@@ -1,18 +1,14 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.scanTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
-import one.rewind.io.requester.exception.AccountException;
+import com.sdyk.ai.crawler.util.URLUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,46 +16,46 @@ import java.util.regex.Pattern;
 /**
  *
  */
-public class ProjectScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.ScanTask {
+public class ProjectScanTask extends ScanTask {
 
-    public static ProjectScanTask generateTask(String zone_id, int page){
-
-        //生成LIST页
-        StringBuffer url = new StringBuffer("https://www.mihuashi.com/projects?zone_id=");
-        url.append(zone_id);
-        url.append("&page=");
-        url.append(page);
-
-        //创建任务
-        try {
-            ProjectScanTask t = new ProjectScanTask(url.toString(), zone_id, page);
-            return t;
-        } catch (MalformedURLException | URISyntaxException e) {
-            logger.error(e);
-        }
-
-        return null;
-    }
-
+	static {
+		// init_map_class
+		init_map_class = ImmutableMap.of("page", String.class, "zone_id", String.class);
+		// init_map_defaults
+		init_map_defaults = ImmutableMap.of("q", "ip");
+		// url_template
+		url_template = "https://www.mihuashi.com/projects?zone_id={{zone_id}}&page={{page}}";
+	}
 
     /**
      *
      * @param url
-     * @param zone_id
-     * @param page
      * @throws MalformedURLException
      * @throws URISyntaxException
      */
-    public ProjectScanTask(String url, String zone_id, int page) throws MalformedURLException, URISyntaxException {
+    public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
         super(url);
 
         // 设定高优先级
         this.setPriority(Priority.HIGH);
 
-        this.addDoneCallback(() -> {
+        this.addDoneCallback((t) -> {
 
-            List<Task> task = new ArrayList<>();
+	        int page = 0;
+	        Pattern pattern_url = Pattern.compile("page=(?<page>.+?)");
+	        Matcher matcher_url = pattern_url.matcher(url);
+	        if (matcher_url.find()) {
+		        page = Integer.parseInt(matcher_url.group("page"));
+	        }
+
+	        String zoneId = "1";
+	        Pattern pattern_zoneId = Pattern.compile("zone_id=(?<zoneId>.+?)&page");
+	        Matcher matcher_zoneId = pattern_zoneId.matcher(url);
+	        if (matcher_zoneId.find()) {
+		        zoneId = matcher_zoneId.group("zoneId");
+	        }
+
 
             Document doc = getResponse().getDoc();
 
@@ -79,33 +75,37 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
                 }
             }
             for(String un : usernames){
-                try {
 
-                    //添加抓取服务商信息任务
-                    task.add(new ProjectTask(un));
+	            try {
+		            URLUtil.PostTask(ProjectTask.class,
+				            null,
+				            ImmutableMap.of("project_id", un),
+				            null,
+				            null,
+				            null,
+				            null,
+				            null);
 
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
+	            } catch (Exception e) {
+		            logger.error("error for URLUtil.PostTask ProjectTask.class", e);
+	            }
+
             }
 
             //判断是否为最大页
             if( pageTurning(pagePath, page) )
             {
-                int nextPage = page+1;
-                Task t = generateTask(zone_id, nextPage);
-                if (t != null) {
-                    t.setBuildDom();
-                    t.setPriority(one.rewind.io.requester.Task.Priority.HIGH);
-                    task.add(t);
-                }
+	            URLUtil.PostTask(ProjectScanTask.class,
+			            null,
+			            ImmutableMap.of( "page", String.valueOf(++page), "zoneId", zoneId),
+			            null,
+			            null,
+			            null,
+			            null,
+			            null);
             }
 
-            for(Task t : task) {
-                ChromeDriverRequester.getInstance().submit(t);
-            }
+
         });
     }
 
@@ -136,8 +136,4 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.specific.mihuashi.task.
         return null;
     }
 
-    @Override
-    public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-        return this;
-    }
 }

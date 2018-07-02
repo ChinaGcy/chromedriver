@@ -1,3 +1,4 @@
+/*
 package com.sdyk.ai.crawler.specific.mihuashi.action;
 
 import one.rewind.io.requester.chrome.action.ChromeAction;
@@ -52,3 +53,4 @@ public class TendererRatingActive extends ChromeAction {
         this.getmore();
     }
 }
+*/
