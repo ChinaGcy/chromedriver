@@ -4,7 +4,6 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
@@ -20,7 +19,7 @@ public class PageTurningTest {
 
 
 		Account account = new one.rewind.io.requester.account.AccountImpl("zbj.com", "15284812411", "123456");
-
+/*
 		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
@@ -35,7 +34,7 @@ public class PageTurningTest {
 
 		task = ProjectScanTask.generateTask("t-wzkf", 1);
 
-		requester.submit(task);
+		requester.submit(task);*/
 
 		Thread.sleep(1000000);
 	}

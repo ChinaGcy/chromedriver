@@ -26,7 +26,7 @@ public class ProjectTest {
 	@Test
 	public void test() throws Exception {
 
-		Account account = AccountManager.getAccountByDomain("zbj.com");
+		/*Account account = AccountManager.getAccountByDomain("zbj.com");
 
 		//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
 
@@ -51,7 +51,7 @@ public class ProjectTest {
 
 		AuthorizedRequester.getInstance().submit(task1);
 
-		Thread.sleep(10000000);
+		Thread.sleep(10000000);*/
 
 	}
 

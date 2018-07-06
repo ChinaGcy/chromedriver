@@ -7,9 +7,12 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.BasicRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
+import one.rewind.txt.URLUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -27,16 +30,26 @@ import java.util.regex.Pattern;
 public class ProjectTask extends Task {
 
 	static {
-		// init_map_class
+		/*// init_map_class
 		init_map_class = ImmutableMap.of("project_id", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("project_id", "0");
 		// url_template
 		url_template = "https://task.zbj.com/{{project_id}}/";
 
-		need_login = false;
+		need_login = false;*/
+		registerBuilder(
+				ProjectTask.class,
+				"https://task.zbj.com/{{project_id}}/",
+				ImmutableMap.of("project_id", String.class),
+				ImmutableMap.of("project_id", "0")
 
+		);
 
+	}
+
+	public static String domain() throws MalformedURLException, URISyntaxException {
+		return "zbj.com";
 	}
 
 	public Project project;
@@ -121,15 +134,26 @@ public class ProjectTask extends Task {
 
 						String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
 						ChromeTask chromeTask = new ChromeTask(Project_url);
-						t.setPost();
-						BasicRequester.getInstance().submit(t);
+						chromeTask.setPost();
+						BasicRequester.getInstance().submit(chromeTask);
 					} catch (Exception e) {
 						logger.error("Error calculate project rating. ", e);
 					}
 
-					HttpTaskPoster.getInstance().submit(TendererTask.class,
+					ChromeDriverDistributor.getInstance().submit(
+							this.getHolder(
+							TendererTask.class,
 							ImmutableMap.of("tenderer_id", tenderer_webId)
-							);
+							));
+
+					/*for (String key : ImmutableMap.of("tenderer_id", tenderer_webId).keySet()) {
+						if(TendererTask.init_map_class.containsKey(key)) {
+							System.err.println("123456789");
+						}else {
+							System.err.println("********************");
+
+						}
+					}*/
 				}
 			} catch (Exception e) {
 				logger.error("", e);
@@ -267,8 +291,6 @@ public class ProjectTask extends Task {
 				.attr("src")
 				.split("\\.")[2];
 
-		System.err.println(link);
-
 		String[] links = link.split("/");
 
 		String s1 = links[1].substring(1,links[1].length());
@@ -285,7 +307,6 @@ public class ProjectTask extends Task {
 		if (matcher.find()) {
 			project.reward_type = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
-		System.err.println("********" + s1 + links[2] + links[3] + ss);
 		return "" + s1 + links[2] + links[3] + ss;
 
 	}
@@ -411,11 +432,6 @@ public class ProjectTask extends Task {
 
 			// 获取招标人id
 			return getTendererIdName(doc, src);
-			/*try {
-				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
-			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract channel: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
-			}*/
 
 		} catch (Exception e) {
 			logger.error("Error handle page category 1, {}, ", getUrl(), e);
@@ -510,7 +526,6 @@ public class ProjectTask extends Task {
 						.replace(",", "");
 				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + webId));
-
 				return webId;
 			}
 		}

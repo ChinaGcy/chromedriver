@@ -4,7 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererOrderTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.WorkTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
+import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 
 import java.io.UnsupportedEncodingException;
@@ -23,12 +28,18 @@ import java.util.regex.Pattern;
 public class WorkScanTask extends ScanTask {
 
 	static {
-		// init_map_class
+		/*// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class,"page", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "1");
 		// url_template
-		url_template = "http://shop.zbj.com/{{user_id}}/works-p{{page}}.html";
+		url_template = "http://shop.zbj.com/{{user_id}}/works-p{{page}}.html";*/
+		registerBuilder(
+				WorkScanTask.class,
+				"http://shop.zbj.com/{{user_id}}/works-p{{page}}.html",
+				ImmutableMap.of("user_id", String.class,"page", String.class),
+				ImmutableMap.of("user_id", "0", "page", "1")
+		);
 	}
 
 	public static List<String> list = new ArrayList<>();
@@ -70,8 +81,13 @@ public class WorkScanTask extends ScanTask {
 				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
 				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
-					HttpTaskPoster.getInstance().submit(this.getClass(),
-							ImmutableMap.of("user_id", user_id,"page", String.valueOf(++page)));
+					/*HttpTaskPoster.getInstance().submit(this.getClass(),
+							ImmutableMap.of("user_id", user_id,"page", String.valueOf(++page)));*/
+
+					ChromeDriverDistributor.getInstance().submit(
+							this.getHolder(
+									this.getClass(),
+									ImmutableMap.of("user_id", user_id,"page", String.valueOf(++page))));
 					}
 
 
@@ -91,7 +107,7 @@ public class WorkScanTask extends ScanTask {
 	 * 获取work任务
 	 * @param matcher
 	 */
-	public void getWorkUrl(Matcher matcher) {
+	public void getWorkUrl(Matcher matcher) throws Exception {
 
 		while (matcher.find()) {
 
@@ -104,15 +120,14 @@ public class WorkScanTask extends ScanTask {
 			if (!list.contains(new_url)) {
 				list.add(new_url);
 
-				try {
-					HttpTaskPoster.getInstance().submit(WorkTask.class,
-							ImmutableMap.of("work_webId", work_webId)
-					);
-				} catch (ClassNotFoundException e) {
-					logger.error(e);
-				} catch (UnsupportedEncodingException | URISyntaxException | MalformedURLException e) {
-					e.printStackTrace();
-				}
+				/*HttpTaskPoster.getInstance().submit(WorkTask.class,
+						ImmutableMap.of("work_webId", work_webId)
+				);*/
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								WorkTask.class,
+								ImmutableMap.of("work_webId", work_webId)));
+
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,14 +22,21 @@ import java.util.*;
 public class ServiceProviderTask extends Task {
 
 	static {
-		// init_map_class
+		/*// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("user_id", "0");
 		// url_template
 		url_template = "https://shop.zbj.com/{{user_id}}/";
 
-		need_login = false;
+		need_login = false;*/
+		registerBuilder(
+				ServiceProviderTask.class,
+				"https://shop.zbj.com/{{user_id}}/",
+				ImmutableMap.of("user_id", String.class),
+				ImmutableMap.of("user_id", "0")
+
+		);
 
 	}
 
@@ -75,7 +83,7 @@ public class ServiceProviderTask extends Task {
 					logger.error("insert/update error {}", e);
 				}
 				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-				HttpTaskPoster.getInstance().submit(ServiceProviderRatingTask.class,
+				/*HttpTaskPoster.getInstance().submit(ServiceProviderRatingTask.class,
 						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
 						);
 				HttpTaskPoster.getInstance().submit(CaseScanTask.class,
@@ -83,7 +91,23 @@ public class ServiceProviderTask extends Task {
 						);
 				HttpTaskPoster.getInstance().submit(WorkScanTask.class,
 						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
-						);
+						);*/
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								ServiceProviderRatingTask.class,
+								ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
+						));
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								CaseScanTask.class,
+								ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
+						));
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								WorkScanTask.class,
+								ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
+						));
+
 			} catch(Exception e) {
 				logger.error(e);
 			}
@@ -321,10 +345,6 @@ public class ServiceProviderTask extends Task {
 					one.rewind.txt.StringUtil.uuid((String) it.next()));
 		}
 		serviceProvider.tags = doc.select("body > div.grid > div.main-wrap > div > div > div > div.introduce-content > div").text();
-
-
-
-
 	}
 
 	/**

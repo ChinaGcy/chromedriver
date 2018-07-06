@@ -5,7 +5,10 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,12 +22,18 @@ import java.util.regex.Pattern;
 public class TendererOrderTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
+		/*// init_map_class
+		init_map_class = ImmutableMap.of("user_id_op", String.class, "page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
+		init_map_defaults = ImmutableMap.of("user_id_op", "0", "page", "0");
 		// url_template
-		url_template = "https://home.zbj.com/{{user_id}}/?op={{page}}";
+		url_template = "https://home.zbj.com/{{user_id_op}}/?op={{page}}";*/
+		registerBuilder(
+				TendererOrderTask.class,
+				"https://home.zbj.com/{{user_id_op}}/?op={{page}}",
+				ImmutableMap.of("user_id_op", String.class, "page", String.class),
+				ImmutableMap.of("user_id_op", "0", "page", "0")
+		);
 	}
 
 	public TendererOrderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
@@ -56,8 +65,12 @@ public class TendererOrderTask extends ScanTask {
 			// 翻页
 			if (pageTurning("#order > div > div.pagination-wrapper > div > ul > li", page)) {
 
-				HttpTaskPoster.getInstance().submit(this.getClass(),
-						 ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
+				/*HttpTaskPoster.getInstance().submit(TendererOrderTask.class,
+						 ImmutableMap.of("user_id_op", userId, "page", String.valueOf(++page)));*/
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								TendererOrderTask.class,
+								ImmutableMap.of("user_id_op", userId, "page", String.valueOf(++page))));
 			}
 		});
 	}
@@ -135,8 +148,10 @@ public class TendererOrderTask extends ScanTask {
 
 			project.insert();
 
-			HttpTaskPoster.getInstance().submit(ProjectTask.class,
-					ImmutableMap.of("project_id", project.origin_id ));
+			ChromeTaskHolder holder = ChromeTask.buildHolder(
+					ProjectTask.class, ImmutableMap.of("project_id", project.origin_id ));
+
+			ChromeDriverDistributor.getInstance().submit(holder);
 
 		}
 

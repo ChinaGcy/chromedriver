@@ -8,7 +8,6 @@ import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.proxy.ProxyImpl;
@@ -20,7 +19,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
-import static one.rewind.io.requester.chrome.ChromeDriverRequester.buildBMProxy;
 
 public class RemoteDriverTest {
 
@@ -61,7 +59,6 @@ public class RemoteDriverTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress,null);
 		agent.start();
 
-		System.err.println(ChromeDriverRequester.REQUESTER_LOCAL_IP + ":" + agent.bmProxy_port);
 
 		Task task = new Task("http://ddns.oray.com/checkip");
 		agent.submit(task);
@@ -75,7 +72,7 @@ public class RemoteDriverTest {
 	@Test
 	public void remoteTest() throws Exception {
 
-		delAllDockerContainers();
+		/*delAllDockerContainers();
 
 		createDockerContainers();
 
@@ -113,23 +110,23 @@ public class RemoteDriverTest {
 
 		requester.close();
 
-		delAllDockerContainers();
+		delAllDockerContainers();*/
 	}
 
 	@Test
 	public void testBuildProxyServer() throws InterruptedException, UnknownHostException {
 
-		Proxy proxy = new ProxyImpl("scisaga.net", 60103, "tfelab", "TfeLAB2@15");
+		/*Proxy proxy = new ProxyImpl("scisaga.net", 60103, "tfelab", "TfeLAB2@15");
 		BrowserMobProxyServer ps = buildBMProxy(proxy);
 		System.err.println(ps.getClientBindAddress());
 		System.err.println(ps.getPort());
-		Thread.sleep(100000);
+		Thread.sleep(100000);*/
 	}
 
 	@Test
 	public void RestartContainer() throws Exception {
 
-		DockerHostImpl host = new DockerHostImpl("10.0.0.62", 22, "root");
+		/*DockerHostImpl host = new DockerHostImpl("10.0.0.62", 22, "root");
 		host.delAllDockerContainers();
 
 		ChromeDriverDockerContainer container = host.createChromeDriverDockerContainer();
@@ -150,14 +147,14 @@ public class RemoteDriverTest {
 			requester.submit(task);
 		}
 
-		Thread.sleep(100000000);
+		Thread.sleep(100000000);*/
 
 	}
 
 	@Test
 	public void postTest() throws MalformedURLException, URISyntaxException {
 
-		String project_id = "8bc2056a0f60e46b732cdfc8ad126fcb";
+		/*String project_id = "8bc2056a0f60e46b732cdfc8ad126fcb";
 		String url = "http://localhost/zbj/get_contact/" + project_id;
 
 		one.rewind.io.requester.Task t = new one.rewind.io.requester.Task(url);
@@ -165,6 +162,6 @@ public class RemoteDriverTest {
 
 		BasicRequester.getInstance().submit(t);
 
-		System.err.println(t.getResponse().getText());
+		System.err.println(t.getResponse().getText());*/
 	}
 }

@@ -2,13 +2,9 @@ package com.sdyk.ai.crawler.mihuashi.task.test;
 
 import com.sdyk.ai.crawler.Requester;
 import com.sdyk.ai.crawler.account.model.AccountImpl;
-import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
-import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererRatingTask;
-import com.sdyk.ai.crawler.specific.mihuashi.action.TendererRatingActive;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
 
@@ -20,7 +16,7 @@ public class TendererRatingTaskTest {
     @Test
     public void test() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException, InterruptedException {
 
-        ChromeDriverRequester.instance = new Requester();
+        /*ChromeDriverRequester.instance = new Requester();
         ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
         ChromeDriverAgent agent = new ChromeDriverAgent();
         ChromeDriverRequester.getInstance().addAgent(agent);
@@ -42,6 +38,6 @@ public class TendererRatingTaskTest {
 
         Thread.sleep(10000000);
         agent.stop();
-
+*/
     }
 }

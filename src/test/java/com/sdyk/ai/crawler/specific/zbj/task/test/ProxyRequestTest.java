@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
 import org.junit.Test;
-import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;

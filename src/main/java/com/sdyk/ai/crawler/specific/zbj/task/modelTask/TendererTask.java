@@ -5,7 +5,9 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 
@@ -25,14 +27,23 @@ import java.util.regex.Pattern;
 public class TendererTask extends Task {
 
 	static {
-		// init_map_class
+		/*// init_map_class
 		init_map_class = ImmutableMap.of("tenderer_id", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("tenderer_id", "0");
 		// url_template
 		url_template = "https://home.zbj.com/{{tenderer_id}}/";
 
-		need_login = false;
+		need_login = false;*/
+		registerBuilder(
+				TendererTask.class,
+				"https://home.zbj.com/{{tenderer_id}}/",
+				ImmutableMap.of("tenderer_id", String.class),
+				ImmutableMap.of("tenderer_id", "0")
+		);
+	}
+	public static String domain() throws MalformedURLException, URISyntaxException {
+		return "zbj.com";
 	}
 
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
@@ -114,13 +125,23 @@ public class TendererTask extends Task {
 
 				tenderer.insert();
 
-				// 添加projectTask
+				/*// 添加projectTask
 				HttpTaskPoster.getInstance().submit(TendererOrderTask.class,
-						ImmutableMap.of("user_id", userId, "page", "1"));
+						ImmutableMap.of("user_id_op", userId, "page", "1"));
 
 				// 评价任务
 				HttpTaskPoster.getInstance().submit(TendererRatingTask.class,
-						ImmutableMap.of("user_id", userId, "page", "1"));
+						ImmutableMap.of("user_id_ep", userId, "page", "1"));*/
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								TendererOrderTask.class,
+								ImmutableMap.of("user_id_op", userId, "page", "1")
+						));
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								TendererRatingTask.class,
+								ImmutableMap.of("user_id_ep", userId, "page", "1")
+						));
 
 			}catch (Exception e) {
 				logger.error(e);

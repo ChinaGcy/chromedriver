@@ -13,7 +13,6 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import org.apache.logging.log4j.LogManager;
 
@@ -103,7 +102,7 @@ public class SchedulerProxyFailedTest {
 	}
 
 	// 初始化方法
-	public void init() {
+	public void init(){} /*{
 
 		Requester.URL_VISITS.clear();
 
@@ -227,9 +226,9 @@ public class SchedulerProxyFailedTest {
 
 							agent.start();
 
-							/*logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
+							*//*logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
 									agent.remoteAddress,
-									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);*/
+									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);*//*
 						}
 
 						latch.countDown();
@@ -249,7 +248,7 @@ public class SchedulerProxyFailedTest {
 		} catch (Exception e) {
 			logger.error(e);
 		}
-	}
+	}*/
 
 	/**
 	 *
@@ -261,18 +260,18 @@ public class SchedulerProxyFailedTest {
 		List<ScanTask> tasks = new ArrayList<>();
 
 		for(String channel : project_channels) {
-			ScanTask t = ProjectScanTask.generateTask(channel, 1);
+			/*ScanTask t = ProjectScanTask.generateTask(channel, 1);
 			t.backtrace = backtrace;
 			tasks.add(t);
-			System.out.println("PROJECT:" + channel);
+			System.out.println("PROJECT:" + channel);*/
 		}
 
 		if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
-				ScanTask t = ServiceScanTask.generateTask(channel, 1);
+				/*ScanTask t = ServiceScanTask.generateTask(channel, 1);
 				t.backtrace = backtrace;
 				tasks.add(t);
-				System.out.println("SERVICE:" + channel);
+				System.out.println("SERVICE:" + channel);*/
 			}
 		}
 
@@ -287,7 +286,9 @@ public class SchedulerProxyFailedTest {
 		// 需求
 		for (com.sdyk.ai.crawler.task.Task task : getTask(true)) {
 
+/*
 			ChromeDriverRequester.getInstance().submit(task);
+*/
 
 		}
 	}
@@ -309,7 +310,7 @@ public class SchedulerProxyFailedTest {
 					for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
 
 						task.setBuildDom();
-						ChromeDriverRequester.getInstance().submit(task);
+						/*ChromeDriverRequester.getInstance().submit(task);*/
 					}
 				}
 			});

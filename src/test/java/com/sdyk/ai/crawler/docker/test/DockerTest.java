@@ -70,46 +70,46 @@ public class DockerTest {
 		// 删除阿里云服务器
 		AliyunHost.stopAndDelete(aliyunHosts);
 
-		// 执行登录操作
+		/*// 执行登录操作
 		Scheduler scheduler = new Scheduler("zbj.com", 1) {
-			/**
+			*//**
 			 * @param account
 			 * @return
 			 * @throws MalformedURLException
 			 * @throws URISyntaxException
-			 */
+			 *//*
 			@Override
 			public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
 				return null;
-			}
+			}*/
 
 			/**
 			 * @param backtrace
 			 * @return
 			 */
-			@Override
+			/*@Override
 			public void getTask(boolean backtrace) {
 				return null;
-			}
+			}*/
 
 			/**
 			 * 获取历史数据
 			 */
-			@Override
+			/*@Override
 			public void getHistoricalData() {
 
 			}
 
-			/**
+			*//**
 			 * 监控调度
-			 */
+			 *//*
 			@Override
 			public void monitoring() {
 
 			}
 		};
 
-		Thread.sleep(300000);
+		Thread.sleep(300000);*/
 
 	}
 

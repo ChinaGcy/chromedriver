@@ -3,7 +3,7 @@ package com.sdyk.ai.crawler.specific.proLagou.task;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
-import com.sdyk.ai.crawler.specific.proginn.action.ProginnLoginAction;
+import com.sdyk.ai.crawler.specific.proLagou.action.ProLagouLoginAction;
 import one.rewind.io.requester.account.Account;
 
 public class ProLagouLoginTask extends Task {
@@ -30,7 +30,7 @@ public class ProLagouLoginTask extends Task {
 
 		Account account = AccountManager.getAccountByDomain(domain);
 
-		this.addAction(new ProginnLoginAction(account));
+		this.addAction(new ProLagouLoginAction(account));
 
 	}
 }

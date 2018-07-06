@@ -1,8 +1,6 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task;
 
 import com.sdyk.ai.crawler.model.TaskTrace;
-import one.rewind.io.requester.Task;
-import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 
 import java.net.MalformedURLException;
@@ -10,7 +8,7 @@ import java.net.URISyntaxException;
 
 public class ScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
-	public ScanTask(String url) throws MalformedURLException, URISyntaxException {
+	public ScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 	}
 
@@ -36,8 +34,4 @@ public class ScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 		return null;
 	}
 
-	@Override
-	public Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
-	}
 }

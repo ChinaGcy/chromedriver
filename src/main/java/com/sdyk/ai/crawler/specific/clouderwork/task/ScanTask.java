@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 public class ScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
-    public ScanTask(String url) throws MalformedURLException, URISyntaxException {
+    public ScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
         super(url);
     }
 
@@ -54,8 +54,4 @@ public class ScanTask extends com.sdyk.ai.crawler.task.ScanTask {
         return null;
     }
 
-    @Override
-    public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-        return null;
-    }
 }

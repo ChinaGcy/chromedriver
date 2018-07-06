@@ -32,13 +32,13 @@ public class CaseTest {
 	@Test
 	public void CaseScanTest() throws Exception {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		/*ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		com.sdyk.ai.crawler.task.Task t = CaseScanTask.generateTask("http://shop.zbj.com/19308846/",1);
 
 		Queue<com.sdyk.ai.crawler.task.Task> queue = new LinkedBlockingQueue<>();
 
-		queue.add(t);
+		queue.add(t);*/
 
 		/*while(!queue.isEmpty()) {
 

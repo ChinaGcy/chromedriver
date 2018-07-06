@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.model.TendererRating;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -24,12 +25,20 @@ import java.util.regex.Pattern;
 public class TendererRatingTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
+		/*// init_map_class
+		init_map_class = ImmutableMap.of("user_id_ep", String.class, "page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
+		init_map_defaults = ImmutableMap.of("user_id_ep", "0", "page", "1");
 		// url_template
-		url_template = "https://home.zbj.com/{{user_id}}/?ep={{page}}";
+		url_template = "https://home.zbj.com/{{user_id_ep}}/?ep={{page}}";
+
+		need_login= false;*/
+		registerBuilder(
+				TendererRatingTask.class,
+				"https://home.zbj.com/{{user_id_ep}}/?ep={{page}}",
+				ImmutableMap.of("user_id_ep", String.class, "page", String.class),
+				ImmutableMap.of("user_id_ep", "0", "page", "1")
+		);
 	}
 
 	TendererRating tendererRating;
@@ -60,7 +69,6 @@ public class TendererRatingTask extends ScanTask {
 
 				// 防止数据为空
 				if (!doc.select("#evaluation > div > div").text().contains("该雇主还未收到过评价")) {
-
 
 					// 每页中的评价数
 					for (int i = 1; i <= doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
@@ -154,17 +162,22 @@ public class TendererRatingTask extends ScanTask {
 	 * @param page
 	 * @return
 	 */
-	public void pageTurn(int page, String userId) {
+	public void pageTurn(int page, String userId) throws Exception {
 
 		// 判断是否翻页
 		if (pageTurning("#evaluation > div > div.pagination-wrapper > div > ul > li", page)) {
 
-			try {
-				HttpTaskPoster.getInstance().submit(this.getClass(),
-						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
+			/*try {
+				HttpTaskPoster.getInstance().submit(TendererRatingTask.class,
+						ImmutableMap.of("user_id_ep", userId, "page", String.valueOf(++page)));
 			} catch (ClassNotFoundException | UnsupportedEncodingException | URISyntaxException | MalformedURLException e) {
 				e.printStackTrace();
-			}
+			}*/
+			ChromeDriverDistributor.getInstance().submit(
+					this.getHolder(
+							TendererRatingTask.class,
+							ImmutableMap.of("user_id_ep", userId, "page", String.valueOf(++page)
+					)));
 		}
 	}
 

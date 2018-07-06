@@ -1,10 +1,6 @@
 package com.sdyk.ai.crawler.clouder.task.test;
 
-import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
-import com.sdyk.ai.crawler.account.model.AccountImpl;
-import com.sdyk.ai.crawler.specific.clouderwork.task.ScanTask;
-import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ServiceScanTask;
-import one.rewind.io.requester.Task;
+
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
@@ -28,8 +24,8 @@ public class LoginTest {
         Thread.sleep(10000);
         agent.stop();*/
 
-        ScanTask task = new ServiceScanTask("http://www.baidu.com", 1);
-        System.err.println(task instanceof com.sdyk.ai.crawler.task.ScanTask);
+        /*ScanTask task = new ServiceScanTask("http://www.baidu.com", 1);
+        System.err.println(task instanceof com.sdyk.ai.crawler.task.ScanTask);*/
     }
 
 }

@@ -13,7 +13,7 @@ import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import org.apache.logging.log4j.LogManager;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class SchedulerTest {
 	@Test
 	public void test() throws Exception {
 
-		DockerHostImpl host = DockerHostManager.getInstance().getHostByIp("10.0.0.62");
+		/*DockerHostImpl host = DockerHostManager.getInstance().getHostByIp("10.0.0.62");
 		DockerHostManager.getInstance().delAllDockerContainers(host);
 
 		ProxyManager.getInstance().deleteProxyByGroup(AliyunHost.Proxy_Group_Name);
@@ -36,37 +36,37 @@ public class SchedulerTest {
 		AliyunHost.stopAndDeleteAll();
 
 		Scheduler scheduler = new Scheduler("zbj.com", 1) {
-			/**
+			*//**
 			 * @param account
 			 * @return
 			 * @throws MalformedURLException
 			 * @throws URISyntaxException
-			 */
+			 *//*
 			@Override
 			public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
 				return null;
 			}
 
-			/**
+			*//**
 			 * @param backtrace
 			 * @return
-			 */
+			 *//*
 			@Override
 			public void getTask(boolean backtrace) {
 				return null;
 			}
 
-			/**
+			*//**
 			 * 获取历史数据
-			 */
+			 *//*
 			@Override
 			public void getHistoricalData() {
 
 			}
 
-			/**
+			*//**
 			 * 监控调度
-			 */
+			 *//*
 			@Override
 			public void monitoring() {
 
@@ -233,7 +233,6 @@ public class SchedulerTest {
 
 		} catch (Exception e) {
 			logger.error(e);
-		}
-
+*/
 	}
 }

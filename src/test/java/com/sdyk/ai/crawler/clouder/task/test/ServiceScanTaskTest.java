@@ -1,7 +1,5 @@
 package com.sdyk.ai.crawler.clouder.task.test;
 
-import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceSupplierTask;
-import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ServiceScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
@@ -17,11 +15,11 @@ public class ServiceScanTaskTest {
     public void testServiceScanTask() throws IOException, URISyntaxException, ChromeDriverException.IllegalStatusException {
 
         int page = 1;
-        ServiceScanTask serviceScanTask = new ServiceScanTask("https://www.clouderwork.com/vip/gold",page);
+      /*  ServiceScanTask serviceScanTask = new ServiceScanTask("https://www.clouderwork.com/vip/gold",page);
         ChromeDriverAgent agent = new ChromeDriverAgent();
         agent.start();
         agent.submit(serviceScanTask);
-        agent.stop();
+        agent.stop();*/
 
     }
 }

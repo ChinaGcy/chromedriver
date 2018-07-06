@@ -19,8 +19,8 @@ public class TendererSnapshot extends Tenderer {
 	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
 	public String id_;
 
-	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String hash_id;
+	/*@DatabaseField(dataType = DataType.STRING, width = 32)
+	public String hash_id;*/
 
 	public TendererSnapshot() {};
 

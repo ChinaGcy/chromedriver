@@ -18,12 +18,18 @@ import java.util.regex.Pattern;
 public class WorkTask extends Task {
 
 	static {
-		// init_map_class
+		/*// init_map_class
 		init_map_class = ImmutableMap.of("work_webId", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("work_webId", "0");
 		// url_template
-		url_template = "https://shop.zbj.com/works/detail-wid-{{work_webId}}.html";
+		url_template = "https://shop.zbj.com/works/detail-wid-{{work_webId}}.html";*/
+		registerBuilder(
+				TendererOrderTask.class,
+				"https://shop.zbj.com/works/detail-wid-{{work_webId}}.html",
+				ImmutableMap.of("work_webId", String.class),
+				ImmutableMap.of("work_webId", "0")
+		);
 	}
 
 	Work work;

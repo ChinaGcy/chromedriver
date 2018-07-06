@@ -1,7 +1,5 @@
 package com.sdyk.ai.crawler.clouder.task.test;
 
-
-import com.sdyk.ai.crawler.specific.clouderwork.util.ClouderWorkLogin;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -21,7 +19,7 @@ public class ClouderWorkLoginTest {
 
         ChromeDriverAgent agent = new ChromeDriverAgent();
         agent.start();
-        ClouderWorkLogin.login(agent);
+//        ClouderWorkLogin.login(agent);
         agent.stop();
 
     }

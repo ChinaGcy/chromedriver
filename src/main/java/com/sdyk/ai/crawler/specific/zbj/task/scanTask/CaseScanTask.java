@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererOrderTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererRatingTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 
 import java.io.UnsupportedEncodingException;
@@ -22,14 +25,20 @@ import java.util.regex.Pattern;
 public class CaseScanTask extends ScanTask {
 
 	static {
-		// init_map_class
+		/*// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class,"page", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
 		// url_template
 		url_template = "http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html";
 
-		need_login = false;
+		need_login = false;*/
+		registerBuilder(
+				CaseScanTask.class,
+				"http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html",
+				ImmutableMap.of("user_id", String.class,"page", String.class),
+				ImmutableMap.of("user_id", "0", "page", "0")
+		);
 	}
 
 	public static List<String> list = new ArrayList<>();
@@ -96,8 +105,12 @@ public class CaseScanTask extends ScanTask {
 			}
 
 			if (pageTurning("#contentBox > div > div.pagination > ul > li", page)) {
-				HttpTaskPoster.getInstance().submit(this.getClass(),
-						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
+				/*HttpTaskPoster.getInstance().submit(this.getClass(),
+						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));*/
+				ChromeDriverDistributor.getInstance().submit(
+						this.getHolder(
+								this.getClass(),
+								ImmutableMap.of("user_id", userId, "page", String.valueOf(++page))));
 			}
 		});
 	}

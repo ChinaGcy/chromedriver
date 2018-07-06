@@ -18,12 +18,12 @@ public class ServiceSupplierTask extends com.sdyk.ai.crawler.task.Task {
 
 	ServiceProvider serviceProvider;
 
-	public ServiceSupplierTask(String url) throws MalformedURLException, URISyntaxException {
+	public ServiceSupplierTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 		this.setPriority(Priority.HIGH);
 		this.setBuildDom();
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
 			String src = getResponse().getText();
@@ -101,8 +101,4 @@ public class ServiceSupplierTask extends com.sdyk.ai.crawler.task.Task {
 		serviceProvider.insert();
 	}
 
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
-	}
 }

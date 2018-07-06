@@ -5,7 +5,6 @@ import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererRatingTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -21,9 +20,9 @@ public class TendererTaskTest {
 
 	@Before
 	public void setup() {
-		Requester.URL_VISITS.clear();
+		/*Requester.URL_VISITS.clear();
 		ChromeDriverRequester.instance = new Requester();
-		ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
+		ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);*/
 	}
 
 	/**
@@ -33,7 +32,7 @@ public class TendererTaskTest {
 	@Test
 	public void tendererTest() throws Exception {
 
-		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
+		/*Account account = new AccountImpl("zbj.com", "15284812411", "123456");
 		// Proxy proxy = ProxyManager.getInstance().getProxyById("6");
 		// proxy.validate();
 
@@ -53,7 +52,7 @@ public class TendererTaskTest {
 		task.setBuildDom();
 		ChromeDriverRequester.getInstance().submit(task);
 
-		Thread.sleep(10000000);
+		Thread.sleep(10000000);*/
 
 	}
 
@@ -63,7 +62,7 @@ public class TendererTaskTest {
 	@Test
 	public void tendererRatingTaskTest() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, ParseException {
 
-		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
+		/*Account account = new AccountImpl("zbj.com", "15284812411", "123456");
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 		agent.start();
 
@@ -76,6 +75,6 @@ public class TendererTaskTest {
 
 		TendererRatingTask task1 = new TendererRatingTask("https://home.zbj.com/16120380", 1 , "16120380");
 		task1.setBuildDom();
-		agent.submit(task1);
+		agent.submit(task1);*/
 	}
 }

@@ -21,11 +21,11 @@ public class WorkTest {
 	@Test
 	public void workTaskTest() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		/*ChromeDriverAgent agent = new ChromeDriverAgent();
 		agent.start();
 		WorkTask workTask = new WorkTask("http://shop.zbj.com/works/detail-wid-329637.html","329637");
 		workTask.setBuildDom();
-		agent.submit(workTask);
+		agent.submit(workTask);*/
 	}
 
 

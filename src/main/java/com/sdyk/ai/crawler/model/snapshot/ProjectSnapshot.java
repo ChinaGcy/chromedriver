@@ -20,8 +20,8 @@ public class ProjectSnapshot extends Project {
 	public String id_;
 
 	// project信息hash值
-	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String hash_id;
+	/*@DatabaseField(dataType = DataType.STRING, width = 32)
+	public String hash_id;*/
 
 	public ProjectSnapshot() {};
 

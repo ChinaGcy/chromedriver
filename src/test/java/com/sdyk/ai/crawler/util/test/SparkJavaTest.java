@@ -51,7 +51,7 @@ public class SparkJavaTest {
 	@Test
 	public void getPhone() throws Exception {
 
-		Account account = AccountManager.getAccountByDomain("zbj.com", "select");
+		/*Account account = AccountManager.getAccountByDomain("zbj.com", "select");
 
 		com.sdyk.ai.crawler.task.Task task = new Task("https://www.zbj.com");
 
@@ -80,7 +80,7 @@ public class SparkJavaTest {
 
 		ServiceWrapper.getInstance();
 
-		Thread.sleep(1000000);
+		Thread.sleep(1000000);*/
 	}
 
 	@Test

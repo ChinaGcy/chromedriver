@@ -214,8 +214,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
 
         /*scheduler.initAuthorizedRequester();*/
 
-
-        /*scheduler.getHistoricalData();*/
+        scheduler.getHistoricalData();
 
         /*scheduler.monitoring();*/
     }

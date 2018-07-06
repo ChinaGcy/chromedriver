@@ -20,8 +20,8 @@ public class ServiceProviderSnapshot extends ServiceProvider{
 	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
 	public String id_;
 
-	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
-	public String hash_id;
+	/*@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
+	public String hash_id;*/
 
 	public ServiceProviderSnapshot() {}
 

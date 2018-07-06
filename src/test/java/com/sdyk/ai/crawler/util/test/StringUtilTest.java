@@ -1,12 +1,22 @@
 package com.sdyk.ai.crawler.util.test;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.util.StringUtil;
 
+import one.rewind.json.JSON;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -140,7 +150,7 @@ public class StringUtilTest {
 	 */
 	@Test
 	public void testcleanContent() throws Exception {
-		String s = "";
+		/*String s = "";
 
 		Set<String> img_urls = new HashSet<>();
 		Set<String> img_urls_a = new HashSet<>();
@@ -168,7 +178,7 @@ public class StringUtilTest {
 		for (String ss : img_urls_a
 				) {
 			System.out.println(ss);
-		}
+		}*/
 	}
 	@Test
 	public void systemTest() {
@@ -201,5 +211,58 @@ public class StringUtilTest {
 			System.err.println(ss);
 		}
 
+	}
+
+	@Test
+	public void test3() {
+		String userId = null;
+		int page = 0;
+
+		String s = "https://home.zbj.com/20400617/?ep=2";
+		Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>\\d+)/\\?ep=(?<page>\\d+)");
+
+		Matcher matcher = pattern.matcher(s);
+
+		if (matcher.find()) {
+			userId = matcher.group("userId");
+			page = Integer.parseInt(matcher.group("page"));
+
+			System.err.println(userId +"----------"+ page);
+		}
+	}
+
+	/**
+	 * 测试httpTaskPoster
+	 */
+	@Test
+	public void httpTaskPosterTest() throws ClassNotFoundException, MalformedURLException, UnsupportedEncodingException, URISyntaxException {
+		HttpTaskPoster.getInstance().submit(ProjectTask.class, new HashMap<>());
+		HttpTaskPoster.getInstance().submit(ProjectTask.class,"" , new HashMap<>(), 1, "", "", "");
+	}
+
+	@Test
+	public void gsonTest() throws IOException {
+		Map<String, String> map = ImmutableMap.of("user_id", "20400617", "page", "1");
+
+		String init_map_str = JSON.toJson(map);
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		TypeReference<HashMap<String, Object>> typeRef
+				= new TypeReference<HashMap<String, Object>>() {};
+
+		Map<String, Object> init_map = mapper.readValue(init_map_str, typeRef);
+
+		String init_map_json = JSON.toJson(init_map);
+
+		System.err.println(init_map_json);
+	}
+
+
+	@Test
+	public void testHsot() {
+		String os = System.getProperty("os.name");
+
+		System.err.println(os);
 	}
 }

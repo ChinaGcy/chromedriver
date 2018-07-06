@@ -5,7 +5,6 @@ import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -24,7 +23,7 @@ public class ServiceSupplierTest {
 	@Test
 	public void ServiceSupplierTaskTest() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException {
 
-		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
+		/*Account account = new AccountImpl("zbj.com", "15284812411", "123456");
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 
@@ -45,7 +44,7 @@ public class ServiceSupplierTest {
 		} catch (InterruptedException e) {
 
 		}
-
+*/
 	}
 
 	/**
@@ -54,11 +53,11 @@ public class ServiceSupplierTest {
 	@Test
 	public void ServiceRatingTaskTest() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		/*ChromeDriverAgent agent = new ChromeDriverAgent();
 		agent.start();
 		ServiceProviderRatingTask serviceProviderRatingTask = new ServiceProviderRatingTask("http://shop.zbj.com/evaluation/evallist-uid-7394304-category-1-isLazyload-0-page-10.html", "7394304",10);
 		serviceProviderRatingTask.setBuildDom();
-		agent.submit(serviceProviderRatingTask);
+		agent.submit(serviceProviderRatingTask);*/
 	}
 
 	/**

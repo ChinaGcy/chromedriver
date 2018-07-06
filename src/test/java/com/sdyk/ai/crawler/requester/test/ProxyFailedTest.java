@@ -8,7 +8,6 @@ import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.proxy.Proxy;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +62,7 @@ public class ProxyFailedTest {
 
 		task.setBuildDom();
 
-		agent.addProxyFailedCallback(() -> {
+		agent.addProxyFailedCallback((t,a) -> {
 
 			try {
 
@@ -113,13 +112,13 @@ public class ProxyFailedTest {
 			}
 		});
 
-		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
+		/*ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
 		requester.addAgent(agent);
 		agent.start();
 
 		for (int i = 0; i<10; i++) {
 			requester.submit(task);
-		}
+		}*/
 
 		Thread.sleep(1000000);
 	}
@@ -135,7 +134,7 @@ public class ProxyFailedTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent(p);
 		Task task = new Task("https://www.baidu.com/s?wd=ip");
 
-		agent.addProxyFailedCallback(() -> {
+		agent.addProxyFailedCallback((t,a) -> {
 
 			try {
 				agent.proxy.status = Proxy.Status.INVALID;
@@ -155,17 +154,17 @@ public class ProxyFailedTest {
 			}
 		});
 
-		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
+		/*ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
 		requester.addAgent(agent);
 		agent.start();
 
 		for (int i = 0; i<6; i++) {
-			requester.submit(task);
+			requester.submit(task);*/
 		}
 
+/*
 		Thread.sleep(10000000);
+*/
 	}
 
 
-
-}

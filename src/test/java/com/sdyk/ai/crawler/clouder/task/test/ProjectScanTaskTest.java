@@ -1,8 +1,5 @@
 package com.sdyk.ai.crawler.clouder.task.test;
 
-import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ProjectScanTask;
-import com.sdyk.ai.crawler.specific.clouderwork.util.ClouderWorkLogin;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
@@ -20,10 +17,10 @@ public class ProjectScanTaskTest {
 
         ChromeDriverAgent agent = new ChromeDriverAgent();
         agent.start();
-        ClouderWorkLogin.login(agent);
+       /* ClouderWorkLogin.login(agent);
         ProjectScanTask projectScanTask = new ProjectScanTask("https://www.clouderwork.com/",page);
 
-        agent.submit(projectScanTask);
+        agent.submit(projectScanTask);*/
         agent.stop();
 
     }

@@ -2,12 +2,8 @@ package com.sdyk.ai.crawler.mihuashi.task.test;
 
 import com.sdyk.ai.crawler.Requester;
 import com.sdyk.ai.crawler.account.model.AccountImpl;
-import com.sdyk.ai.crawler.specific.clouderwork.LoginWithGeetestClouderWork;
-import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
-import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceSupplierTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Test;
 
@@ -19,7 +15,7 @@ public class ServiceSupplierTaskTest {
 	@Test
 	public void testServiceSupplierTask() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException, InterruptedException {
 
-		ChromeDriverRequester.instance = new Requester();
+		/*ChromeDriverRequester.instance = new Requester();
 		ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 		ChromeDriverRequester.getInstance().addAgent(agent);
@@ -40,7 +36,7 @@ public class ServiceSupplierTaskTest {
         serviceTask.setBuildDom();
 		ChromeDriverRequester.getInstance().submit(serviceTask);
 		Thread.sleep(10000000);
-
+*/
 	}
 
 }

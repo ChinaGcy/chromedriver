@@ -44,8 +44,6 @@ public abstract class Scheduler {
 
 		this.domain = domain;
 
-		new Thread(()->{ServiceWrapper.getInstance();}).start();
-
 		init();
 	}
 
@@ -101,7 +99,7 @@ public abstract class Scheduler {
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 
 			// 分别为每个账号创建容器 和 chromedriver对象
-			/*CountDownLatch latch = new CountDownLatch(driverCount);*/
+			CountDownLatch latch = new CountDownLatch(driverCount);
 
 			for(AccountImpl account : accounts) {
 
@@ -193,7 +191,8 @@ public abstract class Scheduler {
 
 							ChromeDriverDistributor.getInstance().addAgent(agent);
 
-							/*latch.countDown();*/
+							latch.countDown();
+
 							logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
 									agent.remoteAddress,
 									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);
@@ -208,8 +207,7 @@ public abstract class Scheduler {
 				thread.start();
 			}
 
-
-			/*latch.await();*/
+			latch.await();
 
 			logger.info("ChromeDriverAgents are ready.");
 

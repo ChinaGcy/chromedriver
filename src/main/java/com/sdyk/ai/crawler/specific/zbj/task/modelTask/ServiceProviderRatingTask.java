@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.ServiceProviderRating;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -19,14 +20,21 @@ import java.util.regex.Pattern;
 public class ServiceProviderRatingTask extends ScanTask {
 
 	static {
-		// init_map_class
+		/*// init_map_class
 		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
 		// url_template
 		url_template = "http://shop.zbj.com/evaluation/evallist-uid-{{user_id}}-category-1-isLazyload-0-page-{{page}}.html";
 
-		need_login = false;
+		need_login = false;*/
+		registerBuilder(
+				ServiceProviderRatingTask.class,
+				"http://shop.zbj.com/evaluation/evallist-uid-{{user_id}}-category-1-isLazyload-0-page-{{page}}.html",
+				ImmutableMap.of("user_id", String.class, "page", String.class),
+				ImmutableMap.of("user_id", "0", "page", "0")
+
+		);
 	}
 
 	ServiceProviderRating serviceProviderRating;
@@ -80,9 +88,14 @@ public class ServiceProviderRatingTask extends ScanTask {
 				// 翻页 #userlist > div.pagination > ul > li.disabled
 				if (pageTurning("#userlist > div.pagination > ul > li", page)) {
 
-					HttpTaskPoster.getInstance().submit(this.getClass(),
+					/*HttpTaskPoster.getInstance().submit(this.getClass(),
 							ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page))
-							);
+							);*/
+					ChromeDriverDistributor.getInstance().submit(
+							this.getHolder(
+									this.getClass(),
+									ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page))
+							));
 				}
 
 			} catch (Exception e) {
