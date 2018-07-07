@@ -22,12 +22,12 @@ import java.util.regex.Pattern;
 public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("service_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://www.mihuashi.com/users/{{service_id}}?role=painter";
+		registerBuilder(
+				ProjectTask.class,
+				"https://www.mihuashi.com/users/{{service_id}}?role=painter",
+				ImmutableMap.of("service_id", String.class),
+				ImmutableMap.of("service_id", "")
+		);
 	}
 
 	ServiceProvider serviceProvider;

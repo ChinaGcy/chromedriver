@@ -24,12 +24,12 @@ import java.util.regex.Pattern;
 public class ServiceProviderTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("servicer_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("servicer_id", "");
-		// url_template
-		url_template = "https://www.clouderwork.com/freelancers/{{servicer_id}}";
+		registerBuilder(
+				ServiceProviderTask.class,
+				"https://www.clouderwork.com/freelancers/{{servicer_id}}",
+				ImmutableMap.of("servicer_id", String.class),
+				ImmutableMap.of("servicer_id", "")
+		);
 	}
 
 	public static String domain() {

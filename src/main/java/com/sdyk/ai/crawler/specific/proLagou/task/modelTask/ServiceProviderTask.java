@@ -22,12 +22,12 @@ import java.util.Set;
 public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://pro.lagou.com/user/{{user_id}}.html";
+		registerBuilder(
+				ServiceProviderTask.class,
+				"https://pro.lagou.com/user/{{user_id}}.html",
+				ImmutableMap.of("user_id", String.class),
+				ImmutableMap.of("user_id","")
+		);
 	}
 
 	public static String domain(){

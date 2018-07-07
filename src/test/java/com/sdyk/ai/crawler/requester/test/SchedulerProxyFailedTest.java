@@ -1,9 +1,12 @@
 package com.sdyk.ai.crawler.requester.test;
 
+import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.Requester;
 import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.account.model.AccountImpl;
+import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
@@ -12,11 +15,16 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
+import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.exception.ProxyException;
 import org.apache.logging.log4j.LogManager;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -29,6 +37,10 @@ public class SchedulerProxyFailedTest {
 	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
 	public static int num = 1;
+
+	int driverCount = 1;
+
+	public String domain;
 
 	protected static SchedulerProxyFailedTest instance;
 
@@ -107,40 +119,48 @@ public class SchedulerProxyFailedTest {
 
 		Requester.URL_VISITS.clear();
 
-		String domain = "zbj.com";
-		int driverCount = 1;
+		// TODO 根据情况使用
+		try {
+			//resetAccountAndProxy();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		try {
 
-			logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
+			// 替换Requester
+			/*logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
+
 			ChromeDriverRequester.instance = new Requester();
-			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
+			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);*/
 
 			// 创建阿里云host
 			//AliyunHost.batchBuild(driverCount);
 
 			// 删除所有docker container
-			//DockerHostManager.getInstance().delAllDockerContainers();
+			DockerHostManager.getInstance().delAllDockerContainers();
 
 			// 创建 container
-			//DockerHostManager.getInstance().createDockerContainers(driverCount);
+			DockerHostManager.getInstance().createDockerContainers(driverCount);
 
-			// 读取全部有效账户 N个
+			// 读取有效账户 driverCount 个
 			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
 
-			CountDownLatch latch = new CountDownLatch(accounts.size());
+			// 分别为每个账号创建容器 和 chromedriver对象
+			/*CountDownLatch latch = new CountDownLatch(driverCount);*/
 
-			// 创建N+2个有效代理，并保存到数据库中
 			for(AccountImpl account : accounts) {
 
 				Thread thread = new Thread(() -> {
 
 					try {
 
+						// 获取有效代理
 						ProxyImpl proxy = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
 						if(proxy != null) {
 
+							// 设置代理的失败回调方法
 							proxy.setFailedCallback(()->{
 
 								if(proxy.source == ProxyImpl.Source.ALIYUN_HOST) {
@@ -168,25 +188,21 @@ public class SchedulerProxyFailedTest {
 								// TODO 删掉该Proxy记录
 							});
 
-							Task task = new Task("https://www.zbj.com");
-
-							task.addAction(new LoginWithGeetestAction(account));
-
-							//ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+							// 生成登录任务
+							ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
 							//ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress());
-
-							ChromeDriverAgent agent = new ChromeDriverAgent(proxy);
+							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container/*, proxy*/);
 
 							// agent 添加异常回调
-							agent.addAccountFailedCallback(()->{
+							agent.addAccountFailedCallback((agent1 ,account1)->{
 
 								logger.info("Account {}:{} failed.", account.domain, account.username);
 
-							}).addProxyFailedCallback(()->{
+							}).addProxyFailedCallback((agent1, proxy1)->{
 
 								// 代理被禁
-								logger.info("Proxy {}:{} failed.", proxy.host, proxy.port);
+								logger.info("Proxy {}:{} failed.", proxy1.host, proxy1.port);
 
 								try {
 
@@ -208,47 +224,47 @@ public class SchedulerProxyFailedTest {
 									logger.error(e);
 								}
 
-							}).addTerminatedCallback(()->{
+							}).addTerminatedCallback((agent1)->{
 
-								//logger.info("Container {} {}:{} Terminated.", container.name, container.ip, container.vncPort);
+								logger.info("Container {} {}:{} Terminated.", container.name, container.ip, container.vncPort);
 
-							}).addNewCallback(()->{
+							}).addNewCallback((agent1)->{
 
 								try {
-									agent.submit(task, 300000);
+									getLoginTask(agent, account);
 								} catch (Exception e) {
 									logger.error(e);
 								}
-
 							});
 
-							// agent.bmProxy.getClientBindAddress();
-							ChromeDriverRequester.getInstance().addAgent(agent);
+							ChromeDriverDistributor.getInstance().addAgent(agent);
 
-							agent.start();
-
-							/*logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
+							/*latch.countDown();*/
+							logger.info("ChromeDriverAgent remote address {}, local proxy {}:{}",
 									agent.remoteAddress,
-									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);*/
+									agent.bmProxy.getClientBindAddress(), agent.bmProxy_port);
 						}
 
-						latch.countDown();
 					}
 					catch (Exception ex) {
-						logger.error(ex);
+						logger.error("", ex);
 					}
 				});
 
 				thread.start();
 			}
 
-			latch.await();
 
-			logger.info("All ChromeDriverAgents are ready.");
+			/*latch.await();*/
+
+			logger.info("ChromeDriverAgents are ready.");
 
 		} catch (Exception e) {
 			logger.error(e);
 		}
+	}
+
+	private void getLoginTask(ChromeDriverAgent agent, AccountImpl account) {
 	}
 
 	/**
@@ -256,27 +272,34 @@ public class SchedulerProxyFailedTest {
 	 * @param backtrace
 	 * @return
 	 */
-	public List<ScanTask> getTask(boolean backtrace) {
-
-		List<ScanTask> tasks = new ArrayList<>();
+	public void getTask(boolean backtrace) {
 
 		for(String channel : project_channels) {
-			ScanTask t = ProjectScanTask.generateTask(channel, 1);
-			t.backtrace = backtrace;
-			tasks.add(t);
-			System.out.println("PROJECT:" + channel);
+
+			try {
+				HttpTaskPoster.getInstance().submit(com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask.class,
+						ImmutableMap.of("channel", channel,"page", "1"));
+
+				logger.info("PROJECT:" + channel);
+			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+
 		}
 
 		if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
-				ScanTask t = ServiceScanTask.generateTask(channel, 1);
-				t.backtrace = backtrace;
-				tasks.add(t);
-				System.out.println("SERVICE:" + channel);
+				try {
+					HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
+							ImmutableMap.of("channel", channel,"page", "1"));
+
+					logger.info("PROJECT:" + channel);
+				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+
 			}
 		}
-
-		return tasks;
 	}
 
 	/**
@@ -285,41 +308,15 @@ public class SchedulerProxyFailedTest {
 	public void getHistoricalData() {
 
 		// 需求
-		for (com.sdyk.ai.crawler.task.Task task : getTask(true)) {
-
-			ChromeDriverRequester.getInstance().submit(task);
-
-		}
+		getTask(true);
 	}
 
 	/**
 	 * 监控调度
 	 */
-	public void monitor() {
+	public void monitoring() {
 
-		try {
-
-			it.sauronsoftware.cron4j.Scheduler s = new it.sauronsoftware.cron4j.Scheduler();
-
-			// 每隔十分钟，生成实时扫描任务
-			s.schedule("*/10 * * * *", new Runnable() {
-
-				public void run() {
-
-					for (com.sdyk.ai.crawler.task.Task task : getTask(false)) {
-
-						task.setBuildDom();
-						ChromeDriverRequester.getInstance().submit(task);
-					}
-				}
-			});
-
-			s.start();
-
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		}
+		getTask(false);
 	}
 
 	/**
@@ -328,19 +325,22 @@ public class SchedulerProxyFailedTest {
 	 */
 	public static void main(String[] args) {
 
-		if (!args[1].equals("") && Integer.parseInt(args[1]) > 1) {
-			num = Integer.parseInt(args[1]);
+		int num = 0;
+
+		/**
+		 *
+		 */
+		if (args.length >= 1 && !args[0].equals("") && Integer.parseInt(args[0]) > 1) {
+			num = Integer.parseInt(args[0]);
 		}
 
-		if (args.length == 2 && args[0].equals("H")) {
-			// 获取历史数据
-			logger.info("历史数据");
-			SchedulerProxyFailedTest.getInstance().getHistoricalData();
+		com.sdyk.ai.crawler.specific.zbj.Scheduler scheduler = new com.sdyk.ai.crawler.specific.zbj.Scheduler("zbj.com", 1);
 
-		} else {
-			// 监控数据
-			logger.info("监控数据");
-			SchedulerProxyFailedTest.getInstance().monitor();
-		}
+		/*scheduler.initAuthorizedRequester();*/
+
+
+		/*scheduler.getHistoricalData();*/
+
+		/*scheduler.monitoring();*/
 	}
 }

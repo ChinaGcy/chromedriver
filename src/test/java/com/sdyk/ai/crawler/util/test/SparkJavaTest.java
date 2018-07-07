@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.util.test;
 
+import com.google.common.collect.ImmutableMap;
 import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.ServiceWrapper;
@@ -7,13 +8,17 @@ import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.account.model.AccountImpl;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
 import one.rewind.db.DaoManager;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.junit.Test;
 import spark.Spark;
 
@@ -53,7 +58,7 @@ public class SparkJavaTest {
 
 		Account account = AccountManager.getAccountByDomain("zbj.com", "select");
 
-		com.sdyk.ai.crawler.task.Task task = new Task("https://www.zbj.com");
+		com.sdyk.ai.crawler.task.Task task = new ProjectTask("https://www.zbj.com");
 
 		task.addAction(new LoginWithGeetestAction(account));
 
@@ -61,22 +66,23 @@ public class SparkJavaTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		// agent 添加异常回调
-		agent.addAccountFailedCallback(()->{
+		agent.addAccountFailedCallback((a, c)->{
 
-		}).addTerminatedCallback(()->{
+		}).addTerminatedCallback((a)->{
 
-		}).addNewCallback(()->{
+		}).addNewCallback((a)->{
 
-			try {
-				agent.submit(task, 300000);
-			} catch (Exception e) {
-			}
+			a.submit(task, true);
+
 		});
 
 		AuthorizedRequester.getInstance().addAgent(agent);
 		agent.start();
 
-		AuthorizedRequester.getInstance().submit(task);
+
+		ChromeTaskHolder holder = ChromeTask.buildHolder(GetProjectContactTask.class, ImmutableMap.of("user_id", String.class,"case_id", String.class));
+
+		AuthorizedRequester.getInstance().submit(holder);
 
 		ServiceWrapper.getInstance();
 

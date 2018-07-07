@@ -23,12 +23,14 @@ import java.util.regex.Pattern;
 public class WorkScanTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class,"page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "1");
-		// url_template
-		url_template = "http://shop.zbj.com/{{user_id}}/works-p{{page}}.html";
+		registerBuilder(
+				ProjectSuccessSacnTask.class,
+				"https://www.zbj.com/{{channel}}/pk{page}.html",
+				ImmutableMap.of("channel", String.class,"page", String.class),
+				ImmutableMap.of("channel", "all", "page", "0"),
+				false,
+				Priority.MEDIUM
+		);
 	}
 
 	public static List<String> list = new ArrayList<>();

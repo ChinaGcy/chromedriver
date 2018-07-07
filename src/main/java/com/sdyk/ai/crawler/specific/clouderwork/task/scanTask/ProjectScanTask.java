@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
+import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.WorkTask;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.URLUtil;
 
@@ -19,13 +20,12 @@ import java.util.regex.Pattern;
 public class ProjectScanTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("page", "1");
-		// url_template
-		url_template = "https://www.clouderwork.com/api/v2/jobs/search?ts=pagesize=20&pagenum={{page}}";
-
+		registerBuilder(
+				ProjectScanTask.class,
+				"https://www.clouderwork.com/api/v2/jobs/search?ts=pagesize=20&pagenum={{page}}",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page", "")
+		);
 	}
 
 	public static String domain() {

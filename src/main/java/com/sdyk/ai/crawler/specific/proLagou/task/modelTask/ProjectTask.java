@@ -15,14 +15,13 @@ import java.text.SimpleDateFormat;
 public class ProjectTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("project_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://pro.lagou.com/project/{{project_id}}.html";
+		registerBuilder(
+				ProjectTask.class,
+				"https://pro.lagou.com/project/{{project_id}}.html",
+				ImmutableMap.of("project_id", String.class),
+				ImmutableMap.of("project_id","")
+		);
 	}
-
 
 	public Project project;
 

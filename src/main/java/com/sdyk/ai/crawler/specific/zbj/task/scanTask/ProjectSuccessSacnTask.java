@@ -16,13 +16,16 @@ import java.util.regex.Pattern;
 public class ProjectSuccessSacnTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("channel", String.class,"page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("channel", "all", "page", "0");
-		// url_template
-		url_template = "http://task.zbj.com/{{channel}}/p{{page}}s5.html?o=1";
+		registerBuilder(
+				ProjectSuccessSacnTask.class,
+				"http://task.zbj.com/{{channel}}/p{{page}}s5.html?o=1",
+				ImmutableMap.of("channel", String.class,"page", String.class),
+				ImmutableMap.of("channel", "all", "page", "0"),
+				false,
+				Priority.MEDIUM
+		);
 	}
+
 	/**
 	 *
 	 * @param url

@@ -19,14 +19,14 @@ import java.util.regex.Pattern;
 public class ServiceProviderRatingTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
-		// url_template
-		url_template = "http://shop.zbj.com/evaluation/evallist-uid-{{user_id}}-category-1-isLazyload-0-page-{{page}}.html";
-
-		need_login = false;
+		registerBuilder(
+				ServiceProviderRatingTask.class,
+				"http://shop.zbj.com/evaluation/evallist-uid-{{user_id}}-category-1-isLazyload-0-page-{{page}}.html",
+				ImmutableMap.of("user_id", String.class, "page", String.class),
+				ImmutableMap.of("user_id", "0", "page", ""),
+				false,
+				Priority.MEDIUM
+		);
 	}
 
 	ServiceProviderRating serviceProviderRating;

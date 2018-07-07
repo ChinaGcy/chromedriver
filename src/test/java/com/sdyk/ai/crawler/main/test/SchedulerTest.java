@@ -1,3 +1,4 @@
+/*
 package com.sdyk.ai.crawler.main.test;
 
 import com.sdyk.ai.crawler.Requester;
@@ -36,37 +37,45 @@ public class SchedulerTest {
 		AliyunHost.stopAndDeleteAll();
 
 		Scheduler scheduler = new Scheduler("zbj.com", 1) {
-			/**
+			*/
+/**
 			 * @param account
 			 * @return
 			 * @throws MalformedURLException
 			 * @throws URISyntaxException
-			 */
+			 *//*
+
 			@Override
 			public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
 				return null;
 			}
 
-			/**
+			*/
+/**
 			 * @param backtrace
 			 * @return
-			 */
+			 *//*
+
 			@Override
 			public void getTask(boolean backtrace) {
 				return null;
 			}
 
-			/**
+			*/
+/**
 			 * 获取历史数据
-			 */
+			 *//*
+
 			@Override
 			public void getHistoricalData() {
 
 			}
 
-			/**
+			*/
+/**
 			 * 监控调度
-			 */
+			 *//*
+
 			@Override
 			public void monitoring() {
 
@@ -224,7 +233,9 @@ public class SchedulerTest {
 					}
 				});
 
-				thread.start();
+				thread.start();*/
+/**//*
+
 			}
 
 			latch.await();
@@ -237,3 +248,4 @@ public class SchedulerTest {
 
 	}
 }
+*/

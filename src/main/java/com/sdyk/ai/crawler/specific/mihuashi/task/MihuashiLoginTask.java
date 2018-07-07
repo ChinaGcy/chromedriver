@@ -8,14 +8,14 @@ import one.rewind.io.requester.account.Account;
 
 public class MihuashiLoginTask extends Task {
 
-	static {
+	/*static {
 		// init_map_class
 		init_map_class = ImmutableMap.of("domain", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("domain", "baidu");
 		// url_template
 		url_template = "https://www.{{domain}}.com/login";
-	}
+	}*/
 
 	public MihuashiLoginTask(String url) throws Exception {
 

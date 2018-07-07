@@ -19,15 +19,14 @@ import java.util.Date;
 
 public class ProjectTask extends Task {
 
-    static {
-        // init_map_class
-        init_map_class = ImmutableMap.of("project_id", String.class);
-        // init_map_defaults
-        init_map_defaults = ImmutableMap.of("project_id", "");
-        // url_template
-        url_template = "https://www.clouderwork.com/jobs/{{project_id}}";
-
-    }
+	static {
+		registerBuilder(
+				ProjectTask.class,
+				"https://www.clouderwork.com/jobs/{{project_id}}",
+				ImmutableMap.of("project_id", String.class),
+				ImmutableMap.of("project_id", "")
+		);
+	}
 
 	public static String domain() throws MalformedURLException, URISyntaxException {
 		return "clouderwork";

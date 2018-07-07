@@ -16,15 +16,7 @@ public class ProjectScanTaskTest {
     @Test
     public void testProjectScanTask() throws IOException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
-        int page = 1;
 
-        ChromeDriverAgent agent = new ChromeDriverAgent();
-        agent.start();
-        ClouderWorkLogin.login(agent);
-        ProjectScanTask projectScanTask = new ProjectScanTask("https://www.clouderwork.com/",page);
-
-        agent.submit(projectScanTask);
-        agent.stop();
 
     }
 }

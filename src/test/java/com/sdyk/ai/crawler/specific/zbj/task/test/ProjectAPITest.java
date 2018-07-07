@@ -12,7 +12,7 @@ public class ProjectAPITest {
 	public void APItest() throws MalformedURLException, URISyntaxException {
 
 		String Project_url = "http://10.0.0.63:51001/id/json/13510201";
-		one.rewind.io.requester.Task t = new one.rewind.io.requester.Task(Project_url);
+		one.rewind.io.requester.task.Task t = new one.rewind.io.requester.task.Task(Project_url);
 		BasicRequester.getInstance().submit(t);
 
 		System.err.println(t.getResponse().getText());

@@ -24,12 +24,12 @@ import java.util.regex.Pattern;
 public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("tenderer_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://www.mihuashi.com/users/{{tenderer_id}}?role=employer";
+		registerBuilder(
+				TendererTask.class,
+				"https://www.mihuashi.com/users/{{tenderer_id}}?role=employer",
+				ImmutableMap.of("tenderer_id", String.class),
+				ImmutableMap.of("tenderer_id", "")
+		);
 	}
 
     public Tenderer tenderer;

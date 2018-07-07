@@ -197,7 +197,7 @@ public class ChromeDriverDistributorRemoteTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void RremoteProxyFiledTest() throws Exception {
+	public void remoteProxyFailedTest() throws Exception {
 
 		DockerHost host = new DockerHost("10.0.0.50", 22, "root");
 
@@ -249,7 +249,7 @@ public class ChromeDriverDistributorRemoteTest {
 	 * docker Account更换测试
 	 */
 	@Test
-	public void RemoteAccountFiledTest() throws Exception {
+	public void remoteAccountFailedTest() throws Exception {
 
 		Class.forName(TestFailedChromeTask.class.getName());
 

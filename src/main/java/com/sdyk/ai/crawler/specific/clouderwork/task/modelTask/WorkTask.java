@@ -12,12 +12,12 @@ import java.util.regex.Pattern;
 public class WorkTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("work_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("work_id", "");
-		// url_template
-		url_template = "https://www.clouderwork.com{{work_id}}";
+		registerBuilder(
+				WorkTask.class,
+				"https://www.clouderwork.com{{work_id}}",
+				ImmutableMap.of("work_id", String.class),
+				ImmutableMap.of("work_id", "")
+		);
 	}
 
 	public static String domain() {

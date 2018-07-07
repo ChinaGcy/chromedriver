@@ -19,12 +19,12 @@ import java.util.regex.Pattern;
 public class ServiceScanTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://www.mihuashi.com/artists?page={{page}}";
+		registerBuilder(
+				ServiceScanTask.class,
+				"https://www.mihuashi.com/artists?page={{page}}",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page","")
+		);
 	}
 
     public ServiceScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {

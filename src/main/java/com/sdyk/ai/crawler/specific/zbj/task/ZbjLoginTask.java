@@ -14,14 +14,14 @@ import java.util.List;
 
 public class ZbjLoginTask extends Task {
 
-	static {
+	/*static {
 		// init_map_class
 		init_map_class = ImmutableMap.of("domain", String.class);
 		// init_map_defaults
 		init_map_defaults = ImmutableMap.of("domain", "baidu");
 		// url_template
 		url_template = "https://www.{{domain}}.com";
-	}
+	}*/
 	public ZbjLoginTask(String url) throws Exception {
 		super(url);
 

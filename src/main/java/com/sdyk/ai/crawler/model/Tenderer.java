@@ -151,7 +151,7 @@ public class Tenderer extends Model {
 
 					TendererSnapshot snapshot = new TendererSnapshot(this);
 
-					snapshot.hash_id = hash_id;
+					//snapshot.hash_id = hash_id;
 					snapshot.insert();
 					return true;
 				} catch (NoSuchFieldException | IllegalAccessException ex) {

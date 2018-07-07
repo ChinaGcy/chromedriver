@@ -21,12 +21,14 @@ import java.util.regex.Pattern;
 public class ServiceScanTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("channel", String.class,"page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("channel", "all", "page", "0");
-		// url_template
-		url_template = "https://www.zbj.com/{{channel}}/pk{page}.html";
+		registerBuilder(
+				ProjectSuccessSacnTask.class,
+				"https://www.zbj.com/{{channel}}/pk{page}.html",
+				ImmutableMap.of("channel", String.class,"page", String.class),
+				ImmutableMap.of("channel", "all", "page", "0"),
+				false,
+				Priority.MEDIUM
+		);
 	}
 
 	/*public static ServiceScanTask generateTask(String channel, int page) {
@@ -48,10 +50,11 @@ public class ServiceScanTask extends ScanTask {
 	/**
 	 *
 	 * @param url
+	 * @param i
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ServiceScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public ServiceScanTask(String url, int i) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 		this.setPriority(Priority.HIGH);
@@ -90,11 +93,12 @@ public class ServiceScanTask extends ScanTask {
 				}
 
 				// 当前页数
-				int i = (page - 1) / 40 + 1;
+				int i_ = ((int) (page - 1) / 40) + 1;
+
 
 				// #utopia_widget_18 > div.pagination > ul > li:nth-child(1)
 				// 翻页
-				if (pageTurning("#utopia_widget_18 > div.pagination > ul > li", i)) {
+				if (pageTurning("#utopia_widget_18 > div.pagination > ul > li", i_)) {
 
 					HttpTaskPoster.getInstance().submit(this.getClass(),
 							ImmutableMap.of("channel", channel,"page", String.valueOf(page+40)));

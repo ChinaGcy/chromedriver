@@ -16,12 +16,12 @@ import java.util.regex.Pattern;
 public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://pro.lagou.com/project/{{page}}";
+		registerBuilder(
+				ProjectScanTask.class,
+				"https://pro.lagou.com/project/{{page}}",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page","")
+		);
 	}
 
     public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {

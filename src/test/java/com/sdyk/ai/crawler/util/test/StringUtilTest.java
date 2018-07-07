@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.util.test;
 import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.util.StringUtil;
 
+import one.rewind.io.requester.task.ChromeTask;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
@@ -148,7 +149,7 @@ public class StringUtilTest {
 
 		ChromeDriverAgent agent = null;
 
-		one.rewind.io.requester.Task t = new one.rewind.io.requester.Task("http://task.zbj.com/12913633/");
+		ChromeTask t = new ChromeTask("http://task.zbj.com/12913633/");
 
 		agent.submit(t);
 

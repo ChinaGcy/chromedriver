@@ -25,16 +25,16 @@ import java.util.regex.Pattern;
  */
 public class ProjectTask extends Task {
 
-	public Project project;
-
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("project_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://www.mihuashi.com/projects/{{project_id}}/";
+		registerBuilder(
+				ProjectTask.class,
+				"https://www.mihuashi.com/projects/{{project_id}}/",
+				ImmutableMap.of("project_id", String.class),
+				ImmutableMap.of("project_id", "")
+		);
 	}
+
+	public Project project;
 
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 

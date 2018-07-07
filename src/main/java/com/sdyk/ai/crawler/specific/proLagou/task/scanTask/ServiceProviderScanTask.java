@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 public class ServiceProviderScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("scan_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://pro.lagou.com/project/getProjectRelationUserId.json?req={{scan_id}}";
+		registerBuilder(
+				ProjectScanTask.class,
+				"https://pro.lagou.com/project/getProjectRelationUserId.json?req={{scan_id}}",
+				ImmutableMap.of("scan_id", String.class),
+				ImmutableMap.of("scan_id","")
+		);
 	}
 
 	public static String domain(){

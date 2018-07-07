@@ -22,14 +22,14 @@ import java.util.regex.Pattern;
 public class CaseScanTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class,"page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
-		// url_template
-		url_template = "http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html";
-
-		need_login = false;
+		registerBuilder(
+				CaseScanTask.class,
+				"http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html",
+				ImmutableMap.of("user_id", String.class,"page", String.class),
+				ImmutableMap.of("user_id", "0", "page", "0"),
+				false,
+				Priority.MEDIUM
+		);
 	}
 
 	public static List<String> list = new ArrayList<>();
@@ -51,10 +51,11 @@ public class CaseScanTask extends ScanTask {
 	/**
 	 *
 	 * @param url
+	 * @param i
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public CaseScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public CaseScanTask(String url, int i) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 

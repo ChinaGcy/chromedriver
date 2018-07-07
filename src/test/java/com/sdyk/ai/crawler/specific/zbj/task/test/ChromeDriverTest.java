@@ -1,12 +1,12 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
+import one.rewind.io.requester.task.ChromeTask;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.interactions.Actions;
 import one.rewind.io.requester.BasicRequester;
-import one.rewind.io.requester.Task;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
@@ -30,9 +30,9 @@ public class ChromeDriverTest {
 	@Test
 	public void binaryDownloader() {
 
-		Task t_ = null;
+		ChromeTask t_ = null;
 		try {
-			t_ = new Task("https://rms.zhubajie.com/resource/redirect?key=homesite/task/网站开发-1_206.xlsx/origine/f76f7652-1708-47e3-8e2b-caacecf365b9");
+			t_ = new ChromeTask("https://rms.zhubajie.com/resource/redirect?key=homesite/task/网站开发-1_206.xlsx/origine/f76f7652-1708-47e3-8e2b-caacecf365b9");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (URISyntaxException e) {

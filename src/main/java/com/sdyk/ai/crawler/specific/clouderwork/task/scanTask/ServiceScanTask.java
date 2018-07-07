@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 public class ServiceScanTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("page", "ip");
-		// url_template
-		url_template = "https://www.clouderwork.com/api/v2/freelancers/search?pagesize=10&pagenum={{page}}";
+		registerBuilder(
+				ServiceScanTask.class,
+				"https://www.clouderwork.com/api/v2/freelancers/search?pagesize=10&pagenum={{page}}",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page", "")
+		);
 	}
 
 	public static String domain() {

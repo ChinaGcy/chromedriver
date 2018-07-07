@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.requester.test;
 import com.google.common.collect.ImmutableMap;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.json.JSON;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -28,6 +29,11 @@ public class TestChromeTask {
 		public T1(String url) throws MalformedURLException, URISyntaxException {
 
 			super(url);
+
+			this.setValidator((a, t) -> {
+				System.err.println(t.getResponse().getText().length());
+				System.err.println(JSON.toPrettyJson(a.getInfo()));
+			});
 
 			this.addDoneCallback((t) -> {
 
@@ -97,6 +103,8 @@ public class TestChromeTask {
 			this.addDoneCallback((t) -> {
 
 				ChromeDriverDistributor.getInstance().submit(this.getHolder(T1.class, ImmutableMap.of("q", "1000")));
+
+				ChromeDriverDistributor.getInstance().submit(ChromeTask.buildHolder(T1.class, ImmutableMap.of("q", "2000")));
 
 			});
 		}

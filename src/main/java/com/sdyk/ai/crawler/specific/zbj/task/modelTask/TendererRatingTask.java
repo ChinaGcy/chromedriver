@@ -24,12 +24,14 @@ import java.util.regex.Pattern;
 public class TendererRatingTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class, "page", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0", "page", "0");
-		// url_template
-		url_template = "https://home.zbj.com/{{user_id}}/?ep={{page}}";
+		registerBuilder(
+				TendererRatingTask.class,
+				"https://home.zbj.com/{{user_id}}/?ep={{page}}",
+				ImmutableMap.of("user_id", String.class, "", String.class),
+				ImmutableMap.of("user_id", "0","page","0"),
+				false,
+				Priority.MEDIUM
+		);
 	}
 
 	TendererRating tendererRating;

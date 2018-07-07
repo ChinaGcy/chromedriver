@@ -22,13 +22,14 @@ import java.util.regex.Pattern;
 public class TendererRatingTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("tenderer_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://www.mihuashi.com/users/{{tenderer_id}}?role=employer&rating=true";
+		registerBuilder(
+				TendererRatingTask.class,
+				"https://www.mihuashi.com/users/{{tenderer_id}}?role=employer&rating=true",
+				ImmutableMap.of("tenderer_id", String.class),
+				ImmutableMap.of("tenderer_id", "")
+		);
 	}
+
 
 	public String moreRatingPath = "#vue-comments-app > div:nth-child(2) > a";
 

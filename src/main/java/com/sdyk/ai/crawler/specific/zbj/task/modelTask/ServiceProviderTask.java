@@ -24,16 +24,16 @@ import java.util.Set;
 public class ServiceProviderTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0");
-		// url_template
-		url_template = "https://shop.zbj.com/{{user_id}}/";
-
-		need_login = false;
-
+		registerBuilder(
+				ServiceProviderTask.class,
+				"https://shop.zbj.com/{{user_id}}/",
+				ImmutableMap.of("user_id", String.class),
+				ImmutableMap.of("user_id", "0"),
+				false,
+				Priority.MEDIUM
+		);
 	}
+
 
 	// 实例化
 	ServiceProvider serviceProvider;
@@ -41,7 +41,7 @@ public class ServiceProviderTask extends Task {
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-		this.setPriority(Priority.MEDIUM);
+
 		this.setBuildDom();
 
 		serviceProvider = new ServiceProvider(getUrl());

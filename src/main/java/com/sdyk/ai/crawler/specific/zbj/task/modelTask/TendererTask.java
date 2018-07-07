@@ -25,14 +25,14 @@ import java.util.regex.Pattern;
 public class TendererTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("tenderer_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("tenderer_id", "0");
-		// url_template
-		url_template = "https://home.zbj.com/{{tenderer_id}}/";
-
-		need_login = false;
+		registerBuilder(
+				TendererRatingTask.class,
+				"https://home.zbj.com/{{tenderer_id}}/",
+				ImmutableMap.of("tenderer_id", String.class),
+				ImmutableMap.of("tenderer_id", "0"),
+				false,
+				Priority.MEDIUM
+		);
 	}
 
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {

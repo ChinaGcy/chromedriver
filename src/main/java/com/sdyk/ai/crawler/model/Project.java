@@ -185,7 +185,7 @@ public class Project extends Model {
 
 					ProjectSnapshot projectSnapshot = new ProjectSnapshot(this);
 
-					projectSnapshot.hash_id = hash_id;
+					//projectSnapshot.hash_id = hash_id;
 
 					projectSnapshot.insert();
 					return true;

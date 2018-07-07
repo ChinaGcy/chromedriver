@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.requester.test;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.docker.model.DockerHostImpl;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
@@ -8,19 +9,18 @@ import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.proxy.ProxyImpl;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.ssh.SshManager;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.UnknownHostException;
 
-import static one.rewind.io.requester.chrome.ChromeDriverRequester.buildBMProxy;
 
 public class RemoteDriverTest {
 
@@ -61,7 +61,7 @@ public class RemoteDriverTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress,null);
 		agent.start();
 
-		System.err.println(ChromeDriverRequester.REQUESTER_LOCAL_IP + ":" + agent.bmProxy_port);
+		System.err.println(ChromeDriverDistributor.LOCAL_IP + ":" + agent.bmProxy_port);
 
 		Task task = new Task("http://ddns.oray.com/checkip");
 		agent.submit(task);
@@ -69,61 +69,6 @@ public class RemoteDriverTest {
 		System.err.println(task.getResponse().getText());
 
 		Thread.sleep(1000000);
-	}
-
-
-	@Test
-	public void remoteTest() throws Exception {
-
-		delAllDockerContainers();
-
-		createDockerContainers();
-
-		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
-
-		for(int i=0; i<10; i++) {
-
-			final Proxy proxy = ProxyManager.getInstance().getValidProxy("aliyun-cn-shenzhen-squid");
-			final URL remoteAddress = new URL("http://10.0.0.62:" + (31000 + i) + "/wd/hub");
-
-			new Thread(() -> {
-				try {
-
-					ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, null, proxy);
-					//ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress);
-
-					requester.addAgent(agent);
-
-					agent.start();
-
-				} catch (ChromeDriverException.IllegalStatusException e) {
-					e.printStackTrace();
-				}
-			}).start();
-
-		}
-
-		for(int i=0; i<100; i++) {
-
-			Task task = new Task("https://www.baidu.com/s?word=ip");
-			requester.submit(task);
-		}
-
-		Thread.sleep(3000000);
-
-		requester.close();
-
-		delAllDockerContainers();
-	}
-
-	@Test
-	public void testBuildProxyServer() throws InterruptedException, UnknownHostException {
-
-		Proxy proxy = new ProxyImpl("scisaga.net", 60103, "tfelab", "TfeLAB2@15");
-		BrowserMobProxyServer ps = buildBMProxy(proxy);
-		System.err.println(ps.getClientBindAddress());
-		System.err.println(ps.getPort());
-		Thread.sleep(100000);
 	}
 
 	@Test
@@ -134,20 +79,23 @@ public class RemoteDriverTest {
 
 		ChromeDriverDockerContainer container = host.createChromeDriverDockerContainer();
 
-		ChromeDriverRequester requester = ChromeDriverRequester.getInstance();
+		ChromeDriverDistributor distributor = ChromeDriverDistributor.getInstance();
 
 		final Proxy proxy = new ProxyImpl("114.215.45.48", 59998, "tfelab", "TfeLAB2@15");
 		final URL remoteAddress = container.getRemoteAddress();
 
 		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container, proxy);
 
-		requester.addAgent(agent);
+		distributor.addAgent(agent);
 
 		agent.start();
 
 		for(int i=0; i<100; i++) {
-			Task task = new Task("http://www.baidu.com/s?wd=" + i);
-			requester.submit(task);
+
+			//TODO 创建Holder与提交任务应在不同行，报错信息会有多个，利于调优
+			ChromeDriverDistributor.getInstance().submit(
+					ChromeTask.buildHolder(TestFailedChromeTask.class, ImmutableMap.of("q", String.class))
+			);
 		}
 
 		Thread.sleep(100000000);
@@ -160,7 +108,7 @@ public class RemoteDriverTest {
 		String project_id = "8bc2056a0f60e46b732cdfc8ad126fcb";
 		String url = "http://localhost/zbj/get_contact/" + project_id;
 
-		one.rewind.io.requester.Task t = new one.rewind.io.requester.Task(url);
+		one.rewind.io.requester.task.Task t = new one.rewind.io.requester.task.Task(url);
 		t.setPost();
 
 		BasicRequester.getInstance().submit(t);

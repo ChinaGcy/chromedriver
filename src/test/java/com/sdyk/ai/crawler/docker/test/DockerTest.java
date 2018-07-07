@@ -6,6 +6,8 @@ import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.db.Refacter;
 import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.ssh.SshManager;
 import org.junit.Test;
 import org.openqa.selenium.*;
@@ -78,9 +80,17 @@ public class DockerTest {
 			 * @throws MalformedURLException
 			 * @throws URISyntaxException
 			 */
+
+			/**
+			 * @param agent
+			 * @param account
+			 * @return
+			 * @throws MalformedURLException
+			 * @throws URISyntaxException
+			 */
 			@Override
-			public Task getLoginTask(Account account) throws MalformedURLException, URISyntaxException {
-				return null;
+			public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
+
 			}
 
 			/**
@@ -89,7 +99,7 @@ public class DockerTest {
 			 */
 			@Override
 			public void getTask(boolean backtrace) {
-				return null;
+
 			}
 
 			/**

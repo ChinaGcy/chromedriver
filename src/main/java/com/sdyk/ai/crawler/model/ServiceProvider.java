@@ -235,7 +235,7 @@ public class ServiceProvider extends Model {
 
 					ServiceProviderSnapshot snapshot = new ServiceProviderSnapshot(this);
 
-					snapshot.hash_id = hash_id;
+					//snapshot.hash_id = hash_id;
 
 					snapshot.insert();
 					return true;

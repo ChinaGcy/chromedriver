@@ -24,13 +24,14 @@ import java.util.regex.Pattern;
 public class ServiceRatingTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("service_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://www.mihuashi.com/users/{{service_id}}?role=painter&rating=true";
+		registerBuilder(
+				ServiceRatingTask.class,
+				"https://www.mihuashi.com/users/{{service_id}}?role=painter&rating=true",
+				ImmutableMap.of("service_id", String.class),
+				ImmutableMap.of("service_id", "")
+		);
 	}
+
 
 	public String workFilePath = "#users-show > div.container-fluid > div.profile__container > main > header > ul > li:nth-child(2) > a";
 

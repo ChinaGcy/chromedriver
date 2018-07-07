@@ -21,13 +21,14 @@ import java.util.regex.Pattern;
 public class ProjectScanTask extends ScanTask {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("page", String.class, "zone_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "https://www.mihuashi.com/projects?zone_id={{zone_id}}&page={{page}}";
+		registerBuilder(
+				ProjectScanTask.class,
+				"https://www.mihuashi.com/projects?zone_id={{zone_id}}&page={{page}}",
+				ImmutableMap.of("zone_id", String.class, "page", String.class),
+				ImmutableMap.of("tenderer_id", "","page","")
+		);
 	}
+
 
     /**
      *

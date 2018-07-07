@@ -19,12 +19,12 @@ import java.util.regex.Pattern;
 public class TendererTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("tenderer_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("tenderer_id", "");
-		// url_template
-		url_template = "https://www.clouderwork.com{{tenderer_id}}/";
+		registerBuilder(
+				TendererTask.class,
+				"https://www.clouderwork.com{{tenderer_id}}/",
+				ImmutableMap.of("tenderer_id", String.class),
+				ImmutableMap.of("tenderer_id", "")
+		);
 	}
 
 	public static String domain() {
