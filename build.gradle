@@ -5,6 +5,8 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'application'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -12,6 +14,15 @@ sourceCompatibility = 1.8
 mainClassName = 'com.sdyk.ai.crawler.specific.zbj.Scheduler'
 
 applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\"", "-Djava.library.path=/opt/opencv-3.4.1/build/lib"]
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.0.1"
+    }
+}
 
 repositories {
 
@@ -23,16 +34,43 @@ repositories {
         url "https://jitpack.io"
     }
     maven {
-        url "http://tfelab.org:60002/content/groups/public"
+        url "http://10.0.0.56:8081/artifactory/libs-snapshot-local/"
         credentials {
-            username developer
-            password developer_password
+            username "dev"
+            password "develop"
         }
     }
     flatDir {
         dirs 'lib'
     }
 }
+
+artifactory {
+
+    contextUrl = 'http://10.0.0.56:8081/artifactory'
+    publish {
+        repository {
+            repoKey = 'libs-snapshot-local'
+            username = artifactory_username
+            password = artifactory_password
+        }
+        snapshotRepository {
+            repoKey = 'libs-snapshot-local'
+            username = artifactory_username
+            password = artifactory_password
+        }
+        defaults {
+
+            publications('mavenJava')
+
+            publishArtifacts = true
+
+            properties = ['qa.level': 'basic', 'q.os': 'linux', 'dev.team': 'core']
+            publishPom = true
+        }
+    }
+}
+
 
 uploadArchives {
     repositories {
@@ -49,7 +87,7 @@ uploadArchives {
 
 dependencies {
 
-    compile 'one.rewind:common:1.0.89-SNAPSHOT'
+    compile 'one.rewind:common:1.1.0-SNAPSHOT'
 
     compile name: 'opencv-341'
 

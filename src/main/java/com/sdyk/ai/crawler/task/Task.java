@@ -18,11 +18,7 @@ public abstract class Task extends ChromeTask {
 	public Task(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 		setBuildDom();
-		/*if (getResponse() != null) {
-			if (getResponse().getText().contains("您的访问存在异常")) {
-				throw new ProxyException.Failed(this.getProxy());
-			}
-		}*/
+
 	}
 
 	/*public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {
@@ -40,6 +36,12 @@ public abstract class Task extends ChromeTask {
 		setBuildDom();
 	}*/
 
+	/**
+	 *
+	 * @param path
+	 * @param clean
+	 * @return
+	 */
 	public String getString(String path, String... clean) {
 
 		String found = null;
@@ -53,6 +55,12 @@ public abstract class Task extends ChromeTask {
 		return found;
 	}
 
+	/**
+	 *
+	 * @param path
+	 * @param clean
+	 * @return
+	 */
 	public int getInt(String path, String... clean) {
 		try {
 			return Integer.parseInt(getString(path, clean));
@@ -61,6 +69,12 @@ public abstract class Task extends ChromeTask {
 		}
 	}
 
+	/**
+	 *
+	 * @param path
+	 * @param clean
+	 * @return
+	 */
 	public float getFloat(String path, String... clean) {
 		try {
 			return Float.parseFloat(getString(path, clean));
@@ -69,6 +83,12 @@ public abstract class Task extends ChromeTask {
 		}
 	}
 
+	/**
+	 *
+	 * @param path
+	 * @param clean
+	 * @return
+	 */
 	public double getDouble(String path, String... clean) {
 		try {
 			return Double.parseDouble(getString(path, clean));
