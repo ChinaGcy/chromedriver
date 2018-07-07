@@ -5,6 +5,8 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.txt.URLUtil;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -20,15 +22,23 @@ public class ProjectScanTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("page", "1");
 		// url_template
 		url_template = "https://www.clouderwork.com/api/v2/jobs/search?ts=pagesize=20&pagenum={{page}}";
+
 	}
+
+	public static String domain() {
+		return "clouderwork";
+	}
+
 
     //设置任务
     public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
+
+		this.setBuildDom();
 
         this.setPriority(Priority.HIGH);
 

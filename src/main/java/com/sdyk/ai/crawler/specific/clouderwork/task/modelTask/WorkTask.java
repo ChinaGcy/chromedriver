@@ -13,11 +13,15 @@ public class WorkTask extends Task {
 
 	static {
 		// init_map_class
-		init_map_class = ImmutableMap.of("work_id", String.class, "useUrl", String.class);
+		init_map_class = ImmutableMap.of("work_id", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("work_id", "");
 		// url_template
 		url_template = "https://www.clouderwork.com{{work_id}}";
+	}
+
+	public static String domain() {
+		return "clouderwork";
 	}
 
 
@@ -25,23 +29,23 @@ public class WorkTask extends Task {
 
 		super(url);
 
+		this.setBuildDom();
+
 		this.setPriority(Priority.MEDIUM);
 
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
 
-			Map<String, Object> vars = validateInitMap(ImmutableMap.of("work_id", String.class, "useUrl", String.class));
-
-			String useUrl = String.valueOf(vars.get("useUrl"));
-
-			crawlerJob(doc,useUrl);
+			crawlerJob(doc);
 
 		});
 
 	}
 
-	public void crawlerJob(Document doc, String useUrl){
+	public void crawlerJob(Document doc){
+
+		String useUrl = "https://www.clouderwork.com" + doc.select("div.p-item.project > a").attr("href");
 
 		Pattern pattern = Pattern.compile("[0-9]*");
 		String url = getUrl();

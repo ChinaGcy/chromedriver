@@ -20,9 +20,13 @@ public class ServiceScanTask extends ScanTask {
 		// init_map_class
 		init_map_class = ImmutableMap.of("page", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("page", "ip");
 		// url_template
 		url_template = "https://www.clouderwork.com/api/v2/freelancers/search?pagesize=10&pagenum={{page}}";
+	}
+
+	public static String domain() {
+		return "clouderwork";
 	}
 
     /**

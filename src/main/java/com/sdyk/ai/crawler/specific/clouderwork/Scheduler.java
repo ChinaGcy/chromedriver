@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ServiceScanTask;
 import com.sdyk.ai.crawler.specific.clouderwork.util.ClouderworkLoginAction;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
 
@@ -44,6 +45,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
      */
     @Override
     public void getTask(boolean backtrace) {
+
 
 	    try {
 		    HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
@@ -86,16 +88,18 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 
 	public static void main(String[] args) {
 
-		int num = 0;
-
-		if (args.length >= 1 && !args[0].equals("") && Integer.parseInt(args[0]) > 1) {
-			num = Integer.parseInt(args[0]);
-		}
+		int num = 1;
 
 		Scheduler scheduler = new Scheduler("clouderwork", num);
 
-        scheduler.getHistoricalData();
+		try {
+			Thread.sleep(15000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-        scheduler.monitoring();
+		scheduler.getHistoricalData();
+
+    //    scheduler.monitoring();
 	}
 }

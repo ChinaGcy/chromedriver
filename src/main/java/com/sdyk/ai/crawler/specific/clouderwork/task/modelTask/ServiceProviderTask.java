@@ -27,9 +27,13 @@ public class ServiceProviderTask extends Task {
 		// init_map_class
 		init_map_class = ImmutableMap.of("servicer_id", String.class);
 		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
+		init_map_defaults = ImmutableMap.of("servicer_id", "");
 		// url_template
 		url_template = "https://www.clouderwork.com/freelancers/{{servicer_id}}";
+	}
+
+	public static String domain() {
+		return "clouderwork";
 	}
 
     ServiceProvider serviceProvider;
@@ -39,6 +43,8 @@ public class ServiceProviderTask extends Task {
     public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 
     	super(url);
+
+    	this.setBuildDom();
 
     	this.setPriority(Priority.HIGH);
 
@@ -73,8 +79,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.origin_id =urls[1];
 
 		//描述
-		String content = doc.getElementsByClass("overview").text();
-		serviceProvider.content = content;
+		serviceProvider.content = doc.select("div.p-item > div:nth-child(2)").toString();
 
 		//平台认证信息
 		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
@@ -300,7 +305,8 @@ public class ServiceProviderTask extends Task {
 				serviceProviderRating.rating = Double.valueOf(
 						element.getElementsByClass("score-num").text().toCharArray()[0]);
 
-				serviceProviderRating.insert();
+				System.out.println(serviceProviderRating.toJSON());
+				//serviceProviderRating.insert();
 			}
 		}
 
@@ -334,7 +340,8 @@ public class ServiceProviderTask extends Task {
 				}
 			}
 			try {
-				resume.insert();
+				System.out.println(resume.toJSON());
+				//resume.insert();
 			} catch (Exception e) {
 				logger.error("error on insert resume", e);
 			}
@@ -352,13 +359,19 @@ public class ServiceProviderTask extends Task {
 				fileUrl.add(element.attr("href"));
 				fileName.add(element.attr("download"));
 			}
-			String description = BinaryDownloader.download(description2,fileUrl,url,fileName);
-			serviceProvider.content = description1+description;
+			//String description = BinaryDownloader.download(description2,fileUrl,url,fileName);
+			//serviceProvider.content = description1+description;
 		}
 
 		//不含附件
 		else {
 			serviceProvider.content = description1;
+		}
+
+		try {
+			serviceProvider.insert();
+		} catch (Exception e) {
+			logger.error("error on insert serviceProvider", e);
 		}
 
 		//抓取乙方项目
@@ -371,19 +384,13 @@ public class ServiceProviderTask extends Task {
 
 				try {
 					HttpTaskPoster.getInstance().submit(WorkTask.class,
-							ImmutableMap.of("work_id", workUrl, "useUrl", getUrl()));
+							ImmutableMap.of("work_id", workUrl));
 				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
 					logger.error("error fro HttpTaskPoster.submit WorkTask.class", e);
 				}
 
 			}
-		}
-
-		try {
-			serviceProvider.insert();
-		} catch (Exception e) {
-			logger.error("error on insert serviceProvider", e);
 		}
 
 	}

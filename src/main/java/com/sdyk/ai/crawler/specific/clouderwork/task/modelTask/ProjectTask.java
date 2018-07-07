@@ -23,11 +23,15 @@ public class ProjectTask extends Task {
         // init_map_class
         init_map_class = ImmutableMap.of("project_id", String.class);
         // init_map_defaults
-        init_map_defaults = ImmutableMap.of("q", "ip");
+        init_map_defaults = ImmutableMap.of("project_id", "");
         // url_template
         url_template = "https://www.clouderwork.com/jobs/{{project_id}}";
-        need_login = false;
+
     }
+
+	public static String domain() throws MalformedURLException, URISyntaxException {
+		return "clouderwork";
+	}
 
     public Project project;
 
@@ -186,7 +190,7 @@ public class ProjectTask extends Task {
 		else {
 			//以万元为单位
 			if( budget.contains("万") ) {
-				budget_lb = Double.valueOf(budget.replace(",","")) * 10000;
+				budget_lb = Double.valueOf(CrawlerAction.getNumbers(budget)) * 10000;
 			}
 			//不以万元为单位
 			else {

@@ -41,6 +41,8 @@ public class ClouderworkLoginAction extends Action {
             this.agent.getUrl(this.url);
             this.agent.waitPageLoad(this.url);
 
+            System.out.println(account.username);
+
             WebElement usernameInput = this.agent.getElementWait(this.usernameCssPath);
 	        usernameInput.clear();
             usernameInput.sendKeys(new CharSequence[]{this.account.getUsername()});
@@ -80,7 +82,9 @@ public class ClouderworkLoginAction extends Action {
         return !this.agent.getDriver().getPageSource().matches(this.errorMsgReg);
     }
 
-    public void run() {
+    public boolean run(ChromeDriverAgent agent) {
+
+    	this.agent = agent;
 
         if (this.fillUsernameAndPassword()) {
 
@@ -91,6 +95,7 @@ public class ClouderworkLoginAction extends Action {
             }
 
         }
+        return this.success;
     }
 
     public String toJSON() {
