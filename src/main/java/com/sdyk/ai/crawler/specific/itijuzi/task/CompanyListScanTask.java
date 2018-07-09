@@ -2,6 +2,9 @@ package com.sdyk.ai.crawler.specific.itijuzi.task;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
+import com.sdyk.ai.crawler.specific.action.MouseSuspensionAction;
+import com.sdyk.ai.crawler.specific.action.MyClickAction;
+import com.sdyk.ai.crawler.specific.action.WriteAction;
 import com.sdyk.ai.crawler.specific.company.util.MouseSuspensionAction;
 import com.sdyk.ai.crawler.specific.company.util.MyClickAction;
 import com.sdyk.ai.crawler.specific.company.util.WriteAction;
@@ -32,7 +35,7 @@ public class CompanyListScanTask extends ScanTask {
 		);
 	}
 
-	public CompanyListScanTask(String url, int page, String flag, int maxPage) throws MalformedURLException, URISyntaxException {
+	public CompanyListScanTask(String url, int page, String flag, int maxPage) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 

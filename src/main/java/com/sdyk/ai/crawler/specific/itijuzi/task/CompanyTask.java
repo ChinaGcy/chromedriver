@@ -23,7 +23,7 @@ public class CompanyTask extends Task {
 	public CompanyInformation companyInformation;
 	public CompanyFinancing companyFinancing;
 
-	public CompanyTask(String url, String local) throws MalformedURLException, URISyntaxException {
+	public CompanyTask(String url, String local) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 
