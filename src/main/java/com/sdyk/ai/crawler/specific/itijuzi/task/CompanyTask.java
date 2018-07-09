@@ -18,12 +18,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssistItijuziTask extends Task {
+public class CompanyTask extends Task {
 
 	public CompanyInformation companyInformation;
 	public CompanyFinancing companyFinancing;
 
-	public AssistItijuziTask(String url, String local) throws MalformedURLException, URISyntaxException {
+	public CompanyTask(String url, String local) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 
@@ -109,7 +109,7 @@ public class AssistItijuziTask extends Task {
 			String cUrl = element.select("a").attr("href");
 
 			/*try {
-				task.add(new AssistItijuziTask(cUrl));
+				task.add(new CompanyTask(cUrl));
 			} catch (MalformedURLException | URISyntaxException e) {
 				e.printStackTrace();
 			}*/

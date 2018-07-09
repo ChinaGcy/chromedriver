@@ -13,7 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
 
-@DBName(value = "crawler")
+@DBName(value = "proc")
 @DatabaseTable(tableName = "tasks")
 public class Task extends ChromeTask {
 

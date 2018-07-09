@@ -1,9 +1,11 @@
 package com.sdyk.ai.crawler.specific.itijuzi.task;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.company.util.MouseSuspensionAction;
 import com.sdyk.ai.crawler.specific.company.util.MyClickAction;
 import com.sdyk.ai.crawler.specific.company.util.WriteAction;
+import com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.task.ScanTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
@@ -19,24 +21,33 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssistItijuziScanTask extends ScanTask {
+public class CompanyListScanTask extends ScanTask {
 
-	public AssistItijuziScanTask(String url, int page, String flag, int maxPage) throws MalformedURLException, URISyntaxException {
+	static {
+		registerBuilder(
+				ProjectScanTask.class,
+				"https://pro.lagou.com/project/{{page}}",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page","")
+		);
+	}
+
+	public CompanyListScanTask(String url, int page, String flag, int maxPage) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 
 		this.setPriority(Priority.HIGH);
 
-		this.addDoneCallback(() -> {
+		this.addDoneCallback((t) -> {
 
-			Document doc = getResponse().getDoc();
+			Document doc = t.getResponse().getDoc();
 
-			crawler(doc, page, flag, maxPage);
+			proc(doc, page, flag, maxPage);
 
 		});
 	}
 
-	public void crawler(Document doc, int page, String flag, int maxPage){
+	public void proc(Document doc, int page, String flag, int maxPage){
 
 		List<Task> task = new ArrayList<>();
 
@@ -48,7 +59,7 @@ public class AssistItijuziScanTask extends ScanTask {
 			String url = comList.get(i).attr("href");
 			//String local = infoList.get(i).select("div:nth-child(6)").text();
 			try {
-				task.add(new AssistItijuziTask(url, null));
+				task.add(new CompanyTask(url, null));
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			} catch (URISyntaxException e) {
@@ -65,9 +76,9 @@ public class AssistItijuziScanTask extends ScanTask {
 
 			if( next <= maxPage ){
 
-				AssistItijuziScanTask assistItijuziTask = null;
+				CompanyListScanTask assistItijuziTask = null;
 				try {
-					assistItijuziTask = new AssistItijuziScanTask(getUrl(), next, flag, maxPage);
+					assistItijuziTask = new CompanyListScanTask(getUrl(), next, flag, maxPage);
 				} catch (MalformedURLException | URISyntaxException e) {
 					e.printStackTrace();
 				}

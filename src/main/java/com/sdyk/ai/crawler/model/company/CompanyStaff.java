@@ -31,6 +31,4 @@ public class CompanyStaff extends Model {
 	public CompanyStaff(String url) {
 		super(url);
 	}
-
-
 }

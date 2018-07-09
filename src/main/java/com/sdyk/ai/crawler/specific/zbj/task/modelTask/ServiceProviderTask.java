@@ -84,7 +84,7 @@ public class ServiceProviderTask extends Task {
 				tasks.add(CaseScanTask.generateTask(serviceProvider.origin_id, 1));
 				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
 
-				for (com.sdyk.ai.crawler.task.Task t : tasks) {
+				for (com.sdyk.ai.proc.task.Task t : tasks) {
 					ChromeTaskScheduler.getInstance().submit(t);
 				}*/
 
