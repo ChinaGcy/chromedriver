@@ -1,9 +1,8 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
-import com.sdyk.ai.crawler.model.ServiceProvider;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;

@@ -11,6 +11,9 @@ import one.rewind.util.NetworkUtil;
 
 import java.util.Date;
 
+/**
+ * 记录采集框架每分钟采集数
+ */
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "crawler_stats")
 public class CrawlerStat {
@@ -32,6 +35,11 @@ public class CrawlerStat {
 		this.request_count = request_count;
 	}
 
+	/**
+	 * 插入数据库
+	 * @return
+	 * @throws Exception
+	 */
 	public boolean insert() throws Exception{
 
 		Dao<CrawlerStat, String> dao = DaoManager.getDao(CrawlerStat.class);

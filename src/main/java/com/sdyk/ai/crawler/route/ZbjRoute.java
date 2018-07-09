@@ -1,8 +1,6 @@
 package com.sdyk.ai.crawler.route;
 
-import com.google.gson.Gson;
-import com.sdyk.ai.crawler.ServiceWrapper;
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
 import one.rewind.db.DaoManager;
@@ -10,9 +8,6 @@ import one.rewind.io.server.Msg;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ZbjRoute {
 

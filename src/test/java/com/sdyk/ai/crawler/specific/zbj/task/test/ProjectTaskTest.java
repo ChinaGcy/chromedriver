@@ -1,9 +1,8 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import org.junit.Test;
 import one.rewind.db.Refacter;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 public class ProjectTaskTest {
 

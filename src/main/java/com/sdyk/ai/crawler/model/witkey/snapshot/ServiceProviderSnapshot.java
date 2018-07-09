@@ -1,10 +1,9 @@
-package com.sdyk.ai.crawler.model.snapshot;
+package com.sdyk.ai.crawler.model.witkey.snapshot;
 
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.model.ServiceProvider;
-import com.sdyk.ai.crawler.model.Tenderer;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import one.rewind.db.DBName;
 import one.rewind.txt.StringUtil;
 

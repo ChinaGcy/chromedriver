@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.specific.proginn.task.modelTask;
 
-import com.sdyk.ai.crawler.model.Tenderer;
+import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import org.jsoup.nodes.Document;
 

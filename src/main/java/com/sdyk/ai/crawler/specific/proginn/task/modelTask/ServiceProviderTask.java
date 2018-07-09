@@ -2,9 +2,9 @@ package com.sdyk.ai.crawler.specific.proginn.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
-import com.sdyk.ai.crawler.model.Resume;
-import com.sdyk.ai.crawler.model.ServiceProvider;
-import com.sdyk.ai.crawler.model.ServiceProviderRating;
+import com.sdyk.ai.crawler.model.witkey.Resume;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
+import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;

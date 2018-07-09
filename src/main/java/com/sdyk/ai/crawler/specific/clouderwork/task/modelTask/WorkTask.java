@@ -1,12 +1,11 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Work;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public class WorkTask extends Task {

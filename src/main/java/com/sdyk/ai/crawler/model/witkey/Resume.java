@@ -1,8 +1,9 @@
-package com.sdyk.ai.crawler.model;
+package com.sdyk.ai.crawler.model.witkey;
 
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.model.Model;
 import one.rewind.db.DBName;
 
 import java.util.Date;

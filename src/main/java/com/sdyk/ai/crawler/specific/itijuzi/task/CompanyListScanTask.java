@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.specific.itijuzi.task;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.action.MouseSuspensionAction;
+import com.sdyk.ai.crawler.specific.action.MouseHoverAction;
 import com.sdyk.ai.crawler.specific.action.MyClickAction;
 import com.sdyk.ai.crawler.specific.action.WriteAction;
 import com.sdyk.ai.crawler.specific.company.util.MouseSuspensionAction;
@@ -13,6 +13,7 @@ import com.sdyk.ai.crawler.task.ScanTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverRequester;
 import one.rewind.io.requester.chrome.action.ClickAction;
+import one.rewind.io.requester.chrome.action.SetValueAction;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.util.FileUtil;
@@ -29,15 +30,28 @@ public class CompanyListScanTask extends ScanTask {
 	static {
 		registerBuilder(
 				ProjectScanTask.class,
-				"https://pro.lagou.com/project/{{page}}",
-				ImmutableMap.of("page", String.class),
-				ImmutableMap.of("page","")
+				"http://radar.itjuzi.com/company",
+				ImmutableMap.of(),
+				ImmutableMap.of()
 		);
 	}
 
-	public CompanyListScanTask(String url, int page, String flag, int maxPage) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public CompanyListScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
-		super(url);
+		super(url.replaceAll("/\\d+$", ""));
+
+		// TODO 通过Action 选中条件
+
+		this.addAction(new SetValueAction(
+				"#goto_page_num", String.valueOf(init_map.get("page")), 2000
+		));
+
+		this.setResponseFilter((request, contents, messageInfo) -> {
+
+			if(messageInfo.getOriginalUrl().matches("http://radar.itjuzi.com/company/infonew\\?page=\\d+")) {
+				this.getResponse().setVar("json", contents.getTextContents());
+			}
+		});
 
 		this.setPriority(Priority.HIGH);
 
@@ -50,28 +64,21 @@ public class CompanyListScanTask extends ScanTask {
 		});
 	}
 
-	public void proc(Document doc, int page, String flag, int maxPage){
+	public void proc(Document doc) throws MalformedURLException, URISyntaxException {
 
 		List<Task> task = new ArrayList<>();
 
-		Elements comList = doc.select("a.logo-box");
+		Elements company_list = doc.select("a.logo-box");
 		//Elements infoList = doc.select("div.company-list-info > li");
 
-		for( int i = 1; i< comList.size(); i++ ){
+		for( int i = 1; i<company_list.size(); i++ ){
 
-			String url = comList.get(i).attr("href");
-			//String local = infoList.get(i).select("div:nth-child(6)").text();
-			try {
-				task.add(new CompanyTask(url, null));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			}
+			String url = company_list.get(i).attr("href");
 
+			task.add(new CompanyTask(url));
 		}
 
-		if( comList.size() > 0 ){
+		if( company_list.size() > 0 ){
 
 			FileUtil.appendLineToFile("天使论page ：" + page, "page.txt");
 
@@ -87,7 +94,7 @@ public class CompanyListScanTask extends ScanTask {
 				}
 
 				//选择地点
-				assistItijuziTask.addAction(new MouseSuspensionAction("body > div.company-main > div.filter-box > ul > li:nth-child(3)"));
+				assistItijuziTask.addAction(new MouseHoverAction("body > div.company-main > div.filter-box > ul > li:nth-child(3)"));
 				for( int i = 1; i<4; i++ ){
 
 					assistItijuziTask.addAction(
@@ -96,7 +103,7 @@ public class CompanyListScanTask extends ScanTask {
 				}
 
 				//选择融资轮次
-				assistItijuziTask.addAction(new MouseSuspensionAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > span"));
+				assistItijuziTask.addAction(new MouseHoverAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > span"));
 
 				assistItijuziTask.addAction(new
 						MyClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child("+flag+")"));

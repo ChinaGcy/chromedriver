@@ -4,7 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.model.Model;
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import one.rewind.io.server.Msg;
 import spark.Request;
 import spark.Response;

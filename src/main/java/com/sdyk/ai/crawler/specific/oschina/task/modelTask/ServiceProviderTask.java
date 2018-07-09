@@ -1,9 +1,9 @@
 package com.sdyk.ai.crawler.specific.oschina.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.ServiceProvider;
-import com.sdyk.ai.crawler.model.ServiceProviderRating;
-import com.sdyk.ai.crawler.model.Work;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
+import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;

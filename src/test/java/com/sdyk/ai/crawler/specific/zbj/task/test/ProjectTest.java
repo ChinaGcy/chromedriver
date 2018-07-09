@@ -1,19 +1,11 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
 import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.account.AccountManager;
-import com.sdyk.ai.crawler.model.Project;
-import com.sdyk.ai.crawler.model.ServiceProvider;
-import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
-import com.sdyk.ai.crawler.model.snapshot.ServiceProviderSnapshot;
-import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
-import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
+import com.sdyk.ai.crawler.model.witkey.Project;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
+import com.sdyk.ai.crawler.model.witkey.snapshot.ProjectSnapshot;
+import com.sdyk.ai.crawler.model.witkey.snapshot.ServiceProviderSnapshot;
 import one.rewind.db.DaoManager;
-import one.rewind.io.requester.account.Account;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import org.junit.Test;
 
 public class ProjectTest {

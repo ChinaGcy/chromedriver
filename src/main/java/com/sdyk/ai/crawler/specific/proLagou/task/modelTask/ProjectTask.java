@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.specific.proLagou.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.util.FileUtil;

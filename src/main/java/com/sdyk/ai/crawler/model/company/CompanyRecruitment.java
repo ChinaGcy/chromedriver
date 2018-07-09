@@ -10,39 +10,39 @@ import one.rewind.db.DBName;
 @DatabaseTable(tableName = "company_recruitments")
 public class CompanyRecruitment extends Model {
 
-	//公司ID
+	// 公司ID
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String company_id;
 
-	//职务类型
+	// 职务类型
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String position_type;
 
-	//职务名称
+	// 职务名称
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String position_name;
 
-	//学历
+	// 学历
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String educational;
 
-	//薪资下限
+	// 薪资下限
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int payroll_lb;
 
-	//薪资上线
+	// 薪资上线
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int payroll_ub;
 
-	//经验下线
+	// 经验下线
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int experience_lb;
 
-	//经验上线
+	// 经验上线
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int experience_ub;
 
-	//内容
+	// 内容
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String content;
 
@@ -51,8 +51,4 @@ public class CompanyRecruitment extends Model {
 	public CompanyRecruitment(String url) {
 		super(url);
 	}
-
-
-
-
 }

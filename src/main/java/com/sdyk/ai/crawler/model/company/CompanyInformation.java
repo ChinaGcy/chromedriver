@@ -10,7 +10,7 @@ import one.rewind.db.DBName;
 import java.util.Date;
 
 @DBName(value = "sdyk_raw")
-@DatabaseTable(tableName = "company_informations")
+@DatabaseTable(tableName = "company_information")
 public class CompanyInformation extends Model {
 
 	// 名称
@@ -25,107 +25,105 @@ public class CompanyInformation extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String legal_person_name;
 
-	//电话
+	// 电话
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String telephone;
 
-	//官网
+	// 官网
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String website;
 
-	//email
+	// email
 	@DatabaseField(dataType = DataType.STRING, width = 64)
 	public String email;
 
-	//城市地址
+	// 城市地址
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String location;
 
-	//详细地址
+	// 详细地址
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String address;
 
-	//描述
+	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String content;
 
-	//类型
+	// 类型
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String type;
 
-	//标签
+	// 标签
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String tags;
 
-	//logo
+	// logo
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String logo;
 
-	//注册资本
+	// 注册资本
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public transient double reg_capital;
 
-	//竞品ID
+	// 竞品公司ID列表，英文半角逗号分割
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String competing_product;
+	public String competing_company_ids;
 
-	//信息更新时间
+	// 信息更新时间
 	@DatabaseField(dataType = DataType.DATE)
 	public Date info_update_time;
 
-	//公司状态
+	// 公司状态
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String reg_status;
 
-	//行业
+	// 行业
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String industry;
 
-	//工商注册号
+	// 工商注册号
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String reg_number;
 
-	//组织机构代码
+	// 组织机构代码
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String org_number;
 
-	//统一信用码
+	// 统一信用码
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String credit_code;
 
-	//纳税人识别号
+	// 纳税人识别号
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String tax_number;
 
-	//营业期限
+	// 营业期限
 	@DatabaseField(dataType = DataType.DATE)
 	public Date operating_period;
 
-	//登记机关
+	// 登记机关
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String reg_institute;
 
-	//注册地址
+	// 注册地址
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String reg_location;
 
-	//经营范围
+	// 经营范围
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String business_scope;
 
-	//核准日期
+	// 核准日期
 	@DatabaseField(dataType = DataType.DATE)
 	public Date approved_time;
 
-	//成立日期
+	// 成立日期
 	@DatabaseField(dataType = DataType.DATE)
 	public Date founded_time;
 
-	//公司规模
+	// 公司规模
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String size;
-
-
 
 	public CompanyInformation() {}
 

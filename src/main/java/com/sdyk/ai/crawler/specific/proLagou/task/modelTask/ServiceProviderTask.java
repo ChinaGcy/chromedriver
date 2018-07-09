@@ -2,8 +2,8 @@ package com.sdyk.ai.crawler.specific.proLagou.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
-import com.sdyk.ai.crawler.model.ServiceProvider;
-import com.sdyk.ai.crawler.model.Work;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import one.rewind.io.requester.exception.ProxyException;

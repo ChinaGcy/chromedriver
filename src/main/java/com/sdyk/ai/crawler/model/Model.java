@@ -4,15 +4,11 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
-import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
-import com.sdyk.ai.crawler.model.snapshot.ServiceProviderSnapshot;
-import com.sdyk.ai.crawler.model.snapshot.TendererSnapshot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 import one.rewind.db.DaoManager;
 import one.rewind.json.JSON;
-import one.rewind.json.JSONable;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -36,6 +32,9 @@ public abstract class Model implements ESIndex {
 		for (Class<?> clazz : getModelClasses()) {
 			try {
 				Dao dao = DaoManager.getDao(clazz);
+
+				logger.info("Add {} dao to daoMap.", clazz.getSimpleName());
+
 				daoMap.put(clazz.getSimpleName(), dao);
 
 			} catch (Exception e) {

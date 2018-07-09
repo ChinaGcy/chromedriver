@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 

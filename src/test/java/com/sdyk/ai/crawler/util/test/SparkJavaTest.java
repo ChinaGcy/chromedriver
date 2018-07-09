@@ -1,19 +1,12 @@
 package com.sdyk.ai.crawler.util.test;
 
 import com.google.common.collect.ImmutableMap;
-import com.j256.ormlite.dao.Dao;
-import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.account.model.AccountImpl;
-import com.sdyk.ai.crawler.docker.DockerHostManager;
-import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
-import one.rewind.db.DaoManager;
-import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;

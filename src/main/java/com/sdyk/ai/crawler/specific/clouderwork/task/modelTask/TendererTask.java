@@ -2,10 +2,10 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
-import com.sdyk.ai.crawler.model.TendererRating;
+import com.sdyk.ai.crawler.model.witkey.TendererRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
-import com.sdyk.ai.crawler.model.Tenderer;
+import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

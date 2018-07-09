@@ -1,17 +1,11 @@
 package com.sdyk.ai.crawler;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.sdyk.ai.crawler.model.Tenderer;
 import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.Task;
 import one.rewind.io.server.Msg;
 import one.rewind.json.JSON;
-import one.rewind.simulator.mouse.Action;
-import one.rewind.util.FileUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,7 +14,6 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Map;
 
 /**

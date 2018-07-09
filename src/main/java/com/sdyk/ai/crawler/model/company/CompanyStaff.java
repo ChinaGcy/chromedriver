@@ -10,19 +10,19 @@ import one.rewind.db.DBName;
 @DatabaseTable(tableName = "company_staffs")
 public class CompanyStaff extends Model {
 
-	//公司ID
+	// 公司ID
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String company_id;
 
-	//姓名
+	// 姓名
 	@DatabaseField(dataType = DataType.STRING, width = 16)
 	public String name;
 
-	//职位
+	// 职位
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String position;
 
-	//介绍
+	// 介绍
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String content;
 

@@ -1,8 +1,7 @@
 package com.sdyk.ai.crawler.specific.jfh.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.j256.ormlite.field.DatabaseField;
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import one.rewind.txt.DateFormatUtil;

@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.action;
 
-import com.sdyk.ai.crawler.model.ServiceProvider;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.Action;
 import org.openqa.selenium.By;

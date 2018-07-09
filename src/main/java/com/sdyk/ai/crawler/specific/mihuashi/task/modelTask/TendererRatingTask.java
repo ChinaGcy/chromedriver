@@ -1,11 +1,10 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.TendererRating;
+import com.sdyk.ai.crawler.model.witkey.TendererRating;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.action.ClickAction;
-import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;

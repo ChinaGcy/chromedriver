@@ -1,13 +1,12 @@
-package com.sdyk.ai.crawler.model;
+package com.sdyk.ai.crawler.model.witkey;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
-import com.sdyk.ai.crawler.model.snapshot.TendererSnapshot;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask;
+import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.model.witkey.snapshot.TendererSnapshot;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 

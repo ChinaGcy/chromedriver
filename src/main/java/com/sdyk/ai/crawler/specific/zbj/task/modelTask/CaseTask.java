@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
-import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Case;
+import com.sdyk.ai.crawler.model.witkey.Case;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.ProxyException;

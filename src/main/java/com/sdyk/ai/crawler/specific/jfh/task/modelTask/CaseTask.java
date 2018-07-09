@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.specific.jfh.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Case;
+import com.sdyk.ai.crawler.model.witkey.Case;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import org.jsoup.nodes.Document;

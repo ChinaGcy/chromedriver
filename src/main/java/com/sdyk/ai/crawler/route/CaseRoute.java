@@ -3,7 +3,7 @@ package com.sdyk.ai.crawler.route;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.sdyk.ai.crawler.ServiceWrapper;
-import com.sdyk.ai.crawler.model.Case;
+import com.sdyk.ai.crawler.model.witkey.Case;
 import com.sdyk.ai.crawler.model.Model;
 import one.rewind.io.server.Msg;
 import spark.Request;

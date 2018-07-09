@@ -1,19 +1,16 @@
-package com.sdyk.ai.crawler.model;
+package com.sdyk.ai.crawler.model.witkey;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
-import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
-import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
+import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.model.witkey.snapshot.ProjectSnapshot;
 import com.sdyk.ai.crawler.util.Range;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
-import one.rewind.txt.URLUtil;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Date;
 

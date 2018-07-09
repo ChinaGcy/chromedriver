@@ -1,12 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
-import com.sdyk.ai.crawler.model.*;
 
-
-import com.sdyk.ai.crawler.model.snapshot.ProjectSnapshot;
-import com.sdyk.ai.crawler.model.snapshot.ServiceProviderSnapshot;
-import com.sdyk.ai.crawler.model.snapshot.TendererSnapshot;
-import com.sdyk.ai.crawler.specific.zbj.model.ProjectEval;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.util.DBUtil;
 import one.rewind.db.Refacter;
 import org.junit.Test;

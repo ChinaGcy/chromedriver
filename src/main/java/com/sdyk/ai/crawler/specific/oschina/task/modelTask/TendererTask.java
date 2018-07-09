@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.specific.oschina.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Tenderer;
+import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import org.jsoup.nodes.Document;

@@ -1,12 +1,10 @@
 package com.sdyk.ai.crawler.util.test;
 
-import com.sdyk.ai.crawler.model.Project;
 import com.sdyk.ai.crawler.util.StringUtil;
 
 import one.rewind.io.requester.task.ChromeTask;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.util.*;
 import java.util.regex.Matcher;

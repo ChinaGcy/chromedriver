@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Work;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;

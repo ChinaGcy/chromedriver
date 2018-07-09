@@ -3,7 +3,7 @@ package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 import com.google.common.collect.ImmutableMap;
 import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.ServiceWrapper;
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
 import com.sdyk.ai.crawler.specific.zbj.model.ProjectEval;

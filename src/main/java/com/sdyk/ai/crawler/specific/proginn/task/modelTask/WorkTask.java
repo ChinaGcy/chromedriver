@@ -1,12 +1,9 @@
 package com.sdyk.ai.crawler.specific.proginn.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Work;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import org.jsoup.nodes.Document;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.Map;
 
 public class WorkTask extends Task {
 

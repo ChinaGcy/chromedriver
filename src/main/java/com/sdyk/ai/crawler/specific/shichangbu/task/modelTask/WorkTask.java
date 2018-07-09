@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.specific.shichangbu.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Work;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;

@@ -1,15 +1,13 @@
 package com.sdyk.ai.crawler.specific.shichangbu.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.model.Case;
+import com.sdyk.ai.crawler.model.witkey.Case;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
-import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

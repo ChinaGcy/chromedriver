@@ -4,13 +4,11 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.model.Model;
-import com.sdyk.ai.crawler.model.Work;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import one.rewind.io.server.Msg;
 import spark.*;
 
 import java.util.List;
-
-import static com.sdyk.ai.crawler.model.Model.rewriteBinaryUrl;
 
 /**
  * 案例路由

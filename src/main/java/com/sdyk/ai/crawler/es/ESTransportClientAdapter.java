@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.es;
 
 import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.model.*;
+import com.sdyk.ai.crawler.model.witkey.*;
 import one.rewind.db.DaoManager;
 import one.rewind.util.Configs;
 import org.apache.logging.log4j.LogManager;

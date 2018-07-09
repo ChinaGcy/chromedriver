@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
-import com.sdyk.ai.crawler.ServiceWrapper;
-import com.sdyk.ai.crawler.model.Project;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.zbj.AuthorizedRequester;
 import com.sdyk.ai.crawler.specific.zbj.Scheduler;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
