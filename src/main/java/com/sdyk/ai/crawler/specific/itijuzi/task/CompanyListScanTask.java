@@ -2,37 +2,34 @@ package com.sdyk.ai.crawler.specific.itijuzi.task;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.action.MouseHoverAction;
-import com.sdyk.ai.crawler.specific.action.MyClickAction;
-import com.sdyk.ai.crawler.specific.action.WriteAction;
-import com.sdyk.ai.crawler.specific.company.util.MouseSuspensionAction;
-import com.sdyk.ai.crawler.specific.company.util.MyClickAction;
-import com.sdyk.ai.crawler.specific.company.util.WriteAction;
 import com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.task.ScanTask;
 import com.sdyk.ai.crawler.task.Task;
-import one.rewind.io.requester.chrome.ChromeDriverRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.chrome.action.SetValueAction;
-import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CompanyListScanTask extends ScanTask {
 
 	static {
 		registerBuilder(
-				ProjectScanTask.class,
-				"http://radar.itjuzi.com/company",
-				ImmutableMap.of(),
-				ImmutableMap.of()
+				CompanyListScanTask.class,
+				"http://radar.itjuzi.com/company{{page}}",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page", "1")
 		);
 	}
 
@@ -40,10 +37,44 @@ public class CompanyListScanTask extends ScanTask {
 
 		super(url.replaceAll("/\\d+$", ""));
 
+		this.setPriority(Priority.HIGH);
+
+		this.setBuildDom();
+
 		// TODO 通过Action 选中条件
+		// 选择地点
+		for( int i = 1; i<4; i++ ){
+
+			this.addAction(
+					new ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(3) > ul > li:nth-child("+i+")"));
+
+		}
+
+		//选择融资轮次
+		for(int j =1 ; j < 16 ; j++){
+			this.addAction(new
+					ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child("+j+")"));
+		}
+
+		this.addAction(new
+				ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child(16)",
+				5000
+		));
+
+		int next = 2; //Integer.valueOf((Integer) init_map.get("page"));
+
+
+		//填写跳转页数
+		String wPath = "#goto_page_num";
+		String detail = String.valueOf(next);
+		this.addAction(new SetValueAction(wPath,detail));
+
+		//点击跳转按钮
+		String cliPath = "#goto_page_btn";  //#goto_page_btn
+		this.addAction(new ClickAction(cliPath,5000));
 
 		this.addAction(new SetValueAction(
-				"#goto_page_num", String.valueOf(init_map.get("page")), 2000
+				"#goto_page_num", String.valueOf(String.valueOf(next)), 2000
 		));
 
 		this.setResponseFilter((request, contents, messageInfo) -> {
@@ -53,23 +84,20 @@ public class CompanyListScanTask extends ScanTask {
 			}
 		});
 
-		this.setPriority(Priority.HIGH);
-
 		this.addDoneCallback((t) -> {
 
 			Document doc = t.getResponse().getDoc();
 
-			proc(doc, page, flag, maxPage);
+			proc(doc, Integer.valueOf((Integer) init_map.get("page")));
 
 		});
 	}
 
-	public void proc(Document doc) throws MalformedURLException, URISyntaxException {
+	public void proc(Document doc, Integer page) throws Exception {
 
 		List<Task> task = new ArrayList<>();
 
 		Elements company_list = doc.select("a.logo-box");
-		//Elements infoList = doc.select("div.company-list-info > li");
 
 		for( int i = 1; i<company_list.size(); i++ ){
 
@@ -80,53 +108,24 @@ public class CompanyListScanTask extends ScanTask {
 
 		if( company_list.size() > 0 ){
 
-			FileUtil.appendLineToFile("天使论page ：" + page, "page.txt");
+			FileUtil.appendLineToFile(DateFormatUtil.dff.print(System.currentTimeMillis()) + "\t"+ "当前页 ：" + page  ,
+					"page.txt");
 
 			int next = page+1;
 
+			int maxPage = 2168;
+
 			if( next <= maxPage ){
 
-				CompanyListScanTask assistItijuziTask = null;
-				try {
-					assistItijuziTask = new CompanyListScanTask(getUrl(), next, flag, maxPage);
-				} catch (MalformedURLException | URISyntaxException e) {
-					e.printStackTrace();
-				}
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("page", next);
 
-				//选择地点
-				assistItijuziTask.addAction(new MouseHoverAction("body > div.company-main > div.filter-box > ul > li:nth-child(3)"));
-				for( int i = 1; i<4; i++ ){
+				ChromeTaskHolder holder = ChromeTask.buildHolder(CompanyListScanTask.class, init_map );
 
-					assistItijuziTask.addAction(
-							new ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(3) > ul > li:nth-child("+i+")"));
-
-				}
-
-				//选择融资轮次
-				assistItijuziTask.addAction(new MouseHoverAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > span"));
-
-				assistItijuziTask.addAction(new
-						MyClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child("+flag+")"));
-
-				if( next > 1 ){
-					//填写跳转页数
-					String wPath = "#goto_page_num";
-					String detail = String.valueOf(next);
-					assistItijuziTask.addAction(new WriteAction(wPath,detail));
-
-					//点击跳转按钮
-					String cliPath = "#goto_page_btn";  //#goto_page_btn
-					assistItijuziTask.addAction(new MyClickAction(cliPath));
-				}
-
-				task.add(assistItijuziTask);
+				ChromeDriverDistributor.getInstance().submit(holder);
 
 			}
 
-		}
-
-		for( Task t : task ){
-			ChromeDriverRequester.getInstance().submit(t);
 		}
 
 	}
@@ -153,8 +152,4 @@ public class CompanyListScanTask extends ScanTask {
 		return null;
 	}
 
-	@Override
-	public one.rewind.io.requester.Task validate() throws ProxyException.Failed, AccountException.Failed, AccountException.Frozen {
-		return null;
-	}
 }

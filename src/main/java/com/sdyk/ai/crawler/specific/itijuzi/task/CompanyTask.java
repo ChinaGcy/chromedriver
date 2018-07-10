@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.company.CompanyProduct;
 import com.sdyk.ai.crawler.model.company.CompanyStaff;
 import com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.task.Task;
+import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
@@ -36,6 +37,7 @@ public class CompanyTask extends Task {
 		super(url);
 
 		this.setPriority(Priority.HIGH);
+
 
 		this.setValidator((a, t) -> {
 
@@ -119,12 +121,6 @@ public class CompanyTask extends Task {
 
 			String cUrl = element.select("a").attr("href");
 
-			/*try {
-				task.add(new CompanyTask(cUrl));
-			} catch (MalformedURLException | URISyntaxException e) {
-				e.printStackTrace();
-			}*/
-
 			competingId.append(one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(cUrl)));
 			competingId.append(",");
 
@@ -151,29 +147,25 @@ public class CompanyTask extends Task {
 		}
 
 		// 高管
-		// TODO 更新URL获取方式
 		Elements staffs = doc.select("ul.team-list > li");
 		int j = 0;
 		for( Element element : staffs ){
-			j++;
 
-			CompanyStaff c_staff = new CompanyStaff(getUrl() + "staff=" + j);
+			String starffUrtl = element.select("a.avatar").attr("href");
+
+			CompanyStaff c_staff = new CompanyStaff(starffUrtl);
 
 			c_staff.company_id = c_info.id;
 
-			c_staff.name = doc.select("a.person-name").text();
+			c_staff.name = element.select("a.person-name").text();
 
-			c_staff.position = doc.select("div.per-position").text();
+			c_staff.position = element.select("div.per-position").text();
 
-			c_staff.content = doc.select("div.per-des").text();
+			c_staff.content = element.select("div.per-des").text();
 
 			c_staff.insert();
 
 		}
-
-		/*for( Task t : task ){
-			ChromeDriverRequester.getInstance().submit(t);
-		}*/
 
 		c_info.insert();
 		if(c_financing.financing_round != null && c_financing.financing_round.length() < 1){
