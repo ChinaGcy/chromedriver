@@ -18,12 +18,12 @@ import java.util.regex.Pattern;
 public class WorkTask extends Task {
 
 	static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("work_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("q", "ip");
-		// url_template
-		url_template = "http://www.shichangbu.com/portal.php{{work_id}}";
+		registerBuilder(
+				WorkTask.class,
+				"http://www.shichangbu.com/portal.php{{work_id}}",
+				ImmutableMap.of("work_id", String.class),
+				ImmutableMap.of("work_id", "")
+		);
 	}
 
 	public Work work;
