@@ -99,15 +99,15 @@ public class SchedulerTest {
 	public void scheduleProxyTest() {
 		org.apache.logging.log4j.Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
-		Requester.URL_VISITS.clear();
+		Distributor.URL_VISITS.clear();
 
 		String domain = "zbj.com";
 		int driverCount = 1;
 
 		try {
 
-			logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
-			ChromeDriverRequester.instance = new Requester();
+			logger.info("Replace ChromeDriverRequester with {}.", Distributor.class.getName());
+			ChromeDriverRequester.instance = new Distributor();
 			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);
 
 			// 创建阿里云host

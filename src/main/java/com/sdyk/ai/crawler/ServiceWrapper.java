@@ -97,7 +97,7 @@ public class ServiceWrapper {
 			get("/queue", SystemRoute.getQueueSize, new ModelMsgTransformer());
 
 			// 任务执行统计
-			get("/taskStat", SystemRoute.getTaskStat, new ModelMsgTransformer());
+			get("/taskQueueStat", SystemRoute.getTaskStat, new ModelMsgTransformer());
 
 		});
 

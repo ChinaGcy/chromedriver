@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.requester.test;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
-import com.sdyk.ai.crawler.Requester;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.account.model.AccountImpl;
@@ -11,23 +11,16 @@ import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
-import one.rewind.io.requester.exception.ProxyException;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * 单机完整测试代理更换（无docker环境下）
@@ -117,7 +110,7 @@ public class SchedulerProxyFailedTest {
 	// 初始化方法
 	public void init() {
 
-		Requester.URL_VISITS.clear();
+		Distributor.URL_VISITS.clear();
 
 		// TODO 根据情况使用
 		try {
@@ -129,9 +122,9 @@ public class SchedulerProxyFailedTest {
 		try {
 
 			// 替换Requester
-			/*logger.info("Replace ChromeDriverRequester with {}.", Requester.class.getName());
+			/*logger.info("Replace ChromeDriverRequester with {}.", Distributor.class.getName());
 
-			ChromeDriverRequester.instance = new Requester();
+			ChromeDriverRequester.instance = new Distributor();
 			ChromeDriverRequester.requester_executor.submit(ChromeDriverRequester.instance);*/
 
 			// 创建阿里云host

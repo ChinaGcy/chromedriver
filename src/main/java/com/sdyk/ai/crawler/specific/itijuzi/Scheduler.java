@@ -53,10 +53,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 			Map<String, Object> init_map = new HashMap<>();
 			init_map.put("page", "1");
 
-			CompanyListScanTask scanTask = new CompanyListScanTask("http://radar.itjuzi.com/company{{page}}");
-
 			//生成holder
-			ChromeTaskHolder holder = ChromeTask.buildHolder(scanTask.getClass(), init_map);
+			ChromeTaskHolder holder = ChromeTask.buildHolder(CompanyListScanTask.class, init_map);
 
 			//提交任务
 			ChromeDriverDistributor.getInstance().submit(holder);

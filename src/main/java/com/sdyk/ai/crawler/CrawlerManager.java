@@ -1,67 +1,31 @@
 package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.account.AccountManager;
-import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.account.model.AccountImpl;
-import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
-import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
+import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
-import one.rewind.db.DaoManager;
+import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
+import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
-import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-
-import one.rewind.io.requester.exception.ChromeDriverException;
-import one.rewind.io.requester.proxy.Proxy;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.List;
 
-/**
- * 任务生成器
- */
-public abstract class Scheduler {
+public class CrawlerManager {
 
-	public static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(Scheduler.class.getName());
+	public static final Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
-	int driverCount = 1;
+	public int chromeDriverCount = 4;
 
-	public String domain;
-
-	public Scheduler() {}
-
-	public Scheduler(String domain, int driverCount) {
-
-		this.driverCount = driverCount;
-
-		this.domain = domain;
+	public CrawlerManager() {
 
 		new Thread(()->{ServiceWrapper.getInstance();}).start();
 
 		init();
-	}
-
-	/**
-	 * 重置所有的账号和代理
-	 * @throws Exception
-	 */
-	public void resetAccountAndProxy() throws Exception {
-
-		List<ProxyImpl> proxies = DaoManager.getDao(ProxyImpl.class).queryForAll();
-		for(ProxyImpl proxy : proxies) {
-			proxy.status = Proxy.Status.Free;
-			proxy.update();
-		}
-
-		List<AccountImpl> accounts = DaoManager.getDao(AccountImpl.class).queryForAll();
-		for(AccountImpl account : accounts) {
-			account.status = Account.Status.Free;
-			account.update();
-		}
 	}
 
 	// 初始化方法
@@ -213,36 +177,4 @@ public abstract class Scheduler {
 			logger.error(e);
 		}
 	}
-
-	/**
-	 *
-	 */
-	public void upateRedisUrlVisitQueue() {
-
-	}
-
-	/**
-	 *
-	 * @return
-	 * @throws MalformedURLException
-	 * @throws URISyntaxException
-	 */
-	public abstract void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException;
-
-	/**
-	 *
-	 * @param backtrace
-	 * @return
-	 */
-	public abstract void getTask(boolean backtrace);
-
-	/**
-	 * 获取历史数据
-	 */
-	public abstract void getHistoricalData();
-
-	/**
-	 * 监控调度
-	 */
-	public abstract void monitoring();
 }

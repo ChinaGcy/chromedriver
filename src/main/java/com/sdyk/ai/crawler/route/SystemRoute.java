@@ -1,6 +1,6 @@
 package com.sdyk.ai.crawler.route;
 
-import com.sdyk.ai.crawler.Requester;
+import com.sdyk.ai.crawler.Distributor;
 
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 
@@ -10,7 +10,6 @@ import spark.Response;
 import spark.Route;
 
 import java.util.*;
-import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * 系统信息路由
@@ -40,7 +39,7 @@ public class SystemRoute {
 	public static Route getTaskStat = (Request request, Response response ) -> {
 
 		try{
-			return new Msg<Map<String, Integer>>(Msg.SUCCESS, Requester.taskStat);
+			return new Msg<Map<String, Integer>>(Msg.SUCCESS, Distributor.taskQueueStat);
 		} catch (Exception e) {
 			return new Msg<>(Msg.KERNEL_FAILURE);
 		}

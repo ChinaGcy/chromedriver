@@ -50,7 +50,7 @@ public class OldCrawler {
 	static {
 
 		/*try {
-			REQUEST_PER_SECOND_LIMIT = Configs.getConfig(Requester.class).getInt("requestPerSecondLimit");
+			REQUEST_PER_SECOND_LIMIT = Configs.getConfig(Distributor.class).getInt("requestPerSecondLimit");
 		} catch (Exception e) {
 			logger.error(e);
 		}*/

@@ -13,32 +13,15 @@ import java.util.*;
 
 public abstract class Task extends ChromeTask {
 
+
+
 	public static final Logger logger = LogManager.getLogger(com.sdyk.ai.crawler.specific.zbj.task.Task.class.getName());
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 		setBuildDom();
-		/*if (getResponse() != null) {
-			if (getResponse().getText().contains("您的访问存在异常")) {
-				throw new ProxyException.Failed(this.getProxy());
-			}
-		}*/
 	}
 
-	/*public Task(String url, String post_data) throws MalformedURLException, URISyntaxException {
-		super(url, post_data);
-		setBuildDom();
-	}
-
-	public Task(String url, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
-		super(url, post_data, cookies, ref);
-		setBuildDom();
-	}
-
-	public Task(String url, HashMap<String, String> headers, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
-		super(url, headers, post_data, cookies, ref);
-		setBuildDom();
-	}*/
 
 	public String getString(String path, String... clean) {
 

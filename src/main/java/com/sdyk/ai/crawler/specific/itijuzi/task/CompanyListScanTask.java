@@ -27,7 +27,7 @@ public class CompanyListScanTask extends ScanTask {
 	static {
 		registerBuilder(
 				CompanyListScanTask.class,
-				"http://radar.itjuzi.com/company{{page}}",
+				"http://radar.itjuzi.com/company/{{page}}",
 				ImmutableMap.of("page", String.class),
 				ImmutableMap.of("page", "1")
 		);
@@ -61,21 +61,13 @@ public class CompanyListScanTask extends ScanTask {
 				5000
 		));
 
-		int next = 2; //Integer.valueOf((Integer) init_map.get("page"));
-
-
 		//填写跳转页数
-		String wPath = "#goto_page_num";
-		String detail = String.valueOf(next);
-		this.addAction(new SetValueAction(wPath,detail));
+		this.addAction(new SetValueAction(
+				"#goto_page_num", String.valueOf(init_map.get("page")), 2000
+		));
 
 		//点击跳转按钮
-		String cliPath = "#goto_page_btn";  //#goto_page_btn
-		this.addAction(new ClickAction(cliPath,5000));
-
-		this.addAction(new SetValueAction(
-				"#goto_page_num", String.valueOf(String.valueOf(next)), 2000
-		));
+		this.addAction(new ClickAction("#goto_page_btn",5000));
 
 		this.setResponseFilter((request, contents, messageInfo) -> {
 
@@ -87,7 +79,6 @@ public class CompanyListScanTask extends ScanTask {
 		this.addDoneCallback((t) -> {
 
 			Document doc = t.getResponse().getDoc();
-
 			proc(doc, Integer.valueOf((Integer) init_map.get("page")));
 
 		});
@@ -99,7 +90,9 @@ public class CompanyListScanTask extends ScanTask {
 
 		Elements company_list = doc.select("a.logo-box");
 
-		for( int i = 1; i<company_list.size(); i++ ){
+		System.err.println(getResponse().getVar("json"));
+
+		/*for( int i = 1; i<company_list.size(); i++ ){
 
 			String url = company_list.get(i).attr("href");
 
@@ -111,14 +104,12 @@ public class CompanyListScanTask extends ScanTask {
 			FileUtil.appendLineToFile(DateFormatUtil.dff.print(System.currentTimeMillis()) + "\t"+ "当前页 ：" + page  ,
 					"page.txt");
 
-			int next = page+1;
-
 			int maxPage = 2168;
 
 			if( next <= maxPage ){
 
 				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("page", next);
+				init_map.put("page", page ++);
 
 				ChromeTaskHolder holder = ChromeTask.buildHolder(CompanyListScanTask.class, init_map );
 
@@ -126,7 +117,7 @@ public class CompanyListScanTask extends ScanTask {
 
 			}
 
-		}
+		}*/
 
 	}
 
