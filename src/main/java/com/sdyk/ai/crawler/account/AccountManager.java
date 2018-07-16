@@ -32,6 +32,31 @@ public class AccountManager {
 	public AccountManager() {}
 
 	/**
+	 * 通过Id获取账号
+	 * @param Id
+	 * @return
+	 * @throws Exception
+	 */
+	public synchronized static Account getAccountById(String Id) throws Exception {
+
+		Dao<AccountImpl, String> dao = DaoManager.getDao(AccountImpl.class);
+
+		AccountImpl account = dao.queryBuilder().limit(1L).
+				where().eq("id", Id)
+				.queryForFirst();
+
+		if(account != null) {
+
+			account.status = Account.Status.Occupied;
+			account.update_time = new Date();
+			dao.update(account);
+			return account;
+		}
+
+		return null;
+	}
+
+	/**
 	 *
 	 * @param domain
 	 * @return
