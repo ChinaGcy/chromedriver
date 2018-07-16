@@ -37,11 +37,11 @@ public class Domain {
 
 	public Domain () {}
 
-	public List<Domain> getAll() {
-		Dao dao = null;
-		try {
-			dao = DaoManager.getDao(this.getClass());
+	public static List<Domain> getAll() {
 
+		try {
+
+			Dao dao = DaoManager.getDao(Domain.class);
 			return dao.queryForAll();
 
 		} catch (Exception e) {

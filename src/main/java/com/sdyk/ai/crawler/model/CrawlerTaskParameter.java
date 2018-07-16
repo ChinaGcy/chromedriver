@@ -10,31 +10,35 @@ import one.rewind.db.DaoManager;
 import java.util.List;
 
 @DBName(value = "sdyk_raw")
-@DatabaseTable(tableName = "web_dirver_count")
-public class WebDirverCount {
+@DatabaseTable(tableName = "crawler_task_parameter")
+public class CrawlerTaskParameter {
 
 	// id
 	@DatabaseField(generatedId = true)
 	public int id;
 
 	// domain
-	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String domain;
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String class_name;
 
 	// dirvercount
-	@DatabaseField(dataType = DataType.INTEGER, width = 4)
-	public int dirver_count;
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String parameter;
 
-	public WebDirverCount(){}
+	// dirvercount
+	@DatabaseField(dataType = DataType.STRING, width = 64)
+	public String status;
 
-	public List<WebDirverCount> getAll() {
+	public CrawlerTaskParameter(){}
+
+	public List<CrawlerTaskParameter > getAll() {
 
 		Dao dao = null;
 
 		try {
 
 			dao = DaoManager.getDao(this.getClass());
-			return dao.queryForAll();
+			return (List<CrawlerTaskParameter>) dao.queryBuilder().where().eq(this.status,"run");
 
 		} catch (Exception e) {
 			e.printStackTrace();
