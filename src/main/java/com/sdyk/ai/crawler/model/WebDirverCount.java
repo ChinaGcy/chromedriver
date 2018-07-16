@@ -7,13 +7,12 @@ import com.j256.ormlite.table.DatabaseTable;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 
-import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 @DBName(value = "sdyk_raw")
-@DatabaseTable(tableName = "domains")
-public class Domain {
+@DatabaseTable(tableName = "web_dirver_count")
+
+public class WebDirverCount {
 
 	// id
 	@DatabaseField(generatedId = true)
@@ -23,25 +22,19 @@ public class Domain {
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String domain;
 
-	// domain_name
-	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String domain_name;
+	// dirvercount
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int dirver_count;
 
-	// insert
-	@DatabaseField(dataType = DataType.DATE)
-	public Date insert_time = new Date();
+	public WebDirverCount(){}
 
-	// update
-	@DatabaseField(dataType = DataType.DATE)
-	public Date update_time = new Date();
+	public List<WebDirverCount> getAll() {
 
-	public Domain () {}
-
-	public List<Domain> getAll() {
 		Dao dao = null;
-		try {
-			dao = DaoManager.getDao(this.getClass());
 
+		try {
+
+			dao = DaoManager.getDao(this.getClass());
 			return dao.queryForAll();
 
 		} catch (Exception e) {
