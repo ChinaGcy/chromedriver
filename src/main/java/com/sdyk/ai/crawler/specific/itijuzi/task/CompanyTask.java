@@ -10,6 +10,7 @@ import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,8 +21,11 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CompanyTask extends Task {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -175,5 +179,9 @@ public class CompanyTask extends Task {
 			c_financing.financing_amount = "无";
 		}
 		c_financing.insert();
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 }

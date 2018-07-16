@@ -62,7 +62,7 @@ public class CrawlerManager {
 			DockerHostManager.getInstance().createDockerContainers(driverCount);
 
 			// 读取有效账户 driverCount 个
-			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
+			//List<AccountImpl> accounts = AccountManager.getInstance().getAccountsByDomain(domain, driverCount);
 
 			// 分别为每个账号创建容器 和 chromedriver对象
 			/*CountDownLatch latch = new CountDownLatch(driverCount);*/

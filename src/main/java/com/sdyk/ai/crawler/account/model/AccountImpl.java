@@ -16,8 +16,12 @@ import java.util.Date;
 @DatabaseTable(tableName = "accounts")
 public class AccountImpl extends Account {
 
+	// domain
+	@DatabaseField(dataType = DataType.STRING, width = 1024, indexName = "domain-group")
+	public String domain;
+
 	// 分组
-	@DatabaseField(dataType = DataType.STRING, width = 128)
+	@DatabaseField(dataType = DataType.STRING, width = 128, indexName = "domain-group")
 	public String group;
 
 	public static final Logger logger = LogManager.getLogger(AccountImpl.class.getName());
@@ -26,11 +30,22 @@ public class AccountImpl extends Account {
 	// java.lang.IllegalArgumentException: Can't find a no-arg constructor for class com.sdyk.ai.proc.account.model.AccountImpl
 	public AccountImpl() {}
 
+	/**
+	 *
+	 * @param domain
+	 * @param username
+	 * @param password
+	 */
 	public AccountImpl(String domain, String username, String password) {
 
 		super(domain, username, password);
 	}
 
+	/**
+	 *
+	 * @return
+	 * @throws Exception
+	 */
 	public boolean update() throws Exception{
 
 		update_time = new Date();

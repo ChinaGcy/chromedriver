@@ -37,7 +37,7 @@ public class ServiceWrapper {
 
 		port(port);
 
-		ChromeDriverDistributor.getInstance();
+		Distributor.getInstance();
 
 		before("/*", (q, a) -> logger.info("Received api call"));
 

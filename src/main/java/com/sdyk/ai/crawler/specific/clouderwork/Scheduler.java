@@ -73,13 +73,13 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 	    	logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
 	    }
 
-	    /*try {
+	    try {
 		    HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
 				    ImmutableMap.of("page", "1"));
 	    } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
 		    logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
-	    }*/
+	    }
 
     }
 

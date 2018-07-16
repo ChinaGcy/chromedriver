@@ -24,6 +24,8 @@ import java.util.Map;
 
 public class CompanyListScanTask extends ScanTask {
 
+	public static long MIN_INTERVAL = 1000L;
+
 	static {
 		registerBuilder(
 				CompanyListScanTask.class,
@@ -41,7 +43,6 @@ public class CompanyListScanTask extends ScanTask {
 
 		this.setBuildDom();
 
-		// TODO 通过Action 选中条件
 		// 选择地点
 		for( int i = 1; i<4; i++ ){
 
@@ -141,6 +142,10 @@ public class CompanyListScanTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 		return null;
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }
