@@ -23,6 +23,8 @@ public class ClouderWorkLogin {
             agent.submit(task);
         } catch (ChromeDriverException.IllegalStatusException e) {
             logger.info("error on agent submit task",e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         WebDriver webDriver = agent.getDriver();
         WebElement usernameInput = webDriver.findElement(By.cssSelector("#app > div > div > div > section > dl > dd:nth-child(1) > input[category=\"text\"]"));

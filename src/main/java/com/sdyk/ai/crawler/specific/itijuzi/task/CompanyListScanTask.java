@@ -88,11 +88,13 @@ public class CompanyListScanTask extends ScanTask {
 
 		List<Task> task = new ArrayList<>();
 
+		int next = page + 1;
+
 		Elements company_list = doc.select("a.logo-box");
 
 		System.err.println(getResponse().getVar("json"));
 
-		/*for( int i = 1; i<company_list.size(); i++ ){
+		for( int i = 1; i<company_list.size(); i++ ){
 
 			String url = company_list.get(i).attr("href");
 
@@ -104,9 +106,7 @@ public class CompanyListScanTask extends ScanTask {
 			FileUtil.appendLineToFile(DateFormatUtil.dff.print(System.currentTimeMillis()) + "\t"+ "当前页 ：" + page  ,
 					"page.txt");
 
-			int maxPage = 2168;
-
-			if( next <= maxPage ){
+			if( next <= 2168 ){
 
 				Map<String, Object> init_map = new HashMap<>();
 				init_map.put("page", page ++);
@@ -117,7 +117,7 @@ public class CompanyListScanTask extends ScanTask {
 
 			}
 
-		}*/
+		}
 
 	}
 

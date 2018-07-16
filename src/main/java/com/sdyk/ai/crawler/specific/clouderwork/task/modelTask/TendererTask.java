@@ -1,12 +1,16 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.TendererRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -14,14 +18,18 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
 
+	public long MIN_INTERVAL = 60 * 60 * 1000;
+
 	static {
 		registerBuilder(
 				TendererTask.class,
-				"https://www.clouderwork.com{{tenderer_id}}/",
+				"https://www.clouderwork.com{{tenderer_id}}",
 				ImmutableMap.of("tenderer_id", String.class),
 				ImmutableMap.of("tenderer_id", "")
 		);
@@ -37,7 +45,7 @@ public class TendererTask extends Task {
 
         this.setBuildDom();
 
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.MEDIUM);
 
         this.addDoneCallback((t)->{
 
@@ -180,17 +188,30 @@ public class TendererTask extends Task {
 			String jobId = element.attr("href").replace("/jobs/","");
 
 			try {
-				HttpTaskPoster.getInstance().submit(ProjectTask.class,
-						ImmutableMap.of("project_id", jobId));
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-				logger.error("error fro HttpTaskPoster.submit ProjectTask.class", e);
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("project_id", jobId);
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit ProjectTask.class", e);
 			}
 
 		}
 
 		tenderer.insert();
 
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }

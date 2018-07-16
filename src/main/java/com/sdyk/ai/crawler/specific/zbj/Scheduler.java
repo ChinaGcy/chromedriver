@@ -90,10 +90,13 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
         super(domain, driverCount);
     }
 
-	@Override
 	public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
-		agent.submit(new ChromeTask("https://www.zbj.com").addAction(new LoginWithGeetestAction(account)));
+		try {
+			agent.submit(new ChromeTask("https://www.zbj.com").addAction(new LoginWithGeetestAction(account)));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -117,7 +120,7 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler{
             ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, ChromeDriverAgent.Flag.MITM);
 
             // agent 添加异常回调
-            agent.addAccountFailedCallback((a, t)->{
+            agent.addAccountFailedCallback((a, t, p)->{
 
                 logger.info("Account {}:{} failed.", account.getDomain(), account.getUsername());
 

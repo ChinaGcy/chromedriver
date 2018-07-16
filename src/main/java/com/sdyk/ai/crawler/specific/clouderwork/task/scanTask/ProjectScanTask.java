@@ -1,23 +1,35 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.WorkTask;
+import net.bytebuddy.implementation.bytecode.Throw;
+import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.Task;
 import one.rewind.txt.URLUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ProjectScanTask extends ScanTask {
+
+	public static long MIN_INTERVAL = 1000L;
 
 	static {
 		registerBuilder(
@@ -34,15 +46,31 @@ public class ProjectScanTask extends ScanTask {
 
 
     //设置任务
-    public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+    public ProjectScanTask(String url) throws Exception{
 
 		super(url);
 
 		this.setBuildDom();
 
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.MEDIUM);
 
-        this.addDoneCallback((t) -> {
+        this.setValidator((a, t) -> {
+
+		    String text = t.getResponse().getText();
+
+		    //代理出错
+		    if ( text.contains("proxy") ) {
+			    throw new ProxyException.Failed(a.getProxy());
+		    }
+		    // 账号出错
+		    else if( text.contains( "账号异常" ) || text.contains( "登陆异常" ) ) {
+			    throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+		    }
+
+
+	    });
+
+	    this.addDoneCallback((t) -> {
 
 	        int page = 0;
 	        Pattern pattern_url = Pattern.compile("ts=pagesize=20&pagenum=(?<page>.+?)");
@@ -69,11 +97,22 @@ public class ProjectScanTask extends ScanTask {
             for(String user : usernames){
 
 	            try {
-		            HttpTaskPoster.getInstance().submit(ProjectTask.class,
-				            ImmutableMap.of("project_id", user));
-	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-		            logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
+		            //设置参数
+		            Map<String, Object> init_map = new HashMap<>();
+		            init_map.put("project_id", user);
+
+		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask");
+
+		            //生成holder
+		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+		            //提交任务
+		            ChromeDriverDistributor.getInstance().submit(holder);
+
+	            } catch ( Exception e) {
+
+		            logger.error("error for submit ProjectTask.class", e);
 	            }
 
             }
@@ -81,11 +120,20 @@ public class ProjectScanTask extends ScanTask {
             if( usernames.size()>0 ){
 
 	            try {
-		            HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
-				            ImmutableMap.of("page", String.valueOf(++page)));
-	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-		            logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
+		            //设置参数
+		            Map<String, Object> init_map = new HashMap<>();
+		            init_map.put("page", String.valueOf(page + 1));
+
+		            //生成holder
+		            ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectScanTask.class, init_map);
+
+		            //提交任务
+		            ChromeDriverDistributor.getInstance().submit(holder);
+
+	            } catch ( Exception e) {
+
+		            logger.error("error for submit ProjectScanTask.class", e);
 	            }
 
             }
@@ -98,5 +146,10 @@ public class ProjectScanTask extends ScanTask {
     public TaskTrace getTaskTrace() {
         return null;
     }
+
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
+	}
 
 }

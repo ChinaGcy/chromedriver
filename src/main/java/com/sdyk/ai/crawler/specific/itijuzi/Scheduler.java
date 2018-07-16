@@ -33,10 +33,13 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	@Override
 	public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
-		agent.submit(new ChromeTask("https://www.itjuzi.com/user/login").addAction(new ItijuziLoginAction(account)));
+		try {
+			agent.submit(new ChromeTask("https://www.itjuzi.com/user/login").addAction(new ItijuziLoginAction(account)));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -44,7 +47,6 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 	 * @param backtrace
 	 * @return
 	 */
-	@Override
 	public void getTask(boolean backtrace) {
 
 		try {
@@ -52,6 +54,8 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 			//设置参数
 			Map<String, Object> init_map = new HashMap<>();
 			init_map.put("page", "1");
+
+			CompanyListScanTask companyListScanTask = new CompanyListScanTask("http://radar.itjuzi.com/company");
 
 			//生成holder
 			ChromeTaskHolder holder = ChromeTask.buildHolder(CompanyListScanTask.class, init_map);
@@ -68,7 +72,6 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 	/**
 	 * 获取历史数据
 	 */
-	@Override
 	public void getHistoricalData() {
 
 		// 需求
@@ -79,7 +82,6 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 	/**
 	 * 监控调度
 	 */
-	@Override
 	public void monitoring() {
 
 	}

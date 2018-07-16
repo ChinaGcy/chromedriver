@@ -1,12 +1,16 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -14,14 +18,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TendererTask extends com.sdyk.ai.crawler.task.Task{
+
+	public long MIN_INTERVAL = 60 * 60 * 1000;
 
 	static {
 		registerBuilder(
@@ -40,7 +43,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 
         super(url);
 
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.MEDIUM);
 
 	    this.addAction(new LoadMoreContentAction(moreProjectPath));
 
@@ -116,11 +119,20 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 			String project_id = element.attr("href").replace("/projects/","");
 
 			try {
-				HttpTaskPoster.getInstance().submit(TendererTask.class,
-						ImmutableMap.of("project_id", project_id));
 
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-				logger.error("error for HttpTaskPoster.submit TendererTask", e);
+				//设置参数
+				Map<String, Object> init_map1 = new HashMap<>();
+				init_map1.put("project_id", project_id);
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map1);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+
+			} catch (Exception e) {
+				logger.error("error for submit TendererRatingTask", e);
 			}
 
 		}
@@ -159,6 +171,10 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 		BinaryDownloader.download(image,fileUrl,getUrl(),fileName);
 
 		tenderer.insert();
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }

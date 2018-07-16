@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.mihuashi;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.mihuashi.action.MihuashiLoginAction;
 import com.sdyk.ai.crawler.specific.mihuashi.task.MihuashiLoginTask;
@@ -8,12 +9,17 @@ import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ServiceScanTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -35,10 +41,13 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
      * @throws MalformedURLException
      * @throws URISyntaxException
      */
-    @Override
     public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
-	    agent.submit(new ChromeTask("https://www.mihuashi.com/login").addAction(new MihuashiLoginAction(account)));
+	    try {
+		    agent.submit(new ChromeTask("https://www.mihuashi.com/login").addAction(new MihuashiLoginAction(account)));
+	    } catch (Exception e) {
+		    e.printStackTrace();
+	    }
 
     }
 
@@ -46,22 +55,29 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
      * @param backtrace
      * @return
      */
-    @Override
     public void getTask(boolean backtrace) {
 
 	    try {
-		    HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
-				    ImmutableMap.of("page", "1", "zone_id", "1"));
 
-		    HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
-				    ImmutableMap.of("page", "1", "zone_id", "2"));
+		    //设置参数
+		    Map<String, Object> init_map = new HashMap<>();
+		    init_map.put("page", "1");
+		    init_map.put("zone_id", "1");
 
-	    } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-		    logger.error("error for HttpTaskPoster.submit ProjectScanTask", e);
+		    Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ProjectScanTask");
+
+		    //生成holder
+		    ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+		    //提交任务
+		    ChromeDriverDistributor.getInstance().submit(holder);
+
+
+	    } catch (Exception e) {
+		    logger.error("error for submit ProjectScanTask", e);
 	    }
 
-
-	    if( backtrace == true ){
+	    /*if( backtrace == true ){
 
 		    try {
 			    HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
@@ -71,14 +87,13 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
 			    logger.error("error for HttpTaskPoster.submit ServiceScanTask", e);
 		    }
 
-	    }
+	    }*/
 
     }
 
     /**
      * 获取历史数据
      */
-    @Override
     public void getHistoricalData() {
 
 	    // 需求
@@ -89,7 +104,6 @@ public class Scheduler extends com.sdyk.ai.crawler.Scheduler {
     /**
      * 监控调度
      */
-    @Override
     public void monitoring() {
 
 	    getTask(false);

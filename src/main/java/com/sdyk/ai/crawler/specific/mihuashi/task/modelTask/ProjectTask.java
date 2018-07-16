@@ -1,11 +1,15 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -16,6 +20,8 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +30,8 @@ import java.util.regex.Pattern;
  * 示例URL:
  */
 public class ProjectTask extends Task {
+
+	public long MIN_INTERVAL = 60 * 60 * 1000;
 
 	static {
 		registerBuilder(
@@ -41,7 +49,7 @@ public class ProjectTask extends Task {
 		super(url);
 
 		// 设置优先级
-		this.setPriority(Priority.HIGH);
+		this.setPriority(Priority.MEDIUM);
 
 		this.addDoneCallback((t) -> {
 			Document doc = getResponse().getDoc();
@@ -175,20 +183,42 @@ public class ProjectTask extends Task {
 
 			//添加甲方任务
 			try {
-				HttpTaskPoster.getInstance().submit(TendererTask.class,
-						ImmutableMap.of("tenderer_id", tenderer_id));
 
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-				logger.error("error for HttpTaskPoster.submit TendererTask", e);
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("tenderer_id", tenderer_id);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				Distributor.getInstance().submit(holder);
+
+
+			} catch (Exception e) {
+				logger.error("error for submit TendererTask", e);
 			}
 
 			//添加甲方评论任务
 			try {
-				HttpTaskPoster.getInstance().submit(TendererRatingTask.class,
-						ImmutableMap.of("tenderer_id", tenderer_id));
 
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-				logger.error("error for HttpTaskPoster.submit TendererRatingTask", e);
+				//设置参数
+				Map<String, Object> init_map1 = new HashMap<>();
+				init_map1.put("tenderer_id", tenderer_id);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererRatingTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map1);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+
+			} catch (Exception e) {
+				logger.error("error for submit TendererRatingTask", e);
 			}
 
 		}
@@ -198,6 +228,10 @@ public class ProjectTask extends Task {
 		} catch (Exception e) {
 			logger.error("error on insert project", e);
 		}
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }

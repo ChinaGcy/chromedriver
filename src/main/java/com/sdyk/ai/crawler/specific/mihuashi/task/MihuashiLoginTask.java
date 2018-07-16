@@ -1,37 +1,65 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.LoginInAction;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.mihuashi.action.MihuashiLoginAction;
+import com.sdyk.ai.crawler.task.LogTask;
 import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.task.ChromeTask;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class MihuashiLoginTask extends Task {
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
-	/*static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("domain", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("domain", "baidu");
-		// url_template
-		url_template = "https://www.{{domain}}.com/login";
-	}*/
+public class MihuashiLoginTask extends ChromeTask {
 
-	public MihuashiLoginTask(String url) throws Exception {
+	public static final Logger logger = LogManager.getLogger(com.sdyk.ai.crawler.specific.zbj.task.Task.class.getName());
+
+	static {
+		registerBuilder(
+				MihuashiLoginTask.class,
+				"https://www.mihuashi.com/login?accountId={{accountId}}",
+				ImmutableMap.of("accountId", String.class),
+				ImmutableMap.of("accountId", "")
+		);
+	}
+
+	public static String domain() {
+		return "mihuashi.com";
+	}
+
+	public MihuashiLoginTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 
-		String domain = url.replace("https://www.","")
-				.replace(".com/login","");
+		this.setBuildDom();
 
-		this.addDoneCallback((t) -> {
+		this.setPriority(Priority.HIGH);
 
-		});
+		String domain = "mihuashi.com";
 
-		Account account = AccountManager.getAccountByDomain(domain);
+		String accountId = url.split("accountId=")[1];
 
-		this.addAction(new MihuashiLoginAction(account));
+		try {
+			Account account = AccountManager.getAccountById(accountId);
+			LoginInAction loginInAction = LogTask.getLoginActionByDomain(domain, account);
+			this.addAction( loginInAction );
+		} catch (Exception e) {
+			logger.error("error for get account by Id", e);
+		}
+
 
 	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
+	}
+
+
 
 }

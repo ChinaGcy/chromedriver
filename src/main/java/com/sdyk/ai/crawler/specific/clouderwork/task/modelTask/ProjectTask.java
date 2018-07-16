@@ -2,10 +2,14 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Project;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 
@@ -16,8 +20,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProjectTask extends Task {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -41,7 +49,7 @@ public class ProjectTask extends Task {
     	this.setBuildDom();
 
         // 设置优先级
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.MEDIUM);
 
         this.addDoneCallback((t) -> {
 
@@ -258,11 +266,22 @@ public class ProjectTask extends Task {
 		if( tendererId!=null && !"".equals(tendererId) ){
 
 			try {
-				HttpTaskPoster.getInstance().submit(TendererTask.class,
-						ImmutableMap.of("tenderer_id", tendererId));
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-				logger.error("error fro HttpTaskPoster.submit TendererTask.class", e);
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("tenderer_id", tendererId);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.TendererTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit TendererTask.class", e);
 			}
 
 		}
@@ -273,5 +292,9 @@ public class ProjectTask extends Task {
 			logger.error("error on insert project", e);
 		}
 
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 }
