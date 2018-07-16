@@ -14,18 +14,41 @@ import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.TaskException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.txt.StringUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.redisson.api.RMap;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Distributor extends ChromeDriverDistributor {
 
+	public static final Logger logger = LogManager.getLogger(ChromeDriverDistributor.class.getName());
+
 	public static RMap<String, Long> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
+
+	public static Distributor instance;
 
 	static {
 		logger.info("Replace {} with {}.", ChromeDriverDistributor.class.getName(), Distributor.class.getName());
+	}
+
+	public static Distributor getInstance() {
+		if (instance == null) {
+			Class var0 = Distributor.class;
+			synchronized(Distributor.class) {
+				if (instance == null) {
+					instance = new Distributor();
+				}
+			}
+		}
+
+		return instance;
 	}
 
 	/**
@@ -62,15 +85,20 @@ public class Distributor extends ChromeDriverDistributor {
 
 		String url = ChromeTask.generateURL(builder, holder.init_map);
 
-		String hash = one.rewind.txt.StringUtil.MD5(url);
+		String hash = StringUtil.MD5(url);
 
-		long min_interval = clazz.getField("MIN_INTERVAL").getLong(clazz);
+		long min_interval = Long.valueOf(clazz.getField("MIN_INTERVAL").getLong(clazz));
 
-		long last_visit = URL_VISITS.get(hash);
+		long last_visit = 0;
+
+		// 初次执行任务时，URL_VISITS.get(hash) 为 null
+		if( URL_VISITS.get(hash) != null ){
+			last_visit = URL_VISITS.get(hash);
+		}
 
 		// 上次采集时间过滤
-		if(last_visit < min_interval) {
-			logger.info("{} {} fetch interval is less than MIN_INTERVAL {}, discard.", clazz.getName(), url, min_interval);
+		if(last_visit != 0 && last_visit < min_interval) {
+			logger.error("{} {} fetch interval is less than MIN_INTERVAL {}, discard.", clazz.getName(), url, min_interval);
 			throw new TaskException.LessThanMinIntervalException();
 		}
 
@@ -83,7 +111,7 @@ public class Distributor extends ChromeDriverDistributor {
 			taskQueueStat.put(holder.class_name, taskQueueStat.get(holder.class_name) + 1);
 		}
 
-		return submit(holder);
+		return super.submit(holder);
 	}
 
 	/**

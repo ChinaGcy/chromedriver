@@ -21,6 +21,10 @@ public class CrawlerManager {
 
 	public int chromeDriverCount = 4;
 
+	public int driverCount = 4;
+
+	public String domain;
+
 	public CrawlerManager() {
 
 		new Thread(()->{ServiceWrapper.getInstance();}).start();
@@ -35,7 +39,7 @@ public class CrawlerManager {
 
 		// TODO 根据情况使用
 		try {
-			resetAccountAndProxy();
+			//resetAccountAndProxy();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -109,11 +113,11 @@ public class CrawlerManager {
 							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container/*, proxy*/);
 
 							// agent 添加异常回调
-							agent.addAccountFailedCallback((agent1 ,account1)->{
+							agent.addAccountFailedCallback((agent1 ,account1,task)->{
 
 								logger.info("Account {}:{} failed.", account.domain, account.username);
 
-							}).addProxyFailedCallback((agent1, proxy1)->{
+							}).addProxyFailedCallback((agent1, proxy1,t)->{
 
 								// 代理被禁
 								logger.info("Proxy {}:{} failed.", proxy1.host, proxy1.port);
@@ -176,5 +180,8 @@ public class CrawlerManager {
 		} catch (Exception e) {
 			logger.error(e);
 		}
+	}
+
+	private void getLoginTask(ChromeDriverAgent agent, AccountImpl account) {
 	}
 }
