@@ -249,7 +249,7 @@ public class ChromeDriverDistributorTest {
 		//
 		agent.submit(task, true);
 
-		agent.addAccountFailedCallback((a, acc) -> {
+		agent.addAccountFailedCallback((a, acc, t) -> {
 
 			try {
 				ChromeTask task1 = new ChromeTask("http://www.zbj.com")
@@ -291,7 +291,7 @@ public class ChromeDriverDistributorTest {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent(proxy1);
 
-		agent.addProxyFailedCallback((a, p) -> {
+		agent.addProxyFailedCallback((a, p, t) -> {
 
 			a.changeProxy(proxy2);
 		});

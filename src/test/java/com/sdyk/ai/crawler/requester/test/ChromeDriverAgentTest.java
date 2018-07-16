@@ -69,7 +69,11 @@ public class ChromeDriverAgentTest {
 			ChromeTask task = new ChromeTask("http://www.zbj.com");
 			ChromeAction action = new LoginWithGeetestAction(account);
 			task.addAction(action);
-			agent.submit(task);
+			try {
+				agent.submit(task);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			Thread.sleep(10000);
 
@@ -101,7 +105,11 @@ public class ChromeDriverAgentTest {
 			System.err.println("TERMINATED");
 		});
 
-		agent.submit(t);
+		try {
+			agent.submit(t);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		Thread.sleep(10000);
 

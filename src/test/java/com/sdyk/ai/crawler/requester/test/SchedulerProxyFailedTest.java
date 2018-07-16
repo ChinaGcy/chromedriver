@@ -188,11 +188,11 @@ public class SchedulerProxyFailedTest {
 							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container/*, proxy*/);
 
 							// agent 添加异常回调
-							agent.addAccountFailedCallback((agent1 ,account1)->{
+							agent.addAccountFailedCallback((agent1 ,account1, task)->{
 
 								logger.info("Account {}:{} failed.", account.domain, account.username);
 
-							}).addProxyFailedCallback((agent1, proxy1)->{
+							}).addProxyFailedCallback((agent1, proxy1, task)->{
 
 								// 代理被禁
 								logger.info("Proxy {}:{} failed.", proxy1.host, proxy1.port);

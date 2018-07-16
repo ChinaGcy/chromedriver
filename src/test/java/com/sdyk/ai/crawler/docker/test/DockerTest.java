@@ -88,7 +88,6 @@ public class DockerTest {
 			 * @throws MalformedURLException
 			 * @throws URISyntaxException
 			 */
-			@Override
 			public void getLoginTask(ChromeDriverAgent agent, Account account) throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
 			}
@@ -97,7 +96,6 @@ public class DockerTest {
 			 * @param backtrace
 			 * @return
 			 */
-			@Override
 			public void getTask(boolean backtrace) {
 
 			}
@@ -105,7 +103,6 @@ public class DockerTest {
 			/**
 			 * 获取历史数据
 			 */
-			@Override
 			public void getHistoricalData() {
 
 			}
@@ -113,7 +110,6 @@ public class DockerTest {
 			/**
 			 * 监控调度
 			 */
-			@Override
 			public void monitoring() {
 
 			}

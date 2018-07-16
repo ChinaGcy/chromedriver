@@ -136,7 +136,11 @@ public class ChromeDriverDistributorRemoteTest {
 
 					// TODO 如果在NewCallback中调用了agent.submit方法，任务执行成功后会调用IdleCallbacks，而不是继续执行后续的NewCallback
 					agent.addNewCallback((a) -> {
-						a.submit(task);
+						try {
+							a.submit(task);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					});
 
 					distributor.addAgent(agent);
@@ -219,7 +223,7 @@ public class ChromeDriverDistributorRemoteTest {
 
 		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container, proxy1);
 
-		agent.addProxyFailedCallback((a, p) -> {
+		agent.addProxyFailedCallback((a, p, t) -> {
 
 			a.changeProxy(proxy2);
 		});
@@ -276,7 +280,7 @@ public class ChromeDriverDistributorRemoteTest {
 		//
 		agent.submit(task, true);
 
-		agent.addAccountFailedCallback((a, acc) -> {
+		agent.addAccountFailedCallback((a, acc, t) -> {
 
 			try {
 				ChromeTask task1 = new ChromeTask("http://www.zbj.com")
