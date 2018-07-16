@@ -14,11 +14,15 @@ import org.apache.logging.log4j.Logger;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RLock;
 import one.rewind.db.RedissonAdapter;
+import org.redisson.api.RMultimap;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class ProxyManager {
@@ -44,8 +48,9 @@ public class ProxyManager {
 		return instance;
 	}
 
-
 	private ConcurrentHashMap<String, RAtomicLong> lastRequestTime = new ConcurrentHashMap<>();
+
+	public RMultimap<String, String> proxyDomainBannedMap;
 
 	private ThreadPoolExecutor executor = new ThreadPoolExecutor(
 			4,
@@ -62,6 +67,8 @@ public class ProxyManager {
 
 		/*executor = Executors.newSingleThreadExecutor(
 				new ThreadFactoryBuilder().setNameFormat("ProxyManager-%d").build());*/
+
+		proxyDomainBannedMap = RedissonAdapter.redisson.getListMultimap("proxy-domain-banned-map");
 	}
 
 	/**
@@ -84,7 +91,6 @@ public class ProxyManager {
 		return dao.queryForId(id);
 	}
 
-
 	/**
 	 * 根据分组名获取Proxy
 	 * @return
@@ -102,7 +108,15 @@ public class ProxyManager {
 				.queryForFirst();
 
 		if (proxy == null) {
-			throw new NoAvailableProxyException();
+
+			try {
+				AliyunHost.batchBuild(2);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			return getValidProxy(group);
+
 		} else {
 			proxy.use_cnt ++;
 			proxy.status = Proxy.Status.Busy;
@@ -111,13 +125,53 @@ public class ProxyManager {
 		}
 	}
 
-	public void deleteProxyByGroup(String groupName) throws Exception {
+	/**
+	 * 根据分组名获取Proxy
+	 * @return
+	 * @throws Exception
+	 */
+	public synchronized List<ProxyImpl> getValidAndBusyProxy(String group) throws Exception {
+
+		Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
+
+		Map<String, Object> fieldValues = new HashMap<>();
+
+		fieldValues.put("group", group);
+		fieldValues.put("enable", true);
+		fieldValues.put("status", Proxy.Status.Busy);
+
+		List<ProxyImpl> proxyList = dao.queryForFieldValues(fieldValues);
+
+		return proxyList;
+
+	}
+
+	/**
+	 *
+	 * @param groupName
+	 * @throws Exception
+	 */
+	public boolean deleteProxyByGroup(String groupName) throws Exception {
 
 		Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
 
 		DeleteBuilder<ProxyImpl, String> deleteBuilder = dao.deleteBuilder();
 		deleteBuilder.where().eq("group", groupName);
-		deleteBuilder.delete();
+		return deleteBuilder.delete() > 0;
+	}
+
+	/**
+	 *
+	 * @param id
+	 * @throws Exception
+	 */
+	public boolean deleteProxyById(int id) throws Exception {
+
+		Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
+
+		DeleteBuilder<ProxyImpl, String> deleteBuilder = dao.deleteBuilder();
+		deleteBuilder.where().eq("id", id);
+		return deleteBuilder.delete() == 1;
 	}
 
 	/**
@@ -129,7 +183,9 @@ public class ProxyManager {
 
 		/*Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
 		QueryBuilder<ProxyImpl, String> qb = dao.queryBuilder()
-				.where().eq("status", "Free").and().eq("enable", 1);*/
+				.where().eq("status", "Free").and().eq("enable", 1);
+
+		return qb.query().size();*/
 
 		int num = 0;
 
@@ -199,5 +255,16 @@ public class ProxyManager {
 
 		lastRequestTime.get(proxy.getId()).set(System.currentTimeMillis());
 		lock.unlock();
+	}
+
+	/**
+	 * 添加proxy 被 domain 封禁记录
+	 * @param proxy
+	 * @param domain
+	 */
+	public void addProxyBannedRecord(Proxy proxy, String domain) {
+
+		proxyDomainBannedMap.put(proxy.host, domain);
+
 	}
 }

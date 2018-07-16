@@ -78,12 +78,37 @@ public class ProxyImpl extends Proxy {
 		return true;
 	}
 
+	/**
+	 *
+	 * @param domain
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean failed(String domain) throws Exception {
+		ProxyManager.getInstance().addProxyBannedRecord(this, domain);
+		return failed();
+	}
+
+	/**
+	 *
+	 */
 	private Runnable failedCallback;
 
+	/**
+	 *
+	 * @param callback
+	 */
 	public void setFailedCallback(Runnable callback) {
 		this.failedCallback = callback;
 	}
 
+	/**
+	 * 测试代理下载速度
+	 * @param url
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 */
 	public float testSpeed(String url) throws MalformedURLException, URISyntaxException {
 
 		float speedAvg = 0;
@@ -98,26 +123,6 @@ public class ProxyImpl extends Proxy {
 		}
 
 		return speedAvg / 20;
-	}
-
-	/**
-	 *
-	 * @return
-	 * @throws Exception
-	 */
-	public List<ProxyImpl> getAll() {
-		Dao dao = null;
-		try {
-			dao = DaoManager.getDao(this.getClass());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		try {
-			return dao.queryForEq("source",Source.ALIYUN_HOST);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	/**
