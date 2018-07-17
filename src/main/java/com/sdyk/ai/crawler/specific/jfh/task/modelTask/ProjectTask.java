@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,8 +12,11 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.Map;
 
 public class ProjectTask extends Task {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -110,5 +114,9 @@ public class ProjectTask extends Task {
 			logger.error("error for project.insert", e);
 		}
 
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 }

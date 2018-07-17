@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 public class ServiceRatingTask extends Task {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ServiceRatingTask.class,

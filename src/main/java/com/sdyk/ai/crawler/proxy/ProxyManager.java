@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.sdyk.ai.crawler.model.Domain;
 import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import one.rewind.db.DaoManager;
@@ -24,7 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
+/**
+ * 代理管理器
+ */
 public class ProxyManager {
 
 	public static final Logger logger = LogManager.getLogger(ProxyManager.class.getName());
@@ -35,6 +40,10 @@ public class ProxyManager {
 
 	public static String abuyun_g = "abuyun";
 
+	/**
+	 * 单例方法
+	 * @return
+	 */
 	public static ProxyManager getInstance() {
 
 		if (instance == null) {
@@ -48,10 +57,13 @@ public class ProxyManager {
 		return instance;
 	}
 
+	// 代理服务器 上一次使用时间
 	private ConcurrentHashMap<String, RAtomicLong> lastRequestTime = new ConcurrentHashMap<>();
 
+	// 代理服务器 domain 封禁情况
 	public RMultimap<String, String> proxyDomainBannedMap;
 
+	// 线程池，用于代理验证、代理失效回掉方法（代理服务器对应的主机重启）
 	private ThreadPoolExecutor executor = new ThreadPoolExecutor(
 			4,
 			4,
@@ -60,6 +72,9 @@ public class ProxyManager {
 			new LinkedBlockingQueue<>()
 	);
 
+	/**
+	 *
+	 */
 	private ProxyManager() {
 
 		executor.setThreadFactory(new ThreadFactoryBuilder()
@@ -107,15 +122,22 @@ public class ProxyManager {
 				.and().eq("status", Proxy.Status.Free)
 				.queryForFirst();
 
+
 		if (proxy == null) {
 
-			try {
-				AliyunHost.batchBuild(2);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			// 如果是获取AliyunHost对应的Proxy，可用Proxy数量不足，创建2个AliyunHost
+			if(group.equals(AliyunHost.Proxy_Group_Name)) {
+
+				try {
+					AliyunHost.batchBuild(2);
+				} catch (InterruptedException e) {
+					logger.error("Error build AliyunHost.", e);
+				}
+
+				return getValidProxy(group);
 			}
 
-			return getValidProxy(group);
+			return null;
 
 		} else {
 			proxy.use_cnt ++;
@@ -126,28 +148,7 @@ public class ProxyManager {
 	}
 
 	/**
-	 * 根据分组名获取Proxy
-	 * @return
-	 * @throws Exception
-	 */
-	public synchronized List<ProxyImpl> getValidAndBusyProxy(String group) throws Exception {
-
-		Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
-
-		Map<String, Object> fieldValues = new HashMap<>();
-
-		fieldValues.put("group", group);
-		fieldValues.put("enable", true);
-		fieldValues.put("status", Proxy.Status.Busy);
-
-		List<ProxyImpl> proxyList = dao.queryForFieldValues(fieldValues);
-
-		return proxyList;
-
-	}
-
-	/**
-	 *
+	 * 删除特定分组的Proxy
 	 * @param groupName
 	 * @throws Exception
 	 */
@@ -161,7 +162,7 @@ public class ProxyManager {
 	}
 
 	/**
-	 *
+	 * 根据ID 删除Proxy
 	 * @param id
 	 * @throws Exception
 	 */
@@ -175,7 +176,7 @@ public class ProxyManager {
 	}
 
 	/**
-	 *
+	 * 获取有效的代理数量
 	 * @return
 	 * @throws Exception
 	 */
@@ -226,7 +227,8 @@ public class ProxyManager {
 	}
 
 	/**
-	 * 多线程环境，处理代理调用间隔
+	 * 使用代理发起Http请求前的等待方法
+	 * 控制单个代理对特定Domain的平均访问间隔
 	 * @param proxy
 	 */
 	public void waits(Proxy proxy) {
@@ -241,8 +243,9 @@ public class ProxyManager {
 			lastRequestTime.get(proxy.getId()).set(System.currentTimeMillis());
 		}
 
-		long wait_time = lastRequestTime.get(proxy.getId()).get() + (long) Math.ceil(1000D / (double) proxy
-		.getRequestPerSecondLimit()) - System.currentTimeMillis();
+		long wait_time = lastRequestTime.get(proxy.getId()).get()
+				+ (long) Math.ceil(1000D / (double) proxy.getRequestPerSecondLimit())
+				- System.currentTimeMillis();
 
 		if(wait_time > 0) {
 			logger.info("Wait {} ms.", wait_time);
@@ -258,13 +261,57 @@ public class ProxyManager {
 	}
 
 	/**
-	 * 添加proxy 被 domain 封禁记录
+	 * 添加proxy 被 domain 封禁的记录
 	 * @param proxy
 	 * @param domain
 	 */
 	public void addProxyBannedRecord(Proxy proxy, String domain) {
 
-		proxyDomainBannedMap.put(proxy.host, domain);
+		proxyDomainBannedMap.put(proxy.getInfo(), domain);
+	}
 
+	/**
+	 * 设置所有代理状态为Free
+	 * @throws Exception
+	 */
+	public void setAllProxyFree() throws Exception {
+
+		List<ProxyImpl> proxies = DaoManager.getDao(ProxyImpl.class).queryForAll();
+		for(ProxyImpl proxy : proxies) {
+			proxy.status = Proxy.Status.Free;
+			proxy.update();
+		}
+	}
+
+	/**
+	 * 根据分组名，设置该分组下的代理状态为Free
+	 * @param group
+	 * @throws Exception
+	 */
+	public void setAllProxyFree(String group) throws Exception {
+
+		List<ProxyImpl> proxies = DaoManager.getDao(ProxyImpl.class).queryForEq("group", group);
+		for(ProxyImpl proxy : proxies) {
+			proxy.status = Proxy.Status.Free;
+			proxy.update();
+		}
+	}
+
+	/**
+	 * 判断代理是否被所有网站封禁
+	 * @param proxy
+	 * @return
+	 */
+	public boolean isProxyBannedByAllDomain(Proxy proxy) {
+
+		List<String> domains = Domain.getAll().stream().map(d -> {
+			return d.domain;
+		}).collect(Collectors.toList());
+
+		if ( domains.containsAll(proxyDomainBannedMap.get(proxy.getInfo())) ) {
+			return true;
+		}
+
+		return false;
 	}
 }

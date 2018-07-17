@@ -4,16 +4,21 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class ProjectScanTask extends ScanTask {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -85,5 +90,9 @@ public class ProjectScanTask extends ScanTask {
 
 		});
 
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 }

@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.specific.proLagou.task;
 
-import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import one.rewind.io.requester.account.Account;
@@ -27,7 +26,7 @@ public class ProLagouLoginTask extends Task {
 
 		});
 
-		Account account = AccountManager.getAccountByDomain(domain);
+		Account account = AccountManager.getInstance().getAccountsByDomain(domain,null);
 
 		//this.addAction(new ProginnLoginAction(account));
 

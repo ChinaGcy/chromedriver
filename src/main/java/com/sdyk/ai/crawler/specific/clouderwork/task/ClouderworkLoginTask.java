@@ -47,7 +47,7 @@ public class ClouderworkLoginTask extends ChromeTask {
 		String accountId = url.split("accountId=")[1];
 
 		try {
-			Account account = AccountManager.getAccountById(accountId);
+			Account account = AccountManager.getInstance().getAccountById(accountId);
 			LoginInAction loginInAction = LogTask.getLoginActionByDomain(domain, account);
 			this.addAction( loginInAction );
 		} catch (Exception e) {

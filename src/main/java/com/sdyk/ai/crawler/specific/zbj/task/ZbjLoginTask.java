@@ -1,16 +1,8 @@
 package com.sdyk.ai.crawler.specific.zbj.task;
 
-import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.account.AccountManager;
-import com.sdyk.ai.crawler.account.model.AccountImpl;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
-import one.rewind.io.requester.exception.ProxyException;
-import one.rewind.io.requester.task.ChromeTask;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.List;
 
 public class ZbjLoginTask extends Task {
 
@@ -29,7 +21,7 @@ public class ZbjLoginTask extends Task {
 
 		this.addDoneCallback((t) -> { });
 
-		Account account = AccountManager.getAccountByDomain(domain);
+		Account account = AccountManager.getInstance().getAccountsByDomain(domain,null);
 
 		this.addAction(new LoginWithGeetestAction(account));
 	}

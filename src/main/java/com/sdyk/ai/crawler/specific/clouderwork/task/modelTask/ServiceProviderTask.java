@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -21,6 +22,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -392,6 +395,10 @@ public class ServiceProviderTask extends Task {
 			}
 		}
 
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }

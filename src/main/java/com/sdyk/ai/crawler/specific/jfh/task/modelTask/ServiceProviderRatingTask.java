@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,8 +17,11 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceProviderRatingTask extends Task {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -120,6 +124,10 @@ public class ServiceProviderRatingTask extends Task {
 
 		}
 
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ServiceSupplierTask extends com.sdyk.ai.crawler.task.Task {
 
-	ServiceProvider serviceProvider;
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	public ServiceSupplierTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
@@ -44,7 +44,7 @@ public class ServiceSupplierTask extends com.sdyk.ai.crawler.task.Task {
 
 	public void crawlerJob(Document doc) throws ChromeDriverException.IllegalStatusException {
 
-		serviceProvider = new ServiceProvider(getUrl());
+		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 		List<Task> tasks = new ArrayList<Task>();
 		String[] url = getUrl().split("users");
 

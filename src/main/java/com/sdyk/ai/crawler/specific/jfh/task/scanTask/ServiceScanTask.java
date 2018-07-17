@@ -5,14 +5,18 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceScanTask extends ScanTask {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -55,5 +59,9 @@ public class ServiceScanTask extends ScanTask {
 
 		});
 
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 }

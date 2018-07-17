@@ -3,12 +3,16 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
+import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class WorkTask extends Task {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -96,11 +100,14 @@ public class WorkTask extends Task {
 		}
 
 		try {
-			System.out.println(workinfor.toJSON());
 			workinfor.insert();
 		} catch (Exception e) {
 			logger.error("error on insert work", e);
 		}
+	}
+
+	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
+		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }

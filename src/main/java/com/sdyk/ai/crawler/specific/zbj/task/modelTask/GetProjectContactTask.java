@@ -41,7 +41,7 @@ public class GetProjectContactTask extends Task {
 
 			task.projectEval = (ProjectEval) dao.queryForId(project.id);
 
-			/*Account account = AccountManager.getAccountByDomain("zbj.com", "select");*/
+			/*Account account = AccountManager.getAccountsByDomain("zbj.com", "select");*/
 			/*task.addAction(new LoginWithGeetestAction(account));
 			task.addAction(new RedirectAction(project.url));*/
 

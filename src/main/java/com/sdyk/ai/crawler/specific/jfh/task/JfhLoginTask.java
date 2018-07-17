@@ -27,7 +27,7 @@ public class JfhLoginTask extends Task {
 
 		});
 
-		Account account = AccountManager.getAccountByDomain(domain);
+		Account account = AccountManager.getInstance().getAccountsByDomain(domain, null);
 
 		this.addAction(new JfhLoginAction(account));
 

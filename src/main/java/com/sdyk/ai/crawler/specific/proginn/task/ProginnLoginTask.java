@@ -27,7 +27,7 @@ public class ProginnLoginTask extends Task {
 
 		});
 
-		Account account = AccountManager.getAccountByDomain(domain);
+		Account account = AccountManager.getInstance().getAccountsByDomain(domain, null);
 
 		this.addAction(new ProginnLoginAction(account));
 

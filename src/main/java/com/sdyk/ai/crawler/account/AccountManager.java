@@ -79,7 +79,7 @@ public class AccountManager {
 		AccountImpl account = dao.queryBuilder().limit(1L).
 				where().eq("domain", domain)
 				.and().eq("status", Account.Status.Free)
-				.and().eq("enabled", true)
+				//.and().eq("enabled", true)
 				.queryForFirst();
 
 		if(account != null) {

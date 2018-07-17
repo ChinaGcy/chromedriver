@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ProjectTask.class,

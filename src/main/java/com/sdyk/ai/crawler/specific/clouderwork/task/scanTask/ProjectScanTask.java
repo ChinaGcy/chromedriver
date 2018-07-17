@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 public class ProjectScanTask extends ScanTask {
 
-	public static long MIN_INTERVAL = 1000L;
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -146,7 +146,6 @@ public class ProjectScanTask extends ScanTask {
     public TaskTrace getTaskTrace() {
         return null;
     }
-
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
 		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );

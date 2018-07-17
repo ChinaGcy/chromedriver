@@ -123,11 +123,11 @@ public class AliyunHost {
 		// 操作系统
 		createInstance.setImageId("ubuntu_16_0402_64_20G_alibase_20171227.vhd");
 
-		// 服务器类型 ecs.xn4.small 华南1区A
-		createInstance.setInstanceType("ecs.t5-lc2m1.nano");  // 华南1区C
+		// 服务器类型
+		createInstance.setInstanceType("ecs.xn4.small");
 
 		// 安全组 用于开放端口
-		createInstance.setSecurityGroupId("sg-wz9ejq1i5n8kv5kp8sqo");
+		createInstance.setSecurityGroupId("sg-wz9ck1ad0ao2rrsg75re");
 
 		// 主机名 密码
 		createInstance.setHostName("aliyun-zbj");
@@ -196,6 +196,7 @@ public class AliyunHost {
 
 						ProxyImpl proxy = aliyunHost.createSquidProxy();
 						proxy.insert();
+
 						logger.info("New proxy[AliyunHost] {}:{}", proxy.getHost(), proxy.getPort());
 					}
 
@@ -471,7 +472,7 @@ public class AliyunHost {
 	public ProxyImpl createSquidProxy() {
 
 		String proxyUser = "tfelab";
-		String proxyPassword = "TfeLAB2@15";
+		String proxyPassword = "TfeLAB215";
 		int proxyPort = 59998;
 
 		ProxyImpl proxy = null;

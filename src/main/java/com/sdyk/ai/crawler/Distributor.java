@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.TaskTrace;
+import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.RedissonAdapter;
@@ -12,6 +13,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.TaskException;
+import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.StringUtil;
@@ -51,8 +53,11 @@ public class Distributor extends ChromeDriverDistributor {
 		return instance;
 	}
 
+	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> loginTaskQueues = new ConcurrentHashMap();
+
 	/**
 	 * 定义白名单
+	 * TODO 为什么不需要定义？
 	 */
 	/*public static List<String> WHITE_URLS = Arrays.asList(
 			"http://www.zbj.com",
@@ -72,6 +77,18 @@ public class Distributor extends ChromeDriverDistributor {
 	 */
 	public Distributor() {
 		super();
+	}
+
+	/**
+	 * 提交登陆任务
+	 * @param loginTask
+	 */
+	public void submitLoginTask(ChromeDriverAgent agent, ChromeTask loginTask) {
+		if(!loginTaskQueues.containsKey(agent)) {
+			loginTaskQueues.put(agent, new LinkedList<>());
+		}
+
+		loginTaskQueues.get(agent).add(loginTask);
 	}
 
 	/**
@@ -122,17 +139,33 @@ public class Distributor extends ChromeDriverDistributor {
 	 */
 	public ChromeTask distribute(ChromeDriverAgent agent) throws InterruptedException {
 
-		ChromeTaskHolder holder = queues.get(agent).take();
-
 		ChromeTask task = null;
+
+		if( loginTaskQueues.get(agent) != null && ! loginTaskQueues.get(agent).isEmpty() ){
+			task = loginTaskQueues.get(agent).poll();
+		}
+
+		ChromeTaskHolder holder = null;
 
 		try {
 
-			task = holder.build();
+			if(task == null) {
+
+				if( queues.get(agent) == null ||  queues.get(agent).size() == 0){
+					return null;
+				}
+
+				holder = queues.get(agent).take();
+				task = holder.build();
+			}
+
+			ChromeTaskHolder holder_ = holder;
+
+			String className = task == null ? task.getClass().getName() : holder.class_name;
 
 			task.addDoneCallback((t) -> {
 				StatManager.getInstance().count();
-				taskQueueStat.put(holder.class_name, taskQueueStat.get(holder.class_name) - 1);
+				taskQueueStat.put(className, taskQueueStat.get(className) - 1);
 			});
 
 			// 对于ScanTask 记录TaskTrace
@@ -155,7 +188,13 @@ public class Distributor extends ChromeDriverDistributor {
 					if( t.getRetryCount() < 3 ) {
 
 						t.addRetryCount();
-						submit(holder);
+						if(holder_ != null) {
+							submit(holder_);
+						}
+						// 登陆任务也可以重试
+						else {
+							submitLoginTask(agent, (ChromeTask) t);
+						}
 
 					}
 					// 失败任务保存到数据库
@@ -180,7 +219,7 @@ public class Distributor extends ChromeDriverDistributor {
 		catch (Exception e) {
 
 			// Recursive call to get task
-			logger.error("Task build failed. {} ", holder, e);
+			logger.error("Task submit failed. {} ", task != null? task : holder, e);
 			return distribute(agent);
 		}
 	}
@@ -197,5 +236,27 @@ public class Distributor extends ChromeDriverDistributor {
 			logger.error("Error get free container, ", e);
 			return null;
 		}
+	}
+
+	/**
+	 * 判断是否有可用于特定domain的agent
+	 * @param domain
+	 * @return
+	 */
+	public ChromeDriverAgent findAgentWithoutDomain(String domain) throws Exception {
+
+		for( ChromeDriverAgent agent : queues.keySet() ){
+
+			// agent 没有执行过 domain 的 task
+			if( ! agent.accounts.keySet().contains( domain ) ){
+
+				// 获取将agent_proxy封禁的列表
+				if( !ProxyManager.getInstance().proxyDomainBannedMap.get(agent.proxy.getInfo()).contains(domain) ){
+					return agent;
+				}
+			}
+		}
+
+		return null;
 	}
 }
