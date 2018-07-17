@@ -120,7 +120,7 @@ public class SchedulerTest {
 			//DockerHostManager.getInstance().createDockerContainers(driverCount);
 
 			// 读取全部有效账户 N个
-			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
+			List<AccountImpl> accounts = AccountManager.getAccountsByDomain(domain, driverCount);
 
 			CountDownLatch latch = new CountDownLatch(accounts.size());
 

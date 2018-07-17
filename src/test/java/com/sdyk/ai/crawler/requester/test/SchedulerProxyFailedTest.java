@@ -137,7 +137,7 @@ public class SchedulerProxyFailedTest {
 			DockerHostManager.getInstance().createDockerContainers(driverCount);
 
 			// 读取有效账户 driverCount 个
-			List<AccountImpl> accounts = AccountManager.getAccountByDomain(domain, driverCount);
+			List<AccountImpl> accounts = (List<AccountImpl>) AccountManager.getInstance().getAccountsByDomain(domain, null);
 
 			// 分别为每个账号创建容器 和 chromedriver对象
 			/*CountDownLatch latch = new CountDownLatch(driverCount);*/
@@ -316,7 +316,7 @@ public class SchedulerProxyFailedTest {
 	 *
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		int num = 0;
 
@@ -327,7 +327,7 @@ public class SchedulerProxyFailedTest {
 			num = Integer.parseInt(args[0]);
 		}
 
-		com.sdyk.ai.crawler.specific.zbj.Scheduler scheduler = new com.sdyk.ai.crawler.specific.zbj.Scheduler("zbj.com", 1);
+		Scheduler scheduler = new Scheduler();
 
 		/*scheduler.initAuthorizedRequester();*/
 

@@ -47,7 +47,7 @@ public class ProxyTest {
 
 			ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
-			ChromeDriverAgent agent = new ChromeDriverAgent(/*container.getRemoteAddress(), container,*/ proxy);
+			ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container, proxy);
 
 			System.out.println(container.getRemoteAddress());
 

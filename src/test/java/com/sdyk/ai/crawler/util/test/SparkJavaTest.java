@@ -49,7 +49,7 @@ public class SparkJavaTest {
 	@Test
 	public void getPhone() throws Exception {
 
-		Account account = AccountManager.getAccountByDomain("zbj.com", "select");
+		Account account = AccountManager.getInstance().getAccountsByDomain("zbj.com", "select");
 
 		com.sdyk.ai.crawler.task.Task task = new ProjectTask("https://www.zbj.com");
 
@@ -96,7 +96,7 @@ public class SparkJavaTest {
 	public void testDao() throws Exception {
 
 
-		List<AccountImpl> accounts = AccountManager.getAccountByDomain("zbj.com", 10);
+		List<AccountImpl> accounts = (List<AccountImpl>) AccountManager.getInstance().getAccountsByDomain("zbj.com", null);
 
 		//Project project = DaoManager.getDao(Project.class).queryForId("984f9e1224cad0f27bcbaea18aef85d4");
 

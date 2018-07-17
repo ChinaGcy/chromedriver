@@ -73,7 +73,7 @@ public class DockerTest {
 		AliyunHost.stopAndDelete(aliyunHosts);
 
 		// 执行登录操作
-		Scheduler scheduler = new Scheduler("zbj.com", 1) {
+		Scheduler scheduler = new Scheduler() {
 			/**
 			 * @param account
 			 * @return
