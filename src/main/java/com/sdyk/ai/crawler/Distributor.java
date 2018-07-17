@@ -34,13 +34,13 @@ public class Distributor extends ChromeDriverDistributor {
 
 	public static RMap<String, Long> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
 
-	public static Distributor instance;
+	//public static Distributor instance;
 
 	static {
 		logger.info("Replace {} with {}.", ChromeDriverDistributor.class.getName(), Distributor.class.getName());
 	}
 
-	public static Distributor getInstance() {
+	public static ChromeDriverDistributor getInstance() {
 		if (instance == null) {
 			Class var0 = Distributor.class;
 			synchronized(Distributor.class) {
@@ -76,7 +76,7 @@ public class Distributor extends ChromeDriverDistributor {
 	 *
 	 */
 	public Distributor() {
-		super();
+		//super();
 	}
 
 	/**
