@@ -188,7 +188,7 @@ public class SchedulerProxyFailedTest {
 							ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container/*, proxy*/);
 
 							// agent 添加异常回调
-							agent.addAccountFailedCallback((agent1 ,account1, task)->{
+							agent.addAccountFailedCallback((agent1 ,account1)->{
 
 								logger.info("Account {}:{} failed.", account.domain, account.username);
 

@@ -1,31 +1,71 @@
 package com.sdyk.ai.crawler.util.test;
 
+import com.sdyk.ai.crawler.task.LoginTask;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
-import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.account.Account;
+import one.rewind.io.requester.account.AccountImpl;
+import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.util.Configs;
+import org.apache.commons.collections.map.HashedMap;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public class loginConfTest {
 
 	@Test
 	public void test() throws ClassNotFoundException {
 
-		Config base = ConfigFactory.load();
-		InputStream stream = Configs.class.getClassLoader().getResourceAsStream("conf/LogPath.conf");
-		Config config = ConfigFactory.parseReader(new InputStreamReader(stream)).withFallback(base);
+		File file = new File("login_tasks");
+		File[] tempList = file.listFiles();
 
-		System.out.println(config.getConfig("clouderwork.com").getString("url"));
+		for( File f : tempList ){
 
-		/*Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.MihuashiLoginTask");*/
+			String mappingFilePath = "login_tasks/" + f.getName();
 
+			one.rewind.util.FileUtil.readFileByLines(mappingFilePath);
+
+			System.out.println(one.rewind.util.FileUtil.readFileByLines(mappingFilePath));
+
+			System.out.println("/////////////////");
+
+		}
+
+	}
+
+	@Test
+	public void testFileToTAsk() throws URISyntaxException, MalformedURLException, ClassNotFoundException {
+
+		Map<String, LoginTask> loginMap = new HashedMap();
+
+		File file = new File("login_tasks");
+		File[] tempList = file.listFiles();
+
+		for( File f : tempList ){
+
+			loginMap.put(
+					f.getName().replace(".json",""),
+					LoginTask.buildFromJson(one.rewind.util.FileUtil.readFileByLines("login_tasks/" + f.getName())) );
+
+		}
+
+		for( String s : loginMap.keySet() ){
+
+			Account account = new AccountImpl("baidu","111","222");
+
+			LoginTask loginTask = loginMap.get(s);
+			((LoginAction) loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
+
+			System.out.println(loginTask.toJSON());
+
+		}
 
 	}
 

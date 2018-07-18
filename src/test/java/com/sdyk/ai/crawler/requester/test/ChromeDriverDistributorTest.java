@@ -249,7 +249,7 @@ public class ChromeDriverDistributorTest {
 		//
 		agent.submit(task, true);
 
-		agent.addAccountFailedCallback((a, acc, t) -> {
+		agent.addAccountFailedCallback((a, acc) -> {
 
 			try {
 				ChromeTask task1 = new ChromeTask("http://www.zbj.com")
@@ -293,7 +293,13 @@ public class ChromeDriverDistributorTest {
 
 		agent.addProxyFailedCallback((a, p, t) -> {
 
-			a.changeProxy(proxy2);
+			try {
+				a.changeProxy(proxy2);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ChromeDriverException.IllegalStatusException e) {
+				e.printStackTrace();
+			}
 		});
 
 		/*ChromeTask task = new ChromeTask("https://www.baidu.com/s?wd=ip");

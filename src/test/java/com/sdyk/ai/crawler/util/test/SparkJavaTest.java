@@ -59,7 +59,7 @@ public class SparkJavaTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		// agent 添加异常回调
-		agent.addAccountFailedCallback((a, c, t)->{
+		agent.addAccountFailedCallback((a, c)->{
 
 		}).addTerminatedCallback((a)->{
 
