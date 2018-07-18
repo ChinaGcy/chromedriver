@@ -1,0 +1,15 @@
+{
+  "url": "https://passport.clouderwork.com/signin",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://passport.clouderwork.com/signin",
+        "usernameCssPath": "#app > div > div > div > section > dl > dd:nth-child(1) > input[type=\"text\"]",
+        "passwordCssPath": "#app > div > div > div > section > dl > dd:nth-child(2) > input[type=\"password\"]",
+        "loginButtonCssPath": "#app > div > div > div > section > button:nth-child(3)",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "url": "https://www.jfh.com/security/index",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://www.jfh.com/security/index",
+        "usernameCssPath": "#j_loginid",
+        "passwordCssPath": "#j_password",
+        "loginButtonCssPath": "#submit_button",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}

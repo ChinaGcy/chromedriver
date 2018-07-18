@@ -1,0 +1,15 @@
+{
+  "url": "https://passport.lagou.com/pro/login.html",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://www.itjuzi.com/user/login",
+        "usernameCssPath": "#user_name",
+        "passwordCssPath": "#main > form > div:nth-child(2) > input[type=\"password\"]",
+        "loginButtonCssPath": "#main > form > div.clearfix.btn_login > input[type=\"submit\"]",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}

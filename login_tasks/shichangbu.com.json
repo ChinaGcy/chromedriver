@@ -1,0 +1,15 @@
+{
+  "url": "http://www.shichangbu.com/member.php?mod=logging&action=login",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "http://www.shichangbu.com/member.php?mod=logging&action=login",
+        "usernameCssPath": "div > div > form > div > div > div > input",
+        "passwordCssPath": "div > div > form > div > div.mb-bd > div:nth-child(3) > input",
+        "loginButtonCssPath": "div > div > form > div > div.mb-bd > div.fmg.fmg-submit > button",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}

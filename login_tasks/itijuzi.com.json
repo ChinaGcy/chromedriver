@@ -1,0 +1,15 @@
+{
+  "url": "https://www.itjuzi.com/user/login",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://www.itjuzi.com/user/login",
+        "usernameCssPath": "#create_account_email",
+        "passwordCssPath": "#create_account_password",
+        "loginButtonCssPath": "#login_btn",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}
