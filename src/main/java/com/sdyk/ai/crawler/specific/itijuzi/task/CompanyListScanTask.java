@@ -2,6 +2,8 @@ package com.sdyk.ai.crawler.specific.itijuzi.task;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.TaskTrace;
+import com.sdyk.ai.crawler.specific.itijuzi.action.MouseSuspensionAction;
+import com.sdyk.ai.crawler.specific.mihuashi.action.MihuashiLoginAction;
 import com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask;
 import com.sdyk.ai.crawler.task.ScanTask;
 import com.sdyk.ai.crawler.task.Task;
@@ -45,24 +47,27 @@ public class CompanyListScanTask extends ScanTask {
 
 		this.setBuildDom();
 
-		/*// 选择地点
+		this.addAction(new MouseSuspensionAction("body > div.company-main > div.filter-box > ul > li:nth-child(3)"));
+
+		// 选择地点
 		for( int i = 1; i<4; i++ ){
 
 			this.addAction(
-					new ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(3) > ul > li:nth-child("+i+")"));
-
+					new ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(3) > ul > li:nth-child("+i+")",
+					2000
+					)
+			);
 		}
+
+		/*this.addAction(new MouseSuspensionAction("body > div.company-main > div.filter-box > ul > li:nth-child(4)"));
 
 		//选择融资轮次
-		for(int j =1 ; j < 16 ; j++){
+		for(int j =1 ; j < 4 ; j++){
 			this.addAction(new
-					ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child("+j+")"));
-		}
-
-		this.addAction(new
-				ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child(16)",
-				5000
-		));
+					ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child("+j+")",
+					5000
+			));
+		}*/
 
 		//填写跳转页数
 		this.addAction(new SetValueAction(
@@ -70,15 +75,7 @@ public class CompanyListScanTask extends ScanTask {
 		));
 
 		//点击跳转按钮
-		this.addAction(new ClickAction("#goto_page_btn",5000));*/
-
-		/*this.setResponseFilter((request, contents, messageInfo) -> {
-
-			if(messageInfo.getOriginalUrl().matches("http://radar.itjuzi.com/company/infonew\\?page=\\d+")) {
-				this.getResponse().setVar("json", contents.getTextContents());
-			}
-		});*/
-
+		this.addAction(new ClickAction("#goto_page_btn",8000));
 
 		this.addDoneCallback((t) -> {
 
@@ -100,8 +97,9 @@ public class CompanyListScanTask extends ScanTask {
 		for( int i = 1; i<company_list.size(); i++ ){
 
 			String url = company_list.get(i).attr("href").split("company/")[1];
+			System.err.println(url);
 
-			Map<String, Object> init_map = new HashMap<>();
+			/*Map<String, Object> init_map = new HashMap<>();
 
 			init_map.put("id", url);
 
@@ -109,7 +107,7 @@ public class CompanyListScanTask extends ScanTask {
 
 			ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
 
-			ChromeDriverDistributor.getInstance().submit(holder);
+			ChromeDriverDistributor.getInstance().submit(holder);*/
 
 		}
 
@@ -123,7 +121,9 @@ public class CompanyListScanTask extends ScanTask {
 				Map<String, Object> init_map = new HashMap<>();
 				init_map.put("page", page ++);
 
-				ChromeTaskHolder holder = ChromeTask.buildHolder(CompanyListScanTask.class, init_map );
+				Class clazz = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyListScanTask");
+
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
 
 				ChromeDriverDistributor.getInstance().submit(holder);
 

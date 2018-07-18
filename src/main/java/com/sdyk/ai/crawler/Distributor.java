@@ -90,6 +90,14 @@ public class Distributor extends ChromeDriverDistributor {
 		}
 
 		loginTaskQueues.get(agent).add(loginTask);
+
+		// 更新统计信息
+		if(!taskQueueStat.contains(loginTask.getClass().getName())) {
+			taskQueueStat.put(loginTask.getClass().getName(), 1);
+		} else {
+			taskQueueStat.put(loginTask.getClass().getName(), taskQueueStat.get(loginTask.getClass().getName()) + 1);
+		}
+
 	}
 
 	/**
@@ -170,26 +178,20 @@ public class Distributor extends ChromeDriverDistributor {
 		// 一般任务
 		else {
 
-			if(queues.keySet().iterator().hasNext()){
-				agent = queues.keySet().iterator().next();
-			}
-
-			
-
 			// todo Collectors.toList() 返回值为0
-			/*agent = queues.keySet().stream()
-					.filter( a -> {
-						return ProxyManager.getInstance().isProxyBannedByDomain(a.proxy, holder.domain);
-					})
-			.map(a -> {
-				int queue_size = queues.get(a).size();
-				return Maps.immutableEntry(a, queue_size);
-			})
-			.sorted(Map.Entry.<ChromeDriverAgent, Integer>comparingByValue())
-			.limit(1)
-			.map(Map.Entry::getKey)
-			.collect(Collectors.toList())
-			.get(0);*/
+			agent = queues.keySet().stream()
+				.filter( a -> {
+					return !ProxyManager.getInstance().isProxyBannedByDomain(a.proxy, holder.domain);
+				})
+				.map(a -> {
+					int queue_size = queues.get(a).size();
+					return Maps.immutableEntry(a, queue_size);
+				})
+				.sorted(Map.Entry.<ChromeDriverAgent, Integer>comparingByValue())
+				.limit(1)
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toList())
+				.get(0);
 		}
 
 		// 生成指派信息
@@ -236,10 +238,6 @@ public class Distributor extends ChromeDriverDistributor {
 
 			if(task == null) {
 
-				/*if( queues.get(agent) == null ||  queues.get(agent).size() == 0){
-					return new ChromeTask("http://www.baidu.com");
-				}*/
-
 				holder = queues.get(agent).take();
 				task = holder.build();
 			}
@@ -249,9 +247,9 @@ public class Distributor extends ChromeDriverDistributor {
 			String className = task != null ? task.getClass().getName() : holder.class_name;
 
 			task.addDoneCallback((t) -> {
-				StatManager.getInstance().count();
 
-				//taskQueueStat.put(className, taskQueueStat.get(className) - 1);
+				StatManager.getInstance().count();
+				taskQueueStat.put(className, taskQueueStat.get(className) - 1);
 			});
 
 			// 对于ScanTask 记录TaskTrace

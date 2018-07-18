@@ -296,6 +296,33 @@ public class Scheduler {
 
 		});
 
+		Domain.getAll().stream()
+				.map(d -> d.domain)
+				.forEach(d -> {
+
+					Account account = null;
+
+					try {
+
+						account = AccountManager.getInstance().getAccountByDomain(d);
+
+						if(account != null) {
+
+							LoginTask loginTask = loginMap.get(d);
+
+							((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
+
+							((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
+						} else {
+							return;
+						}
+
+					} catch (Exception e) {
+						logger.info("Error get {}:{}. ", d, account, e);
+					}
+
+				});
+
 		// todo 添加 agent
 		ChromeDriverDistributor.getInstance().addAgent(agent);
 
@@ -360,37 +387,6 @@ public class Scheduler {
 		downLatch.await();
 
 		// 为Agent添加多个 domain 登陆任务
-		Domain.getAll().stream()
-			.map(d -> d.domain)
-			.forEach(d -> {
-				for(ChromeDriverAgent agent : ChromeDriverDistributor.getInstance().queues.keySet()) {
-
-					Account account = null;
-
-					try {
-
-						account = AccountManager.getInstance().getAccountByDomain(d);
-
-
-
-						if(account != null) {
-
-							LoginTask loginTask = loginMap.get(d);
-
-							((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
-
-							((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
-						} else {
-							return;
-						}
-
-					} catch (Exception e) {
-						logger.info("Error get {}:{}. ", d, account, e);
-					}
-				}
-			});
-
-
 
 		logger.info("ChromeDriverAgents are ready.");
 	}
@@ -423,20 +419,10 @@ public class Scheduler {
 		// 初始化
 		Scheduler scheduler = new Scheduler();
 
-		// 执行抓取任务
-		Map<String, Object> init_map = new HashMap<>();
-		init_map.put("page", "1");
-
-		Class clazz = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyListScanTask");
-
-		ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
-
-		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-		Thread.sleep(60000);
+		Thread.sleep(10000);
 
 		Map<String, Object> init_map_ = new HashMap<>();
-		init_map.put("page", "1");
+		init_map_.put("page", "2");
 
 		Class clazz_ = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyListScanTask");
 
