@@ -1,11 +1,9 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.LoginInAction;
+import com.sdyk.ai.crawler.LoginInAction__;
 import com.sdyk.ai.crawler.account.AccountManager;
-import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
-import com.sdyk.ai.crawler.specific.mihuashi.action.MihuashiLoginAction;
-import com.sdyk.ai.crawler.task.LogTask;
+import com.sdyk.ai.crawler.task.LoginTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
@@ -13,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class MihuashiLoginTask extends ChromeTask {
@@ -47,12 +44,15 @@ public class MihuashiLoginTask extends ChromeTask {
 
 		try {
 			Account account = AccountManager.getInstance().getAccountById(accountId);
-			LoginInAction loginInAction = LogTask.getLoginActionByDomain(domain, account);
-			this.addAction( loginInAction );
+			//LoginInAction__ loginInAction = LoginTask.getLoginActionByDomain(domain, account);
+			//this.addAction( loginInAction );
 		} catch (Exception e) {
 			logger.error("error for get account by Id", e);
 		}
 
+		this.addDoneCallback((t) -> {
+
+		});
 
 	}
 

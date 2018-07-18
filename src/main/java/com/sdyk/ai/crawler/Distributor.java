@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler;
 
+import com.google.common.collect.Maps;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
@@ -7,7 +8,6 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
-
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
@@ -20,13 +20,14 @@ import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RMap;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Distributor extends ChromeDriverDistributor {
 
@@ -128,7 +129,91 @@ public class Distributor extends ChromeDriverDistributor {
 			taskQueueStat.put(holder.class_name, taskQueueStat.get(holder.class_name) + 1);
 		}
 
-		return super.submit(holder);
+
+		String domain = holder.domain;
+		String username = holder.username;
+
+		ChromeDriverAgent agent = null;
+
+		// 特定用户的采集任务
+		if(holder.username != null && holder.username.length() > 0) {
+
+			String account_key = domain + "-" + username;
+
+			agent = domain_account_agent_map.get(account_key);
+
+			if(agent == null) {
+
+				logger.warn("No agent hold account {}.", account_key);
+				throw new AccountException.NotFound();
+			}
+
+		}
+		// 需要登录采集的任务 或 没有找到加载指定账户的Agent
+		else if(holder.login_task){
+
+			if(!domain_agent_map.keySet().contains(domain)) {
+				logger.warn("No agent hold {} accounts.", domain);
+				throw new AccountException.NotFound();
+			}
+
+			agent = domain_agent_map.get(domain).stream().map(a -> {
+				int queue_size = queues.get(a).size();
+				return Maps.immutableEntry(a, queue_size);
+			})
+			.sorted(Map.Entry.<ChromeDriverAgent, Integer>comparingByValue())
+			.limit(1)
+			.map(Map.Entry::getKey)
+			.collect(Collectors.toList())
+			.get(0);
+		}
+		// 一般任务
+		else {
+
+			if(queues.keySet().iterator().hasNext()){
+				agent = queues.keySet().iterator().next();
+			}
+
+			
+
+			// todo Collectors.toList() 返回值为0
+			/*agent = queues.keySet().stream()
+					.filter( a -> {
+						return ProxyManager.getInstance().isProxyBannedByDomain(a.proxy, holder.domain);
+					})
+			.map(a -> {
+				int queue_size = queues.get(a).size();
+				return Maps.immutableEntry(a, queue_size);
+			})
+			.sorted(Map.Entry.<ChromeDriverAgent, Integer>comparingByValue())
+			.limit(1)
+			.map(Map.Entry::getKey)
+			.collect(Collectors.toList())
+			.get(0);*/
+		}
+
+		// 生成指派信息
+		if(agent != null) {
+
+			logger.info("Assign {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", agent.name);
+
+			queues.get(agent).put(holder);
+
+			Map<String, Object> info = new HashMap<>();
+			info.put("localIp", LOCAL_IP);
+			info.put("agent", agent.getInfo());
+			info.put("domain", domain);
+			info.put("account", username);
+
+			return info;
+		}
+
+		logger.warn("Agent not found for task:{}-{}.", domain, username);
+
+		throw new ChromeDriverException.NotFoundException();
+
+
+		//return super.submit(holder);
 	}
 
 	/**
@@ -141,7 +226,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 		ChromeTask task = null;
 
-		if( loginTaskQueues.get(agent) != null && ! loginTaskQueues.get(agent).isEmpty() ){
+		if( loginTaskQueues.get(agent) != null && !loginTaskQueues.get(agent).isEmpty() ){
 			task = loginTaskQueues.get(agent).poll();
 		}
 
@@ -151,9 +236,9 @@ public class Distributor extends ChromeDriverDistributor {
 
 			if(task == null) {
 
-				if( queues.get(agent) == null ||  queues.get(agent).size() == 0){
-					return null;
-				}
+				/*if( queues.get(agent) == null ||  queues.get(agent).size() == 0){
+					return new ChromeTask("http://www.baidu.com");
+				}*/
 
 				holder = queues.get(agent).take();
 				task = holder.build();
@@ -161,11 +246,12 @@ public class Distributor extends ChromeDriverDistributor {
 
 			ChromeTaskHolder holder_ = holder;
 
-			String className = task == null ? task.getClass().getName() : holder.class_name;
+			String className = task != null ? task.getClass().getName() : holder.class_name;
 
 			task.addDoneCallback((t) -> {
 				StatManager.getInstance().count();
-				taskQueueStat.put(className, taskQueueStat.get(className) - 1);
+
+				//taskQueueStat.put(className, taskQueueStat.get(className) - 1);
 			});
 
 			// 对于ScanTask 记录TaskTrace

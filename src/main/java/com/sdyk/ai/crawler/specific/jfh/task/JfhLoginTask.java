@@ -31,5 +31,9 @@ public class JfhLoginTask extends Task {
 
 		this.addAction(new JfhLoginAction(account));
 
+		this.addDoneCallback((t) -> {
+
+		});
+
 	}
 }

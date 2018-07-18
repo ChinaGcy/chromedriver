@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -313,5 +314,23 @@ public class ProxyManager {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Proxy 是否被特定 domain 封禁
+	 * @param proxy
+	 * @param domain
+	 * @return
+	 */
+	public boolean isProxyBannedByDomain(Proxy proxy, String domain) {
+
+		try{
+			proxyDomainBannedMap.get(proxy.getInfo());
+		} catch (Exception e) {
+			return false;
+		}
+
+		return proxyDomainBannedMap.get(proxy.getInfo()).contains(domain);
+
 	}
 }

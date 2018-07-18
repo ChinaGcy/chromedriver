@@ -6,7 +6,7 @@ import one.rewind.io.requester.chrome.action.Action;
 import one.rewind.json.JSON;
 import org.openqa.selenium.WebElement;
 
-public class LoginInAction extends Action {
+public class LoginInAction__ extends Action {
 
 	public String url ;
 	public String usernameCssPath;
@@ -20,9 +20,9 @@ public class LoginInAction extends Action {
 
 	transient Account account;
 
-	public LoginInAction(){ }
+	public LoginInAction__(){ }
 
-	public LoginInAction(String url, String usernameCssPath, String passwordCssPath, String loginButtonCssPath, String typePath, Account account){
+	public LoginInAction__(String url, String usernameCssPath, String passwordCssPath, String loginButtonCssPath, String typePath, Account account){
 
 		this.url = url;
 		this.usernameCssPath = usernameCssPath;
@@ -30,7 +30,6 @@ public class LoginInAction extends Action {
 		this.loginButtonCssPath = loginButtonCssPath;
 		this.typePath = typePath;
 		this.account = account;
-
 	}
 
 	public void setAccount(Account account) {
@@ -72,6 +71,7 @@ public class LoginInAction extends Action {
 	}
 
 	boolean clickSubmitButton(ChromeDriverAgent agent) {
+
 		try {
 
 			agent.getElementWait(this.loginButtonCssPath).click();

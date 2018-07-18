@@ -39,11 +39,13 @@ public class CompanyListScanTask extends ScanTask {
 
 		super(url.replaceAll("/\\d+$", ""));
 
+		String page = url.split("company/")[1];
+
 		this.setPriority(Priority.HIGH);
 
 		this.setBuildDom();
 
-		// 选择地点
+		/*// 选择地点
 		for( int i = 1; i<4; i++ ){
 
 			this.addAction(
@@ -64,30 +66,30 @@ public class CompanyListScanTask extends ScanTask {
 
 		//填写跳转页数
 		this.addAction(new SetValueAction(
-				"#goto_page_num", String.valueOf(init_map.get("page")), 2000
+				"#goto_page_num", page, 2000
 		));
 
 		//点击跳转按钮
-		this.addAction(new ClickAction("#goto_page_btn",5000));
+		this.addAction(new ClickAction("#goto_page_btn",5000));*/
 
-		this.setResponseFilter((request, contents, messageInfo) -> {
+		/*this.setResponseFilter((request, contents, messageInfo) -> {
 
 			if(messageInfo.getOriginalUrl().matches("http://radar.itjuzi.com/company/infonew\\?page=\\d+")) {
 				this.getResponse().setVar("json", contents.getTextContents());
 			}
-		});
+		});*/
+
 
 		this.addDoneCallback((t) -> {
 
 			Document doc = t.getResponse().getDoc();
-			proc(doc, Integer.valueOf((Integer) init_map.get("page")));
+			proc(doc, Integer.valueOf(page));
 
 		});
+
 	}
 
 	public void proc(Document doc, Integer page) throws Exception {
-
-		List<Task> task = new ArrayList<>();
 
 		int next = page + 1;
 
@@ -97,9 +99,18 @@ public class CompanyListScanTask extends ScanTask {
 
 		for( int i = 1; i<company_list.size(); i++ ){
 
-			String url = company_list.get(i).attr("href");
+			String url = company_list.get(i).attr("href").split("company/")[1];
 
-			task.add(new CompanyTask(url));
+			Map<String, Object> init_map = new HashMap<>();
+
+			init_map.put("id", url);
+
+			Class clazz = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyTask");
+
+			ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
+
+			ChromeDriverDistributor.getInstance().submit(holder);
+
 		}
 
 		if( company_list.size() > 0 ){

@@ -1,10 +1,10 @@
 package com.sdyk.ai.crawler.specific.itijuzi.task;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.LoginInAction;
+import com.sdyk.ai.crawler.LoginInAction__;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.specific.mihuashi.task.MihuashiLoginTask;
-import com.sdyk.ai.crawler.task.LogTask;
+import com.sdyk.ai.crawler.task.LoginTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.Task;
@@ -46,12 +46,15 @@ public class ItijuziLoginTask extends ChromeTask {
 
 		try {
 			Account account = AccountManager.getInstance().getAccountById(accountId);
-			LoginInAction loginInAction = LogTask.getLoginActionByDomain(domain, account);
-			this.addAction( loginInAction );
+			//LoginInAction__ loginInAction = LoginTask.getLoginAction(domain, account);
+			//this.addAction( loginInAction );
 		} catch (Exception e) {
 			logger.error("error for get account by Id", e);
 		}
 
+		this.addDoneCallback((t) -> {
+
+		});
 
 	}
 

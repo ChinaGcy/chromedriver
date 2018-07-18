@@ -40,8 +40,9 @@ public class CompanyTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGH);
+		this.setBuildDom();
 
+		this.setPriority(Priority.HIGH);
 
 		this.setValidator((a, t) -> {
 

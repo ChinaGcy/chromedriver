@@ -60,7 +60,7 @@ public class ProjectScanTask extends ScanTask {
 
 		    //代理出错
 		    if ( text.contains("proxy") ) {
-			    throw new ProxyException.Failed(a.getProxy());
+			    throw new ProxyException.Failed(a.proxy);
 		    }
 		    // 账号出错
 		    else if( text.contains( "账号异常" ) || text.contains( "登陆异常" ) ) {
