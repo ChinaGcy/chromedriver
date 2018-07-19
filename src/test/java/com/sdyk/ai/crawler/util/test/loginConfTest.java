@@ -6,6 +6,7 @@ import com.typesafe.config.ConfigFactory;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.action.LoginAction;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.util.Configs;
 import org.apache.commons.collections.map.HashedMap;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class loginConfTest {
 	}
 
 	@Test
-	public void testFileToTAsk() throws URISyntaxException, MalformedURLException, ClassNotFoundException {
+	public void testFileToTAsk() throws URISyntaxException, MalformedURLException, ClassNotFoundException, ProxyException.Failed {
 
 		Map<String, LoginTask> loginMap = new HashedMap();
 
