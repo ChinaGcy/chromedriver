@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -238,9 +239,25 @@ public class Distributor extends ChromeDriverDistributor {
 
 			if(task == null) {
 
-				holder = queues.get(agent).take();
-				task = holder.build();
+				holder = queues.get(agent).poll(10, TimeUnit.SECONDS);
+
+				// todo 现在为循环直至有任务出现，跳出循环，是否有更简单方法。
+				while(task == null && holder == null){
+
+					holder = queues.get(agent).poll(10, TimeUnit.SECONDS);
+
+					if( loginTaskQueues.get(agent) != null && !loginTaskQueues.get(agent).isEmpty() ){
+						task = loginTaskQueues.get(agent).poll();
+					}
+
+				}
 			}
+
+			if( task != null ){
+				return task;
+			}
+
+			task = holder.build();
 
 			ChromeTaskHolder holder_ = holder;
 
@@ -264,7 +281,7 @@ public class Distributor extends ChromeDriverDistributor {
 			}
 
 			// 任务失败重试逻辑
-			task.addDoneCallback((t) -> {
+			task.addExceptionCallback((t) -> {
 
 				if(t.needRetry()) {
 

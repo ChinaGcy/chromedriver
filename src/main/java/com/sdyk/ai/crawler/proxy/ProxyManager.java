@@ -309,7 +309,12 @@ public class ProxyManager {
 			return d.domain;
 		}).collect(Collectors.toList());
 
-		if ( domains.containsAll(proxyDomainBannedMap.get(proxy.getInfo())) ) {
+		logger.info("All domain: {}", domains);
+
+		logger.info("Proxy: {} banned by: {}", proxy.getInfo(), proxyDomainBannedMap.get(proxy.getInfo()));
+
+		// TODO Check
+		if ( proxyDomainBannedMap.get(proxy.getInfo()).containsAll(domains) ) {
 			return true;
 		}
 

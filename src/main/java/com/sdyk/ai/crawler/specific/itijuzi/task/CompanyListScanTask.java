@@ -94,7 +94,7 @@ public class CompanyListScanTask extends ScanTask {
 
 		System.err.println(getResponse().getVar("json"));
 
-		for( int i = 1; i<company_list.size(); i++ ){
+		for( int i = 2; i<company_list.size(); i++ ){
 
 			String url = company_list.get(i).attr("href").split("company/")[1];
 			System.err.println(url);
@@ -119,7 +119,7 @@ public class CompanyListScanTask extends ScanTask {
 			if( next <= 2168 ){
 
 				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("page", page ++);
+				init_map.put("page", String.valueOf(page ++));
 
 				Class clazz = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyListScanTask");
 

@@ -8,31 +8,29 @@ import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.task.LoginTask;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginAction;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.Task;
-import one.rewind.util.Configs;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+
+import static com.sdyk.ai.crawler.Scheduler.flag.PerformLoginTasks;
+import static one.rewind.util.FileUtil.readFileByLines;
 
 /**
  * Agent 初始化
@@ -44,27 +42,15 @@ public class Scheduler {
 
 	public static final Logger logger = LogManager.getLogger(Scheduler.class.getName());
 
-	static int DefaultDriverCount = 1;
-
-	public static Map<String, LoginTask> loginMap = new HashedMap();
-
-	/**
-	 * 获取所有登陆任务
-	 */
-	public static void initLoginTask() throws URISyntaxException, MalformedURLException, ClassNotFoundException {
-
-		File file = new File("login_tasks");
-		File[] tempList = file.listFiles();
-
-		for( File f : tempList ){
-
-			loginMap.put(
-					f.getName().replace(".json",""),
-					LoginTask.buildFromJson(one.rewind.util.FileUtil.readFileByLines("login_tasks/" + f.getName())) );
-
-		}
-
+	public static enum flag {
+		PerformLoginTasks
 	}
+
+	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
+
+	public static int DefaultDriverCount = 1;
+
+	public static Map<String, LoginTask> loginTasks = new HashedMap();
 
 	public static Scheduler instance;
 
@@ -98,6 +84,8 @@ public class Scheduler {
 
 		resetProxy();
 
+		resetRedis();
+
 		initLoginTask();
 
 		init();
@@ -116,6 +104,23 @@ public class Scheduler {
 	}
 
 	/**
+	 * 获取所有登陆任务
+	 */
+	public void initLoginTask() throws URISyntaxException, MalformedURLException, ClassNotFoundException, ProxyException.Failed {
+
+		File file = new File("login_tasks");
+		File[] tempList = file.listFiles();
+
+		for( File f : tempList ){
+
+			loginTasks.put(
+					f.getName().replace(".json",""),
+					LoginTask.buildFromJson(readFileByLines("login_tasks/" + f.getName())) );
+
+		}
+	}
+
+	/**
 	 * 重置Proxy 并根据情况 新建AliyunHost
 	 * @throws Exception
 	 */
@@ -125,7 +130,7 @@ public class Scheduler {
 
 		int currentFreeProxy = ProxyManager.getInstance().getValidProxyNum();
 
-		if(currentFreeProxy < DefaultDriverCount + 2) {
+		if(currentFreeProxy < DefaultDriverCount + 2 ) {
 
 			int proxyNumToCreate = DefaultDriverCount + 2 - currentFreeProxy;
 
@@ -137,16 +142,24 @@ public class Scheduler {
 	}
 
 	/**
+	 * 清空redis中记录的proxy被domain封禁信息
+	 */
+	public void resetRedis() {
+
+		ProxyManager.getInstance().proxyDomainBannedMap.clear();
+	}
+
+	/**
 	 * 启动一个Agent
 	 * @param container
 	 * @param proxy
 	 */
-	public ChromeDriverAgent addAgent(ChromeDriverDockerContainer container, Proxy proxy) throws Exception {
+	public ChromeDriverAgent addAgent(ChromeDriverDockerContainer container, Proxy proxy, Account oldAccount, boolean needLogin) throws Exception {
 
 		final URL remoteAddress = container.getRemoteAddress();
 
 		// 创建 Agent
-		ChromeDriverAgent agent = new ChromeDriverAgent(/*remoteAddress, container, proxy*/);
+		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container, proxy);
 
 		// A 账号异常回调
 		agent.addAccountFailedCallback((agent_, account_)->{
@@ -162,30 +175,40 @@ public class Scheduler {
 				// A1. 判断是否还有可用账号
 				Account account_new = AccountManager.getInstance().getAccountByDomain(account_.getDomain());
 
+				logger.info("have account_new : {}", account_new);
+
 				// A1.1 有特定domain的账号
 				if (account_new != null) {
 
 					// A1.1.1 判断是否有 没有加载domain 的Agent
-					ChromeDriverAgent chromeDriverAgent = Distributor.getInstance().findAgentWithoutDomain(account_.getDomain());
+					ChromeDriverAgent chromeDriverAgent = ((Distributor)ChromeDriverDistributor.getInstance()).
+							findAgentWithoutDomain(account_.getDomain());
+
+					logger.info("have Agent : {} without domain : {} ",chromeDriverAgent, account_new.domain );
 
 					// 如果有添加登陆任务
 					if (chromeDriverAgent != null) {
 
-						Distributor.getInstance().submitLoginTask(chromeDriverAgent, getLoginTask(account_));
+						logger.info("submitLoginTask chromeDriverAgent : {}, LoginTask : {}", chromeDriverAgent, getLoginTask(account_));
+						((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(chromeDriverAgent, getLoginTask(account_));
 
 					}
 					// A1.1.2 如果没有，新建一个ChromeDriverAgent，并提交登陆任务
 					else {
 
 						DockerHostManager.getInstance().createDockerContainers(1);
+						logger.info("createDockerContainers");
+
 						ChromeDriverDockerContainer container_new = DockerHostManager.getInstance().getFreeContainer();
 
 						ProxyImpl proxy_new = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
+						logger.info("getValidProxy : {}", proxy_new);
 
 						((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(
-								addAgent(container_new, proxy), // 创建新agent
+								addAgent(container_new, proxy, account_new, true), // 创建新agent
 								getLoginTask(account_new) // 获取账号对应登陆任务
 						);
+						logger.info("submitLoginTask");
 					}
 				}
 			} catch (Exception e) {
@@ -193,7 +216,7 @@ public class Scheduler {
 			}
 
 		})
-		// B 代理异常毁掉
+		// B 代理异常回调
 		.addProxyFailedCallback((agent_, p, t)->{
 
 			logger.info("Proxy {}:{} failed.", p.host, p.port);
@@ -205,6 +228,8 @@ public class Scheduler {
 
 				if(!p.validate()) {
 
+					logger.info("{} invalid.", p.getInfo());
+
 					p.failed();
 					// 给agent 换 proxy
 					// 如果 agent 加载的 domain account 需要重新登陆 会继续报账户异常
@@ -215,7 +240,9 @@ public class Scheduler {
 					return;
 				}
 
-				if(ProxyManager.getInstance().isProxyBannedByAllDomain(proxy)) {
+				if(ProxyManager.getInstance().isProxyBannedByAllDomain(p)) {
+
+					logger.info("{} banned by all domain.", p.getInfo());
 
 					p.failed();
 					// agent 只加 t.domain
@@ -223,8 +250,13 @@ public class Scheduler {
 					Proxy proxy_new = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 					agent_.changeProxy(proxy_new);
 
+					logger.info("agent change proxy : {}", proxy_new.getInfo());
+
 				}
 				else {
+
+					logger.info("{} banned by {}.", t.getDomain());
+
 					// t.domain 的 account 找 其他 agent (agent.proxy 没有被 t.domain封禁) 登陆
 					// 原agent 删除 加载 对应 account 的相关信息
 
@@ -233,14 +265,25 @@ public class Scheduler {
 
 					Account account = agent_.accounts.get(t.getDomain()); // TODO 有可能为null
 
+					logger.info("proxy with account : {}", account);
+
+					// 有关联账号
 					if(account != null) {
 
+						// 清除 accounts 中的 domain
 						agent_.accounts.remove(t.getDomain());
+
+						// 清除 domain_agent_map 中的 agent_
+						((Distributor)ChromeDriverDistributor.getInstance()).domain_agent_map.get(t.getDomain()).remove(agent_);
 
 						ChromeDriverAgent agent_new =
 								((Distributor) ChromeDriverDistributor.getInstance()).findAgentWithoutDomain(t.getDomain());
 
+						logger.info("Agent without account : {} and agent_new : {}",account, agent_new);
+
 						if (agent_new != null) {
+
+							logger.info("Agent Add LoginTask : {} without account : {} on agent_new : {}",getLoginTask(account), account, agent_new);
 
 							((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent_new, getLoginTask(account));
 
@@ -253,16 +296,20 @@ public class Scheduler {
 							ProxyImpl proxy_new = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
 							((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(
-									addAgent(container_new, proxy_new), // 创建新agent
-									getLoginTask(account) // 获取账号对应登陆任务
+									addAgent(container_new, proxy_new, account, true), // 创建新agent
+									getLoginTask(account)  // 获取账号对应登陆任务
 							);
 
+							logger.info("Create New Agent with container ： {} and proxy : {}",container_new, proxy_new );
 						}
 					}
+					// 无关联账号
 					else {
 
 						ChromeDriverAgent agent_new =
 								((Distributor) ChromeDriverDistributor.getInstance()).findAgentWithoutDomain(t.getDomain());
+
+						logger.info("Agent without account and agent_new : {}", agent_new);
 
 						if(agent_new == null) {
 
@@ -272,9 +319,12 @@ public class Scheduler {
 
 							ProxyImpl proxy_new = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
-							addAgent(container_new, proxy_new);
+							logger.info("addAgent container_new : {} , proxy_new : {}",container_new ,proxy_new);
+
+							addAgent(container_new, proxy_new, null, false);
 
 						}
+
 					}
 
 				}
@@ -296,37 +346,70 @@ public class Scheduler {
 
 		});
 
-		Domain.getAll().stream()
-				.map(d -> d.domain)
-				.forEach(d -> {
+		// 预添加所有domain的登陆任务到agent
+		if(Flags.contains(PerformLoginTasks) && needLogin)
+			addPresetLoginTasksToAgent(agent, oldAccount);
 
-					Account account = null;
-
-					try {
-
-						account = AccountManager.getInstance().getAccountByDomain(d);
-
-						if(account != null) {
-
-							LoginTask loginTask = loginMap.get(d);
-
-							((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
-
-							((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
-						} else {
-							return;
-						}
-
-					} catch (Exception e) {
-						logger.info("Error get {}:{}. ", d, account, e);
-					}
-
-				});
-
-		// todo 添加 agent
 		ChromeDriverDistributor.getInstance().addAgent(agent);
 
 		return agent;
+	}
+
+	/**
+	 *
+	 * @param agent
+	 */
+	public void addPresetLoginTasksToAgent(ChromeDriverAgent agent, Account account_) {
+
+		// 登陆所有网站
+		if( account_ == null ){
+
+			Domain.getAll().stream()
+					.map(d -> d.domain)
+					.forEach(d -> {
+
+						Account account = null;
+
+						try {
+
+							account = AccountManager.getInstance().getAccountByDomain(d);
+
+							if(account != null) {
+
+								// 根据 domain 获取 LoginTask
+								LoginTask loginTask = loginTasks.get(d);
+
+								// 设定账户
+								((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
+
+								// 预设值登陆任务
+								((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
+
+							} else {
+								return;
+							}
+
+						} catch (Exception e) {
+							logger.info("Error get {}:{}. ", d, account, e);
+						}
+
+					});
+		}
+		// 只登陆单个网站
+		else {
+
+			// 根据 domain 获取 LoginTask
+			LoginTask loginTask = loginTasks.get(account_.domain);
+
+			// 设定账户
+			((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account_);
+
+			// 预设值登陆任务
+			((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
+
+		}
+
+
 	}
 
 
@@ -357,11 +440,13 @@ public class Scheduler {
 							try {
 
 								// 删除AliyunHost主机
-								aliyunHost = AliyunHost.getByHost(proxy.host);
-								aliyunHost.stopAndDelete();
+								logger.info("stopAndDeleteAliyunHost: {}", proxy.host);
+								//aliyunHost = AliyunHost.getByHost(proxy.host);
+								//aliyunHost.stopAndDelete();
 
 								// 删除数据库
-								ProxyManager.getInstance().deleteProxyById(proxy.id);
+								logger.info("delete From Mysql.proxys: {}", proxy.host);
+								//ProxyManager.getInstance().deleteProxyById(proxy.id);
 
 							} catch (Exception e) {
 								logger.error("AliyunHost:{} Error, ", proxy.host, e);
@@ -373,7 +458,7 @@ public class Scheduler {
 					// B. Container
 					ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
-					addAgent(container, proxy);
+					addAgent(container, proxy, null, true);
 
 					downLatch.countDown();
 
@@ -402,7 +487,7 @@ public class Scheduler {
 
 		String domain = account.domain;
 
-		LoginTask loginTask = loginMap.get(domain);
+		LoginTask loginTask = loginTasks.get(domain);
 
 		((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
 
@@ -421,14 +506,14 @@ public class Scheduler {
 
 		Thread.sleep(10000);
 
-		Map<String, Object> init_map_ = new HashMap<>();
+		/*Map<String, Object> init_map_ = new HashMap<>();
 		init_map_.put("page", "2");
 
 		Class clazz_ = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyListScanTask");
 
 		ChromeTaskHolder holder_ = ChromeTask.buildHolder(clazz_, init_map_ );
 
-		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder_);
+		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder_);*/
 
 
 

@@ -14,7 +14,9 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.chrome.action.LoginAction;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.json.JSON;
 import one.rewind.json.JSONable;
@@ -34,9 +36,29 @@ import java.util.stream.Collectors;
 public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 
 	public LoginTask(String url) throws MalformedURLException, URISyntaxException {
+
 		super(url);
+
+		this.setBuildDom();
+
+		this.setPriority(Priority.HIGH);
+
+		this.setValidator((a, t) -> {
+
+			String text = t.getResponse().getText();
+
+			if( (text.contains("ip") || text.contains("IP")) && text.contains("禁") ){
+				throw new ProxyException.Failed(a.proxy);
+			}
+
+		});
+
 	}
 
+	/**
+	 * 将任务转换成json数据
+	 * @return
+	 */
 	public String toJSON() {
 
 		List<Map> actions = new ArrayList<>();
@@ -59,7 +81,16 @@ public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 		return JSON.toPrettyJson(task_map);
 	}
 
-	public static LoginTask buildFromJson(String json) throws ClassNotFoundException, MalformedURLException, URISyntaxException {
+	/**
+	 * 将json数据转换成登陆任务
+	 * @param json
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 * @throws ProxyException.Failed
+	 */
+	public static LoginTask buildFromJson(String json) throws ClassNotFoundException, MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		JsonParser parser = new JsonParser();
 
@@ -83,42 +114,6 @@ public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 		}
 
 		return task;
-	}
-
-	public static void main(String[] args) throws MalformedURLException, URISyntaxException, ClassNotFoundException, ChromeDriverException.IllegalStatusException, InterruptedException {
-
-		/*ChromeDriverAgent agent = new ChromeDriverAgent();
-
-		agent.start();*/
-
-		LoginTask task = new LoginTask("https://www.mihuashi.com/login");
-
-		LoginAction a1 = new LoginAction();
-		a1.url = "https://www.itjuzi.com/user/login";
-		a1.usernameCssPath = "#create_account_email";
-		a1.passwordCssPath = "#create_account_password";
-		a1.loginButtonCssPath = "#login_btn";
-		a1.errorMsgReg = "账号或密码错误";
-		//a1.setAccount(new AccountImpl("mihuashi.com", "17152187084", "123456 "));
-
-
-		//ClickAction a2 = new ClickAction("#tab-mobile",2000);
-
-		//task.addAction(a2);
-		task.addAction(a1);
-
-		System.out.println(task.toJSON());
-
-		/*LoginTask task1 = LoginTask.buildFromJson(task.toJSON());
-
-		agent.submit(task1);
-
-		Thread.sleep(1000);*/
-
-
-
-
-
 	}
 
 }
