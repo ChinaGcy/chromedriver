@@ -1,0 +1,83 @@
+{
+  "tenderer":{
+    "properties":{
+      "id": {
+        "type":"keyword"
+      },
+      "url": {
+        "type":"text"
+      },
+      "name":{
+        "type":"text",
+        "analyzer": "my_analyzer",
+        "boost": 4
+      },
+      "location":{
+        "type":"text"
+      },
+      "login_time":{
+        "type":"date"
+      },
+      "trade_num":{
+        "type":"integer"
+      },
+      "category":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "tender_type":{
+        "type":"text"
+      },
+      "company_scale":{
+        "type":"text"
+      },
+      "content":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "req_forecast":{
+        "type":"text"
+      },
+      "total_spending":{
+        "type":"double"
+      },
+      "total_project_num":{
+        "type":"integer"
+      },
+      "total_employees":{
+        "type":"integer"
+      },
+      "register_time":{
+        "type":"date"
+      },
+      "praise_num":{
+        "type":"integer"
+      },
+      "rating_num":{
+        "type":"integer"
+      },
+      "grade":{
+        "type":"text"
+      },
+      "company_name":{
+        "type":"text",
+        "analyzer": "my_analyzer",
+        "boost": 4
+      },
+      "platform_certification":{
+        "type":"text"
+      },
+      "credit":{
+        "type":"integer"
+      },
+      "insert_time": {
+        "type":"date"
+      },
+      "update_time": {
+        "type":"date"
+      }
+    }
+  }
+}

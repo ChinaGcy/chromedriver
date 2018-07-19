@@ -1,0 +1,45 @@
+{
+  "resume":{
+    "properties":{
+      "id": {
+        "type":"keyword"
+      },
+      "url": {
+        "type":"text"
+      },
+      "user_id":{
+        "type":"keyword"
+      },
+      "sd":{
+        "type":"date"
+      },
+      "ed":{
+        "type":"date"
+      },
+      "org":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "dep":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "degree_occupation":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "is_current":{
+        "type":"integer"
+      },
+      "insert_time":{
+        "type":"date"
+      },
+      "update_time":{
+        "type":"date"
+      }
+    }
+  }
+}

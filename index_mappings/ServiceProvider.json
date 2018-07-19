@@ -1,0 +1,141 @@
+{
+  "serviceprovider":{
+    "properties":{
+      "id": {
+        "type":"keyword"
+      },
+      "url": {
+        "type":"text"
+      },
+      "name":{
+        "type":"text",
+        "analyzer": "my_analyzer",
+        "boost": 4
+      },
+      "location":{
+        "type":"text"
+      },
+      "company_name":{
+        "type":"text",
+        "analyzer": "my_analyzer",
+        "boost": 4
+      },
+      "type":{
+        "type":"text"
+      },
+      "content":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "team_size":{
+        "type":"integer"
+      },
+      "work_experience":{
+        "type":"integer"
+      },
+      "category":{
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "tags":{
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "boost": 2
+      },
+      "service_quality":{
+        "type": "double"
+      },
+      "service_speed":{
+        "type": "double"
+      },
+      "service_attitude":{
+        "type": "double"
+      },
+      "project_num":{
+        "type": "integer"
+      },
+      "success_ratio":{
+        "type":"float"
+      },
+      "income":{
+        "type":"double"
+      },
+      "pending_txn":{
+        "type": "double"
+      },
+      "register_time":{
+        "type": "date"
+      },
+      "grade":{
+        "type": "text"
+      },
+      "credit":{
+        "type": "float"
+      },
+      "cellphone":{
+        "type":"keyword"
+      },
+      "qq":{
+        "type":"keyword"
+      },
+      "weixin":{
+        "type":"keyword"
+      },
+      "email":{
+        "type":"keyword"
+      },
+      "weibo":{
+        "type":"keyword"
+      },
+      "wangwang":{
+        "type":"keyword"
+      },
+      "price_per_project":{
+        "type": "double"
+      },
+      "price_per_day":{
+        "type": "double"
+      },
+      "fav_num":{
+        "type":"integer"
+      },
+      "fan_num":{
+        "type":"integer"
+      },
+      "like_num":{
+        "type":"integer"
+      },
+      "view_num":{
+        "type":"integer"
+      },
+      "occupation":{
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "rating":{
+        "type": "float"
+      },
+      "rcmd_num":{
+        "type":"integer"
+      },
+      "rating_num":{
+        "type":"integer"
+      },
+      "praise_num":{
+        "type":"integer"
+      },
+      "negative_num":{
+        "type":"integer"
+      },
+      "insert_time": {
+        "type":"date"
+      },
+      "update_time": {
+        "type":"date"
+      }
+    }
+  }
+}

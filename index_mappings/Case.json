@@ -1,0 +1,68 @@
+{
+  "case":{
+    "properties":{
+      "id": {
+        "type":"keyword"
+      },
+      "url": {
+        "type":"text"
+      },
+      "user_id":{
+        "type":"keyword"
+      },
+      "title":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "category":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "tags":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 2
+      },
+      "content":{
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "time_limit":{
+        "type":"text"
+      },
+      "response_time":{
+        "type":"text"
+      },
+      "service_attitude":{
+        "type":"double"
+      },
+      "work_speed":{
+        "type":"double"
+      },
+      "complete_quality":{
+        "type":"double"
+      },
+      "purchase_num":{
+        "type":"integer"
+      },
+      "budget":{
+        "type":"double_range"
+      },
+      "rating":{
+        "type":"float"
+      },
+      "rate_num":{
+        "type":"integer"
+      },
+      "insert_time": {
+        "type":"date"
+      },
+      "update_time": {
+        "type":"date"
+      }
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "project":{
+    "properties": {
+      "id": {
+        "type":"keyword"
+      },
+      "url": {
+        "type":"text"
+      },
+      "domain_id": {
+        "type":"keyword"
+      },
+      "title": {
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "location": {
+        "type":"text"
+      },
+      "origin_from": {
+        "type":"text"
+      },
+      "category": {
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "tags": {
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 2
+      },
+      "content": {
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
+      },
+      "budget":{
+        "type":"double_range"
+      },
+      "time_limit": {
+        "type":"integer"
+      },
+      "trade_type": {
+        "type":"text"
+      },
+      "due_time": {
+        "type":"date"
+      },
+      "pubdate": {
+        "type":"date"
+      },
+      "bidder_total_num": {
+        "type":"integer"
+      },
+      "bids_available": {
+        "type":"integer"
+      },
+      "bids_num": {
+        "type":"integer"
+      },
+      "tenderer_id": {
+        "type":"keyword"
+      },
+      "tenderer_name": {
+        "type":"text",
+        "analyzer": "my_analyzer",
+        "boost": 4
+      },
+      "status": {
+        "type":"text"
+      },
+      "type": {
+        "type":"text"
+      },
+      "rate_num": {
+        "type":"integer"
+      },
+      "reward_type": {
+        "type":"text"
+      },
+      "view_num": {
+        "type":"integer"
+      },
+      "fav_num": {
+        "type":"integer"
+      },
+      "like_num": {
+        "type":"integer"
+      },
+      "cellphone": {
+        "type":"keyword"
+      },
+      "rcmd_num": {
+        "type":"integer"
+      },
+      "delivery_steps": {
+        "type":"text"
+      },
+      "insert_time": {
+        "type":"date"
+      },
+      "update_time": {
+        "type":"date"
+      }
+    }
+  }
+}
