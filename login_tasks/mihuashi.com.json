@@ -1,0 +1,22 @@
+{
+  "url": "https://www.mihuashi.com/login",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.ClickAction",
+      "content": {
+        "elementPath": "#tab-mobile",
+        "sleepTime": 2000
+      }
+    },
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://www.mihuashi.com/login",
+        "usernameCssPath": "#sessions-index > div > section > div.session__content-wrapper > section > form > div:nth-child(2) > div > div > input",
+        "passwordCssPath": "#sessions-index > div > section > div.session__content-wrapper > section > form > div:nth-child(3) > div > div > input",
+        "loginButtonCssPath": "#sessions-index > div > section > div.session__content-wrapper > section > form > div:nth-child(4) > div > button",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}
