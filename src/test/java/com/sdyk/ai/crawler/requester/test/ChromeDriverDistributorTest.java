@@ -58,6 +58,10 @@ public class ChromeDriverDistributorTest {
 
 		distributor.layout();
 
+		/*for(ChromeDriverAgent agent : distributor.queues.keySet()) {
+			System.err.println(JSON.toPrettyJson(agent.getInfo()));
+		}*/
+
 		for(int i=0; i<1000; i++) {
 
 			if(i%2 == 0) {
@@ -158,13 +162,17 @@ public class ChromeDriverDistributorTest {
 
 		Account account = new AccountImpl("zbj.com", "15284812411", "123456");
 
-		for(int i=0; i<10000; i++) {
+		for(int i=0; i<1; i++) {
 
 			ChromeTaskHolder holder =
 					ChromeTask.buildHolder(TestChromeTask.T1.class, ImmutableMap.of("q", "ip"));
 
 			distributor.submit(holder);
 		}
+
+		/*for(ChromeDriverAgent agent : distributor.queues.keySet()) {
+			System.err.println(JSON.toPrettyJson(agent.getInfo()));
+		}*/
 
 		Thread.sleep(60000);
 

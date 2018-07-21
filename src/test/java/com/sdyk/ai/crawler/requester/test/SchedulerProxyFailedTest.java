@@ -15,12 +15,16 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 单机完整测试代理更换（无docker环境下）
@@ -270,25 +274,47 @@ public class SchedulerProxyFailedTest {
 		for(String channel : project_channels) {
 
 			try {
-				HttpTaskPoster.getInstance().submit(com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask.class,
-						ImmutableMap.of("channel", channel,"page", "1"));
 
-				logger.info("PROJECT:" + channel);
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-				e.printStackTrace();
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				ImmutableMap.of("channel", channel,"page", "1");
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask.class;
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit ProjectTask.class", e);
 			}
+
 
 		}
 
 		if (backtrace == true) {
 			for (String channel : service_supplier_channels) {
-				try {
-					HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
-							ImmutableMap.of("channel", channel,"page", "1"));
 
-					logger.info("PROJECT:" + channel);
-				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-					e.printStackTrace();
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("channel", channel,"page", "1");
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) ServiceScanTask.class;
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectTask.class", e);
 				}
 
 			}

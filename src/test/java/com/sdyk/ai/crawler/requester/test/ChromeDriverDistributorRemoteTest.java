@@ -80,14 +80,14 @@ public class ChromeDriverDistributorRemoteTest {
 
 		distributor.addAgent(agent);
 
-		for(int i=0; i<100; i++) {
+		/*for(int i=0; i<100; i++) {
 
 			ChromeTaskHolder holder = ChromeTask.buildHolder(TestChromeTask.T1.class, ImmutableMap.of("q", String.valueOf(1950 + i)));
 
 			Map<String, Object> info = distributor.submit(holder);
 
 			System.err.println(JSON.toPrettyJson(info));
-		}
+		}*/
 
 		Thread.sleep(1000000);
 	}
