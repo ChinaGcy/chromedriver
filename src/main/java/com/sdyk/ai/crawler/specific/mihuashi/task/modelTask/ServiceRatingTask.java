@@ -5,8 +5,11 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,7 +20,9 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,13 +124,23 @@ public class ServiceRatingTask extends Task {
 				String project_id = matcher2.group().replace("/projects/","");
 
 				try {
-					HttpTaskPoster.getInstance().submit(ProjectTask.class,
-							ImmutableMap.of("project_id", project_id));
 
-				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-					logger.error("error for HttpTaskPoster.submit ProjectTask", e);
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("project_id", project_id);
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectTask.class", e);
 				}
-
 			}
 
 			serviceProviderRating.insert();

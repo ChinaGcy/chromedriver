@@ -4,13 +4,18 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,8 +102,26 @@ public class CaseScanTask extends ScanTask {
 			}
 
 			if (pageTurning("#contentBox > div > div.pagination > ul > li", page)) {
-				HttpTaskPoster.getInstance().submit(this.getClass(),
-						ImmutableMap.of("user_id", userId, "page", String.valueOf(++page)));
+
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("user_id", userId, "page", String.valueOf(++page));
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit CaseScanTask.class", e);
+				}
+
 			}
 		});
 	}
@@ -127,9 +150,28 @@ public class CaseScanTask extends ScanTask {
 				list.add(new_url);
 
 				try {
-					HttpTaskPoster.getInstance().submit(CaseTask.class,
-							ImmutableMap.of("user_id", userId, "case_id", case_id));
-				} catch (ClassNotFoundException | UnsupportedEncodingException | MalformedURLException | URISyntaxException e) {
+
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("user_id", userId, "case_id", case_id);
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit CaseTask.class", e);
+					}
+
+
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 

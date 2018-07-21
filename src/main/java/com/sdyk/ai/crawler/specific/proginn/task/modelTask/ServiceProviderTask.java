@@ -8,6 +8,9 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,10 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ServiceProviderTask extends Task {
 
@@ -341,12 +341,24 @@ public class ServiceProviderTask extends Task {
 					+ element.select("a.media").attr("href");
 
 			try {
-				HttpTaskPoster.getInstance().submit(WorkTask.class,
-						ImmutableMap.of("work_id", workUrl,"uId", getId()));
 
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-				logger.error("error for HttpTaskPoster.submit WorkTask", e);
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				ImmutableMap.of("work_id", workUrl,"uId", getId());
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit ProjectTask.class", e);
 			}
+
 		}
 
 		try{

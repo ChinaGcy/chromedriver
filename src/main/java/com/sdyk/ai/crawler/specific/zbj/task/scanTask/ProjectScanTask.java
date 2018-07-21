@@ -4,10 +4,15 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,8 +75,26 @@ public class ProjectScanTask extends ScanTask {
 
 					String project_id = matcher.group("projectId");
 					try {
-						HttpTaskPoster.getInstance().submit(ProjectTask.class,
-								ImmutableMap.of("project_id", project_id));
+
+						try {
+
+							//设置参数
+							Map<String, Object> init_map = new HashMap<>();
+							ImmutableMap.of("project_id", project_id);
+
+							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask");
+
+							//生成holder
+							ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+							//提交任务
+							ChromeDriverDistributor.getInstance().submit(holder);
+
+						} catch ( Exception e) {
+
+							logger.error("error for submit ProjectTask.class", e);
+						}
+
 
 					} catch (Exception e) {
 						logger.error(e);
@@ -81,8 +104,24 @@ public class ProjectScanTask extends ScanTask {
 				// 判断翻页
 				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul > li", page)) {
 
-					HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
-							ImmutableMap.of("channel", channel, "page", String.valueOf(++page)));
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("channel", channel, "page", String.valueOf(++page));
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ProjectScanTask.class", e);
+					}
 
 				}
 

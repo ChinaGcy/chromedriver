@@ -34,14 +34,10 @@ public class ProjectScanTask extends ScanTask {
 	static {
 		registerBuilder(
 				ProjectScanTask.class,
-				"https://www.clouderwork.com/api/v2/jobs/search?ts=pagesize=20&pagenum={{page}}",
+				"https://www.clouderwork.com/api/v2/jobs/search?pagesize=20&pagenum={{page}}",
 				ImmutableMap.of("page", String.class),
-				ImmutableMap.of("page", "")
+				ImmutableMap.of("page", "1")
 		);
-	}
-
-	public static String domain() {
-		return "clouderwork";
 	}
 
 
@@ -50,7 +46,7 @@ public class ProjectScanTask extends ScanTask {
 
 		super(url);
 
-		this.setBuildDom();
+		this.setParam("page", url.split("pagenum=")[1]);
 
         this.setPriority(Priority.MEDIUM);
 
@@ -59,7 +55,7 @@ public class ProjectScanTask extends ScanTask {
 		    String text = t.getResponse().getText();
 
 		    //代理出错
-		    if ( text.contains("proxy") ) {
+		    if ( text.contains("check proxy address") ) {
 			    throw new ProxyException.Failed(a.proxy);
 		    }
 		    // 账号出错
@@ -72,12 +68,7 @@ public class ProjectScanTask extends ScanTask {
 
 	    this.addDoneCallback((t) -> {
 
-	        int page = 0;
-	        Pattern pattern_url = Pattern.compile("ts=pagesize=20&pagenum=(?<page>.+?)");
-	        Matcher matcher_url = pattern_url.matcher(url);
-	        if (matcher_url.find()) {
-		        page = Integer.parseInt(matcher_url.group("page"));
-	        }
+	        int page = Integer.valueOf(url.split("pagenum=")[1]);
 
             String src = getResponse().getDoc().text();
 
@@ -108,7 +99,7 @@ public class ProjectScanTask extends ScanTask {
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 	            } catch ( Exception e) {
 
@@ -121,15 +112,17 @@ public class ProjectScanTask extends ScanTask {
 
 	            try {
 
+	            	int next = page + 1;
+
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
-		            init_map.put("page", String.valueOf(page + 1));
+		            init_map.put("page", String.valueOf(next));
 
 		            //生成holder
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectScanTask.class, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 	            } catch ( Exception e) {
 
@@ -144,11 +137,8 @@ public class ProjectScanTask extends ScanTask {
 
     @Override
     public TaskTrace getTaskTrace() {
-        return null;
-    }
 
-	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
-		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
-	}
+		return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
+    }
 
 }

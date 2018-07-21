@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.account.model;
 
+import com.google.gson.annotations.Expose;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
@@ -16,12 +17,12 @@ import java.util.Date;
 @DatabaseTable(tableName = "accounts")
 public class AccountImpl extends Account {
 
-	// domain
+	/*// domain
 	@DatabaseField(dataType = DataType.STRING, width = 1024, indexName = "domain-group")
-	public String domain;
+	public String domain;*/
 
 	// 分组
-	@DatabaseField(dataType = DataType.STRING, width = 128, indexName = "domain-group")
+	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String group;
 
 	public static final Logger logger = LogManager.getLogger(AccountImpl.class.getName());

@@ -92,7 +92,7 @@ public class ProxyImpl extends Proxy {
 	/**
 	 *
 	 */
-	private Runnable failedCallback;
+	private transient Runnable failedCallback;
 
 	/**
 	 *

@@ -17,7 +17,7 @@ public class LoginAction extends Action {
 	public String loginButtonCssPath = "#login > div.j-login-by.login-by-username.login-by-active > div.zbj-form-item.login-form-button > button";
 	public String errorMsgReg = "账号或密码错误";
 	public transient boolean success = false;
-	public Account account;
+	public transient Account account;
 
 	public LoginAction() {
 	}

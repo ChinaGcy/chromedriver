@@ -185,9 +185,13 @@ public class Project extends Model {
 					//projectSnapshot.hash_id = hash_id;
 
 					projectSnapshot.insert();
+
 					return true;
+
 				} catch (NoSuchFieldException | IllegalAccessException ex) {
+
 					logger.error("Error insert snapshot. ", ex);
+
 					return false;
 				}
 			}

@@ -5,13 +5,18 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.WorkTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +57,6 @@ public class WorkScanTask extends ScanTask {
 				page = Integer.parseInt(matcher_url.group("page"));
 			}
 
-			try {
 
 				String src = getResponse().getText();
 
@@ -72,14 +76,29 @@ public class WorkScanTask extends ScanTask {
 				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
 				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
 					//http://shop.zbj.com/18115303/works-p2.html
-					HttpTaskPoster.getInstance().submit(this.getClass(),
-							ImmutableMap.of("user_id", user_id,"page", String.valueOf(++page)));
+
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page));
+
+						Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch (Exception e) {
+
+						logger.error("error for submit WorkScanTask.class", e);
 					}
 
 
-			} catch (Exception e) {
-				logger.error(e);
-			}
+				}
+
 		});
 
 	}
@@ -107,14 +126,24 @@ public class WorkScanTask extends ScanTask {
 				list.add(new_url);
 
 				try {
-					HttpTaskPoster.getInstance().submit(WorkTask.class,
-							ImmutableMap.of("work_webId", work_webId)
-					);
-				} catch (ClassNotFoundException e) {
-					logger.error(e);
-				} catch (UnsupportedEncodingException | URISyntaxException | MalformedURLException e) {
-					e.printStackTrace();
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("work_webId", work_webId);
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.WorkTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch (Exception e) {
+
+					logger.error("error for submit WorkTask.class", e);
 				}
+
 			}
 		}
 	}

@@ -4,13 +4,16 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -30,10 +33,6 @@ public class ServiceScanTask extends ScanTask {
 		);
 	}
 
-	public static String domain() {
-		return "clouderwork";
-	}
-
     /**
      *
      * @param url
@@ -44,12 +43,16 @@ public class ServiceScanTask extends ScanTask {
 
         super(url);
 
+        setBuildDom();
+
         this.setPriority(Priority.HIGH);
+
+        this.setParam("page", url.split("pagenum=")[1]);
 
         this.addDoneCallback((t) -> {
 
         	//获取当前页数
-	        int page = 0;
+	        int page = Integer.valueOf(url.split("pagenum=")[1]);
 	        Pattern pattern_url = Pattern.compile("pagesize=10&pagenum=(?<page>.+?)");
 	        Matcher matcher_url = pattern_url.matcher(url);
 	        if (matcher_url.find()) {
@@ -78,11 +81,22 @@ public class ServiceScanTask extends ScanTask {
             for(String user : usernames){
 
 	            try {
-		            HttpTaskPoster.getInstance().submit(ServiceProviderTask.class,
-				            ImmutableMap.of("servicer_id", user));
-	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-		            logger.error("error fro HttpTaskPoster.submit ServiceProviderTask.class", e);
+		            //设置参数
+		            Map<String, Object> init_map = new HashMap<>();
+		            ImmutableMap.of("servicer_id", user);
+
+		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTask");
+
+		            //生成holder
+		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+		            //提交任务
+		            ChromeDriverDistributor.getInstance().submit(holder);
+
+	            } catch ( Exception e) {
+
+		            logger.error("error for submit WorkTask.class", e);
 	            }
 
             }
@@ -91,11 +105,22 @@ public class ServiceScanTask extends ScanTask {
             if( usernames.size()>0 ){
 
 	            try {
-		            HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
-				            ImmutableMap.of("page", String.valueOf(++page)));
-	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-		            logger.error("error fro HttpTaskPoster.submit ServiceScanTask.class", e);
+	            	int next = page + 1;
+
+		            //设置参数
+		            Map<String, Object> init_map = new HashMap<>();
+		            ImmutableMap.of("page", String.valueOf(next));
+
+		            //生成holder
+		            ChromeTaskHolder holder = ChromeTask.buildHolder(ServiceScanTask.class, init_map);
+
+		            //提交任务
+		            ChromeDriverDistributor.getInstance().submit(holder);
+
+	            } catch ( Exception e) {
+
+		            logger.error("error for submit ServiceScanTask.class", e);
 	            }
 
             }
@@ -105,10 +130,8 @@ public class ServiceScanTask extends ScanTask {
 
     @Override
     public TaskTrace getTaskTrace() {
-        return null;
+
+	    return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
     }
 
-	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
-		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
-	}
 }

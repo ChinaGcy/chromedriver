@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 @DatabaseTable(tableName = "project_snapshots")
 public class ProjectSnapshot extends Project {
 
-	// 原网站id
+	// 原数据 id
 	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
 	public String id_;
 

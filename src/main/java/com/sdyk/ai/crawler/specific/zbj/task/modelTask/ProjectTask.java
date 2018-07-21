@@ -7,8 +7,10 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.BasicRequester;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -18,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -125,9 +129,25 @@ public class ProjectTask extends Task {
 						logger.error("Error calculate project rating. ", e);
 					}
 
-					HttpTaskPoster.getInstance().submit(TendererTask.class,
-							ImmutableMap.of("tenderer_id", tenderer_webId)
-							);
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("tenderer_id", tenderer_webId);
+
+						Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch (Exception e) {
+
+						logger.error("error for submit TendererTask.class", e);
+					}
+
 				}
 			} catch (Exception e) {
 				logger.error("", e);

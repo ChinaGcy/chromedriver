@@ -7,7 +7,10 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,10 +19,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ServiceProviderTask extends Task {
 
@@ -88,15 +88,64 @@ public class ServiceProviderTask extends Task {
 					ChromeTaskScheduler.getInstance().submit(t);
 				}*/
 
-				HttpTaskPoster.getInstance().submit(ServiceProviderRatingTask.class,
-						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
-						);
-				HttpTaskPoster.getInstance().submit(CaseScanTask.class,
-						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
-						);
-				HttpTaskPoster.getInstance().submit(WorkScanTask.class,
-						ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1))
-						);
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch (Exception e) {
+
+					logger.error("error for submit ServiceProviderRatingTask.class", e);
+				}
+
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch (Exception e) {
+
+					logger.error("error for submit CaseScanTask.class", e);
+				}
+
+
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch (Exception e) {
+
+					logger.error("error for submit CaseScanTask.class", e);
+				}
+
 			} catch(Exception e) {
 				logger.error(e);
 			}

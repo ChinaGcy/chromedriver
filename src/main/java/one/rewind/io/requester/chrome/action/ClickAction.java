@@ -31,9 +31,8 @@ public class ClickAction extends Action {
 			if (el != null) {
 				el.click();
 				if (this.sleepTime > 0L) {
-					agent.getDriver().wait(this.sleepTime);
-					System.out.println(" 延时时间： " + this.sleepTime);
-					Thread.sleep(3000);
+					//agent.getDriver().wait(this.sleepTime);
+					Thread.sleep(sleepTime);
 				}
 
 				return true;

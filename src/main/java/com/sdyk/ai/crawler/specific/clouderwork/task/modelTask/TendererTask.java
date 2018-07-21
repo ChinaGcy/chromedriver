@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
 
-	public long MIN_INTERVAL = 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 60 * 60 * 1000;
 
 	static {
 		registerBuilder(
@@ -197,7 +197,7 @@ public class TendererTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			} catch ( Exception e) {
 

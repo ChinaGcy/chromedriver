@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.Domain;
+import com.sdyk.ai.crawler.model.TaskInitializer;
 import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
@@ -16,6 +17,7 @@ import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.Task;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
@@ -142,11 +144,13 @@ public class Scheduler {
 	}
 
 	/**
-	 * 清空redis中记录的proxy被domain封禁信息
+	 * 清空redis中记录的proxy被domain封禁信息以及采集网页的时间信息
 	 */
 	public void resetRedis() {
 
 		ProxyManager.getInstance().proxyDomainBannedMap.clear();
+
+		Distributor.URL_VISITS.clear();
 	}
 
 	/**
@@ -279,7 +283,7 @@ public class Scheduler {
 						ChromeDriverAgent agent_new =
 								((Distributor) ChromeDriverDistributor.getInstance()).findAgentWithoutDomain(t.getDomain());
 
-						logger.info("Agent without account : {} and agent_new : {}",account, agent_new);
+						logger.info("Agent wicount : {} and agent_new : {}",account, agent_new);
 
 						if (agent_new != null) {
 
@@ -502,20 +506,28 @@ public class Scheduler {
 	public static void main(String[] args) throws Exception {
 
 		// 初始化
-		Scheduler scheduler = new Scheduler();
+		Scheduler.getInstance();
 
 		Thread.sleep(10000);
 
-		/*Map<String, Object> init_map_ = new HashMap<>();
-		init_map_.put("page", "2");
 
-		Class clazz_ = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyListScanTask");
+		TaskInitializer.getAll().stream().filter(t -> {
+			return t.enable == true;
+		}).forEach( t ->{
 
-		ChromeTaskHolder holder_ = ChromeTask.buildHolder(clazz_, init_map_ );
+			try {
 
-		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder_);*/
+				t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
 
+				t.start_time = new Date();
 
+				t.update();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		});
 
 	}
 }

@@ -5,13 +5,18 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceProviderTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,20 +70,42 @@ public class ServiceScanTask extends ScanTask {
 
 	            //添加抓取服务商信息任务
 	            try {
-		            HttpTaskPoster.getInstance().submit(ServiceProviderTask.class,
-				            ImmutableMap.of("service_id", un));
 
-	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-		            logger.error("error for HttpTaskPoster.submit ServiceProviderTask", e);
+		            //设置参数
+		            Map<String, Object> init_map = new HashMap<>();
+		            ImmutableMap.of("service_id", un);
+
+		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceProviderTask");
+
+		            //生成holder
+		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+		            //提交任务
+		            ChromeDriverDistributor.getInstance().submit(holder);
+
+	            } catch ( Exception e) {
+
+		            logger.error("error for submit ServiceProviderTask.class", e);
 	            }
 
 	            //添加服务商评价任务
 	            try {
-		            HttpTaskPoster.getInstance().submit(ServiceRatingTask.class,
-				            ImmutableMap.of("service_id", un));
 
-	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-		            logger.error("error for HttpTaskPoster.submit ServiceProviderTask", e);
+		            //设置参数
+		            Map<String, Object> init_map = new HashMap<>();
+		            ImmutableMap.of("service_id", un);
+
+		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask");
+
+		            //生成holder
+		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+		            //提交任务
+		            ChromeDriverDistributor.getInstance().submit(holder);
+
+	            } catch ( Exception e) {
+
+		            logger.error("error for submit ServiceRatingTask.class", e);
 	            }
 
             }
@@ -87,11 +114,22 @@ public class ServiceScanTask extends ScanTask {
                 int nextP = page+1;
 
 	            try {
-		            HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
-				            ImmutableMap.of("page", String.valueOf(nextP)));
 
-	            } catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-		            logger.error("error for HttpTaskPoster.submit ServiceScanTask", e);
+		            //设置参数
+		            Map<String, Object> init_map = new HashMap<>();
+		            ImmutableMap.of("page", String.valueOf(nextP));
+
+		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ServiceScanTask");
+
+		            //生成holder
+		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+		            //提交任务
+		            ChromeDriverDistributor.getInstance().submit(holder);
+
+	            } catch ( Exception e) {
+
+		            logger.error("error for submit ServiceScanTask.class", e);
 	            }
 
             }

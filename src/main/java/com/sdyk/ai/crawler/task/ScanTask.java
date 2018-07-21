@@ -31,7 +31,6 @@ public abstract class ScanTask extends Task {
 		super(url, headers, post_data, cookies, ref);
 	}*/
 
-
 	/**
 	 * 判断是否为最大页数
 	 * @param path

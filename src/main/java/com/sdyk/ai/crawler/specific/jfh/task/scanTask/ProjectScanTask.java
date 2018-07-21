@@ -3,12 +3,15 @@ package com.sdyk.ai.crawler.specific.jfh.task.scanTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -67,11 +70,22 @@ public class ProjectScanTask extends ScanTask {
 			for( String projectUrl : project ){
 
 				try {
-					HttpTaskPoster.getInstance().submit(ProjectTask.class,
-							ImmutableMap.of("project_id", projectUrl));
-				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-					logger.error("error fro HttpTaskPoster.submit ProjectTask.class", e);
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("project_id", projectUrl);
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectTask.class", e);
 				}
 
 			}
@@ -80,19 +94,27 @@ public class ProjectScanTask extends ScanTask {
 				int nextPage = page +1;
 
 				try {
-					HttpTaskPoster.getInstance().submit(ProjectScanTask.class,
-							ImmutableMap.of("page", String.valueOf(nextPage)));
-				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-					logger.error("error fro HttpTaskPoster.submit ProjectScanTask.class", e);
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("page", String.valueOf(nextPage));
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.scanTask.ProjectScanTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectScanTask.class", e);
 				}
+
 			}
 
 		});
 
-	}
-
-	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
-		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 }

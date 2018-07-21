@@ -3,7 +3,10 @@ package com.sdyk.ai.crawler.specific.proginn.task.scanTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -11,6 +14,8 @@ import org.jsoup.select.Elements;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,11 +57,22 @@ public class ServiceScanTask extends ScanTask {
 				String uId = element.getElementsByClass("user-avatar").attr("userid");
 
 				try {
-					HttpTaskPoster.getInstance().submit(ServiceProviderTask.class,
-							ImmutableMap.of("servicer_id", uId));
 
-				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-					logger.error("error for HttpTaskPoster.submit ServiceScanTask", e);
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("servicer_id", uId);
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectTask.class", e);
 				}
 
 			}
@@ -69,11 +85,22 @@ public class ServiceScanTask extends ScanTask {
 				int next = page + 1;
 
 				try {
-					HttpTaskPoster.getInstance().submit(ServiceScanTask.class,
-							ImmutableMap.of("page", String.valueOf(next)));
 
-				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
-					logger.error("error for HttpTaskPoster.submit ServiceScanTask", e);
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("page", String.valueOf(next));
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.scanTaskServiceScanTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit scanTaskServiceScanTask.class", e);
 				}
 
 			}

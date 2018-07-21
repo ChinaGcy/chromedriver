@@ -7,8 +7,10 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -46,8 +48,6 @@ public class ServiceProviderTask extends Task {
 
     	super(url);
 
-    	this.setBuildDom();
-
     	this.setPriority(Priority.HIGH);
 
     	this.addDoneCallback((t) -> {
@@ -76,9 +76,9 @@ public class ServiceProviderTask extends Task {
 
 		String url = getUrl();
 		Pattern pattern = Pattern.compile("[0-9]*");
-		String[] urls = url.split("cers/");
+		String[] urls = url.split("freelancers/");
 
-		serviceProvider.origin_id =urls[1];
+		serviceProvider.origin_id = urls[1];
 
 		//描述
 		serviceProvider.content = doc.select("div.p-item > div:nth-child(2)").toString();
@@ -385,11 +385,22 @@ public class ServiceProviderTask extends Task {
 				String workUrl = element.attr("href");
 
 				try {
-					HttpTaskPoster.getInstance().submit(WorkTask.class,
-							ImmutableMap.of("work_id", workUrl));
-				} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-					logger.error("error fro HttpTaskPoster.submit WorkTask.class", e);
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("work_id", workUrl);
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.WorkTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit WorkTask.class", e);
 				}
 
 			}

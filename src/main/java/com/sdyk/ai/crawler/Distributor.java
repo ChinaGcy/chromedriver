@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
+import com.sdyk.ai.crawler.task.ScanTask;
 import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
@@ -198,7 +198,7 @@ public class Distributor extends ChromeDriverDistributor {
 		// 生成指派信息
 		if(agent != null) {
 
-			logger.info("Assign {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", agent.name);
+			logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.init_map, agent.name);
 
 			queues.get(agent).put(holder);
 
@@ -273,10 +273,17 @@ public class Distributor extends ChromeDriverDistributor {
 			if(task instanceof com.sdyk.ai.crawler.task.ScanTask) {
 				task.addDoneCallback((t) -> {
 
-					TaskTrace tt = ((ScanTask) t).getTaskTrace();
-					if (tt != null) {
-						tt.insert();
+					try {
+						TaskTrace tt = ((ScanTask) t).getTaskTrace();
+						System.out.println(tt.toJSON());
+						if (tt != null) {
+							tt.insert();
+						}
 					}
+					catch (Exception e) {
+						logger.error("error for get TaskTrace", e);
+					}
+
 				});
 			}
 

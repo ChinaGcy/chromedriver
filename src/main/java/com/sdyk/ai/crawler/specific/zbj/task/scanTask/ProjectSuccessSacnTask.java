@@ -4,7 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -67,19 +70,48 @@ public class ProjectSuccessSacnTask extends ScanTask {
 					String project_id = matcher.group("projectId");
 
 					try {
-						HttpTaskPoster.getInstance().submit(ProjectTask.class,
-								ImmutableMap.of("project_id", project_id));
 
-					} catch (Exception e) {
-						logger.error(e);
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("project_id", project_id);
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ProjectTask.class", e);
 					}
+
 				}
 
 				// body > div.grid.grid-inverse > div.main-wrap > div > div.list-footer > div > ul
 				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div.list-footer > div > ul > li", page)) {
 
-					HttpTaskPoster.getInstance().submit(ProjectTask.class,
-							ImmutableMap.of("channel", channel, "page", String.valueOf(++page)));
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("channel", channel, "page", String.valueOf(++page));
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ProjectTask.class", e);
+					}
+
 				}
 
 				logger.info("Task driverCount: {}", tasks.size());

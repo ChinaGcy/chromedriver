@@ -5,6 +5,9 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,10 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -175,12 +175,24 @@ public class ProjectTask extends Task {
 		for( String id : uId ) {
 
 			try {
-				HttpTaskPoster.getInstance().submit(ServiceProviderTask.class,
-						ImmutableMap.of("user_id", id));
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-				logger.error("error fro HttpTaskPoster.submit ServiceProviderTask.class", e);
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				ImmutableMap.of("user_id", id);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.ServiceProviderTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit ServiceProviderTask.class", e);
 			}
+
 
 		}
 
@@ -199,11 +211,22 @@ public class ProjectTask extends Task {
 		for( String t : tId ){
 
 			try {
-				HttpTaskPoster.getInstance().submit(TendererTask.class,
-						ImmutableMap.of("tenderer_id", t));
-			} catch (ClassNotFoundException | MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
 
-				logger.error("error fro HttpTaskPoster.submit TendererTask.class", e);
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				ImmutableMap.of("tenderer_id", t);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.TendererTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit TendererTask.class", e);
 			}
 
 			project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(

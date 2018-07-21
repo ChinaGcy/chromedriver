@@ -277,7 +277,7 @@ public class ProjectTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			} catch ( Exception e) {
 

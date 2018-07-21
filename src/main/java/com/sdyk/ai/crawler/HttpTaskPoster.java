@@ -1,6 +1,8 @@
 package com.sdyk.ai.crawler;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sdyk.ai.crawler.model.TaskInitializer;
 import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.Task;
@@ -14,6 +16,7 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -58,9 +61,9 @@ public class HttpTaskPoster {
 
 	/**
 	 * 
-	 * @param clazz
+	 * @param class_name
 	 * @param username
-	 * @param map
+	 * @param map_json
 	 * @param step
 	 * @param cron
 	 * @return
@@ -69,13 +72,13 @@ public class HttpTaskPoster {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public boolean submit(Class clazz, String username, Map<String, String> map, int step, String... cron) throws ClassNotFoundException, UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+	public String submit(String class_name, String username, String map_json, int step, String... cron) throws ClassNotFoundException, UnsupportedEncodingException, MalformedURLException, URISyntaxException {
 
 		String params = "";
 
-		params += "class_name=" + clazz.getName();
+		params += "class_name=" + class_name;
 
-		params += "&init_map=" + JSON.toJson(map);
+		params += "&init_map=" + map_json;
 
 		params += "&step=" + step;
 
@@ -97,47 +100,51 @@ public class HttpTaskPoster {
 		BasicRequester.getInstance().submit(task);
 
 		Type type = new TypeToken<Msg<Map<String, Object>>>(){}.getType();
+
 		Msg<Map<String, Object>> msg = JSON.fromJson(task.getResponse().getText(), type);
 
-		logger.info(JSON.toPrettyJson(msg));
+		System.out.println(JSON.toPrettyJson(msg));
 
-		return msg.code == Msg.SUCCESS;
+		String scheduled_task_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(url));
+
+		return scheduled_task_id;
+
 	}
 
 	/**
 	 *
-	 * @param clazz
-	 * @param map
+	 * @param class_name
+	 * @param map_json
 	 * @return
 	 * @throws ClassNotFoundException
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	public boolean submit(Class clazz, Map<String, String> map) throws ClassNotFoundException, MalformedURLException, URISyntaxException, UnsupportedEncodingException {
-		return submit(clazz, null, map, 0, null);
+	public String submit(String class_name, String map_json) throws ClassNotFoundException, MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+		return submit(class_name, null, map_json, 0, null);
 	}
 
 	/**
 	 *
-	 * @param clazz
+	 * @param class_name
 	 * @param username
-	 * @param map
+	 * @param map_json
 	 * @return
 	 * @throws ClassNotFoundException
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	public boolean submit(Class clazz, String username, Map<String, String> map) throws ClassNotFoundException, MalformedURLException, URISyntaxException, UnsupportedEncodingException {
-		return submit(clazz, username, map, 0, null);
+	public String submit(String class_name, String username, String map_json) throws ClassNotFoundException, MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+		return submit(class_name, username, map_json, 0, null);
 	}
 
 	/**
 	 *
-	 * @param clazz
+	 * @param class_name
 	 * @param username
-	 * @param map
+	 * @param map_json
 	 * @param step
 	 * @return
 	 * @throws ClassNotFoundException
@@ -145,7 +152,15 @@ public class HttpTaskPoster {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	public boolean submit(Class clazz, String username, Map<String, String> map, int step) throws ClassNotFoundException, MalformedURLException, URISyntaxException, UnsupportedEncodingException {
-		return submit(clazz, username, map, step, null);
+	public String submit(String class_name, String username, String map_json, int step) throws ClassNotFoundException, MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+		return submit(class_name, username, map_json, step, null);
+	}
+
+	public static void startAllInitializers() throws ClassNotFoundException, MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+
+		for(TaskInitializer initializer : TaskInitializer.getAll()) {
+
+			HttpTaskPoster.getInstance().submit(initializer.class_name,null, initializer.init_map_json, 0, initializer.cron);
+		}
 	}
 }

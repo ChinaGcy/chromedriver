@@ -1,37 +1,21 @@
 package com.sdyk.ai.crawler.task;
 
-import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sdyk.ai.crawler.LoginInAction__;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import one.rewind.io.requester.account.Account;
-import one.rewind.io.requester.account.AccountImpl;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.ChromeAction;
-import one.rewind.io.requester.chrome.action.ClickAction;
-import one.rewind.io.requester.chrome.action.LoginAction;
-import one.rewind.io.requester.exception.AccountException;
-import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.json.JSON;
 import one.rewind.json.JSONable;
-import one.rewind.util.Configs;
-import org.openqa.selenium.interactions.SendKeysAction;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 
@@ -45,11 +29,11 @@ public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 
 		this.setValidator((a, t) -> {
 
-			String text = t.getResponse().getText();
+			/*String text = t.getResponse().getText();
 
-			if( (text.contains("ip") || text.contains("IP")) && text.contains("禁") ){
+			if( (text.contains("ip") || text.contains("IP")) && text.contains("封禁") ){
 				throw new ProxyException.Failed(a.proxy);
-			}
+			}*/
 
 		});
 

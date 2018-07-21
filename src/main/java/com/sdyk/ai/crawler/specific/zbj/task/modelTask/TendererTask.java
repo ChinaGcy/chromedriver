@@ -5,14 +5,19 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,12 +118,44 @@ public class TendererTask extends Task {
 				tenderer.insert();
 
 				// 添加projectTask
-				HttpTaskPoster.getInstance().submit(TendererOrderTask.class,
-						ImmutableMap.of("user_id", userId, "page", "1"));
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("user_id", userId, "page", "1");
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) TendererOrderTask.class;
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch (Exception e) {
+
+					logger.error("error for submit TendererOrderTask.class", e);
+				}
 
 				// 评价任务
-				HttpTaskPoster.getInstance().submit(TendererRatingTask.class,
-						ImmutableMap.of("user_id", userId, "page", "1"));
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("user_id", userId, "page", "1");
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) TendererRatingTask.class;
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch (Exception e) {
+
+					logger.error("error for submit TendererRatingTask.class", e);
+				}
 
 			}catch (Exception e) {
 				logger.error(e);

@@ -5,7 +5,10 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
@@ -13,6 +16,8 @@ import org.openqa.selenium.NoSuchElementException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,9 +85,25 @@ public class ServiceProviderRatingTask extends ScanTask {
 				// 翻页 #userlist > div.pagination > ul > li.disabled
 				if (pageTurning("#userlist > div.pagination > ul > li", page)) {
 
-					HttpTaskPoster.getInstance().submit(this.getClass(),
-							ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page))
-							);
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page));
+
+						Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch (Exception e) {
+
+						logger.error("error for submit ServiceProviderRatingTask.class", e);
+					}
+
 				}
 
 			} catch (Exception e) {

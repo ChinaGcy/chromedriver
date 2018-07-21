@@ -20,7 +20,7 @@ public class CompanyProduct extends Model {
 
 	// 产品名称
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String title;
+	public String product_name;
 
 	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")

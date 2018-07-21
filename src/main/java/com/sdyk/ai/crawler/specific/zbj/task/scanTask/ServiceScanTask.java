@@ -3,13 +3,18 @@ package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,8 +105,25 @@ public class ServiceScanTask extends ScanTask {
 				// 翻页
 				if (pageTurning("#utopia_widget_18 > div.pagination > ul > li", i_)) {
 
-					HttpTaskPoster.getInstance().submit(this.getClass(),
-							ImmutableMap.of("channel", channel,"page", String.valueOf(page+40)));
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						ImmutableMap.of("channel", channel,"page", String.valueOf(page+40));
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ProjectTask.class", e);
+					}
+
 				}
 				//logger.info("Task driverCount: {}", tasks.size());
 

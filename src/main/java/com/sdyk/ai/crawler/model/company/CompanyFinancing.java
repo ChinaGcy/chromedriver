@@ -13,7 +13,7 @@ import java.util.Date;
  * 公司融资情况
  */
 @DBName(value = "sdyk_raw")
-@DatabaseTable(tableName = "company_financings")
+@DatabaseTable(tableName = "company_financing")
 public class CompanyFinancing extends Model {
 
 	// 公司ID

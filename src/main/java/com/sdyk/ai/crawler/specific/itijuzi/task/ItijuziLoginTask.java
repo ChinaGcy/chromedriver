@@ -1,10 +1,8 @@
 package com.sdyk.ai.crawler.specific.itijuzi.task;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.LoginInAction__;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.specific.mihuashi.task.MihuashiLoginTask;
-import com.sdyk.ai.crawler.task.LoginTask;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.Task;

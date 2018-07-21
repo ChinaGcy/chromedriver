@@ -29,7 +29,7 @@ public class CompanyTask extends Task {
 
 	static {
 		registerBuilder(
-				ProjectScanTask.class,
+				CompanyTask.class,
 				"https://www.itjuzi.com/company/{{id}}",
 				ImmutableMap.of("id", String.class),
 				ImmutableMap.of("id","33081784")
@@ -144,7 +144,7 @@ public class CompanyTask extends Task {
 
 			c_product.company_id = c_info.id;
 
-			c_product.title = element.select("a.product-name").text();
+			c_product.product_name = element.select("a.product-name").text();
 
 			c_product.content = element.select("div.product-de").text();
 
