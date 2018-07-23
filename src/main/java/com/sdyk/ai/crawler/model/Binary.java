@@ -1,9 +1,13 @@
 package com.sdyk.ai.crawler.model;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import one.rewind.db.DBName;
+
+import java.sql.SQLException;
 
 /**
  * 二进制文件
@@ -29,5 +33,28 @@ public class Binary extends Model {
 
 	public Binary(String url) {
 		super(url);
+	}
+
+	/**
+	 * 插入数据库
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean insert() {
+
+		Dao dao = daoMap.get(this.getClass().getSimpleName());
+
+		try {
+
+			dao.create(this);
+
+			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.insertOne(this);
+
+			return true;
+
+		} catch (Exception e) {
+			logger.warn("file exist");
+		}
+		return false;
 	}
 }

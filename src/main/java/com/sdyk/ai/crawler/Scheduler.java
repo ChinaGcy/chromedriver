@@ -80,6 +80,10 @@ public class Scheduler {
 	 */
 	public Scheduler() throws Exception {
 
+		new Thread(() -> {
+			ServiceWrapper.getInstance();
+		}).start();
+
 		resetDockerHost();
 
 		AccountManager.getInstance().setAllAccountFree();
@@ -163,7 +167,7 @@ public class Scheduler {
 		final URL remoteAddress = container.getRemoteAddress();
 
 		// 创建 Agent
-		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container, proxy);
+		ChromeDriverAgent agent = new ChromeDriverAgent(/*remoteAddress, container, proxy*/);
 
 		// A 账号异常回调
 		agent.addAccountFailedCallback((agent_, account_)->{
@@ -420,7 +424,7 @@ public class Scheduler {
 	// 初始化方法
 	public void init() throws Exception {
 
-		ChromeDriverDistributor.instance = new Distributor();
+		//ChromeDriverDistributor.instance = new Distributor();
 
 		CountDownLatch downLatch = new CountDownLatch(DefaultDriverCount);
 
@@ -505,11 +509,10 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		// 初始化
+		// Scheduler 初始化
 		Scheduler.getInstance();
 
 		Thread.sleep(10000);
-
 
 		TaskInitializer.getAll().stream().filter(t -> {
 			return t.enable == true;
@@ -519,9 +522,9 @@ public class Scheduler {
 
 				t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
 
-				t.start_time = new Date();
+				//t.start_time = new Date();
 
-				t.update();
+				//t.update();
 
 			} catch (Exception e) {
 				e.printStackTrace();

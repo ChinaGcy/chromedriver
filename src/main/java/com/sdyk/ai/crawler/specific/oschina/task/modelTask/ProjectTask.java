@@ -73,6 +73,8 @@ public class ProjectTask extends Task {
 		//标题
 		project.title = doc.getElementsByClass("zb-workbench-h1").text().replace(price,"");
 
+		project.category = doc.select("#container > div.main-content > div.show-for-medium > div > div > div > div.el-row > div > div > div > div.el-card.box-card.zb-box-card.is-always-shadow > div > div > div.zb-workbench-box > div:nth-child(2) > span:nth-child(3)").text();
+
 		//价格
 		if( price.contains("-") ){
 

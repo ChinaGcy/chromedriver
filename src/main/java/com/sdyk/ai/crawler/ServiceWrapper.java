@@ -35,9 +35,9 @@ public class ServiceWrapper {
 	 */
 	public ServiceWrapper() {
 
-		port(port);
+		//port(port);
 
-		Distributor.getInstance();
+		ChromeDriverDistributor.instance = new Distributor();
 
 		before("/*", (q, a) -> logger.info("Received api call"));
 
@@ -99,6 +99,10 @@ public class ServiceWrapper {
 			// 任务执行统计
 			get("/taskQueueStat", SystemRoute.getTaskStat, new ModelMsgTransformer());
 
+			// Agent-domains 统计
+			get("/agentInformation", SystemRoute.getAgentInformation, new ModelMsgTransformer());
+
+
 		});
 
 		// 服务商信息
@@ -123,6 +127,6 @@ public class ServiceWrapper {
 
 	public static void main(String[] args) {
 		ServiceWrapper.getInstance();
-		ChromeDriverDistributor.getInstance().buildHttpApiServer();
+		((Distributor)ChromeDriverDistributor.getInstance()).buildHttpApiServer();
 	}
 }

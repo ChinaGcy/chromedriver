@@ -37,9 +37,9 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.HIGH);
+
+		this.setParam("page", init_map.get("page"));
 
 		this.addDoneCallback((t) -> {
 
@@ -129,6 +129,7 @@ public class ServiceScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 	 */
 	@Override
 	public TaskTrace getTaskTrace() {
-		return null;
+
+		return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
 	}
 }

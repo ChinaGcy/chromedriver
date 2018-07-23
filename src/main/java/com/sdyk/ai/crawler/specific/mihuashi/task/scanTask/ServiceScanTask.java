@@ -40,6 +40,8 @@ public class ServiceScanTask extends ScanTask {
 
         this.setPriority(Priority.HIGH);
 
+        this.setParam("page", init_map.get("page"));
+
         this.addDoneCallback((t) -> {
 
             String pagePath = "#artists-index > div.container-fluid > div.container > div > div > nav > span.last > a";
@@ -162,7 +164,8 @@ public class ServiceScanTask extends ScanTask {
 
     @Override
     public TaskTrace getTaskTrace() {
-        return null;
+
+	    return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
     }
 
 }

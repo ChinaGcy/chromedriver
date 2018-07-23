@@ -11,6 +11,7 @@ import com.sdyk.ai.crawler.util.Range;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -136,6 +137,10 @@ public class Project extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String delivery_steps;
 
+	// 版本号
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int version_num;
+
 	public Project() {}
 
 	public Project(String url) {
@@ -157,6 +162,10 @@ public class Project extends Model {
 		try {
 
 			Dao dao = DaoManager.getDao(this.getClass());
+
+			// 设置版本号
+			this.version_num = 1;
+
 			dao.create(this);
 
 			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
@@ -170,21 +179,42 @@ public class Project extends Model {
 
 				try {
 
-					this.insert_time = null;
+					Dao dao = DaoManager.getDao(Project.class);
 
-					this.update_time = null;
+					Project project = (Project) dao.queryForId(this.id);
 
-					String hash_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(this.toJSON()));
+					// 数据发生变化
+					if( !judgeEquale(project, this) ){
 
-					this.insert_time = new Date();
+						// 需求已完成
+						if( this.status != null &&
+								(this.status.equals("已完成") ||
+								this.status.contains("交易成功") ||
+								this.status.contains("交易失败")) ){
 
-					this.update_time = new Date();
+							project.status = this.status;
 
-					ProjectSnapshot projectSnapshot = new ProjectSnapshot(this);
+							project.update();
 
-					//projectSnapshot.hash_id = hash_id;
+							return true;
+						}
 
-					projectSnapshot.insert();
+						// 需求未完成
+						this.insert_time = new Date();
+
+						this.update_time = new Date();
+
+						this.version_num = project.version_num + 1;
+
+						this.budget = new Range(this.budget_lb, this.budget_ub, true);
+
+						ProjectSnapshot projectSnapshot = new ProjectSnapshot(this);
+
+						projectSnapshot.insert();
+
+						this.update();
+
+					}
 
 					return true;
 
@@ -192,6 +222,9 @@ public class Project extends Model {
 
 					logger.error("Error insert snapshot. ", ex);
 
+					return false;
+				} catch (Exception e1) {
+					logger.error("Dao error for Project", e1);
 					return false;
 				}
 			}
@@ -207,4 +240,17 @@ public class Project extends Model {
 			return false;
 		}
 	}
+
+
+	public boolean judgeEquale(Project oldProject, Project newProject) {
+
+		newProject.insert_time = oldProject.insert_time;
+		newProject.update_time = oldProject.update_time;
+		newProject.version_num = oldProject.version_num;
+		newProject.budget = oldProject.budget;
+
+		return one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(oldProject.toJSON()))
+				.equals( one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(newProject.toJSON())) );
+	}
+
 }

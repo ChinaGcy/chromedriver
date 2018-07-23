@@ -45,7 +45,7 @@ public class TendererTask extends Task {
 
         this.setBuildDom();
 
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
 
         this.addDoneCallback((t)->{
 
@@ -208,10 +208,6 @@ public class TendererTask extends Task {
 
 		tenderer.insert();
 
-	}
-
-	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
-		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 
 }

@@ -32,8 +32,6 @@ public class WorkTask extends Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.MEDIUM);
 
 		this.addDoneCallback((t) -> {

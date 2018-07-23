@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.specific.oschina.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
+import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.oschina.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
@@ -32,9 +33,9 @@ public class ProjectScanTask extends ScanTask {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.HIGH);
+
+		this.setParam("page", init_map.get("page"));
 
 		this.addDoneCallback((t) -> {
 
@@ -128,5 +129,11 @@ public class ProjectScanTask extends ScanTask {
 
 		});
 
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+
+		return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
 	}
 }

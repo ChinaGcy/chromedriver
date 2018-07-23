@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.specific.shichangbu.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
+import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.shichangbu.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
@@ -34,6 +35,8 @@ public class ServiceScanTask extends ScanTask {
 		super(url);
 
 		this.setPriority(Priority.HIGH);
+
+		this.setParam("page", init_map.get("page"));
 
 		this.addDoneCallback((t) -> {
 
@@ -110,6 +113,12 @@ public class ServiceScanTask extends ScanTask {
 			}
 
 		});
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+
+		return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
 	}
 
 }

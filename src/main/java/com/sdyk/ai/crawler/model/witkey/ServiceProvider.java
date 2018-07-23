@@ -193,6 +193,10 @@ public class ServiceProvider extends Model {
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int negative_num;
 
+	// 版本号
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int version_num;
+
 	public ServiceProvider() {}
 
 	public ServiceProvider(String url) {
@@ -210,6 +214,9 @@ public class ServiceProvider extends Model {
 		try {
 
 			Dao dao = DaoManager.getDao(this.getClass());
+
+			this.version_num = 1;
+
 			dao.create(this);
 
 			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
@@ -223,24 +230,32 @@ public class ServiceProvider extends Model {
 
 				try {
 
-					this.insert_time = null;
-					this.update_time = null;
+					Dao dao = DaoManager.getDao(this.getClass());
 
-					String hash_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(this.toJSON()));
+					ServiceProvider serviceProvider = (ServiceProvider) dao.queryForId(this.id);
 
-					this.insert_time = new Date();
-					this.update_time = new Date();
+					// 数据发生变化
+					if( !judgeEquale(serviceProvider, this) ){
 
-					ServiceProviderSnapshot snapshot = new ServiceProviderSnapshot(this);
+						this.insert_time = new Date();
 
-					//snapshot.hash_id = hash_id;
+						this.update_time = new Date();
 
-					snapshot.insert();
+						this.version_num = serviceProvider.version_num + 1;
+
+						ServiceProviderSnapshot serviceProviderSnapshot = new ServiceProviderSnapshot(this);
+
+						serviceProviderSnapshot.insert();
+
+						this.update();
+
+					}
+
 					return true;
-				} catch (NoSuchFieldException | IllegalAccessException ex) {
+				} catch (Exception ex) {
 					logger.error("Error insert snapshot. ", ex);
-					return false;
 				}
+				return false;
 			}
 			// 可能是采集数据本事存在问题
 			else {
@@ -253,5 +268,16 @@ public class ServiceProvider extends Model {
 			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
 			return false;
 		}
+	}
+
+	public boolean judgeEquale(ServiceProvider oldServiceProvider, ServiceProvider newServiceProvider) {
+
+		newServiceProvider.insert_time = oldServiceProvider.insert_time;
+		newServiceProvider.update_time = oldServiceProvider.update_time;
+		newServiceProvider.version_num = oldServiceProvider.version_num;
+
+		return one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(oldServiceProvider.toJSON()))
+				.equals( one.rewind.txt.StringUtil.byteArrayToHex(
+						one.rewind.txt.StringUtil.uuid(newServiceProvider.toJSON())) );
 	}
 }

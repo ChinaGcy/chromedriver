@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.specific.jfh.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
+import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
@@ -40,18 +41,13 @@ public class ProjectScanTask extends ScanTask {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.HIGH);
+
+		this.setParam("page", init_map.get("page"));
 
 		this.addDoneCallback((t) -> {
 
-			int page = 0;
-			Pattern pattern_url = Pattern.compile("pageNo=(?<page>.+?)&");
-			Matcher matcher_url = pattern_url.matcher(url);
-			if (matcher_url.find()) {
-				page = Integer.parseInt(matcher_url.group("page"));
-			}
+			int page = Integer.valueOf((Integer) init_map.get("page"));
 
 			String src = getResponse().getText();
 			Set<String> project = new HashSet<>();
@@ -116,5 +112,11 @@ public class ProjectScanTask extends ScanTask {
 
 		});
 
+	}
+
+	@Override
+	public TaskTrace getTaskTrace() {
+
+		return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
 	}
 }

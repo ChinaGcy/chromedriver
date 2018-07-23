@@ -35,6 +35,8 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
         this.setPriority(Priority.HIGH);
 
+        this.setParam("page", init_map.get("page"));
+
         this.addDoneCallback((t) -> {
 
 	        int page = 0;
@@ -126,8 +128,9 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
         return nextPage>page;
     }
 
-    @Override
-    public TaskTrace getTaskTrace() {
-        return null;
-    }
+	@Override
+	public TaskTrace getTaskTrace() {
+
+		return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
+	}
 }

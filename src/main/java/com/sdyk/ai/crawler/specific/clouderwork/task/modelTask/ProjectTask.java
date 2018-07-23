@@ -49,7 +49,7 @@ public class ProjectTask extends Task {
     	this.setBuildDom();
 
         // 设置优先级
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
 
         this.addDoneCallback((t) -> {
 

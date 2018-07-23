@@ -1,10 +1,13 @@
 package com.sdyk.ai.crawler.model.witkey.snapshot;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 import one.rewind.txt.StringUtil;
 
 import java.lang.reflect.Field;
@@ -14,7 +17,7 @@ import java.lang.reflect.Field;
 public class ProjectSnapshot extends Project {
 
 	// 原数据 id
-	@DatabaseField(dataType = DataType.STRING, width = 32, unique = true)
+	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String id_;
 
 	public ProjectSnapshot() {};
@@ -39,5 +42,27 @@ public class ProjectSnapshot extends Project {
 		this.id_ = project.id;
 		this.url = project.url;
 
+	}
+
+	/**
+	 * 插入数据库
+	 * @return
+	 */
+	public boolean insert() {
+
+		try {
+
+			Dao dao = DaoManager.getDao(this.getClass());
+
+
+			dao.create(this);
+
+			return true;
+		}
+		// 数据库连接问题
+		catch (Exception e) {
+			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+			return false;
+		}
 	}
 }

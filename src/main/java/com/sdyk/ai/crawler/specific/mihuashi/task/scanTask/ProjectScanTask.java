@@ -49,9 +49,9 @@ public class ProjectScanTask extends ScanTask {
         super(url);
 
         // 设定高优先级
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
 
-        this.setBuildDom();
+        this.setParam("page", init_map.get("page"));
 
         this.addDoneCallback((t) -> {
 
@@ -162,11 +162,8 @@ public class ProjectScanTask extends ScanTask {
 
     @Override
     public TaskTrace getTaskTrace() {
-        return null;
-    }
 
-	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
-		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
-	}
+	    return new TaskTrace(this.getClass(), "all", this.getParamString("page"));
+    }
 
 }

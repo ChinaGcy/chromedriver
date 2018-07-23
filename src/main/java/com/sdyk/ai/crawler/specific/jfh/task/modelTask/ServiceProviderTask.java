@@ -38,8 +38,6 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback((t) -> {
@@ -219,9 +217,5 @@ public class ServiceProviderTask extends Task {
 			logger.error("error for serviceProvider.insert", e);
 		}
 
-	}
-
-	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){
-		ChromeTask.registerBuilder( clazz, url_template, init_map_class, init_map_defaults );
 	}
 }

@@ -48,7 +48,7 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setParam("page", url.split("pagenum=")[1]);
 
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
 
         this.setValidator((a, t) -> {
 
@@ -59,7 +59,7 @@ public class ProjectScanTask extends ScanTask {
 			    throw new ProxyException.Failed(a.proxy);
 		    }
 		    // 账号出错
-		    else if( text.contains( "账号异常" ) || text.contains( "登陆异常" ) ) {
+		    else if( text.contains( "账号异常" ) || text.contains( "登陆异常" ) || text.contains( "重新登陆" ) ) {
 			    throw new AccountException.Failed(a.accounts.get(t.getDomain()));
 		    }
 
