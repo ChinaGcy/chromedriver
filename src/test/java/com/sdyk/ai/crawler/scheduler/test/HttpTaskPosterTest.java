@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,12 @@ public class HttpTaskPosterTest {
 			}*/
 
 			try {
-				HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+				t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name,null, t.init_map_json, 0, t.cron);
+
+				t.start_time = new Date();
+
+				t.update();
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
