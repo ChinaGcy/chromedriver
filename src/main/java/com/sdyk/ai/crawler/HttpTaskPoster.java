@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 任务提交器
@@ -99,13 +101,19 @@ public class HttpTaskPoster {
 		task.setPost();
 		BasicRequester.getInstance().submit(task);
 
-		Type type = new TypeToken<Msg<Map<String, Object>>>(){}.getType();
+		String scheduled_task_id = "";
+
+		Pattern pattern = Pattern.compile("\"id\":\"(?<Id>.+?)\"");
+		Matcher matcher = pattern.matcher(task.getResponse().getText());
+		if (matcher.find()) {
+			scheduled_task_id = matcher.group("Id");
+		}
+
+		/*Type type = new TypeToken<Msg<Map<String, Object>>>(){}.getType();
 
 		Msg<Map<String, Object>> msg = JSON.fromJson(task.getResponse().getText(), type);
 
-		System.out.println(JSON.toPrettyJson(msg));
-
-		String scheduled_task_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(url));
+		System.out.println(JSON.toPrettyJson(msg));*/
 
 		return scheduled_task_id;
 
