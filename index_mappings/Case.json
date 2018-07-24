@@ -25,13 +25,23 @@
         "analyzer": "ik_max_word",
         "boost": 2
       },
-      "content":{
+      "sd":{
+        "type":"date"
+      },
+      "ed":{
+        "type":"date"
+      },
+      "ongoing":{
+        "type":"integer"
+      },
+      "description":{
         "type":"text",
         "analyzer": "ik_max_word",
         "boost": 4
       },
-      "time_limit":{
+      "cycle":{
         "type":"text"
+
       },
       "response_time":{
         "type":"text"

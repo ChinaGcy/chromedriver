@@ -15,6 +15,9 @@
         "analyzer": "ik_max_word",
         "boost": 4
       },
+      "origin_id": {
+        "type":"keyword"
+      },
       "location": {
         "type":"text"
       },
