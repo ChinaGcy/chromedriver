@@ -128,7 +128,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
 
-		BinaryDownloader.download(image,fileUrl,getUrl(),fileName);
+		BinaryDownloader.download(image, fileUrl, getUrl(), fileName);
 
 		//作品图像
 		String allImags = doc.getElementsByClass("masonry").toString();
@@ -142,7 +142,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		//下载图片
-		BinaryDownloader.download(allImags,imageSrcSet,getUrl(),fileName);
+		BinaryDownloader.download(allImags, imageSrcSet, getUrl(), fileName);
 
 		StringBuffer cover_images = new StringBuffer();
 

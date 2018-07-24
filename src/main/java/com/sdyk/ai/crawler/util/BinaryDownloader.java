@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler.util;
 
 import com.sdyk.ai.crawler.model.Binary;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.txt.URLUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import one.rewind.io.requester.BasicRequester;
@@ -25,7 +26,7 @@ public class BinaryDownloader {
 	 * 3. 相对路径
 	 * 4. 完整路径
 	 */
-	public static String download(String des_src, Set<String> urls, String context_url, List<String> fileName_a) {
+	public static String download(String des_src, Set<String> urls, String context_url, List<String> fileNames) {
 
 		// 处理下载
 		for (String url : urls) {
@@ -43,20 +44,23 @@ public class BinaryDownloader {
 
 				String oldUrl = url;
 				ChromeTask t_;
+
 				// 2.判断地址是否有协议头
-				if (! url.contains("https") && !url.contains("http") && url.contains("//")) {
-					url = "https:" + url;
+				if (url.matches("^//.+?")) {
+
+					// 根据 context_url 判断默认协议头
+					url = URLUtil.getProtocol(context_url) + ":" + url;
 				}
 				// 3.判断是否为相对路径
-				else if (!url.contains("https") && !url.contains("http") && !url.contains("//")) {
-					url = context_url + url;
+				else if (!url.contains("https") && !url.contains("http") && url.contains("//")) {
+
+					// 根据 context_url 拼接相对路径
+					url = context_url.replaceAll("/.+?$", "/") + url;
 				}
 				// 4. 完整地址
-				else if (url.contains("http:")) {
-					url = url.replace("http:", "https:");
+				else if (url.contains("http:") || url.contains("https:")) {
+
 				}
-
-
 
 				t_ = new ChromeTask(url);
 
@@ -67,13 +71,15 @@ public class BinaryDownloader {
 				binary.src = t_.getResponse().getSrc();
 
 				// 当为图片或者下载的数量与fileName数量不一致则通过header获取 否则直接复制
-				if (fileName_a == null || fileName_a.size() ==0 || urls.size() != fileName_a.size()) {
+				if (fileNames == null || fileNames.size() == 0 || urls.size() != fileNames.size()) {
 					binary.file_name = getFileName(t_, binary, url);
-				}else {
-					for (String name : fileName_a) {
+				}
+				else {
+					for (String name : fileNames) {
 						binary.file_name = name;
 					}
 				}
+
 				des_src = des_src.replace(oldUrl, binary.id);
 
 				if (binary.file_name.length() < 128) {
@@ -88,6 +94,7 @@ public class BinaryDownloader {
 				continue;
 			}
 		}
+
 		return  des_src;
 	}
 
