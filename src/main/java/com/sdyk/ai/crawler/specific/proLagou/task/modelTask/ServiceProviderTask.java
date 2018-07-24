@@ -72,7 +72,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
 
-		BinaryDownloader.download(image, fileUrl, getUrl(), fileName);
+		BinaryDownloader.download(image,fileUrl,getUrl(),fileName);
 
 
 		//原网站ID
