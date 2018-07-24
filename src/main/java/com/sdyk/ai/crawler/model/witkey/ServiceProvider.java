@@ -193,10 +193,6 @@ public class ServiceProvider extends Model {
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int negative_num;
 
-	// 版本号
-	@DatabaseField(dataType = DataType.INTEGER, width = 4)
-	public int version_num;
-
 	public ServiceProvider() {}
 
 	public ServiceProvider(String url) {
@@ -215,8 +211,6 @@ public class ServiceProvider extends Model {
 
 			Dao dao = DaoManager.getDao(this.getClass());
 
-			this.version_num = 1;
-
 			dao.create(this);
 
 			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
@@ -232,24 +226,17 @@ public class ServiceProvider extends Model {
 
 					Dao dao = DaoManager.getDao(this.getClass());
 
+					// 获取数据库版本
 					ServiceProvider serviceProvider = (ServiceProvider) dao.queryForId(this.id);
 
-					// 数据发生变化
-					if( !judgeEquale(serviceProvider, this) ){
+					// 获取新信息
+					serviceProvider.copy(this);
 
-						this.insert_time = new Date();
+					// 生成快照
+					ServiceProviderSnapshot serviceProviderSnapshot = new ServiceProviderSnapshot(serviceProvider);
+					serviceProviderSnapshot.insert();
 
-						this.update_time = new Date();
-
-						this.version_num = serviceProvider.version_num + 1;
-
-						ServiceProviderSnapshot serviceProviderSnapshot = new ServiceProviderSnapshot(this);
-
-						serviceProviderSnapshot.insert();
-
-						this.update();
-
-					}
+					serviceProvider.update();
 
 					return true;
 				} catch (Exception ex) {
@@ -270,14 +257,4 @@ public class ServiceProvider extends Model {
 		}
 	}
 
-	public boolean judgeEquale(ServiceProvider oldServiceProvider, ServiceProvider newServiceProvider) {
-
-		newServiceProvider.insert_time = oldServiceProvider.insert_time;
-		newServiceProvider.update_time = oldServiceProvider.update_time;
-		newServiceProvider.version_num = oldServiceProvider.version_num;
-
-		return one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(oldServiceProvider.toJSON()))
-				.equals( one.rewind.txt.StringUtil.byteArrayToHex(
-						one.rewind.txt.StringUtil.uuid(newServiceProvider.toJSON())) );
-	}
 }

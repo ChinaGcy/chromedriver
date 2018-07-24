@@ -4,12 +4,14 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 import one.rewind.db.DaoManager;
 import one.rewind.json.JSON;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -175,4 +177,25 @@ public abstract class Model implements ESIndex {
 	}
 
 	public void fullfill() {}
+
+	/**
+	 * 将新的数据赋值给已有数据
+	 * @param model
+	 */
+	public void copy(Model model) throws NoSuchFieldException, IllegalAccessException {
+
+		Field[] fieldList = model.getClass().getDeclaredFields();
+
+		for(Field f : fieldList) {
+
+			if( f.get(model) != null && !f.get(model).toString().equals("") ){
+
+				Field f_ = this.getClass().getField(f.getName());
+				f_.set(this, f.get(model));
+			}
+		}
+
+
+
+	}
 }
