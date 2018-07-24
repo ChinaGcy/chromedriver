@@ -182,20 +182,26 @@ public abstract class Model implements ESIndex {
 	 * 将新的数据赋值给已有数据
 	 * @param model
 	 */
-	public void copy(Model model) throws NoSuchFieldException, IllegalAccessException {
+	public void copy(Model model) throws Exception {
+
+		if(!model.getClass().equals(this.getClass())) {
+			throw new Exception("Can't copy fields from different model class.");
+		}
 
 		Field[] fieldList = model.getClass().getDeclaredFields();
 
 		for(Field f : fieldList) {
 
-			if( f.get(model) != null && !f.get(model).toString().equals("") ){
+			try {
+				if (f.get(model) != null || f.get(model) != null && f.get(model) instanceof String && !f.get(model).equals("")) {
 
-				Field f_ = this.getClass().getField(f.getName());
-				f_.set(this, f.get(model));
+					Field f_ = this.getClass().getField(f.getName());
+					f_.set(this, f.get(model));
+				}
+			} catch (Exception e) {
+				logger.error("Error copy model field:{}. ", f.getName(), e);
 			}
 		}
-
-
 
 	}
 }

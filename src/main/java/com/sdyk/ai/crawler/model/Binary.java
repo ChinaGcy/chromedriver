@@ -48,8 +48,6 @@ public class Binary extends Model {
 
 			dao.create(this);
 
-			//if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.insertOne(this);
-
 			return true;
 
 		}  catch (SQLException e) {
@@ -60,8 +58,6 @@ public class Binary extends Model {
 				try {
 
 					this.update();
-
-					//if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
 
 					return true;
 
@@ -74,6 +70,7 @@ public class Binary extends Model {
 				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
 			}
 		}
+
 		return false;
 	}
 }
