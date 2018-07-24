@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.witkey.TendererRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
@@ -18,8 +19,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
@@ -35,15 +35,9 @@ public class TendererTask extends Task {
 		);
 	}
 
-	public static String domain() {
-		return "clouderwork";
-	}
-
     public TendererTask(String url) throws MalformedURLException, URISyntaxException {
 
         super(url);
-
-        this.setBuildDom();
 
         this.setPriority(Priority.HIGH);
 
@@ -86,6 +80,18 @@ public class TendererTask extends Task {
 		if( name!=null && !"".equals(name) ){
 			tenderer.name = name;
 		}
+
+		//头像
+		Set<String> headUrl =new HashSet<>();
+		List<String> headName = new ArrayList<>();
+		String image = doc.select("div.avatorBox > img").toString();
+		String imageUrl = doc.select("div.avatorBox > img").attr("src");
+		headUrl.add(imageUrl);
+
+		tenderer.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
+		BinaryDownloader.download(image,headUrl,getUrl(),headName);
+
+
 
 		//招标人描述
 		tenderer.content = "<p>" +

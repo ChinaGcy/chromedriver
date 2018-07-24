@@ -36,17 +36,11 @@ public class ProjectTask extends Task {
 		);
 	}
 
-	public static String domain() throws MalformedURLException, URISyntaxException {
-		return "clouderwork";
-	}
-
     public Project project;
 
     public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 
     	super(url);
-
-    	this.setBuildDom();
 
         // 设置优先级
         this.setPriority(Priority.HIGH);
@@ -259,7 +253,8 @@ public class ProjectTask extends Task {
 		//招商人ID
 		String tendererId =doc.select("#project-detail > div > div.main-top > div.job-main > div.client > div > a").attr("href");
 		if( tendererId!=null && !"".equals(tendererId) ){
-			project.tenderer_id = tendererId;
+			project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
+					one.rewind.txt.StringUtil.uuid("https://www.clouderwork.com" + tendererId));
 		}
 
 		//采集招标人信息

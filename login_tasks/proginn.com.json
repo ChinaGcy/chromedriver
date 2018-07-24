@@ -1,0 +1,22 @@
+{
+  "url": "https://www.proginn.com/?loginbox=show",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.ClickAction",
+      "content": {
+        "elementPath": "#J_ChangeWay",
+        "sleepTime": 2000
+      }
+    },
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://www.proginn.com/?loginbox=show",
+        "usernameCssPath": "#J_Mobile > input[type=\"text\"]",
+        "passwordCssPath": "#password",
+        "loginButtonCssPath": "#login_submit",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}

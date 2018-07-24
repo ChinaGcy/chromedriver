@@ -33,8 +33,6 @@ public class ProjectTask extends Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback((t) -> {

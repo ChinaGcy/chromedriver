@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
@@ -36,14 +37,6 @@ public class ServiceProviderTask extends Task {
 		);
 	}
 
-	public static String domain() {
-		return "clouderwork";
-	}
-
-    ServiceProvider serviceProvider;
-
-    Resume resume;
-
     public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 
     	super(url);
@@ -71,8 +64,8 @@ public class ServiceProviderTask extends Task {
 	 */
 	public void crawlerJob(Document doc) throws ChromeDriverException.IllegalStatusException {
 
-		serviceProvider = new ServiceProvider(getUrl());
-		resume = new Resume(getUrl());
+		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
+		Resume resume = new Resume(getUrl());
 
 		String url = getUrl();
 		Pattern pattern = Pattern.compile("[0-9]*");
@@ -85,6 +78,17 @@ public class ServiceProviderTask extends Task {
 
 		//平台认证信息
 		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
+
+		//头像
+		Set<String> headUrl =new HashSet<>();
+		List<String> headName = new ArrayList<>();
+		String image = doc.select("img.avator").toString();
+		String imageUrl = doc.select("img.avator").attr("src");
+		headUrl.add(imageUrl);
+
+		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
+		BinaryDownloader.download(image,headUrl,getUrl(),headName);
+
 
 		//类型
 		String type = serviceProvider.platform_certification;
