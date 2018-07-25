@@ -200,7 +200,7 @@ public class StringUtil {
 	 * @param extraUrls_a
 	 * @return
 	 */
-	public static String cleanContent(String in, Set<String> extraUrls_img, Set<String> extraUrls_a, List<String> fileName_a){
+	public static String cleanContent(String in, List<String> extraUrls_img, Set<String> extraUrls_a, List<String> fileNames){
 
 		in = in.replace("(?i)^<.+?>", "");
 		in = in.replace("(?i)</.+?>$", "");
@@ -248,18 +248,33 @@ public class StringUtil {
 		// TODO 此行代码应该下移
 		out = out.replaceAll("javascript:.+?(?=['\" ])", "");
 
-		String out1 = out;
+		// *****************************
+		// 对图片和附件的额外处理
+		// 1. 处理附件，获得需要下载附件的连接（连接->标题 map）
+		//    源代码替换 <a href="{binaryId}" title="{title}">{title}</a>
+		// 2. 处理图片，获取需要下载的连接
+		//    <img src="{binaryId}">
+		//    <img src="data:image/...">
 
 		// 清洗 img 标签，只保留 src 属性
 		Matcher matcher = Pattern.compile("(?si)<img.*?>").matcher(out);
-		List<String> imgs = new ArrayList<String>();
+
+		List<String> imgs = new ArrayList<>();
 		while(matcher.find()){
 
-			String imgUrl = matcher.group().replaceAll("^.*?src=['\"]?", "").replaceAll("[ \"'>].*?$", "");
-			if(imgUrl.length()>10) {
-				extraUrls_img.add(imgUrl);
-				imgs.add("<img src=\"" + imgUrl + "\">");
-			} else {
+			String imgSrc = matcher.group().replaceAll("^.*?src=['\"]?", "")
+					.replaceAll("[ \"'>].*?$", "");
+
+			// 图片是Base64 Encode形式
+			if(imgSrc.matches("^data:image/.+?")) {
+				imgs.add("<img src=\"" + imgSrc + "\">");
+			}
+			// 如果 img 的 src长度小于等于10 则认为该图片无效
+			else if(imgSrc.length() > 10) {
+				extraUrls_img.add(imgSrc);
+				imgs.add("<img src=\"" + imgSrc + "\">");
+			}
+			else {
 				imgs.add("");
 			}
 		}
@@ -267,19 +282,22 @@ public class StringUtil {
 		matcher = Pattern.compile("(?si)<img.*?>").matcher(out);
 		int i = 0;
 		while(matcher.find()){
-			out1 = out1.replace(matcher.group(), imgs.get(i));
+			out = out.replace(matcher.group(), imgs.get(i));
 			i++;
 		}
 
 		// 清洗 a 标签，只保留 href 属性
 		// TODO 应该只清洗附件类型
 		// TODO 附件改名 a 标签中的title属性
+		// 下载有可能有多种形式，应该能处理这些形式
 		matcher = Pattern.compile("(?si)<a.*?>下载").matcher(out);
 		List<String> as = new ArrayList<>();
 
 		while(matcher.find()){
 
-			String attachmentUrl = matcher.group().replaceAll("^.*?href=['\"]?", "").replaceAll("[ \"'>].*?$", "");
+			String attachmentUrl = matcher.group()
+					.replaceAll("^.*?href=['\"]?", "")
+					.replaceAll("[ \"'>].*?$", "");
 
 			if(attachmentUrl.length() > 10) {
 				extraUrls_a.add(attachmentUrl);
@@ -293,27 +311,27 @@ public class StringUtil {
 		matcher = Pattern.compile("(?si)<a.*?><img src").matcher(out);
 		int a = 0;
 		while (matcher.find()) {
-			out1 = out1.replace(matcher.group(), "<img src").replace("></a>", ">");
+			out = out.replace(matcher.group(), "<img src").replace("></a>", ">");
 			a++;
 		}
 
 		// 获取 title的值给fileName
-		matcher = Pattern.compile("(?si)<a.*?title=\"(?<T>.+?)\">下载").matcher(out1);
+		matcher = Pattern.compile("(?si)<a.*?title=\"(?<T>.+?)\".*?>下载").matcher(out);
 		while (matcher.find()) {
-			fileName_a.add(matcher.group("T"));
+			fileNames.add(matcher.group("T"));
 		}
 
 		// 将a标签替换
-		matcher = Pattern.compile("(?si)<a.*?>下载").matcher(out1);
+		matcher = Pattern.compile("(?si)<a.*?>下载").matcher(out);
 		int b = 0;
 		while (matcher.find()) {
-			out1 = out1.replace(matcher.group(), as.get(b));
+			out = out.replace(matcher.group(), as.get(b));
 			b++;
 		}
 
 
 		// 去掉分页特殊文字
-		out = out1.replaceAll("(?i)(上一页(\\d)*)|(下一页)", "");
+		out = out.replaceAll("(?i)(上一页(\\d)*)|(下一页)", "");
 
 		// 去掉图片题注
 		out = out.replaceAll("(?i)<p([^>]*)>图\\s*\\d+.*?</p>", "");

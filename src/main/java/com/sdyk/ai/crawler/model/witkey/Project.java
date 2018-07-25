@@ -137,10 +137,6 @@ public class Project extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String delivery_steps;
 
-	// 版本号
-	@DatabaseField(dataType = DataType.INTEGER, width = 4)
-	public int version_num;
-
 	public Project() {}
 
 	public Project(String url) {
@@ -163,9 +159,6 @@ public class Project extends Model {
 
 			Dao dao = DaoManager.getDao(this.getClass());
 
-			// 设置版本号
-			this.version_num = 1;
-
 			dao.create(this);
 
 			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
@@ -181,40 +174,18 @@ public class Project extends Model {
 
 					Dao dao = DaoManager.getDao(Project.class);
 
+					// 获取已有版本
 					Project project = (Project) dao.queryForId(this.id);
 
-					// 数据发生变化
-					if( !judgeEquale(project, this) ){
+					// 数据更新
+					project.copy(this);
+					project.update();
 
-						// 需求已完成
-						if( this.status != null &&
-								(this.status.equals("已完成") ||
-								this.status.contains("交易成功") ||
-								this.status.contains("交易失败")) ){
+					// 生成快照
+					ProjectSnapshot projectSnapshot = new ProjectSnapshot(project);
 
-							project.status = this.status;
-
-							project.update();
-
-							return true;
-						}
-
-						// 需求未完成
-						this.insert_time = new Date();
-
-						this.update_time = new Date();
-
-						this.version_num = project.version_num + 1;
-
-						this.budget = new Range(this.budget_lb, this.budget_ub, true);
-
-						ProjectSnapshot projectSnapshot = new ProjectSnapshot(this);
-
-						projectSnapshot.insert();
-
-						this.update();
-
-					}
+					// 保存快照
+					projectSnapshot.insert();
 
 					return true;
 
@@ -241,16 +212,17 @@ public class Project extends Model {
 		}
 	}
 
+	/*public boolean equals(Project project) {
 
-	public boolean judgeEquale(Project oldProject, Project newProject) {
+		if(this.category.equals(project.category)
+			&&
+		) {
+			return true;
+		}
 
-		newProject.insert_time = oldProject.insert_time;
-		newProject.update_time = oldProject.update_time;
-		newProject.version_num = oldProject.version_num;
-		newProject.budget = oldProject.budget;
+		return false;
 
-		return one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(oldProject.toJSON()))
-				.equals( one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(newProject.toJSON())) );
-	}
+	}*/
+
 
 }

@@ -48,13 +48,29 @@ public class Binary extends Model {
 
 			dao.create(this);
 
-			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.insertOne(this);
-
 			return true;
 
-		} catch (Exception e) {
-			logger.warn("file exist");
+		}  catch (SQLException e) {
+
+			// 数据库中已经存在记录
+			if(e.getCause().getMessage().contains("Duplicate")) {
+
+				try {
+
+					this.update();
+
+					return true;
+
+				} catch (Exception ex) {
+					logger.error("Update error {}", ex);
+				}
+			}
+			// 可能是采集数据本事存在问题
+			else {
+				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+			}
 		}
+
 		return false;
 	}
 }

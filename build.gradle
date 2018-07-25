@@ -45,6 +45,27 @@ repositories {
     }
 }
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'http://10.0.0.56:8081/artifactory/libs-release-local/') {
+                authentication(userName: artifactory_username, password: artifactory_password)
+            }
+            snapshotRepository(url: 'http://10.0.0.56:8081/artifactory/libs-snapshot-local/') {
+                authentication(userName: artifactory_username, password: artifactory_password)
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
 artifactory {
 
     contextUrl = 'http://10.0.0.56:8081/artifactory'
@@ -71,23 +92,9 @@ artifactory {
     }
 }
 
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: 'http://tfelab.org:60002/content/repositories/releases/') {
-                authentication(userName: deployment, password: deployment_password)
-            }
-            snapshotRepository(url: 'http://tfelab.org:60002/content/repositories/snapshots/') {
-                authentication(userName: deployment, password: deployment_password)
-            }
-        }
-    }
-}
-
 dependencies {
 
-    compile 'one.rewind:common:1.1.10-SNAPSHOT'
+    compile 'one.rewind:common:1.1.15-SNAPSHOT'
 
     compile name: 'opencv-341'
 
@@ -98,7 +105,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/it.sauronsoftware.cron4j/cron4j
     compile group: 'it.sauronsoftware.cron4j', name: 'cron4j', version: '2.2.5'
-
 
     // https://mvnrepository.com/artifact/com.aliyun/aliyun-java-sdk-core
     compile group: 'com.aliyun', name: 'aliyun-java-sdk-core', version: '3.2.8'

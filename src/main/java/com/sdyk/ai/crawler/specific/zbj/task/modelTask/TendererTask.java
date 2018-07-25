@@ -110,7 +110,7 @@ public class TendererTask extends Task {
 				String head = doc.select("#utopia_widget_1 > div > div.avatar")
 						.html();
 				Set<String> head_img = new HashSet<>();
-				String head1 = StringUtil.cleanContent(head, head_img,null, null);
+				String head1 = StringUtil.cleanContent(head, head_img);
 				this.download(head);
 				tenderer.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid("https:" + head1));

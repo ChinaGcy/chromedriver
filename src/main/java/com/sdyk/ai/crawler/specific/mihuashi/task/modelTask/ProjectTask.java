@@ -49,7 +49,7 @@ public class ProjectTask extends Task {
 		super(url);
 
 		// 设置优先级
-		this.setPriority(Priority.MEDIUM);
+		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback((t) -> {
 			Document doc = getResponse().getDoc();

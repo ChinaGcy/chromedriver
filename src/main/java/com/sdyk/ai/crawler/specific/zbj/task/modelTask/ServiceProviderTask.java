@@ -303,7 +303,7 @@ public class ServiceProviderTask extends Task {
 		// 获取头像
 		String head = doc.select("body > div.grid > div.sidebar > div > div > div > div.w-head-pic > img").html();
 		Set<String> head_img = new HashSet<>();
-		String head1 = StringUtil.cleanContent(head, head_img,null, null);
+		String head1 = StringUtil.cleanContent(head, head_img);
 		this.download(head);
 		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
 				one.rewind.txt.StringUtil.uuid(head1));;
@@ -352,7 +352,7 @@ public class ServiceProviderTask extends Task {
 		// 获取头像 body > div.main > div > div.wk-l > div > div.w-head-pic > img
 		String head = doc.select("body > div.main > div > div.wk-l > div > div.w-head-pic > img").outerHtml();
 		Set<String> head_img = new HashSet<>();
-		String head1 = StringUtil.cleanContent(head, head_img,null, null);
+		String head1 = StringUtil.cleanContent(head, head_img);
 		this.download(head);
 		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
 				one.rewind.txt.StringUtil.uuid(head1));;
@@ -370,7 +370,7 @@ public class ServiceProviderTask extends Task {
 
 		String head = doc.select("body > div.grid > div.main-wrap > div > div > div > div > ul > li.license-item.fl > div.license-item-pic").html();
 		Set<String> head_img = new HashSet<>();
-		String head1 = StringUtil.cleanContent(head, head_img,null, null);
+		String head1 = StringUtil.cleanContent(head, head_img);
 		this.download(head);
 		serviceProvider.cover_images = one.rewind.txt.StringUtil.byteArrayToHex(
 				one.rewind.txt.StringUtil.uuid(head1));

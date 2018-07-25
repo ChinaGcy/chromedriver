@@ -30,8 +30,6 @@ public class CaseTask extends Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.MEDIUM);
 
 		this.addDoneCallback((t) -> {

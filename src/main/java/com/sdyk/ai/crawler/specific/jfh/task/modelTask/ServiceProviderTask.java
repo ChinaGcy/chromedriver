@@ -66,8 +66,7 @@ public class ServiceProviderTask extends Task {
 				.replace("/bu","").replace("/","");
 
 		//名字
-		serviceProvider.name = doc.select("#archivesInfo > div.archivesInfo_in.clearfix > div.archivesInfo_in_right > p > span")
-				.text();
+		serviceProvider.name = doc.select("#archivesInfo > div.archivesInfo_in.clearfix > div.archivesInfo_in_right > p > span").text();
 
 		//类型
 		if( serviceProvider.name.contains("公司") ){
