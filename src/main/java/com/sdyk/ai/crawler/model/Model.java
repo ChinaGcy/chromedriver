@@ -112,6 +112,7 @@ public abstract class Model {
 			// 没有旧版本
 			if(oldVersion == null) {
 				dao.create(this);
+				createSnapshot(this);
 				insertES();
 			}
 			// 存在旧版本
@@ -185,7 +186,7 @@ public abstract class Model {
 	}
 
 	public void createSnapshot(Model oldVersion) throws Exception {
-
+		System.out.println("111");
 	}
 
 	/**
@@ -218,11 +219,31 @@ public abstract class Model {
 	 * @throws Exception
 	 */
 	public boolean diff(Model model) throws Exception {
+
 		if(!model.getClass().equals(this.getClass())) {
 			throw new Exception("Model class is not equal.");
 		}
 
-		return true;
+		Field[] fieldList = model.getClass().getDeclaredFields();
+
+		for(Field f : fieldList) {
+
+			try {
+				if ((f.get(model) != null || f.get(model) != null && f.get(model) instanceof String && !f.get(model).equals(""))
+						&& !f.getName().equals("insert_time")
+						&& !f.getName().equals("update_time")
+						&& !f.getName().equals("budget")) {
+
+					if( !String.valueOf(f.get(model)).equals(String.valueOf(f.get(this))) ){
+						return true;
+					}
+				}
+			} catch (Exception e) {
+				logger.error("Error copy model field:{}. ", f.getName(), e);
+			}
+		}
+
+		return false;
 	}
 
 	/**

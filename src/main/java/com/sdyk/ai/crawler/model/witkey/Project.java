@@ -157,6 +157,7 @@ public class Project extends Model{
 	 * @throws Exception
 	 */
 	public void createSnapshot(Model oldVersion) throws Exception {
+
 		// 生成快照
 		ProjectSnapshot projectSnapshot = new ProjectSnapshot((Project) oldVersion);
 

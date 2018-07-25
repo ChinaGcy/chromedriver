@@ -210,6 +210,7 @@ public class ServiceProvider extends Model {
 	 * @throws Exception
 	 */
 	public void createSnapshot(Model oldVersion) throws Exception {
+
 		// 生成快照
 		ServiceProviderSnapshot snapshot = new ServiceProviderSnapshot((ServiceProvider) oldVersion);
 
