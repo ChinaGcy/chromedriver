@@ -30,7 +30,7 @@
         "analyzer": "ik_max_word",
         "boost": 4
       },
-      "work_name":{
+      "title":{
         "type":"text",
         "analyzer": "ik_max_word",
         "boost": 4
@@ -52,6 +52,11 @@
       },
       "update_time": {
         "type":"date"
+      },
+      "postion": {
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 2
       }
     }
   }

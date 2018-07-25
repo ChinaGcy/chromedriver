@@ -7,13 +7,13 @@
       "url": {
         "type":"text"
       },
+      "origin_id": {
+        "type":"keyword"
+      },
       "name":{
         "type":"text",
         "analyzer": "my_analyzer",
         "boost": 4
-      },
-      "location":{
-        "type":"text"
       },
       "company_name":{
         "type":"text",
@@ -21,6 +21,9 @@
         "boost": 4
       },
       "type":{
+        "type":"text"
+      },
+      "location":{
         "type":"text"
       },
       "content":{
@@ -77,6 +80,9 @@
       "cellphone":{
         "type":"keyword"
       },
+      "telephone":{
+        "type":"keyword"
+      },
       "qq":{
         "type":"keyword"
       },
@@ -110,7 +116,7 @@
       "view_num":{
         "type":"integer"
       },
-      "occupation":{
+      "position":{
         "type": "text",
         "analyzer": "ik_max_word",
         "boost": 4

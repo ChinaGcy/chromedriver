@@ -7,6 +7,9 @@
       "url": {
         "type":"text"
       },
+      "origin_id": {
+        "type":"keyword"
+      },
       "name":{
         "type":"text",
         "analyzer": "my_analyzer",
