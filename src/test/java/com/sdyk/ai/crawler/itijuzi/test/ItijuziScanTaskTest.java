@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.itijuziTest;
+package com.sdyk.ai.crawler.itijuzi.test;
 
 import com.aliyuncs.ecs.model.v20140526.DescribeImageSharePermissionResponse;
 import com.sdyk.ai.crawler.account.model.AccountImpl;

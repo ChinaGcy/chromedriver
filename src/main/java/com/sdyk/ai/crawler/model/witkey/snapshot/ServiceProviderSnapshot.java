@@ -13,7 +13,7 @@ import one.rewind.txt.StringUtil;
 import java.lang.reflect.Field;
 
 @DBName(value = "sdyk_raw_snapshot")
-@DatabaseTable(tableName = "service_provider_snapshots")
+@DatabaseTable(tableName = "service_providers")
 public class ServiceProviderSnapshot extends ServiceProvider{
 
 	// 原网站id

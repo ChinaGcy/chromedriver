@@ -8,10 +8,7 @@ import org.jsoup.nodes.Document;
 import javax.lang.model.util.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BinaryTask extends ChromeTask {
 
@@ -40,22 +37,23 @@ public class BinaryTask extends ChromeTask {
 			Document doc = getResponse().getDoc();
 
 			String contain = doc
-					.select("#project-detail > div > div.main-detail > section > div.files > p > span > a:nth-child(1)")
-							.toString();
+				.select("#project-detail > div > div.main-detail > section > div.files > p > span > a:nth-child(1)")
+					.toString();
 
 			System.err.println("原始附件代码 ：" + contain);
 
-			Set<String> fileUrl =new HashSet<>();
-			List<String> fileName = new ArrayList<>();
+			Map<String, String> files = new HashMap<>();
 
-			fileUrl.add(doc.select("#project-detail > div > div.main-detail > section > div.files > p > span > a:nth-child(1)")
-					.attr("href"));
-			fileName.add(doc.select("#project-detail > div > div.main-detail > section > div.files > p > span > a:nth-child(1)")
-					.attr("download"));
+			files.put(
+				doc.select("#project-detail > div > div.main-detail > section > div.files > p > span > a:nth-child(1)")
+					.attr("href"),
+				doc.select("#project-detail > div > div.main-detail > section > div.files > p > span > a:nth-child(1)")
+					.attr("download")
+			);
 
-			String description = BinaryDownloader.download(contain,fileUrl,url,fileName);
+			String description = BinaryDownloader.download(contain, files);
 
-			System.err.println("处理后附件代码" + description);
+			System.err.println("处理后附件代码：" + description);
 
 		});
 

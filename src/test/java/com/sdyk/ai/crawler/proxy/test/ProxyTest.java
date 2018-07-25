@@ -17,7 +17,12 @@ import java.util.List;
 
 public class ProxyTest {
 
-	public static void main(String[] args) throws Exception {
+	/**
+	 * 测试数据库中代理是否可用
+	 * @throws Exception
+	 */
+	@Test
+	public void validateProxies() throws Exception {
 
 		Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
 
@@ -29,6 +34,10 @@ public class ProxyTest {
 		}
 	}
 
+	/**
+	 * 此方法应该移入 ChromeDriverDistributorRemoteTest
+	 * @throws Exception
+	 */
 	@Test
 	public void testProxy() throws Exception {
 
@@ -39,7 +48,6 @@ public class ProxyTest {
 		DockerHostManager.getInstance().delAllDockerContainers();
 
 		DockerHostManager.getInstance().createDockerContainers(3);
-
 
 		for( ProxyImpl proxy : proxies ){
 
@@ -62,14 +70,13 @@ public class ProxyTest {
 
 				agent.submit(task);
 
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 
 		}
 
 		Thread.sleep(100000);
-
 	}
-
 }

@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 /**
  *
  */
-public abstract class Model implements ESIndex {
+public abstract class Model {
 
 	public static final Logger logger = LogManager.getLogger(Model.class.getName());
 
@@ -45,6 +45,10 @@ public abstract class Model implements ESIndex {
 		}
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public static Set<Class<? extends Model>> getModelClasses() {
 
 		Reflections reflections = new Reflections(Model.class.getPackage().getName());
@@ -104,8 +108,6 @@ public abstract class Model implements ESIndex {
 
 			dao.create(this);
 
-			//if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.insertOne(this);
-
 			return true;
 
 		} catch (SQLException e) {
@@ -117,18 +119,17 @@ public abstract class Model implements ESIndex {
 
 					this.update();
 
-					//if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
-
 					return true;
 
 				} catch (Exception ex) {
+
 					logger.error("Update error {}", ex);
 					return false;
 				}
 			}
 			// 可能是采集数据本事存在问题
 			else {
-				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
+				logger.error("Model {} insert error. ", this.toJSON(), e);
 				return false;
 			}
 		}
@@ -152,7 +153,9 @@ public abstract class Model implements ESIndex {
 	}
 
 	/**
-	 *
+	 * 将HTML类型内容字段中 图片/附件标签的src属性 转换为本地路由
+	 * @author gcy116149@gmail.com
+	 * @date 2018/7/25
 	 * @param src
 	 * @return
 	 */
@@ -171,12 +174,6 @@ public abstract class Model implements ESIndex {
 
 		return src;
 	}
-
-	public String getId() {
-		return this.id;
-	}
-
-	public void fullfill() {}
 
 	/**
 	 * 将新的数据赋值给已有数据

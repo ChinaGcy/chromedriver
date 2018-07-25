@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 @DBName(value = "sdyk_raw_snapshot")
-@DatabaseTable(tableName = "tenderer_snapshots")
+@DatabaseTable(tableName = "tenderers")
 public class TendererSnapshot extends Tenderer {
 
 	// 原网站id

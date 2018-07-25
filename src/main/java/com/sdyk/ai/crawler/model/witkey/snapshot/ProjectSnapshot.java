@@ -13,7 +13,7 @@ import one.rewind.txt.StringUtil;
 import java.lang.reflect.Field;
 
 @DBName(value = "sdyk_raw_snapshot")
-@DatabaseTable(tableName = "project_snapshots")
+@DatabaseTable(tableName = "projects")
 public class ProjectSnapshot extends Project {
 
 	// 原数据 id

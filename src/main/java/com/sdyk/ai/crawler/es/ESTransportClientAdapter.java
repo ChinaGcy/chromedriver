@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -132,19 +133,17 @@ public class ESTransportClientAdapter {
      * @param model
      * @throws Exception
      */
-    public static void  insertOne(ESIndex model) {
+    public static void insertOne(Model model) {
+
+    	String index = model.getClass().getSimpleName().toLowerCase();
 
         TransportClient client = ESTransportClientAdapter.getClient();
 
-		IndexResponse response = client.prepareIndex(
-        		model.getClass().getSimpleName().toLowerCase(),
-				model.getClass().getSimpleName().toLowerCase(),
-				model.getId()
-			)
+		IndexResponse response = client.prepareIndex( index, index, model.id )
 			.setSource(model.toJSON(), XContentType.JSON)
 			.get();
 
-		logger.info("{} {} {}", model.getClass().getSimpleName(), model.getId(), response.status());
+		logger.info("{} {} {}", index, model.id, response.status());
     }
 
     /**
@@ -152,17 +151,17 @@ public class ESTransportClientAdapter {
      * @param model
      * @throws Exception
      */
-    public static void updateOne(String id, ESIndex model) {
+    public static void updateOne(String id, Model model) {
+
+	    String index = model.getClass().getSimpleName().toLowerCase();
 
         TransportClient client = ESTransportClientAdapter.getClient();
 
-        client.prepareUpdate(
-        		model.getClass().getSimpleName().toLowerCase(),
-				model.getClass().getSimpleName().toLowerCase(),
-				id
-			)
+	    UpdateResponse response = client.prepareUpdate( index, index, model.id )
 			.setDoc(model.toJSON(), XContentType.JSON)
 			.get();
+
+	    logger.info("{} {} {}", index, model.id, response.status());
     }
 
     /**

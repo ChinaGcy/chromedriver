@@ -68,8 +68,6 @@ public class Case extends Model {
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public transient double budget_lb;
 
-	public Range budget;
-
 	// 客户评分
 	@DatabaseField(dataType = DataType.FLOAT)
 	public float rating;
@@ -86,20 +84,5 @@ public class Case extends Model {
 
 	public Case(String url) {
 		super(url);
-	}
-
-	public void fullfill() {
-		this.budget = new Range(this.budget_lb, this.budget_ub, true);
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	public boolean insert() {
-
-		this.fullfill();
-
-		return super.insert();
 	}
 }

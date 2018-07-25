@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SchedulweTest {
+public class SchedulerTest {
 
 	/**
 	 * 测试代理不可用时回调方法

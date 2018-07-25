@@ -10,6 +10,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 测试StringUtil相关功能
+ * @Author
+ * @Date
+ */
 public class StringUtilTest {
 
 	String text_1 ="<div class=\"task-detail wrapper\">\n" +
@@ -75,10 +80,13 @@ public class StringUtilTest {
 		System.err.println(str);
 	}
 
+	/**
+	 *
+	 */
 	@Test
 	public void testcleanHTML() {
 
-		String str = StringUtil.cleanContent(text_1,null, null, null);
+		String str = StringUtil.cleanContent(text_1,null);
 		System.err.println(str);
 	}
 
@@ -112,24 +120,12 @@ public class StringUtilTest {
 	public void localCleanContent() {
 		String s = "";
 		Set<String> img_urls = new HashSet<>();
-		Set<String> img_urls_a = new HashSet<>();
-		List<String> fileName = new ArrayList<>();
 
-		s = StringUtil.cleanContent(text_1, img_urls, img_urls_a, fileName);
+		s = StringUtil.cleanContent(text_1, img_urls);
 		System.out.println(s);
 		for (String ss : img_urls
 				) {
 			System.out.println("1--"+ss);
-		}
-
-		for (String ss : img_urls_a
-				) {
-			System.out.println("2--"+ss);
-		}
-
-		for (String ss : fileName
-				) {
-			System.out.println("3--"+ss);
 		}
 	}
 
@@ -138,12 +134,10 @@ public class StringUtilTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testcleanContent() throws Exception {
+	public void testCleanContent() throws Exception {
 		String s = "";
 
 		Set<String> img_urls = new HashSet<>();
-		Set<String> img_urls_a = new HashSet<>();
-		List<String> fileName = new ArrayList<>();
 
 		ChromeDriverAgent agent = null;
 
@@ -156,16 +150,11 @@ public class StringUtilTest {
 		Matcher m = p.matcher(t.getResponse().getText());
 
 		if(m.find()) {
-			s = StringUtil.cleanContent(m.group(), img_urls, img_urls_a, fileName);
+			s = StringUtil.cleanContent(m.group(), img_urls);
 		}
 
 		System.out.println(s);
-		for (String ss : img_urls
-			 ) {
-			System.out.println(ss);
-		}
-		for (String ss : img_urls_a
-				) {
+		for (String ss : img_urls) {
 			System.out.println(ss);
 		}
 	}
@@ -180,12 +169,11 @@ public class StringUtilTest {
 	}
 
 	@Test
-	public void ttest() {
+	public void dateTest() {
 		Date date = new Date(System.currentTimeMillis());
 		Date date1 = new Date(System.currentTimeMillis() + 60*1000*60);
 
 		System.err.println(date1);
-
 	}
 
 	@Test
@@ -194,7 +182,7 @@ public class StringUtilTest {
 
 		Set<String> head_img = new HashSet<>();
 
-		StringUtil.cleanContent(s, head_img, null, null);
+		StringUtil.cleanContent(s, head_img);
 
 		for ( String ss : head_img) {
 			System.err.println(ss);
