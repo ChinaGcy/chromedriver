@@ -275,7 +275,6 @@ public class Distributor extends ChromeDriverDistributor {
 
 					try {
 						TaskTrace tt = ((ScanTask) t).getTaskTrace();
-						System.out.println(tt.toJSON());
 						if (tt != null) {
 							tt.insert();
 						}

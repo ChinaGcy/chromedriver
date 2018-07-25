@@ -73,22 +73,17 @@ public class ServiceProviderTask extends Task {
 
 		serviceProvider.origin_id = urls[1];
 
-		//描述
-		serviceProvider.content = doc.select("div.p-item > div:nth-child(2)").toString();
+		// 描述
+		serviceProvider.content = doc.select("#profile > div > div > section.left > div.p-item > div:nth-child(2)").toString();
 
-		//平台认证信息
+		// 平台认证信息
 		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
 
-		//头像
-		Set<String> headUrl =new HashSet<>();
-		List<String> headName = new ArrayList<>();
-		String image = doc.select("img.avator").toString();
+		// 头像
 		String imageUrl = doc.select("img.avator").attr("src");
-		headUrl.add(imageUrl);
-
-		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
-		BinaryDownloader.download(image,headUrl,getUrl(),headName);
-
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(imageUrl, "head_portrait");
+		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		//类型
 		String type = serviceProvider.platform_certification;
@@ -346,32 +341,28 @@ public class ServiceProviderTask extends Task {
 				}
 			}
 			try {
-				System.out.println(resume.toJSON());
-				//resume.insert();
+				resume.insert();
 			} catch (Exception e) {
 				logger.error("error on insert resume", e);
 			}
 		}
 
-		//描述
-		String description1 = doc.getElementsByClass("main-content").html();
-		String description2 = doc.getElementsByClass("file").html();
-		Elements fileelements = doc.getElementsByClass("download");
+		// 描述
+		serviceProvider.content = doc.getElementsByClass("main-content").html();
 
+		// 含有附件
+		Elements fileelements = doc.select("p.file");
 		if( fileelements!=null && fileelements.size()>0 ){
-			Set<String> fileUrl =new HashSet<>();
-			List<String> fileName = new ArrayList<>();
-			for(Element element : fileelements){
-				fileUrl.add(element.attr("href"));
-				fileName.add(element.attr("download"));
-			}
-			//String description = BinaryDownloader.download(description2,fileUrl,url,fileName);
-			//serviceProvider.content = description1+description;
-		}
 
-		//不含附件
-		else {
-			serviceProvider.content = description1;
+			Map<String, String> fileMap = new HashMap<>();
+
+			for(Element element : fileelements){
+
+				String fileurl = element.select("a:nth-child(1)").attr("href");
+				String fileName = element.select("a:nth-child(1)").text();
+				fileMap.put(fileurl, fileName);
+			}
+			serviceProvider.attachment_ids = BinaryDownloader.download(getUrl(), fileMap);
 		}
 
 		try {
@@ -381,7 +372,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//抓取乙方项目
-		Elements elements = doc.getElementsByClass("case-item");
+		/*Elements elements = doc.getElementsByClass("case-item");
 
 		if( elements.size()>0 ){
 			for(Element element : elements){
@@ -408,7 +399,7 @@ public class ServiceProviderTask extends Task {
 				}
 
 			}
-		}
+		}*/
 
 	}
 

@@ -17,6 +17,10 @@ public class CompanyInformation extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String name;
 
+	// 简称
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String simple_name;
+
 	// 英文名
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String english_name;

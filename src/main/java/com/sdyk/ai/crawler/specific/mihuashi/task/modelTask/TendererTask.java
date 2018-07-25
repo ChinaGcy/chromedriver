@@ -157,18 +157,11 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 			tenderer.selection_ratio = Integer.valueOf(selectionRatio);
 		}
 
-		//头像信息获取
-		Set<String> fileUrl =new HashSet<>();
-		List<String> fileName = new ArrayList<>();
-		String image = doc.select("#profile__avatar > a > img").toString();
+		// 头像
 		String imageUrl = doc.select("img.profile__avatar-image").attr("src");
-		fileUrl.add(imageUrl);
-
-		//头像ID填写
-		tenderer.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
-
-		//头像下载
-		BinaryDownloader.download(image,fileUrl,getUrl(),fileName);
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(imageUrl, "head_portrait");
+		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		tenderer.insert();
 	}

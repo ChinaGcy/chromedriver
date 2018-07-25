@@ -19,7 +19,10 @@ public class Task extends ChromeTask {
 	public static final Logger logger = LogManager.getLogger(com.sdyk.ai.crawler.specific.zbj.task.Task.class.getName());
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
+
 		super(url);
+
+		this.setBuildDom();
 	}
 
 	/**

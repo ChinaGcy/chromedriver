@@ -17,7 +17,7 @@ import java.util.Date;
 
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "projects")
-public class Project extends Model {
+public class Project extends Model{
 
 	// 原网站 domain
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
@@ -137,6 +137,10 @@ public class Project extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String delivery_steps;
 
+	// 附件
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String attachment_ids;
+
 	public Project() {}
 
 	public Project(String url) {
@@ -211,18 +215,5 @@ public class Project extends Model {
 			return false;
 		}
 	}
-
-	/*public boolean equals(Project project) {
-
-		if(this.category.equals(project.category)
-			&&
-		) {
-			return true;
-		}
-
-		return false;
-
-	}*/
-
 
 }

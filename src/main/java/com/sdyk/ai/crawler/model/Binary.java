@@ -4,7 +4,6 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import one.rewind.db.DBName;
 
 import java.sql.SQLException;
@@ -15,7 +14,7 @@ import java.sql.SQLException;
  */
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "binaries")
-public class Binary extends Model {
+public class Binary extends com.sdyk.ai.crawler.model.Model {
 
 	// 资源名称
 	@DatabaseField(dataType = DataType.STRING, width = 128)
@@ -28,6 +27,10 @@ public class Binary extends Model {
 	// 资源格式
 	@DatabaseField(dataType = DataType.STRING, width = 128)
 	public String content_type;
+
+	// 文件大小
+	@DatabaseField(dataType = DataType.DOUBLE)
+	public transient double file_size;
 
 	public Binary () {}
 
@@ -55,15 +58,7 @@ public class Binary extends Model {
 			// 数据库中已经存在记录
 			if(e.getCause().getMessage().contains("Duplicate")) {
 
-				try {
-
-					this.update();
-
-					return true;
-
-				} catch (Exception ex) {
-					logger.error("Update error {}", ex);
-				}
+				logger.error("date exist", e);
 			}
 			// 可能是采集数据本事存在问题
 			else {
@@ -72,5 +67,23 @@ public class Binary extends Model {
 		}
 
 		return false;
+	}
+
+	/**
+	 * 通过Id获取数据
+	 * @return
+	 * @throws Exception
+	 */
+	public static Binary getBinaryById(String Id) {
+
+		Dao dao = daoMap.get(Binary.class.getSimpleName());
+
+		try {
+			return (Binary) dao.queryForId(Id);
+		} catch (SQLException e) {
+			logger.error("error for getBinaryById", e);
+			return null;
+		}
+
 	}
 }

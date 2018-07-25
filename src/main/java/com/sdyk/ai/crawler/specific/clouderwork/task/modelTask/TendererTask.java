@@ -81,17 +81,11 @@ public class TendererTask extends Task {
 			tenderer.name = name;
 		}
 
-		//头像
-		Set<String> headUrl =new HashSet<>();
-		List<String> headName = new ArrayList<>();
-		String image = doc.select("div.avatorBox > img").toString();
+		// 头像
 		String imageUrl = doc.select("div.avatorBox > img").attr("src");
-		headUrl.add(imageUrl);
-
-		tenderer.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
-		BinaryDownloader.download(image,headUrl,getUrl(),headName);
-
-
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(imageUrl, "head_portrait");
+		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		//招标人描述
 		tenderer.content = "<p>" +

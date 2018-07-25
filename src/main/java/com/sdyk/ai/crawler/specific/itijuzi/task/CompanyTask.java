@@ -19,9 +19,7 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CompanyTask extends Task {
 
@@ -64,7 +62,10 @@ public class CompanyTask extends Task {
 		c_financing.company_id = c_info.id;
 
 		// 公司名称
-		c_info.name = doc.select("h1.seo-important-title").attr("data-name");
+		c_info.name = doc.select("h1.seo-important-title").attr("data-fullname");
+
+		// 公司简称
+		c_info.simple_name = doc.select("h1.seo-important-title").attr("data-name");
 
 		// 行业
 		c_info.industry = doc.select("a.one-level-tag").text();
@@ -134,24 +135,27 @@ public class CompanyTask extends Task {
 
 		// 产品
 		Elements products = doc.select("ul.product-list > li");
-		int i = 1;
+		Set<String> productName = new HashSet<>();
 		for( Element element : products ){
+			String name = element.select("a.product-name").text();
 
-			i++;
-			CompanyProduct c_product = new CompanyProduct(getUrl() + "product=" + i);
+			// 产品是否重名
+			if( productName.add(name) ){
 
-			c_product.company_id = c_info.id;
+				CompanyProduct c_product = new CompanyProduct(getUrl() + "product=" + name);
 
-			c_product.product_name = element.select("a.product-name").text();
+				c_product.company_id = c_info.id;
 
-			c_product.content = element.select("div.product-de").text();
+				c_product.product_name = name;
 
-			c_product.insert();
+				c_product.content = element.select("div.product-de").text();
+
+				c_product.insert();
+			}
 		}
 
 		// 高管
 		Elements staffs = doc.select("ul.team-list > li");
-		int j = 0;
 		for( Element element : staffs ){
 
 			String starffUrtl = element.select("a.avatar").attr("href");

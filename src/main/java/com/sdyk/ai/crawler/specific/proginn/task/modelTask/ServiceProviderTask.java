@@ -65,20 +65,12 @@ public class ServiceProviderTask extends Task {
 		//乙方名称
 		serviceProvider.name = doc.select("a.header").text();
 
-		//头像
-		String imageHtml = doc.select("body > div.main > div > div.four.wide.column.side-profile > div.avatar > a > img").toString();
+		// 头像
 		String imageUrl = doc.select("body > div.main > div > div.four.wide.column.side-profile > div.avatar > a > img")
 				.attr("src");
-		Set<String> fileUrl =new HashSet<>();
-		List<String> fileName = new ArrayList<>();
-		fileName.add("head_portrait");
-		fileUrl.add(imageUrl);
-
-		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
-				one.rewind.txt.StringUtil.uuid(imageUrl));
-
-		BinaryDownloader.download(imageHtml,fileUrl,getUrl(),fileName);
-
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(imageUrl, "head_portrait");
+		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		//介绍
 		String introduction = doc.select("div.introduction").text();

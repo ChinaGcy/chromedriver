@@ -14,10 +14,7 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,20 +70,12 @@ public class ServiceProviderTask extends Task {
 		}
 		serviceProvider.name = name;
 
-		//头像
-		Set<String> fileUrl =new HashSet<>();
-		List<String> fileName = new ArrayList<>();
+		// 头像
+		String imageUrl = doc.getElementsByClass("u-icon").attr("src");
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(imageUrl, "head_portrait");
+		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
-		String headPortraitHtml = doc.getElementsByClass("u-icon").toString();
-		String headPortraitUrl = doc.getElementsByClass("u-icon").attr("src");
-
-		fileUrl.add(headPortraitUrl);
-		fileName.add("head_portrait");
-		String oUrl = "https://zb.oschina.net/";
-
-		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(headPortraitUrl));
-
-		BinaryDownloader.download(headPortraitHtml,fileUrl,oUrl,fileName);
 
 		String certification = doc.getElementsByClass("user-icons").toString();
 

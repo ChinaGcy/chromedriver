@@ -2,10 +2,12 @@ package com.sdyk.ai.crawler.route;
 
 import com.sdyk.ai.crawler.Distributor;
 
+import com.sdyk.ai.crawler.proxy.ProxyManager;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 
 import one.rewind.io.server.Msg;
+import org.redisson.api.RMultimap;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -71,6 +73,53 @@ public class SystemRoute {
 
 		try{
 			return new Msg<Map<String, List<String>>>(Msg.SUCCESS, resurt);
+		} catch (Exception e) {
+			return new Msg<>(Msg.KERNEL_FAILURE);
+		}
+
+	};
+
+	/**
+	 * 简单统计domain信息
+	 */
+	public static Route getDomainInformation = (Request request, Response response ) -> {
+
+		Map<String, List<String>> resurt = new HashMap<>();
+
+		for(String d : ((Distributor)ChromeDriverDistributor.getInstance()).domain_agent_map.keySet()){
+
+			List<String> agents = new ArrayList<>();
+
+			((Distributor)ChromeDriverDistributor.getInstance()).domain_agent_map.get(d).forEach(a -> {
+				agents.add(a.name);
+			} );
+
+			resurt.put(d, agents);
+		}
+
+		try{
+			return new Msg<Map<String, List<String>>>(Msg.SUCCESS, resurt);
+		} catch (Exception e) {
+			return new Msg<>(Msg.KERNEL_FAILURE);
+		}
+
+	};
+
+	/**
+	 * 简单统计封禁信息
+	 */
+	public static Route getProxyInformation = (Request request, Response response ) -> {
+
+		Map<String, Collection<String>> resurt = new HashMap<>();
+
+		for( ChromeDriverAgent agent : ((Distributor)ChromeDriverDistributor.getInstance()).queues.keySet() ){
+
+			String k = agent.name + "_proxy: " + agent.proxy.host;
+			resurt.put(k,ProxyManager.getInstance().proxyDomainBannedMap.get(agent.proxy.getInfo()));
+		}
+
+		try{
+			return new Msg<Map<String, Collection<String>>>(Msg.SUCCESS, resurt);
 		} catch (Exception e) {
 			return new Msg<>(Msg.KERNEL_FAILURE);
 		}

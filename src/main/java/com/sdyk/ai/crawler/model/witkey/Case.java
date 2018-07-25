@@ -31,19 +31,18 @@ public class Case extends Model {
 	// 标签
 	@DatabaseField(dataType = DataType.STRING, width = 512)
 	public String tags;
+
 	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
 	public String content;
 
-	// 周期
-	// TODO 应该以天数为单位，float类型
-	// 1天 = 8小时
-	@DatabaseField(dataType = DataType.STRING, width = 16)
-	public String time_limit;
-
 	// 响应时间
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String response_time;
+
+	// 响应时间
+	@DatabaseField(dataType = DataType.STRING, width = 16)
+	public String time_limit;
 
 	// 服务态度
 	@DatabaseField(dataType = DataType.DOUBLE)
@@ -78,6 +77,10 @@ public class Case extends Model {
 	// 客户评价数
 	@DatabaseField(dataType = DataType.INTEGER)
 	public int rate_num;
+
+	// 附件
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String attachment_ids;
 
 	public Case(){}
 

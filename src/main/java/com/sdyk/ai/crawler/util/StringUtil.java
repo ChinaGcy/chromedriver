@@ -197,10 +197,9 @@ public class StringUtil {
 	 * 清洗数据，获得a，img地址，并且保留干净的a，img 标签
 	 * @param in
 	 * @param extraUrls_img
-	 * @param extraUrls_a
 	 * @return
 	 */
-	public static String cleanContent(String in, List<String> extraUrls_img, Set<String> extraUrls_a, List<String> fileNames){
+	public static String cleanContent(String in, Set<String> extraUrls_img){
 
 		in = in.replace("(?i)^<.+?>", "");
 		in = in.replace("(?i)</.+?>$", "");
@@ -242,17 +241,14 @@ public class StringUtil {
 		out = out.replaceAll("<i.*?></i>", "");
 
 		// 去掉<a>标签
-		//out = out.replaceAll("(?si)<a.*?>|</a>", "");
+		out = out.replaceAll("(?si)<a.*?>|</a>", "");
 
 		// 删除javascript标记
 		// TODO 此行代码应该下移
 		out = out.replaceAll("javascript:.+?(?=['\" ])", "");
 
 		// *****************************
-		// 对图片和附件的额外处理
-		// 1. 处理附件，获得需要下载附件的连接（连接->标题 map）
-		//    源代码替换 <a href="{binaryId}" title="{title}">{title}</a>
-		// 2. 处理图片，获取需要下载的连接
+		// 处理图片，获取需要下载的连接
 		//    <img src="{binaryId}">
 		//    <img src="data:image/...">
 
@@ -262,6 +258,7 @@ public class StringUtil {
 		List<String> imgs = new ArrayList<>();
 		while(matcher.find()){
 
+			// 获取 src属性
 			String imgSrc = matcher.group().replaceAll("^.*?src=['\"]?", "")
 					.replaceAll("[ \"'>].*?$", "");
 
@@ -290,7 +287,10 @@ public class StringUtil {
 		// TODO 应该只清洗附件类型
 		// TODO 附件改名 a 标签中的title属性
 		// 下载有可能有多种形式，应该能处理这些形式
-		matcher = Pattern.compile("(?si)<a.*?>下载").matcher(out);
+		/**
+		 *  TODO 只清洗描述，不含单独a标签
+		 */
+		/*matcher = Pattern.compile("(?si)<a.*?>下载").matcher(out);
 		List<String> as = new ArrayList<>();
 
 		while(matcher.find()){
@@ -305,10 +305,13 @@ public class StringUtil {
 			} else {
 				as.add("");
 			}
-		}
+		}*/
 
 		// 去除<a><img></img></a> 这种格式的a标签
-		matcher = Pattern.compile("(?si)<a.*?><img src").matcher(out);
+		/**
+		 * 只用于清洗描述，只含有img标签
+		 */
+		/*matcher = Pattern.compile("(?si)<a.*?><img src").matcher(out);
 		int a = 0;
 		while (matcher.find()) {
 			out = out.replace(matcher.group(), "<img src").replace("></a>", ">");
@@ -327,7 +330,7 @@ public class StringUtil {
 		while (matcher.find()) {
 			out = out.replace(matcher.group(), as.get(b));
 			b++;
-		}
+		}*/
 
 
 		// 去掉分页特殊文字

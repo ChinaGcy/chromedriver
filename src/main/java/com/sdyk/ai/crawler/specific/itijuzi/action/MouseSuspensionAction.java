@@ -38,7 +38,7 @@ public class MouseSuspensionAction extends Action {
 
 		//随机延时
 		try {
-			int randomNumber1 = (int)(Math.random() * 2 + 2);
+			int randomNumber1 = (int)(Math.random() * 1 + 1);
 			Thread.sleep(randomNumber1 * 1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();

@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Logger;
 import one.rewind.io.requester.BasicRequester;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,86 +22,197 @@ public class BinaryDownloader {
 	static String bannedUrlReg1 = ".*?img/space\\.gif.*?";
 
 	/**
-	 * 下载图片等二进制文件
+	 * 下载附件
 	 * 1. encode 不下载
 	 * 2. 没有协议头
 	 * 3. 相对路径
 	 * 4. 完整路径
 	 */
-	public static String download(String des_src, Set<String> urls, String context_url, List<String> fileNames) {
+	public static String download(String context_url, Map<String, String> url_filename ) {
+
+		StringBuffer result = new StringBuffer();
+
+		// 处理下载
+		for (String url : url_filename.keySet()) {
+
+			String oldurl = url;
+
+			// 补全url
+			url = complementUrl(url, context_url);
+
+			String id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(url));
+			Binary oldBinary = Binary.getBinaryById(id);
+
+			// 已存在该附件
+			if( oldBinary != null ){
+
+				result.append(id);
+				result.append(",");
+			}
+			// 不存在附件
+			else {
+
+				// 1.判断是否为无效地址
+				if (url.matches(bannedUrlReg) || url.matches(bannedUrlReg1)) { continue; }
+
+				logger.info("Begin to download: {}.", url);
+
+				try {
+
+					ChromeTask t_;
+
+					if( url != null ){
+
+						t_ = new ChromeTask(url);
+
+						Binary binary = new Binary(url);
+						BasicRequester.getInstance().submit(t_);
+
+						binary.src = t_.getResponse().getSrc();
+						binary.file_name = url_filename.get(oldurl);
+
+						if( binary.file_name == null ){
+							binary.file_name = getFileName(url);
+						}
+
+						if (binary.file_name.length() < 128) {
+
+							binary.file_size = binary.src.length / 1024;
+							binary.insert();
+
+							result.append(binary.id);
+							result.append(",");
+
+							logger.info(" Download done: {}.", url);
+						}
+					}
+
+				} catch (Exception e) {
+					logger.error("download error {}", e);
+					continue;
+				}
+			}
+		}
+
+		return  result.substring(1, result.length()-1);
+	}
+
+
+
+	/**
+	 * 下载图片操作
+	 * 1. encode 不下载
+	 * 2. 没有协议头
+	 * 3. 相对路径
+	 * 4. 完整路径
+	 */
+	public static String download(String des_src, Set<String> urls, String context_url) {
 
 		// 处理下载
 		for (String url : urls) {
 
-			// 1.判断是否为无效地址
-			if (url.matches(bannedUrlReg) || url.matches(bannedUrlReg1)) {
-				// 1.1 将无效地址在文本中删除
-				des_src.replace(url,"");
-				continue;
+			String oldUrl = url;
+
+			// 补全url
+			url = complementUrl(url, context_url);
+
+			String id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(url));
+			Binary oldBinary = Binary.getBinaryById(id);
+
+			// 已存在该附件
+			if( oldBinary != null ){
+
+				des_src = des_src.replace(url, id);
 			}
+			// 不存在附件
+			else {
 
-			logger.info("Begin to download: {}.", url);
+				// 1.判断是否为无效地址
+				if (url.matches(bannedUrlReg) || url.matches(bannedUrlReg1)) {
 
-			try {
-
-				String oldUrl = url;
-				ChromeTask t_;
-
-				// 2.判断地址是否有协议头
-				if (url.matches("^//.+?")) {
-
-					// 根据 context_url 判断默认协议头
-					url = URLUtil.getProtocol(context_url) + ":" + url;
-				}
-				// 3.判断是否为相对路径
-				else if (!url.contains("https") && !url.contains("http") && url.contains("//")) {
-
-					// 根据 context_url 拼接相对路径
-					url = context_url.replaceAll("/.+?$", "/") + url;
-				}
-				// 4. 完整地址
-				else if (url.contains("http:") || url.contains("https:")) {
-
+					// 1.1 将无效地址在文本中删除
+					des_src.replace(url,"");
+					continue;
 				}
 
-				t_ = new ChromeTask(url);
+				logger.info("Begin to download: {}.", url);
 
-				Binary binary = new Binary(url);
+				try {
 
-				BasicRequester.getInstance().submit(t_);
+					ChromeTask t_;
 
-				binary.src = t_.getResponse().getSrc();
+					t_ = new ChromeTask(url);
 
-				// 当为图片或者下载的数量与fileName数量不一致则通过header获取 否则直接复制
-				if (fileNames == null || fileNames.size() == 0 || urls.size() != fileNames.size()) {
-					binary.file_name = getFileName(t_, binary, url);
-				}
-				else {
-					for (String name : fileNames) {
-						binary.file_name = name;
+					Binary binary = new Binary(url);
+
+					BasicRequester.getInstance().submit(t_);
+
+					binary.src = t_.getResponse().getSrc();
+
+					binary.file_name = getFileName(url);
+
+					if (binary.file_name.length() < 128) {
+
+						binary.file_size = binary.src.length / 1024;
+
+						binary.insert();
+
+						des_src = des_src.replace(oldUrl, binary.id);
+
+						logger.info(" Download done: {}.", url);
 					}
+					// binary 不合理
+					else {
+						des_src = des_src.replace(oldUrl, "");
+					}
+
+				} catch (Exception e) {
+					logger.error("download error {}", e);
+					continue;
 				}
-
-				des_src = des_src.replace(oldUrl, binary.id);
-
-				if (binary.file_name.length() < 128) {
-
-					binary.insert();
-
-					logger.info(" Download done: {}.", url);
-				}
-
-			} catch (Exception e) {
-				logger.error("download error {}", e);
-				continue;
 			}
+
+
 		}
 
 		return  des_src;
 	}
 
 	/**
-	 *
+	 * 补全正确的URL
+	 * @param url
+	 * @param context_url
+	 * @return
+	 */
+	public static String complementUrl(String url, String context_url){
+
+		// 2.判断地址是否为相对路径
+		if ( !url.matches("^http.+?") && !url.contains(".com") ) {
+
+			// 根据 context_url 拼接相对路径
+			url = context_url.replaceAll("com/.+?$", "com/") + url;
+		}
+		// 3.缺少协议头
+		else if (!url.contains("https") && !url.contains("http") && url.contains("//")) {
+
+			// 根据 context_url 判断默认协议头
+			try {
+				url = URLUtil.getProtocol(context_url) + ":" + url;
+			} catch (Exception e) {
+				logger.error("error fro URLUtil.getProtocol(context_url)", e);
+				return null;
+			}
+		}
+		// 4. 完整地址
+		else if (url.contains("http:") || url.contains("https:")) { }
+
+		return url;
+	}
+
+
+
+	/**
+	 * 获取文件名
 	 * @param t_
 	 * @param binary
 	 * @return
@@ -146,6 +259,18 @@ public class BinaryDownloader {
 			return fileName;
 		}
 		return fileName;
+	}
+
+	/**
+	 * 获取文件名
+	 * @param url
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public static String getFileName(String url) throws UnsupportedEncodingException {
+
+		String[] files = url.split("/");
+		return files[files.length - 1];
 	}
 
 }

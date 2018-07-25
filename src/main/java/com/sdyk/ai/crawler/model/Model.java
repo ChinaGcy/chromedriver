@@ -104,7 +104,7 @@ public abstract class Model implements ESIndex {
 
 			dao.create(this);
 
-			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.insertOne(this);
+			//if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.insertOne(this);
 
 			return true;
 
@@ -117,7 +117,7 @@ public abstract class Model implements ESIndex {
 
 					this.update();
 
-					if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
+					//if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
 
 					return true;
 

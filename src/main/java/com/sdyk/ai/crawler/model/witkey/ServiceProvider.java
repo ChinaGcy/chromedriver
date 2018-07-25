@@ -193,6 +193,10 @@ public class ServiceProvider extends Model {
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int negative_num;
 
+	// 附件
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String attachment_ids;
+
 	public ServiceProvider() {}
 
 	public ServiceProvider(String url) {

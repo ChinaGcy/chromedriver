@@ -5,9 +5,12 @@ import com.sdyk.ai.crawler.model.witkey.Case;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,14 +54,14 @@ public class CaseTask extends Task {
 				+ doc.select("body > div.se-show.se-module.container > div.se-sh-con > div.se-sh-con-title > div > a:nth-child(2)")
 				.attr("href");
 
-		//服务商ID
+		// 服务商ID
 		casemode.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(useUrl));
 
-		//名字
+		// 名字
 		casemode.title = doc.select("div.se-sh-con-title").text();
 
-		//价格
-		String price = doc.select("span.se-sh-price ").text();
+		// 价格
+		String price = doc.select("span.se-sh-price").text();
 		if( price.contains("-") ) {
 			casemode.budget_lb = Integer.valueOf(CrawlerAction.getNumbers(
 					price.split("-")[0]
@@ -67,28 +70,25 @@ public class CaseTask extends Task {
 					price.split("-")[1]
 			));
 		}
-		//不是区间
+		// 不是区间
 		else {
-			casemode.budget_ub = casemode.budget_lb = Integer.valueOf(CrawlerAction.getNumbers(price));
+			price = CrawlerAction.getNumbers(price);
+			if( price != null && price.length() > 0 ){
+				casemode.budget_ub = casemode.budget_lb = Integer.valueOf(CrawlerAction.getNumbers(price));
+			}
 		}
 
-		//内容
+		// 分类
+		casemode.category = doc.select("span.se-sh-label").text();
+
+		// 描述
 		String contentHtml = doc.select("div.se-editcon").html();
-		String context_url = "http://www.shichangbu.com/";
-		Set<String> fileUrl =new HashSet<>();
-		List<String> fileName = new ArrayList<>();
+		Set<String> extraUrls_img = new HashSet<>();
 
-		//解析图片url
-		Pattern p = Pattern.compile("<img src=\"(?<tUrl>.+?).jpg\"");
-		Matcher m = p.matcher(contentHtml);
+		contentHtml = StringUtil.cleanContent(contentHtml, extraUrls_img);
 
-		//获取图片链接
-		while(m.find()) {
-			fileUrl.add(m.group("tUrl"));
-			String[] urls = m.group("tUrl").split("/");
-			fileName.add(urls[urls.length-1]);
-		}
-		String content = BinaryDownloader.download(contentHtml,fileUrl,context_url,fileName);
+		// 图片下载
+		String content = BinaryDownloader.download(contentHtml, extraUrls_img, getUrl());
 		casemode.content = content;
 
 		try {

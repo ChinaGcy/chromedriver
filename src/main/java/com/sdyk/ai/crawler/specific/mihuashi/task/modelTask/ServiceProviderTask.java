@@ -12,10 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,39 +116,25 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 			serviceProvider.service_attitude = Double.valueOf(serviceAttitude) / 20;
 		}
 
-		//头像
-		Set<String> fileUrl =new HashSet<>();
-		List<String> fileName = new ArrayList<>();
-		String image = doc.select("#profile__avatar > img").toString();
+		// 头像
 		String imageUrl = doc.select("img.profile__avatar-image").attr("src");
-		fileUrl.add(imageUrl);
-
-		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
-
-		BinaryDownloader.download(image,fileUrl,getUrl(),fileName);
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(imageUrl, "head_portrait");
+		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		//作品图像
 		String allImags = doc.getElementsByClass("masonry").toString();
 		Pattern pattern = Pattern.compile("https://images.mihuashi.com/(?<imageSrc>.+?)\">");
 		Matcher matcher = pattern.matcher(allImags);
-		Set<String> imageSrcSet = new HashSet<>();
+		Map<String, String> url_name = new HashMap<>();
 
 		//设置图片链接
 		while(matcher.find()) {
-			imageSrcSet.add("https://images.mihuashi.com/" + matcher.group("imageSrc"));
+			url_filename.put("https://images.mihuashi.com/" + matcher.group("imageSrc"), null);
 		}
 
 		//下载图片
-		BinaryDownloader.download(allImags,imageSrcSet,getUrl(),fileName);
-
-		StringBuffer cover_images = new StringBuffer();
-
-		for(String im : imageSrcSet){
-			cover_images.append(one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(im)));
-			cover_images.append(",");
-		}
-
-		serviceProvider.cover_images = cover_images.substring(0,cover_images.length()-1);
+		serviceProvider.cover_images = BinaryDownloader.download(getUrl(),url_name);
 
 		serviceProvider.insert();
 

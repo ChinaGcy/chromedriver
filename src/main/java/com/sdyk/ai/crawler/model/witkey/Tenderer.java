@@ -113,6 +113,10 @@ public class Tenderer extends Model {
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int credit;
 
+	// 附件
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String attachment_ids;
+
 	public Tenderer() {}
 
 	public Tenderer(String url) {

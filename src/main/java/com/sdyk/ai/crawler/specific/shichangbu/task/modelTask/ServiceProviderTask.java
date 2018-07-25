@@ -98,8 +98,7 @@ public class ServiceProviderTask extends Task {
 
 		//地点
 		serviceProvider.location = doc.select(
-				"body > div.se-fws-header.se-module > div > div.se-fws-header-left > div.se-fws-header-info > div:nth-child(4) > span:nth-child(1)")
-				.text();
+				"body > div.se-fws-header.se-module > div > div.se-fws-header-left > div.se-fws-header-info > div:nth-child(4) > span:nth-child(1)").text();
 
 		//内容
 		serviceProvider.content = doc.select("#se-desc").html();

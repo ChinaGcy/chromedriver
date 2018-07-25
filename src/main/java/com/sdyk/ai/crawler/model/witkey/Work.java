@@ -63,6 +63,10 @@ public class Work extends Model {
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public double price;
 
+	// 附件
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String attachment_ids;
+
 	public Work() {}
 
 	public Work(String url) {

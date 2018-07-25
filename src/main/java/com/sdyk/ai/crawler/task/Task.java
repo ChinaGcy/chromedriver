@@ -69,14 +69,14 @@ public abstract class Task extends ChromeTask {
 		Set<String> a_urls = new HashSet<>();
 		List<String> fileName = new ArrayList<>();
 
-		String des_src = StringUtil.cleanContent(src, img_urls, a_urls, fileName);
+		String des_src = StringUtil.cleanContent(src, img_urls);
 
 		if (img_urls.size() != 0 ) {
-			des_src = BinaryDownloader.download(des_src, img_urls, getUrl(), null);
+			//des_src = BinaryDownloader.download(des_src, img_urls, getUrl(), null);
 		}
 
 		if (a_urls.size() != 0) {
-			des_src = BinaryDownloader.download(des_src, a_urls, getUrl(), fileName);
+			//des_src = BinaryDownloader.download(des_src, a_urls, getUrl(), fileName);
 		}
 
 		return des_src;

@@ -53,8 +53,7 @@ public class CompanyListScanTask extends ScanTask {
 		for( int i = 1; i<4; i++ ){
 
 			this.addAction(
-					new ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(3) > ul > li:nth-child("+i+")",
-					2000
+					new ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(3) > ul > li:nth-child("+i+")"
 					)
 			);
 		}
@@ -62,13 +61,17 @@ public class CompanyListScanTask extends ScanTask {
 		this.addAction(new MouseSuspensionAction("body > div.company-main > div.filter-box > ul > li:nth-child(4)"));
 
 		//选择融资轮次
-		for(int j =1 ; j < 17 ; j++){
+		for(int j =1 ; j < 16 ; j++){
 			this.addAction(new
 					ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child("+j+")",
-					2000
+					1000
 			));
 		}
 
+		this.addAction(new
+				ClickAction("body > div.company-main > div.filter-box > ul > li:nth-child(4) > ul > li:nth-child(16)",
+				2000
+		));
 		//填写跳转页数
 		this.addAction(new SetValueAction(
 				"#goto_page_num", page, 2000

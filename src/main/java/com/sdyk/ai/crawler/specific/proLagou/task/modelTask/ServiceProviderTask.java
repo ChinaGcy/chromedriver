@@ -63,17 +63,11 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		//名字
 		serviceProvider.name = doc.select("#profile > div > div.profile_content.table_cell > div.profile_base > div > div > h3").text();
 
-		//头像
-		Set<String> fileUrl =new HashSet<>();
-		List<String> fileName = new ArrayList<>();
-		String image = doc.getElementsByClass("show_face").toString();
+		// 头像
 		String imageUrl = doc.getElementsByClass("show_face").attr("src");
-		fileUrl.add(imageUrl);
-
-		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(imageUrl));
-
-		BinaryDownloader.download(image,fileUrl,getUrl(),fileName);
-
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(imageUrl, "head_portrait");
+		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		//原网站ID
 		serviceProvider.origin_id = getUrl().split("user/")[1].replace(".html","");

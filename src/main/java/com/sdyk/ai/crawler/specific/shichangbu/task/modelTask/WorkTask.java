@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -75,32 +76,14 @@ public class WorkTask extends Task {
 			work.like_num = Integer.valueOf(likeNum);
 		}
 
-		//内容
+		// 描述
 		String contentHtml = doc.select("div.se-editcon").html();
-		String context_url = "http://www.shichangbu.com/";
-		Set<String> fileUrl =new HashSet<>();
-		List<String> fileName = new ArrayList<>();
+		Set<String> extraUrls_img = new HashSet<>();
 
-		//解析图片url
-		Pattern p = Pattern.compile("<img src=\"(?<tUrl>.+?).jpg\"");
-		Matcher m = p.matcher(contentHtml);
+		contentHtml = StringUtil.cleanContent(contentHtml, extraUrls_img);
 
-		//解析图片name
-		Pattern p1 = Pattern.compile(".jpg\" title=\"(?<tName>.+?)\" style=\"");
-		Matcher m1 = p1.matcher(contentHtml);
-
-		//获取图片链接
-		while(m.find()) {
-			fileUrl.add(m.group("tUrl"));
-		}
-
-		//获取图片名称
-		while(m1.find()) {
-			fileName.add(m1.group("tName"));
-		}
-
-		String content = BinaryDownloader.download(contentHtml,fileUrl,context_url,fileName);
-		work.content = content;
+		// 图片下载
+		work.content = BinaryDownloader.download(contentHtml, extraUrls_img, getUrl());
 
 		try {
 			work.insert();

@@ -167,7 +167,7 @@ public class Scheduler {
 		final URL remoteAddress = container.getRemoteAddress();
 
 		// 创建 Agent
-		ChromeDriverAgent agent = new ChromeDriverAgent(/*remoteAddress, container, proxy*/);
+		ChromeDriverAgent agent = new ChromeDriverAgent(remoteAddress, container, proxy);
 
 		// A 账号异常回调
 		agent.addAccountFailedCallback((agent_, account_)->{
@@ -522,9 +522,9 @@ public class Scheduler {
 
 				t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
 
-				//t.start_time = new Date();
+				t.start_time = new Date();
 
-				//t.update();
+				t.update();
 
 			} catch (Exception e) {
 				e.printStackTrace();
