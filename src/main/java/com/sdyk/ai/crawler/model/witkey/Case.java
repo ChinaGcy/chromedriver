@@ -80,9 +80,15 @@ public class Case extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String attachment_ids;
 
+	public Range budget;
+
 	public Case(){}
 
 	public Case(String url) {
 		super(url);
+	}
+
+	public void fullfill() {
+		this.budget = new Range(this.budget_lb, this.budget_ub, true);
 	}
 }

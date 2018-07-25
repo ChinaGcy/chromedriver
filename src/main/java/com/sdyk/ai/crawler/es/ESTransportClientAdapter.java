@@ -18,6 +18,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,9 +32,9 @@ public class ESTransportClientAdapter {
     public final static String host;
     public final static int port;
 
-	static Class clazzes[] = {
+	public static List<Class<?>> clazzes = Arrays.asList(
 			Project.class, Tenderer.class, ServiceProvider.class, Case.class, Resume.class, Work.class
-	};
+	);
 
     public static TransportClient client;
 
@@ -151,7 +152,7 @@ public class ESTransportClientAdapter {
      * @param model
      * @throws Exception
      */
-    public static void updateOne(String id, Model model) {
+    public static void updateOne(Model model) {
 
 	    String index = model.getClass().getSimpleName().toLowerCase();
 

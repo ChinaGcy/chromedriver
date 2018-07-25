@@ -4,7 +4,6 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
-import com.sdyk.ai.crawler.model.witkey.Project;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
@@ -28,6 +27,8 @@ public abstract class Model {
 	public static final Logger logger = LogManager.getLogger(Model.class.getName());
 
 	public static Map<String, Dao> daoMap = new HashMap<>();
+
+	public static boolean ES_Index = false;
 
 	static {
 
@@ -106,33 +107,36 @@ public abstract class Model {
 
 		try {
 
-			dao.create(this);
+			Model oldVersion = (Model) dao.queryForId(id);
 
-			return true;
+			// 没有旧版本
+			if(oldVersion == null) {
+				dao.create(this);
+				insertES();
+			}
+			// 存在旧版本
+			else {
 
-		} catch (SQLException e) {
+				if(diff(oldVersion)) {
 
-			// 数据库中已经存在记录
-			if(e.getCause().getMessage().contains("Duplicate")) {
+					oldVersion.copy(this);
+					oldVersion.update();
 
-				try {
-
-					this.update();
-
-					return true;
-
-				} catch (Exception ex) {
-
-					logger.error("Update error {}", ex);
-					return false;
+					createSnapshot(oldVersion);
+					oldVersion.updateES();
 				}
 			}
-			// 可能是采集数据本事存在问题
-			else {
-				logger.error("Model {} insert error. ", this.toJSON(), e);
-				return false;
-			}
+
+			return true;
 		}
+		catch (SQLException e) {
+			logger.error("Model {} insert error. ", this.toJSON(), e);
+		}
+		catch (Exception e) {
+			logger.error(e);
+		}
+
+		return false;
 	}
 
 	/**
@@ -150,6 +154,38 @@ public abstract class Model {
 			logger.error("Insert Update error {}", e);
 			return false;
 		}
+	}
+
+	/**
+	 *
+	 */
+	public void insertES() {
+
+		this.fullfill();
+
+		if(ESTransportClientAdapter.Enable_ES && ESTransportClientAdapter.clazzes.contains(this.getClass())){
+			ESTransportClientAdapter.insertOne(this);
+		}
+	}
+
+	/**
+	 *
+	 */
+	public void updateES() {
+
+		this.fullfill();
+
+		if(ESTransportClientAdapter.Enable_ES && ESTransportClientAdapter.clazzes.contains(this.getClass())){
+			ESTransportClientAdapter.updateOne(this);
+		}
+	}
+
+	public void fullfill() {
+
+	}
+
+	public void createSnapshot(Model oldVersion) throws Exception {
+
 	}
 
 	/**
@@ -173,6 +209,20 @@ public abstract class Model {
 		}
 
 		return src;
+	}
+
+	/**
+	 *
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean diff(Model model) throws Exception {
+		if(!model.getClass().equals(this.getClass())) {
+			throw new Exception("Model class is not equal.");
+		}
+
+		return true;
 	}
 
 	/**

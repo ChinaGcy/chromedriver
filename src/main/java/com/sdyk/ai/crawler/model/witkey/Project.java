@@ -59,8 +59,6 @@ public class Project extends Model{
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public transient double budget_ub;
 
-	public Range budget;
-
 	// 工期
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int time_limit;
@@ -141,6 +139,8 @@ public class Project extends Model{
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String attachment_ids;
 
+	public Range budget;
+
 	public Project() {}
 
 	public Project(String url) {
@@ -153,67 +153,15 @@ public class Project extends Model{
 
 	/**
 	 *
-	 * @return
+	 * @param oldVersion
+	 * @throws Exception
 	 */
-	public boolean insert() {
+	public void createSnapshot(Model oldVersion) throws Exception {
+		// 生成快照
+		ProjectSnapshot projectSnapshot = new ProjectSnapshot((Project) oldVersion);
 
-		this.fullfill();
-
-		try {
-
-			Dao dao = DaoManager.getDao(this.getClass());
-
-			dao.create(this);
-
-			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
-
-			return true;
-		}
-		catch (SQLException e) {
-
-			// 数据库中已经存在记录
-			if(e.getCause().getMessage().contains("Duplicate")) {
-
-				try {
-
-					Dao dao = DaoManager.getDao(Project.class);
-
-					// 获取已有版本
-					Project project = (Project) dao.queryForId(this.id);
-
-					// 数据更新
-					project.copy(this);
-					project.update();
-
-					// 生成快照
-					ProjectSnapshot projectSnapshot = new ProjectSnapshot(project);
-
-					// 保存快照
-					projectSnapshot.insert();
-
-					return true;
-
-				} catch (NoSuchFieldException | IllegalAccessException ex) {
-
-					logger.error("Error insert snapshot. ", ex);
-
-					return false;
-				} catch (Exception e1) {
-					logger.error("Dao error for Project", e1);
-					return false;
-				}
-			}
-			// 可能是采集数据本事存在问题
-			else {
-				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
-				return false;
-			}
-		}
-		// 数据库连接问题
-		catch (Exception e) {
-			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
-			return false;
-		}
+		// 保存快照
+		projectSnapshot.insert();
 	}
 
 }

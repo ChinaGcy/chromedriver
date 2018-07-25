@@ -125,56 +125,15 @@ public class Tenderer extends Model {
 
 	/**
 	 *
-	 * @return
+	 * @param oldVersion
+	 * @throws Exception
 	 */
-	public boolean insert() {
+	public void createSnapshot(Model oldVersion) throws Exception {
+		// 生成快照
+		TendererSnapshot snapshot = new TendererSnapshot((Tenderer) oldVersion);
 
-		try {
-
-			Dao dao = DaoManager.getDao(this.getClass());
-
-			dao.create(this);
-
-			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
-
-			return true;
-		}
-		catch (SQLException e) {
-
-			// 数据库中已经存在记录
-			if(e.getCause().getMessage().contains("Duplicate")) {
-
-				try {
-
-					Dao dao = DaoManager.getDao(this.getClass());
-					Tenderer tenderer = (Tenderer) dao.queryForId(this.id);
-
-					// 更新信息
-					tenderer.copy(this);
-					tenderer.update();
-
-					// 生成快照
-					TendererSnapshot tendererSnapshot = new TendererSnapshot(tenderer);
-					tendererSnapshot.insert();
-
-					return true;
-				} catch (Exception ex) {
-					logger.error("Error insert snapshot. ", ex);
-				}
-
-				return false;
-			}
-			// 可能是采集数据本事存在问题
-			else {
-				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
-				return false;
-			}
-		}
-		// 数据库连接问题
-		catch (Exception e) {
-			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
-			return false;
-		}
+		// 保存快照
+		snapshot.insert();
 	}
 
 }

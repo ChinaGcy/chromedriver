@@ -6,6 +6,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.model.witkey.snapshot.ProjectSnapshot;
 import com.sdyk.ai.crawler.model.witkey.snapshot.ServiceProviderSnapshot;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
@@ -205,60 +206,14 @@ public class ServiceProvider extends Model {
 
 	/**
 	 *
-	 * @return
+	 * @param oldVersion
+	 * @throws Exception
 	 */
-	public boolean insert() {
+	public void createSnapshot(Model oldVersion) throws Exception {
+		// 生成快照
+		ServiceProviderSnapshot snapshot = new ServiceProviderSnapshot((ServiceProvider) oldVersion);
 
-		this.fullfill();
-
-		try {
-
-			Dao dao = DaoManager.getDao(this.getClass());
-
-			dao.create(this);
-
-			if(ESTransportClientAdapter.Enable_ES) ESTransportClientAdapter.updateOne(this.id, this);
-
-			return true;
-		}
-		catch (SQLException e) {
-
-			// 数据库中已经存在记录
-			if(e.getCause().getMessage().contains("Duplicate")) {
-
-				try {
-
-					Dao dao = DaoManager.getDao(this.getClass());
-
-					// 获取数据库版本
-					ServiceProvider serviceProvider = (ServiceProvider) dao.queryForId(this.id);
-
-					// 获取新信息
-					serviceProvider.copy(this);
-
-					// 生成快照
-					ServiceProviderSnapshot serviceProviderSnapshot = new ServiceProviderSnapshot(serviceProvider);
-					serviceProviderSnapshot.insert();
-
-					serviceProvider.update();
-
-					return true;
-				} catch (Exception ex) {
-					logger.error("Error insert snapshot. ", ex);
-				}
-				return false;
-			}
-			// 可能是采集数据本事存在问题
-			else {
-				logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
-				return false;
-			}
-		}
-		// 数据库连接问题
-		catch (Exception e) {
-			logger.error("Model {} Insert ERROR. ", this.toJSON(), e);
-			return false;
-		}
+		// 保存快照
+		snapshot.insert();
 	}
-
 }
