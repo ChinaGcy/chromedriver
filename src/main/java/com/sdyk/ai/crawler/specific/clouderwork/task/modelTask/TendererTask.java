@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 7 * 24 * 60 * 60 * 1000;
 
 	static {
 		registerBuilder(

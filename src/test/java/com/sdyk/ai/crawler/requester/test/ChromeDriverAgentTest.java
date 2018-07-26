@@ -19,7 +19,7 @@ import java.net.URISyntaxException;
 /**
  * Created by karajan on 2017/6/3.
  */
-public class ChromeDriverAgentTest {
+public class  ChromeDriverAgentTest {
 
 	@Test
 	public void test() throws Exception {
@@ -110,6 +110,33 @@ public class ChromeDriverAgentTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		Thread.sleep(10000);
+
+		agent.stop();
+	}
+
+	@Test
+	public void noFetchImagesTest() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
+
+		ChromeTask t = new ChromeTask("https://beijing.zbj.com/").setNoFetchImages();
+		ChromeTask t2 = new ChromeTask("https://www.baidu.com/s?word=ip").setNoFetchImages();
+
+		Proxy proxy = new ProxyImpl("scisaga.net", 60103, null, null);
+		ChromeDriverAgent agent = new ChromeDriverAgent(ChromeDriverAgent.Flag.MITM);
+		agent.start();
+
+		agent.addTerminatedCallback((a)->{
+			System.err.println("TERMINATED");
+		});
+
+		agent.submit(t);
+		agent.submit(t2);
+		agent.submit(t);
+		agent.submit(t2);
+		//t.noFetchImages = false;
+		agent.submit(t);
+		agent.submit(t2);
 
 		Thread.sleep(10000);
 

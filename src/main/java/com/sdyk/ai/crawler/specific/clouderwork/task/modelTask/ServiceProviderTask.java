@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(

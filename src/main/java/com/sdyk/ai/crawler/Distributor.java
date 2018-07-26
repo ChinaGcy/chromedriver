@@ -36,23 +36,8 @@ public class Distributor extends ChromeDriverDistributor {
 
 	public static RMap<String, Long> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
 
-	public static Distributor instance;
-
 	static {
 		logger.info("Replace {} with {}.", ChromeDriverDistributor.class.getName(), Distributor.class.getName());
-	}
-
-	public static Distributor getInstance() {
-		if (instance == null) {
-			Class var0 = Distributor.class;
-			synchronized(Distributor.class) {
-				if (instance == null) {
-					instance = new Distributor();
-				}
-			}
-		}
-
-		return instance;
 	}
 
 	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> loginTaskQueues = new ConcurrentHashMap();
