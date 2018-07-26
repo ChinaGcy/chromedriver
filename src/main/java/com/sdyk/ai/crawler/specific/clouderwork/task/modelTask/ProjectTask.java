@@ -12,6 +12,8 @@ import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -96,7 +98,21 @@ public class ProjectTask extends Task {
 				.replaceAll(project.status,"");
 
 		//项目类别
-		project.category = doc.getElementsByClass("scope").text();
+		project.category = doc.getElementsByClass("scope").text().replace(" >", ",");
+
+		// 标签
+		Elements elements = doc.select("span.skill");
+		StringBuffer tags = new StringBuffer();
+		for(Element element : elements){
+			tags.append(element.text());
+			tags.append(",");
+		}
+		if(tags.length() > 0){
+			project.tags = tags.substring(0, tags.length()-1);
+		}
+		else {
+			project.tags = doc.select("div.offer").text();
+		}
 
 		//项目预算
 		String budget = doc.select("#project-detail > div > div.main-top > div.op-main > div.detail-row > div:nth-child(1) > p.budget").text().replaceAll("￥","");
