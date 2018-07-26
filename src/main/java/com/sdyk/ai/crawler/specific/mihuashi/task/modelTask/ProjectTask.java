@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  */
 public class ProjectTask extends Task {
 
-	public long MIN_INTERVAL = 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 60 * 60 * 1000;
 
 	static {
 		registerBuilder(
@@ -125,16 +125,6 @@ public class ProjectTask extends Task {
 			logger.error("error on String to date",e);
 		}
 
-		//工期,截止时间 - 发布时间
-		String endTime = doc.select("#aside-rail > div > aside > p:nth-child(2)").text();
-		try {
-			long eTime = DateFormatUtil.parseTime(endTime).getTime();
-			long timeLimt = eTime - project.pubdate.getTime();
-			project.time_limit = Integer.valueOf((int)(timeLimt / (1000 * 60 * 60 *24)));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
 		//描述
 		project.content = doc.select("#project-detail").html();
 
@@ -178,6 +168,7 @@ public class ProjectTask extends Task {
 				)
 		{
 
+			authorUrl = "https://www.mihuashi.com/users/" + tenderer_id + "?role=employer";
 			project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 					one.rewind.txt.StringUtil.uuid(authorUrl));
 
@@ -194,7 +185,7 @@ public class ProjectTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				Distributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 
 			} catch (Exception e) {

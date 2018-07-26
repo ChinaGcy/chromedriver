@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class TendererRatingTask extends Task {
 
-	public long MIN_INTERVAL = 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 60 * 60 * 1000;
 
 	static {
 		registerBuilder(
@@ -41,7 +41,7 @@ public class TendererRatingTask extends Task {
 
     	super(url);
 
-        this.setPriority(Priority.LOW);
+        this.setPriority(Priority.MEDIUM);
 
 		this.addAction(new ClickAction(ratingPath));
 		this.addAction(new LoadMoreContentAction(moreRatingPath));

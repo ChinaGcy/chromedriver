@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask;
@@ -40,20 +41,14 @@ public class ServiceScanTask extends ScanTask {
 
         this.setPriority(Priority.HIGH);
 
-        this.setParam("page", init_map.get("page"));
+        this.setParam("page", url.split("page=")[1]);
 
         this.addDoneCallback((t) -> {
 
             String pagePath = "#artists-index > div.container-fluid > div.container > div > div > nav > span.last > a";
 
-	        int page = 0;
-	        Pattern pattern_url = Pattern.compile("page=(?<page>.+?)");
-	        Matcher matcher_url = pattern_url.matcher(url);
-	        if (matcher_url.find()) {
-		        page = Integer.parseInt(matcher_url.group("page"));
-	        }
+	        int page = Integer.valueOf(getUrl().split("page=")[1]);
 
-            Document doc = getResponse().getDoc();
             String src = getResponse().getText();
 
             Pattern pattern = Pattern.compile("/users/(?<username>.+?)\\?role=painter");
@@ -75,7 +70,7 @@ public class ServiceScanTask extends ScanTask {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
-		            ImmutableMap.of("service_id", un);
+		            init_map.put("service_id", un);
 
 		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceProviderTask");
 
@@ -83,7 +78,7 @@ public class ServiceScanTask extends ScanTask {
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 	            } catch ( Exception e) {
 
@@ -95,7 +90,7 @@ public class ServiceScanTask extends ScanTask {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
-		            ImmutableMap.of("service_id", un);
+		            init_map.put("service_id", un);
 
 		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ServiceRatingTask");
 
@@ -103,7 +98,7 @@ public class ServiceScanTask extends ScanTask {
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 	            } catch ( Exception e) {
 
@@ -119,7 +114,7 @@ public class ServiceScanTask extends ScanTask {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
-		            ImmutableMap.of("page", String.valueOf(nextP));
+		            init_map.put("page", String.valueOf(nextP));
 
 		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.scanTask.ServiceScanTask");
 
@@ -127,7 +122,7 @@ public class ServiceScanTask extends ScanTask {
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 	            } catch ( Exception e) {
 

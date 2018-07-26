@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 
-	public long MIN_INTERVAL = 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 60 * 60 * 1000;
 
 	static {
 		registerBuilder(
@@ -35,15 +35,13 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 		);
 	}
 
-    public Tenderer tenderer;
-
 	public String moreProjectPath = "#artworks > div > section > div:nth-child(2) > a";
 
     public TendererTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
         super(url);
 
-        this.setPriority(Priority.MEDIUM);
+        this.setPriority(Priority.HIGH);
 
 	    this.addAction(new LoadMoreContentAction(moreProjectPath));
 
@@ -58,7 +56,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 
 	public void crawlawJob(Document doc){
 
-		tenderer = new Tenderer(getUrl());
+    	Tenderer tenderer = new Tenderer(getUrl());
 
 		Pattern pattern = Pattern.compile("/users/(?<username>.+?)\\?role=employer");
 		Matcher matcher = pattern.matcher(getUrl());

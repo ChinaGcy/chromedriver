@@ -22,14 +22,12 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 	static {
 		registerBuilder(
-				ProjectTask.class,
+				ServiceProviderTask.class,
 				"https://www.mihuashi.com/users/{{service_id}}?role=painter",
 				ImmutableMap.of("service_id", String.class),
 				ImmutableMap.of("service_id", "")
 		);
 	}
-
-	ServiceProvider serviceProvider;
 
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
@@ -59,7 +57,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 	public void crawlerJob(Document doc) throws ChromeDriverException.IllegalStatusException {
 
-		serviceProvider = new ServiceProvider(getUrl());
+		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 		List<Task> tasks = new ArrayList<Task>();
 		String[] url = getUrl().split("users");
 
@@ -123,14 +121,14 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		//作品图像
-		String allImags = doc.getElementsByClass("masonry").toString();
+		String allImags = doc.select("div.masonry").toString();
 		Pattern pattern = Pattern.compile("https://images.mihuashi.com/(?<imageSrc>.+?)\">");
 		Matcher matcher = pattern.matcher(allImags);
 		Map<String, String> url_name = new HashMap<>();
 
 		//设置图片链接
 		while(matcher.find()) {
-			url_filename.put("https://images.mihuashi.com/" + matcher.group("imageSrc"), null);
+			url_name.put("https://images.mihuashi.com/" + matcher.group("imageSrc"), null);
 		}
 
 		//下载图片

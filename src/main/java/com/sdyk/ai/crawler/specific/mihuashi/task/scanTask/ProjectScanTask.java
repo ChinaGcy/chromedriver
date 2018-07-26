@@ -33,7 +33,7 @@ public class ProjectScanTask extends ScanTask {
 				ProjectScanTask.class,
 				"https://www.mihuashi.com/projects?zone_id={{zone_id}}&page={{page}}",
 				ImmutableMap.of("zone_id", String.class, "page", String.class),
-				ImmutableMap.of("tenderer_id", "","page","")
+				ImmutableMap.of("zone_id", "","page","")
 		);
 	}
 
@@ -51,16 +51,11 @@ public class ProjectScanTask extends ScanTask {
         // 设定高优先级
         this.setPriority(Priority.HIGH);
 
-        this.setParam("page", init_map.get("page"));
+        this.setParam("page", url.split("page=")[1]);
 
         this.addDoneCallback((t) -> {
 
-	        int page = 0;
-	        Pattern pattern_url = Pattern.compile("page=(?<page>.+?)");
-	        Matcher matcher_url = pattern_url.matcher(url);
-	        if (matcher_url.find()) {
-		        page = Integer.parseInt(matcher_url.group("page"));
-	        }
+	        int page = Integer.valueOf(getUrl().split("page=")[1]);
 
 	        String zoneId = "1";
 	        Pattern pattern_zoneId = Pattern.compile("zone_id=(?<zoneId>.+?)&page");
@@ -82,7 +77,7 @@ public class ProjectScanTask extends ScanTask {
             Set<String> usernames = new HashSet<>();
             while (matcher.find()) {
                 try {
-                    usernames.add("https://www.mihuashi.com/projects/" + matcher.group());
+                    usernames.add(matcher.group());
                 } catch (Exception e) {
                     logger.error(e);
                 }
@@ -101,7 +96,7 @@ public class ProjectScanTask extends ScanTask {
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 
 	            } catch (Exception e) {
@@ -118,14 +113,14 @@ public class ProjectScanTask extends ScanTask {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
+		            init_map.put("zone_id", zoneId);
 		            init_map.put("page", String.valueOf(++page));
-		            init_map.put("zoneId", zoneId);
 
 		            //生成holder
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectScanTask.class, init_map);
 
 		            //提交任务
-		            Distributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 
 	            } catch (Exception e) {
