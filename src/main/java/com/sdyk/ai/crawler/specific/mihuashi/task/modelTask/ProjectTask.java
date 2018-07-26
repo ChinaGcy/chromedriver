@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
@@ -21,6 +22,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,7 +128,7 @@ public class ProjectTask extends Task {
 		}
 
 		//描述
-		project.content = doc.select("#project-detail").html();
+		project.content = StringUtil.cleanContent(doc.select("#project-detail").html(), new HashSet<>());
 
 		//资金分配
 		project.delivery_steps = doc.select("#projects-show > div.container-fluid > div.project__main-section > div.project__info-section > section > div.deposit-phases__wrapper").text();
