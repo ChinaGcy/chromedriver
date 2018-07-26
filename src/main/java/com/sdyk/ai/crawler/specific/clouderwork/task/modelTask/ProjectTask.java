@@ -238,12 +238,12 @@ public class ProjectTask extends Task {
 			}
 		}
 
-		//已投标人数
+		// 查看人数
 		String bidder = doc.select("#project-detail > div > div.main-top > div.op-main > div.row > span").text();
 		String bidderNum = CrawlerAction.getNumbers(bidder);
-		if( bidderNum!=null && !"".equals(bidderNum) ){
+		if( bidderNum!=null ){
 			try {
-				project.bids_num = Integer.valueOf(bidderNum);
+				project.view_num = Integer.valueOf(bidderNum);
 			} catch (Exception e) {
 				logger.error("error on String"+bidderNum +"To Integer", e);
 			}

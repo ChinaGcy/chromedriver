@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTask;
@@ -43,8 +44,6 @@ public class ServiceScanTask extends ScanTask {
 
         super(url);
 
-        setBuildDom();
-
         this.setPriority(Priority.HIGH);
 
         this.setParam("page", url.split("pagenum=")[1]);
@@ -53,11 +52,6 @@ public class ServiceScanTask extends ScanTask {
 
         	//获取当前页数
 	        int page = Integer.valueOf(url.split("pagenum=")[1]);
-	        Pattern pattern_url = Pattern.compile("pagesize=10&pagenum=(?<page>.+?)");
-	        Matcher matcher_url = pattern_url.matcher(url);
-	        if (matcher_url.find()) {
-		        page = Integer.parseInt(matcher_url.group("page"));
-	        }
 
 	        //获取页面信息
             String src = getResponse().getDoc().text();
@@ -84,7 +78,7 @@ public class ServiceScanTask extends ScanTask {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
-		            ImmutableMap.of("servicer_id", user);
+		            init_map.put("servicer_id", user);
 
 		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTask");
 
@@ -92,11 +86,11 @@ public class ServiceScanTask extends ScanTask {
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 	            } catch ( Exception e) {
 
-		            logger.error("error for submit WorkTask.class", e);
+		            logger.error("error for submit ServiceProviderTask.class", e);
 	            }
 
             }
@@ -110,13 +104,13 @@ public class ServiceScanTask extends ScanTask {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
-		            ImmutableMap.of("page", String.valueOf(next));
+		            init_map.put("page", String.valueOf(next));
 
 		            //生成holder
 		            ChromeTaskHolder holder = ChromeTask.buildHolder(ServiceScanTask.class, init_map);
 
 		            //提交任务
-		            ChromeDriverDistributor.getInstance().submit(holder);
+		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 	            } catch ( Exception e) {
 

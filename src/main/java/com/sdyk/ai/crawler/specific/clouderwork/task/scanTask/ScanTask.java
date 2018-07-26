@@ -18,8 +18,6 @@ import java.util.HashMap;
 
 public abstract class ScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
-    public boolean backtrace = true;
-
     public ScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
     	super(url);

@@ -1,10 +1,10 @@
 package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Resume;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
+import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
@@ -12,6 +12,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -19,6 +20,7 @@ import org.jsoup.select.Elements;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -65,7 +67,6 @@ public class ServiceProviderTask extends Task {
 	public void crawlerJob(Document doc) throws ChromeDriverException.IllegalStatusException {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
-		Resume resume = new Resume(getUrl());
 
 		String url = getUrl();
 		Pattern pattern = Pattern.compile("[0-9]*");
@@ -74,7 +75,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.origin_id = urls[1];
 
 		// 描述
-		serviceProvider.content = doc.select("#profile > div > div > section.left > div.p-item > div:nth-child(2)").toString();
+		serviceProvider.content = doc.select("p.overview").toString();
 
 		// 平台认证信息
 		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
@@ -306,49 +307,123 @@ public class ServiceProviderTask extends Task {
 				serviceProviderRating.rating = Double.valueOf(
 						element.getElementsByClass("score-num").text().toCharArray()[0]);
 
-				System.out.println(serviceProviderRating.toJSON());
-				//serviceProviderRating.insert();
+				serviceProviderRating.insert();
 			}
 		}
 
 		//教育经历
 		String eduAll = doc.getElementsByClass("main-content edu").text();
 		if( eduAll!=null && !"".equals(eduAll) ){
-			resume.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(getUrl()));
-			String eduTime = doc.getElementsByClass("edu-time").text().replace("年","");
-			if( eduTime!=null && !"".equals(eduTime) ){
-				String[] times = eduTime.split("-");
+
+			Elements elements = doc.select("div.main-content.edu");
+			for( Element element : elements ){
+
+				String eduSchool = element.getElementsByClass("edu-school").text();
+				Resume resume = new Resume(getUrl() + eduSchool);
+
+				resume.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(getUrl()));
+				String eduTime = element.getElementsByClass("edu-time").text().replace("年","");
+				if( eduTime!=null && !"".equals(eduTime) ){
+					String[] times = eduTime.split("-");
+					try {
+						SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy");
+						Date startdate=simpleDateFormat.parse(times[0]);
+						Date enddate=simpleDateFormat.parse(times[1]);
+						resume.sd =startdate;
+						resume.ed = enddate;
+					} catch(ParseException px) {
+						px.printStackTrace();
+					}
+				}
+
+				// 学校
+				if( eduSchool!=null && !"".equals(eduSchool) ){
+					resume.org = eduSchool;
+				}
+
+				// 院系
+				String eduCity = element.getElementsByClass("edu-city").text();
+				if( eduCity!=null && !"".equals(eduCity) ){
+					resume.dep = eduCity;
+				}
+
+				// 职位
+				resume.degree_occupation = element.select("span.edu-degree").text();
+
 				try {
-					SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy");
-					Date startdate=simpleDateFormat.parse(times[0]);
-					Date enddate=simpleDateFormat.parse(times[1]);
-					resume.sd =startdate;
-					resume.ed = enddate;
-				} catch(ParseException px) {
-					px.printStackTrace();
+					resume.insert();
+				} catch (Exception e) {
+					logger.error("error on insert resume", e);
 				}
 			}
-			String eduSchool = doc.getElementsByClass("edu-school").text();
-			if( eduSchool!=null && !"".equals(eduSchool) ){
-				resume.org = eduSchool;
-			}
-			String eduCity = doc.getElementsByClass("edu-city").text();
-			if( eduCity!=null && !"".equals(eduCity) ){
-				resume.dep = eduCity;
-				String[] edu_position = eduAll.split(eduCity);
-				if(edu_position.length > 1){
-					resume.degree_occupation = edu_position[1];
-				}
-			}
-			try {
-				resume.insert();
-			} catch (Exception e) {
-				logger.error("error on insert resume", e);
-			}
+
 		}
 
-		// 描述
-		serviceProvider.content = doc.getElementsByClass("main-content").html();
+		// 项目经验
+		Elements elements1 = doc.select("#profile > div > div > section.left > div.p-item > div:nth-child(2) > section");
+		for( Element element : elements1 ){
+
+			String sp_title = element.select("p.sp-title").text();
+
+			Work work = new Work(getUrl() + sp_title);
+
+			work.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(getUrl()));
+
+			work.title = sp_title;
+
+			work.content = element.select("div.sp-desc.desc").text();
+
+			work.category = element.select("div.sp-cont > span:nth-child(1)").text();
+
+			work.tags = element.select("span.skill").text();
+
+			work.external_url = element.select("p.show-link > a").attr("href");
+
+			try {
+				work.insert();
+			}
+			catch (Exception e) {
+				logger.error("error for work.insert();", e);
+			}
+
+		}
+
+		// 工作经验
+		if( doc.select("#profile > div > div > section.left > div.p-item > div:nth-child(4)").text().contains("工作") ){
+			Elements elements2 = doc.select("#profile > div > div > section.left > div.p-item > div:nth-child(4) > div");
+			for( Element element : elements2 ){
+
+				String sp_title = element.select("p.sp-title").text();
+
+				Resume resume = new Resume(getUrl() + sp_title);
+
+				resume.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(getUrl()));
+
+				resume.degree_occupation = element.select("div.sp-cont > span:nth-child(1)").text();
+				resume.content = element.select("div.sp-desc.desc").text();
+
+				String time = element.select("div.sp-cont > span:nth-child(3)").text();
+
+				if( time != null && time.contains("-") ){
+					String times[] = time.split("-");
+					try {
+						resume.sd = DateFormatUtil.parseTime(times[1]);
+
+						if(times[1].contains("至今")){
+							resume.is_current = 1;
+						}
+						else {
+							resume.ed = DateFormatUtil.parseTime(times[1]);
+						}
+					} catch (ParseException e) {
+						logger.error("error for String to date", e);
+					}
+				}
+
+				resume.insert();
+
+			}
+		}
 
 		// 含有附件
 		Elements fileelements = doc.select("p.file");
@@ -372,7 +447,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//抓取乙方项目
-		/*Elements elements = doc.getElementsByClass("case-item");
+		Elements elements = doc.getElementsByClass("case-item");
 
 		if( elements.size()>0 ){
 			for(Element element : elements){
@@ -383,7 +458,7 @@ public class ServiceProviderTask extends Task {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("work_id", workUrl);
+					init_map.put("work_id", workUrl);
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.WorkTask");
 
@@ -399,7 +474,7 @@ public class ServiceProviderTask extends Task {
 				}
 
 			}
-		}*/
+		}
 
 	}
 
