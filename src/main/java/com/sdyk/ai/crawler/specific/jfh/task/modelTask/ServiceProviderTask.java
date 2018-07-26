@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.jfh.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.Work;
@@ -195,7 +196,7 @@ public class ServiceProviderTask extends Task {
 
 			//设置参数
 			Map<String, Object> init_map = new HashMap<>();
-			ImmutableMap.of("servicer_id", servicer_id);
+			init_map.put("servicer_id", servicer_id);
 
 			Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderRatingTask");
 
@@ -203,7 +204,7 @@ public class ServiceProviderTask extends Task {
 			ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 			//提交任务
-			ChromeDriverDistributor.getInstance().submit(holder);
+			((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 		} catch ( Exception e) {
 

@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.jfh.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask;
@@ -43,11 +44,11 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setParam("page", init_map.get("page"));
+		this.setParam("page", url.split("pageNo=")[1].split("&putTime")[0]);
 
 		this.addDoneCallback((t) -> {
 
-			int page = Integer.valueOf((Integer) init_map.get("page"));
+			int page = Integer.valueOf(url.split("pageNo=")[1].split("&putTime")[0]);
 
 			String src = getResponse().getText();
 			Set<String> project = new HashSet<>();
@@ -69,7 +70,7 @@ public class ProjectScanTask extends ScanTask {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("project_id", projectUrl);
+					init_map.put("project_id", projectUrl);
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask");
 
@@ -77,7 +78,7 @@ public class ProjectScanTask extends ScanTask {
 					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 				} catch ( Exception e) {
 
@@ -93,7 +94,7 @@ public class ProjectScanTask extends ScanTask {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("page", String.valueOf(nextPage));
+					init_map.put("page", String.valueOf(nextPage));
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.scanTask.ProjectScanTask");
 
@@ -101,7 +102,7 @@ public class ProjectScanTask extends ScanTask {
 					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 				} catch ( Exception e) {
 
