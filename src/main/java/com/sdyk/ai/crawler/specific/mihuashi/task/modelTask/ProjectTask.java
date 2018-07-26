@@ -101,7 +101,7 @@ public class ProjectTask extends Task {
 		}
 
 		//类型
-		project.category = pub;
+		project.category = pub.replace(" · ", ",");
 
 		//预算
 		String budget = doc.select("#aside-rail > div > aside > p:nth-child(4)").text().replace("￥","");
