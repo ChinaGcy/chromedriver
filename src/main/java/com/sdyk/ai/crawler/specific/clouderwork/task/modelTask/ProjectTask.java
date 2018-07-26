@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Project;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -23,6 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class ProjectTask extends Task {
@@ -87,7 +89,8 @@ public class ProjectTask extends Task {
 		project.location = doc.select("#project-detail > div > div.main-top > div.job-main > div.project-info > p.loc").text();
 
 		//项目描述
-		project.content = doc.select("#project-detail > div > div.main-detail > section > div").html();
+		project.content = StringUtil.cleanContent(doc.select("#project-detail > div > div.main-detail > section > div").html(),
+				new HashSet<>());
 
 		//项目状态
 		project.status = doc.select("#project-detail > div > div.main-top > div.job-main > h3 > span").text();
