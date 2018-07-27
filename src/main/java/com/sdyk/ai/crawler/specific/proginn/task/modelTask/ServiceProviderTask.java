@@ -26,6 +26,8 @@ import java.util.*;
 
 public class ServiceProviderTask extends Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ServiceProviderTask.class,
@@ -40,6 +42,8 @@ public class ServiceProviderTask extends Task {
 		super(url);
 
 		this.setPriority(Priority.HIGH);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

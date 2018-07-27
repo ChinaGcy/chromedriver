@@ -17,6 +17,8 @@ public class TendererTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
+		this.setNoFetchImages();
+
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
