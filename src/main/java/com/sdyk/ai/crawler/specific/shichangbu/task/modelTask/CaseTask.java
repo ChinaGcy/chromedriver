@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
 
 public class CaseTask extends Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 	static {
 		registerBuilder(
 				CaseTask.class,
@@ -29,14 +31,13 @@ public class CaseTask extends Task {
 		);
 	}
 
-	public Case casemode;
-
 	public CaseTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.MEDIUM);
+
+		this.setNoFetchImages();
+
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
@@ -48,7 +49,7 @@ public class CaseTask extends Task {
 
 	public void crawlerJob(Document doc) {
 
-		casemode = new Case(getUrl());
+		Case casemode = new Case(getUrl());
 
 		String useUrl = "http://www.shichangbu.com/"
 				+ doc.select("body > div.se-show.se-module.container > div.se-sh-con > div.se-sh-con-title > div > a:nth-child(2)")

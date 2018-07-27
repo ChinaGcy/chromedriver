@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.shichangbu.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
@@ -24,6 +25,8 @@ import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ServiceProviderTask.class,
@@ -39,9 +42,9 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.HIGH);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -163,14 +166,14 @@ public class ServiceProviderTask extends Task {
 		//生成 workTask
 		for(String T : t2Set){
 
-			String work_id = "http://www.shichangbu.com/portal.php" + T.replace(";","&")
+			String work_id = T.replace(";","&")
 					.replace("&amp","");
 
 			try {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
-				ImmutableMap.of("work_id", work_id);
+				init_map.put("work_id", work_id);
 
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.shichangbu.task.modelTask.WorkTask");
 
@@ -178,11 +181,11 @@ public class ServiceProviderTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			} catch ( Exception e) {
 
-				logger.error("error for submit ServiceProviderScanTask.class", e);
+				logger.error("error for submit WorkTask.class", e);
 			}
 
 		}
@@ -197,7 +200,7 @@ public class ServiceProviderTask extends Task {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
-				ImmutableMap.of("case_id", case_id);
+				init_map.put("case_id", case_id);
 
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.shichangbu.task.modelTask.CaseTask");
 
@@ -205,7 +208,7 @@ public class ServiceProviderTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			} catch ( Exception e) {
 

@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 
 public class WorkTask extends Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				WorkTask.class,
@@ -33,9 +35,9 @@ public class WorkTask extends Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.MEDIUM);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
