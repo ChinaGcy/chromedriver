@@ -44,6 +44,8 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
+		this.setNoFetchImages();
+
 		this.setParam("page", url.split("pageNo=")[1].split("&putTime")[0]);
 
 		this.addDoneCallback((t) -> {
