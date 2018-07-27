@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
@@ -75,7 +76,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.origin_id = urls[1];
 
 		// 描述
-		serviceProvider.content = doc.select("p.overview").toString();
+		serviceProvider.content = StringUtil.cleanContent(doc.select("p.overview").toString(), new HashSet<>());
 
 		// 平台认证信息
 		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
