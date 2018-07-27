@@ -167,7 +167,19 @@ public class ServiceProviderTask extends Task {
 			String[] all2 = all1[1].split("所在城市：");
 
 			//擅长技能
-			String skills = all2[0];
+			String skills;
+			if(all2[0].contains("预估时薪")){
+				String[] all2try = all2[0].split("预估时薪");
+				skills = all2try[0];
+				String price_per_day = CrawlerAction.getNumbers(all2try[1]);
+				if( price_per_day != null ){
+					serviceProvider.price_per_day = Integer.valueOf(price_per_day) * 8;
+				}
+			}
+			//不含预估时薪
+			else {
+				skills = all2[0];
+			}
 			if( skills!=null && !"".equals(skills) ){
 				serviceProvider.tags = skills;
 			}
@@ -206,8 +218,13 @@ public class ServiceProviderTask extends Task {
 			if(all2[0].contains("预估时薪")){
 				String[] all2try = all2[0].split("预估时薪");
 				skills = all2try[0];
-			}
 
+				String price_per_day = CrawlerAction.getNumbers(all2try[1]);
+				if( price_per_day != null ){
+					serviceProvider.price_per_day = Integer.valueOf(price_per_day) * 8;
+				}
+
+			}
 			//不含预估时薪
 			else {
 				skills = all2[0];
