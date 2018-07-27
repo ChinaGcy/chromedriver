@@ -43,6 +43,8 @@ public class TendererRatingTask extends Task {
 
         this.setPriority(Priority.MEDIUM);
 
+		this.setNoFetchImages();
+
 		this.addAction(new ClickAction(ratingPath));
 		this.addAction(new LoadMoreContentAction(moreRatingPath));
 

@@ -44,6 +44,8 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 
         this.setPriority(Priority.HIGH);
 
+	    this.setNoFetchImages();
+
 	    this.addAction(new LoadMoreContentAction(moreProjectPath));
 
         this.addDoneCallback((t)->{

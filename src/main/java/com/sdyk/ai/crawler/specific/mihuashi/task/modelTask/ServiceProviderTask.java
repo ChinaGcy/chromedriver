@@ -36,6 +36,8 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 		this.setPriority(Priority.HIGH);
 
+		this.setNoFetchImages();
+
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();

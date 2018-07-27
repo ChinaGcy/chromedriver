@@ -51,6 +51,8 @@ public class ProjectScanTask extends ScanTask {
         // 设定高优先级
         this.setPriority(Priority.HIGH);
 
+	    this.setNoFetchImages();
+
         this.setParam("page", url.split("page=")[1]);
 
         this.addDoneCallback((t) -> {

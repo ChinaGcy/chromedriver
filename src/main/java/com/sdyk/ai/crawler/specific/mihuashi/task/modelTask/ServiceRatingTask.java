@@ -51,6 +51,8 @@ public class ServiceRatingTask extends Task {
 
         this.setPriority(Priority.MEDIUM);
 
+	    this.setNoFetchImages();
+
 	    this.addAction(new ClickAction( workFilePath ));
 	    this.addAction(new LoadMoreContentAction(morePath));
 
