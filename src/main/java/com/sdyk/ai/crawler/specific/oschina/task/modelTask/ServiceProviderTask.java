@@ -37,9 +37,9 @@ public class ServiceProviderTask extends Task {
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 
-		this.setBuildDom();
-
 		this.setPriority(Priority.HIGH);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
