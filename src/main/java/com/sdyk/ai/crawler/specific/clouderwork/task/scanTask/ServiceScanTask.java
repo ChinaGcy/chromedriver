@@ -46,6 +46,8 @@ public class ServiceScanTask extends ScanTask {
 
         this.setPriority(Priority.HIGH);
 
+	    this.setNoFetchImages();
+
         this.setParam("page", url.split("pagenum=")[1]);
 
         this.addDoneCallback((t) -> {

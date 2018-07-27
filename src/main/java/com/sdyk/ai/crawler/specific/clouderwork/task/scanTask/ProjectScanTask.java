@@ -50,6 +50,8 @@ public class ProjectScanTask extends ScanTask {
 
         this.setPriority(Priority.HIGH);
 
+	    this.setNoFetchImages();
+
         this.setValidator((a, t) -> {
 
 		    String text = t.getResponse().getText();

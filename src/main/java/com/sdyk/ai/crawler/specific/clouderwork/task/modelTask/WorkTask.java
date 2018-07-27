@@ -34,6 +34,8 @@ public class WorkTask extends Task {
 
 		this.setPriority(Priority.MEDIUM);
 
+		this.setNoFetchImages();
+
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();

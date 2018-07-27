@@ -40,14 +40,14 @@ public class ProjectTask extends Task {
 		);
 	}
 
-    public Project project;
-
     public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 
     	super(url);
 
         // 设置优先级
         this.setPriority(Priority.HIGH);
+
+	    this.setNoFetchImages();
 
         this.addDoneCallback((t) -> {
 
@@ -79,7 +79,7 @@ public class ProjectTask extends Task {
 
 		String authorUrl = null;
 
-		project = new Project(getUrl());
+		Project project = new Project(getUrl());
 
 		project.domain_id = Integer.valueOf(2);
 
