@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.proginn.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Resume;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
@@ -8,6 +9,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -33,13 +35,9 @@ public class ServiceProviderTask extends Task {
 		);
 	}
 
-	ServiceProvider serviceProvider;
-
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-
-		this.setBuildDom();
 
 		this.setPriority(Priority.HIGH);
 
@@ -55,7 +53,7 @@ public class ServiceProviderTask extends Task {
 
 	public void crawlerJob(Document doc) {
 
-		serviceProvider = new ServiceProvider(getUrl());
+		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
 		List<Task> task = new ArrayList<>();
 
@@ -107,7 +105,8 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//描述
-		serviceProvider.content = doc.select("#J_WoMainContent > div:nth-child(1) > div").toString();
+		serviceProvider.content = StringUtil.cleanContent(
+				doc.select("#J_WoMainContent > div:nth-child(1) > div").toString(), new HashSet<>());
 
 		//点赞
 		String zan = doc.select("#J_WoMainContent > div:nth-child(8) > a > em").text();
@@ -148,7 +147,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//小标签
-		serviceProvider.tags = doc.select("div.skill-list").text();
+		serviceProvider.tags = doc.select("div.skill-list").text().replace(" ", ",");
 
 		//成功率及评价数
 		String ratioRating = doc.select("#proginn_wo_omment > h3 > div").text();
@@ -336,7 +335,8 @@ public class ServiceProviderTask extends Task {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
-				ImmutableMap.of("work_id", workUrl,"uId", getId());
+				init_map.put("work_id", workUrl);
+				init_map.put("uId", getId());
 
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
 
@@ -344,7 +344,7 @@ public class ServiceProviderTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			} catch ( Exception e) {
 

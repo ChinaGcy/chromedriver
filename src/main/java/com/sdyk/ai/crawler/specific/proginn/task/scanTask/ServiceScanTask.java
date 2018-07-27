@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.proginn.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask;
@@ -22,6 +23,8 @@ import java.util.regex.Pattern;
 
 public class ServiceScanTask extends ScanTask {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ServiceScanTask.class,
@@ -37,17 +40,12 @@ public class ServiceScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setParam("page", init_map.get("page"));
+		this.setParam("page", url.split("page/")[1]);
 
 		this.addDoneCallback((t) -> {
 
 			//获取当前页数
-			int page = 0;
-			Pattern pattern_url = Pattern.compile("page/(?<page>.+?)");
-			Matcher matcher_url = pattern_url.matcher(url);
-			if (matcher_url.find()) {
-				page = Integer.parseInt(matcher_url.group("page"));
-			}
+			int page = Integer.valueOf(url.split("page/")[1]);
 
 			Document doc = getResponse().getDoc();
 
@@ -61,7 +59,7 @@ public class ServiceScanTask extends ScanTask {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("servicer_id", uId);
+					init_map.put("servicer_id", uId);
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask");
 
@@ -69,7 +67,7 @@ public class ServiceScanTask extends ScanTask {
 					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 				} catch ( Exception e) {
 
@@ -89,15 +87,15 @@ public class ServiceScanTask extends ScanTask {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("page", String.valueOf(next));
+					init_map.put("page", String.valueOf(next));
 
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.scanTaskServiceScanTask");
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.scanTask.ServiceScanTask");
 
 					//生成holder
 					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 				} catch ( Exception e) {
 
