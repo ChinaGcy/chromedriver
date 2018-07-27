@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
@@ -102,7 +103,7 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 		}
 
 		//简介
-		tenderer.content = doc.getElementsByClass("profile__summary-wrapper").html();
+		tenderer.content = StringUtil.cleanContent(doc.getElementsByClass("profile__summary-wrapper").html(), new HashSet<>());
 
 		//平台项目数
 		String projecrs = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span")

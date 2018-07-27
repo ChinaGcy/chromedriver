@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
@@ -77,7 +78,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		if( content != null && !"".equals(content) ) {
 			content = doc.select("section.summary").html();
 		}
-		serviceProvider.content = content;
+		serviceProvider.content = StringUtil.cleanContent(content, new HashSet<>());
 
 		//评论数
 		String ratNum = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > section.credit > p")
@@ -87,8 +88,11 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 			serviceProvider.rating_num = Integer.valueOf(ratNum);
 		}
 
-		//领域
-		serviceProvider.tags = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__skill-wrapper").text();
+		// 标签
+		serviceProvider.tags = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__skill-wrapper").text()
+				.replace("擅长画风 ", "")
+				.replace("擅长类型 ", "")
+				.replace(" ", ",");
 
 		//项目数
 		String projectNum = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span").text();
