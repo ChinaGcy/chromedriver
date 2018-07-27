@@ -20,9 +20,11 @@ import java.util.regex.Pattern;
 
 public class ServiceScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
-				ProjectScanTask.class,
+				ServiceScanTask.class,
 				"https://pro.lagou.com/project/myJobs.html",
 				ImmutableMap.of("q", String.class),
 				ImmutableMap.of("q","")

@@ -21,6 +21,8 @@ import java.util.*;
 
 public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ServiceProviderTask.class,

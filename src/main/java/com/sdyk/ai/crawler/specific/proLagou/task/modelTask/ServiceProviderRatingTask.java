@@ -14,6 +14,8 @@ import java.text.ParseException;
 
 public class ServiceProviderRatingTask extends com.sdyk.ai.crawler.task.Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ServiceProviderRatingTask.class,

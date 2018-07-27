@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 
 public class ProjectTask extends Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ProjectTask.class,
@@ -64,7 +66,7 @@ public class ProjectTask extends Task {
 		//状态
 		String currentStatus = doc.select("#project_detail > div.project_info.fl > div.title > div > span").text();
 		if(currentStatus!=null&&!"".equals(currentStatus)){
-			title = title.replace("currentStatus","");
+			title = title.replace(currentStatus, "");
 		}
 		project.title = title;
 
@@ -86,7 +88,8 @@ public class ProjectTask extends Task {
 		}
 
 		//小标签
-		project.tags = doc.select("#project_detail > div.project_info.fl > div.category_list").text();
+		project.tags = doc.select("#project_detail > div.project_info.fl > div.category_list")
+				.text().replace(" ", ",");
 
 		//已投标人数
 		String num = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(2) > div.txt > strong").text();
@@ -111,9 +114,9 @@ public class ProjectTask extends Task {
 		}
 
 		//描述
-		project.content = "<pre>" +
+		project.content = "<p>" +
 				doc.select("#project_detail > div.project_info.fl > div.project_content > div.project_txt > pre")
-						.html() + "</pre>";
+						.html() + "</p>";
 
 		//浏览人数
 		String browse = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(3) > div.txt > strong").text();
