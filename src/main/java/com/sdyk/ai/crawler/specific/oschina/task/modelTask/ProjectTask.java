@@ -1,10 +1,12 @@
 package com.sdyk.ai.crawler.specific.oschina.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -23,6 +25,8 @@ import java.util.regex.Pattern;
 
 public class ProjectTask extends Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ProjectTask.class,
@@ -31,8 +35,6 @@ public class ProjectTask extends Task {
 				ImmutableMap.of("project_id", "")
 		);
 	}
-
-	Project project;
 
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 
@@ -48,8 +50,6 @@ public class ProjectTask extends Task {
 
 			String src = getResponse().getText();
 
-			project = new Project(getUrl());
-
 			if( src.contains("对不起") ){
 				return ;
 			}
@@ -63,6 +63,8 @@ public class ProjectTask extends Task {
 	}
 
 	public void crawlerJob(Document doc){
+
+		Project project = new Project(getUrl());
 
 		project.origin_id = getUrl().split("id=")[1];
 
@@ -148,6 +150,12 @@ public class ProjectTask extends Task {
 		//状态
 		project.status = doc.getElementsByClass("zb-workbench-state").text();
 
+		// 行业
+		project.category = doc.select("span.zb-workbench-mark:nth-child(2)").text();
+
+		// 付款方式
+		project.trade_type = doc.select("span.zb-workbench-mark:nth-child(1)").text();
+
 		//小标签
 		Elements tagSrc = doc.getElementsByClass("zb-workbench-btn");
 		StringBuffer tags = new StringBuffer();
@@ -158,7 +166,9 @@ public class ProjectTask extends Task {
 		project.tags = tags.substring(0, tags.length()-1);
 
 		//描述
-		project.content = doc.select("div.minh-mini").html();
+		project.content = StringUtil.cleanContent(doc.select("div.minh-mini").html(), new HashSet<>());
+
+		project.tenderer_name = doc.select("a.zb-header-box > img").attr("title");
 
 		//服务商任务
 		String services = doc.getElementsByClass("apply-list").toString();
@@ -172,15 +182,13 @@ public class ProjectTask extends Task {
 			uId.add(matcher.group("uId"));
 		}
 
-		List<com.sdyk.ai.crawler.task.Task> task = new ArrayList<>();
-
 		for( String id : uId ) {
 
 			try {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
-				ImmutableMap.of("user_id", id);
+				init_map.put("user_id", id);
 
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.ServiceProviderTask");
 
@@ -188,7 +196,7 @@ public class ProjectTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			} catch ( Exception e) {
 
@@ -216,7 +224,7 @@ public class ProjectTask extends Task {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
-				ImmutableMap.of("tenderer_id", t);
+				init_map.put("tenderer_id", t);
 
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.TendererTask");
 
@@ -224,7 +232,7 @@ public class ProjectTask extends Task {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			} catch ( Exception e) {
 

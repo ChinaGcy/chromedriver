@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.oschina.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.oschina.task.modelTask.ProjectTask;
@@ -19,6 +20,8 @@ import java.util.regex.Pattern;
 
 public class ProjectScanTask extends ScanTask {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				ProjectScanTask.class,
@@ -35,16 +38,11 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setParam("page", init_map.get("page"));
+		this.setParam("page", url.split("currentPage=")[1]);
 
 		this.addDoneCallback((t) -> {
 
-			int page = 0;
-			Pattern pattern_url = Pattern.compile("currentPage=(?<page>.+?)");
-			Matcher matcher_url = pattern_url.matcher(url);
-			if (matcher_url.find()) {
-				page = Integer.parseInt(matcher_url.group("page"));
-			}
+			int page = Integer.valueOf(url.split("currentPage=")[1]);
 
 			String src = getResponse().getDoc().html();
 
@@ -57,15 +55,13 @@ public class ProjectScanTask extends ScanTask {
 				projectId.add(matcher.group("Id"));
 			}
 
-			List<Task> task = new ArrayList<>();
-
 			for( String id : projectId ) {
 
 				try {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("project_id", "project/detail.html?id="+id);
+					init_map.put("project_id", "project/detail.html?id="+id);
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.ProjectTask");
 
@@ -73,7 +69,7 @@ public class ProjectScanTask extends ScanTask {
 					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 				} catch ( Exception e) {
 
@@ -85,7 +81,7 @@ public class ProjectScanTask extends ScanTask {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("project_id", "reward/detail.html?id="+id);
+					init_map.put("project_id", "reward/detail.html?id="+id);
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.ProjectTask");
 
@@ -93,7 +89,7 @@ public class ProjectScanTask extends ScanTask {
 					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 				} catch ( Exception e) {
 
@@ -110,7 +106,7 @@ public class ProjectScanTask extends ScanTask {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("page", String.valueOf(nextPage));
+					init_map.put("page", String.valueOf(nextPage));
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.scanTask.ProjectScanTask");
 
@@ -118,7 +114,7 @@ public class ProjectScanTask extends ScanTask {
 					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 				} catch ( Exception e) {
 

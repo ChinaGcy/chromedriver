@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,9 +21,11 @@ import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
 
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
-				ProjectTask.class,
+				ServiceProviderTask.class,
 				"https://zb.oschina.net/profile/index.html?u={{user_id}}&t=d",
 				ImmutableMap.of("user_id", String.class),
 				ImmutableMap.of("user_id", "")
@@ -103,11 +106,11 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.location = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-1 > div > span:nth-child(3)").text();
 
 		//描述
-		serviceProvider.content = doc.select("#profile > div.show-for-medium.pc-profile > div.mtb-large > div > div > div.el-col.el-col-18 > div:nth-child(1) > div.content > div > div").text();
+		serviceProvider.content = StringUtil.cleanContent(doc.select("#profile > div.show-for-medium.pc-profile > div.mtb-large > div > div > div.el-col.el-col-18 > div:nth-child(1) > div.content > div > div").text(), new HashSet<>());
 
 		//岗位，大标签，小标签
 		Elements elements = doc.getElementsByClass("skill-row");
-		StringBuffer tags = new StringBuffer();
+		String tags = "";
 
 		for(Element element : elements) {
 
@@ -124,15 +127,16 @@ public class ServiceProviderTask extends Task {
 			}
 			//小标签拼接
 			else if( skillLabel.contains("语言") || skillLabel.contains("技能") || skillLabel.contains("中间件")){
-				tags.append(skillItem);
-				tags.append(",");
+				if( !tags.contains(skillItem) ){
+					tags = tags+ skillItem + ",";
+				}
 			}
 
 		}
 
 		//小标签
 		if( tags.length() > 0 ){
-			serviceProvider.tags = tags.substring(0, tags.length()-1);
+			serviceProvider.tags = tags.substring(0, tags.length()-1).replace("、", ",");
 		}
 
 		Elements ratingGrade = doc.getElementsByClass("comment-item");
