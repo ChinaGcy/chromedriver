@@ -352,4 +352,48 @@ public class ChromeDriverDistributorTest {
 		System.err.println(ps.getPort());
 		Thread.sleep(100000);
 	}
+
+	@Test
+	public void testScheduledTask() throws Exception {
+
+		ChromeDriverDistributor distributor = ChromeDriverDistributor.getInstance();
+
+		for(int i=0; i<1; i++) {
+
+			ChromeDriverAgent agent = new ChromeDriverAgent();
+			distributor.addAgent(agent);
+		}
+
+		// distributor.layout();
+
+		ChromeTaskHolder holder = ChromeTask.buildHolder(
+				TestChromeTask.T4.class, ImmutableMap.of("q", String.valueOf(1950)));
+
+		distributor.submit(holder);
+
+		Thread.sleep(600000);
+
+	}
+
+	@Test
+	public void testScanTask() throws Exception {
+
+		ChromeDriverDistributor distributor = ChromeDriverDistributor.getInstance();
+
+		for(int i=0; i<1; i++) {
+
+			ChromeDriverAgent agent = new ChromeDriverAgent();
+			distributor.addAgent(agent);
+		}
+
+		// distributor.layout();
+
+		ChromeTaskHolder holder = ChromeTask.buildHolder(
+				TestChromeTask.T5.class, ImmutableMap.of("q", String.valueOf(1950), "max_page", 60));
+
+		distributor.submit(holder);
+
+		Thread.sleep(600000);
+
+	}
 }

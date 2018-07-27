@@ -94,7 +94,7 @@ artifactory {
 
 dependencies {
 
-    compile 'one.rewind:common:1.1.17-SNAPSHOT'
+    compile 'one.rewind:common:1.1.18-SNAPSHOT'
 
     compile name: 'opencv-341'
 
