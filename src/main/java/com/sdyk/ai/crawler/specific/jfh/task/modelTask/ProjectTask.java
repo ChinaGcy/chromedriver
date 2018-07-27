@@ -89,11 +89,11 @@ public class ProjectTask extends Task {
 			}
 			//领业
 			else if( detail.contains("领域") ){
-				tags = tags + detail.replace("行业/领域：","").replace("/", ",");
+				tags = tags + detail.replace("行业/领域：","").replace("/", ",") + ",";
 			}
 			//技能
 			else if( detail.contains("技能") ) {
-				tags = tags + "," +detail.replace("技能要求：","");
+				tags = tags + detail.replace("技能要求：","").replace(" ", ",");
 			}
 		}
 		project.tags = tags;

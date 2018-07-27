@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -18,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class ServiceProviderTask extends Task {
@@ -76,7 +78,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//描述
-		serviceProvider.content = doc.select("div.companyProfile").toString();
+		serviceProvider.content = StringUtil.cleanContent(doc.select("div.companyProfile").toString(), new HashSet<>());
 
 		Elements elements = doc.select("span.reset-style");
 		for(Element element : elements){
