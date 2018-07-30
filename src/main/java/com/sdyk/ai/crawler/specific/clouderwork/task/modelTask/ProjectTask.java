@@ -9,8 +9,10 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,14 +24,13 @@ import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class ProjectTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -65,7 +66,7 @@ public class ProjectTask extends Task {
             }
 
             //解析页面
-            crawlJob(doc);
+            crawlJob(doc, (ChromeTask) t);
 
         });
 
@@ -75,7 +76,7 @@ public class ProjectTask extends Task {
 	 * 执行抓取任务
 	 * @param doc
 	 */
-	public void crawlJob( Document doc ){
+	public void crawlJob( Document doc, ChromeTask t){
 
 		String authorUrl = null;
 
@@ -117,6 +118,9 @@ public class ProjectTask extends Task {
 			project.tags = doc.select("div.offer").text();
 		}
 
+		//项目工期
+		String timeLimit = doc.select("#project-detail > div > div.main-top > div.op-main > div.detail-row > div.budgets.workload > p.budget").text();
+
 		//项目预算
 		String budget = doc.select("#project-detail > div > div.main-top > div.op-main > div.detail-row > div:nth-child(1) > p.budget").text().replaceAll("￥","");
 		Double budget_lb = Double.valueOf(0);
@@ -124,6 +128,9 @@ public class ProjectTask extends Task {
 
 		//当数据为  人/月
 		if(budget.contains("/")){
+
+			int multiple = Integer.valueOf(CrawlerAction.getNumbers(timeLimit));
+
 
 			//以万元为单位时
 			if(budget.contains("万")){
@@ -134,7 +141,7 @@ public class ProjectTask extends Task {
 
 				//捕获String to Double 异常
 				try {
-					budget_lb = Double.valueOf(budget)*10000;
+					budget_lb = Double.valueOf(budget) * 10000 * multiple;
 				} catch (Exception e) {
 					logger.error("error on String"+budget+"To Double", e);
 				}
@@ -147,7 +154,7 @@ public class ProjectTask extends Task {
 					budget = budget.replace(",","");
 				}
 				try {
-					budget_lb = Double.valueOf(budget);
+					budget_lb = Double.valueOf(budget) * multiple;
 				} catch (Exception e) {
 					logger.error("error on String"+budget+"To Double", e);
 				}
@@ -221,13 +228,26 @@ public class ProjectTask extends Task {
 		project.budget_lb = budget_lb;
 		project.budget_ub = budget_up;
 
-		//项目工期
-		String timeLimit = doc.select("#project-detail > div > div.main-top > div.op-main > div.detail-row > div.budgets.workload > p.budget > span").text();
-		if( timeLimit!=null && !"".equals(timeLimit) ){
-			try {
-				project.time_limit = Integer.valueOf(timeLimit);
-			} catch (Exception e) {
-				logger.error("error on String"+timeLimit +"To Integer", e);
+		// 工期处理，以月为单位
+		if( timeLimit.contains("月") ){
+			timeLimit = CrawlerAction.getNumbers(timeLimit);
+			if( timeLimit!=null ){
+				try {
+					project.time_limit = Integer.valueOf(timeLimit) * 30;
+				} catch (Exception e) {
+					logger.error("error on String"+timeLimit +"To Integer", e);
+				}
+			}
+		}
+		// 以天为单位
+		else {
+			timeLimit = CrawlerAction.getNumbers(timeLimit);
+			if( timeLimit!=null && !"".equals(timeLimit) ){
+				try {
+					project.time_limit = Integer.valueOf(timeLimit);
+				} catch (Exception e) {
+					logger.error("error on String"+timeLimit +"To Integer", e);
+				}
 			}
 		}
 
@@ -304,6 +324,33 @@ public class ProjectTask extends Task {
 			project.insert();
 		} catch (Exception e) {
 			logger.error("error on insert project", e);
+		}
+
+		// 项目状态为招募中，定期更新自身
+		if( project.status.contains("招募中") ){
+
+			// 此任务尚未注册
+			if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+				try {
+					ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+							t.getHolder(this.getClass(), this.init_map),
+							crons
+					);
+					ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				} catch (Exception e) {
+					logger.error("eror for creat ScheduledChromeTask", e);
+				}
+			}
+			// 任务已经注册过
+			else {
+				try {
+					// 增加延长时间
+					ChromeTaskScheduler.getInstance().degenerate(t._scheduledTaskId);
+				} catch (Exception e) {
+					logger.error("eror for degenerate ScheduledChromeTask", e);
+				}
+			}
+
 		}
 
 	}

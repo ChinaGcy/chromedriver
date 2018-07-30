@@ -10,18 +10,17 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,6 +29,8 @@ import java.util.regex.Pattern;
 public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -53,7 +54,7 @@ public class ServiceProviderTask extends Task {
             Document doc = getResponse().getDoc();
 
             try {
-                crawlerJob(doc);
+                crawlerJob(doc, (ChromeTask) t);
             } catch (ChromeDriverException.IllegalStatusException e) {
                 logger.info("error on crawlerJob",e);
             }
@@ -67,7 +68,7 @@ public class ServiceProviderTask extends Task {
 	 * @param doc
 	 * @throws ChromeDriverException.IllegalStatusException
 	 */
-	public void crawlerJob(Document doc) throws ChromeDriverException.IllegalStatusException {
+	public void crawlerJob(Document doc, ChromeTask t) throws ChromeDriverException.IllegalStatusException {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
@@ -89,44 +90,44 @@ public class ServiceProviderTask extends Task {
 		url_filename.put(imageUrl, "head_portrait");
 		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
-		//类型
+		// 类型
 		String type = serviceProvider.platform_certification;
 		if( type!=null && !"".equals(type) ){
 
 			if( type.contains("企业") ){
 				type = "团队-公司";
 			}
-			//不含企业认证
+			// 不含企业认证
 			else {
-				//获取团队标记
+				// 获取团队标记
 				type = doc.getElementsByClass("team-title").text();
 				if( type != null &&
 						!"".equals(type)){
 					type = "团队";
 				}
-				//不含所属团队字样
+				// 不含所属团队字样
 				else {
 					type = "个人";
 				}
 			}
 
 		}
-		//没有认证信息
+		// 没有认证信息
 		else {
-			//获取团队标记
+			// 获取团队标记
 			type = doc.getElementsByClass("team-title").text();
 			if( type != null &&
 					!"".equals(type)){
 				type = "团队";
 			}
-			//不含所属团队字样
+			// 不含所属团队字样
 			else {
 				type = "个人";
 			}
 		}
 		serviceProvider.type = type;
 
-		//名字及公司名称
+		// 名字及公司名称
 		String name = doc.getElementsByClass("name-box").text();
 		if( name!=null && !"".equals(name) ){
 
@@ -135,28 +136,26 @@ public class ServiceProviderTask extends Task {
 				if( !name.contains("公司") ){
 					String teamName = doc.getElementsByClass("team-s-title").text();
 
-					//团队名称中不含有公司
+					// 团队名称中不含有公司
 					if( !teamName.contains("公司") ){
 						serviceProvider.company_name = teamName + "有限公司";
 					}
-					//团队名称中含有公司
+					// 团队名称中含有公司
 					else {
 						serviceProvider.company_name = teamName;
 					}
 
 				}
-				//名字中含公司
+				// 名字中含公司
 				else {
 					serviceProvider.company_name = name;
 				}
 			}
 
-			//名字
+			// 名字
 			serviceProvider.name = name;
 
 		}
-
-
 
 		String all =doc.select("#profile > div > div > section.basic > section > div:nth-child(8)").text().replace("擅长领域：","");
 		if( all!=null && !"".equals(all) && all.contains("擅长技能") ){
@@ -165,7 +164,7 @@ public class ServiceProviderTask extends Task {
 
 			//擅长领域
 			if( expertise!=null && !"".equals(expertise) ){
-				serviceProvider.category = expertise;
+				serviceProvider.category = expertise.replace("、", ",");
 			}
 			String[] all2 = all1[1].split("所在城市：");
 
@@ -184,7 +183,7 @@ public class ServiceProviderTask extends Task {
 				skills = all2[0];
 			}
 			if( skills!=null && !"".equals(skills) ){
-				serviceProvider.tags = skills;
+				serviceProvider.tags = skills.replace(" ", ",");
 			}
 			String[] all3 = all2[1].split("工作经验：");
 
@@ -212,7 +211,7 @@ public class ServiceProviderTask extends Task {
 
 			//擅长领域
 			if(expertise!=null&&!"".equals(expertise)){
-				serviceProvider.category = expertise;
+				serviceProvider.category = expertise.replace("、", ",");
 			}
 			String[] all2 = all1[1].split("所在城市：");
 
@@ -233,7 +232,7 @@ public class ServiceProviderTask extends Task {
 				skills = all2[0];
 			}
 			if( skills!=null && !"".equals(skills) ){
-				serviceProvider.tags = skills;
+				serviceProvider.tags = skills.replace(" ", ",");
 			}
 			String[] all3 = all2[1].split("工作经验：");
 
@@ -421,6 +420,8 @@ public class ServiceProviderTask extends Task {
 
 				resume.degree_occupation = element.select("div.sp-cont > span:nth-child(1)").text();
 				resume.content = element.select("div.sp-desc.desc").text();
+				resume.org = sp_title;
+				resume.dep = element.select("div.sp-cont > span").text();
 
 				String time = element.select("div.sp-cont > span:nth-child(3)").text();
 
@@ -493,6 +494,19 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for submit WorkTask.class", e);
 				}
 
+			}
+		}
+
+		// 注册定时任务
+		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+			try {
+				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+						t.getHolder(this.getClass(), this.init_map),
+						crons
+				);
+				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+			} catch (Exception e) {
+				logger.error("eror for creat ScheduledChromeTask", e);
 			}
 		}
 

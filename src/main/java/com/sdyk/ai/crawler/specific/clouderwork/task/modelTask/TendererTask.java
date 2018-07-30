@@ -9,9 +9,11 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -24,7 +26,9 @@ import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
 
-	public static long MIN_INTERVAL = 7 * 24 * 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000;
+
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -49,7 +53,7 @@ public class TendererTask extends Task {
 
             //执行抓取任务
             try {
-                crawlawJob(doc);
+                crawlawJob(doc, (ChromeTask)t);
             } catch (MalformedURLException e) {
                 logger.info("error on crawlawJob");
             } catch (URISyntaxException e) {
@@ -68,7 +72,7 @@ public class TendererTask extends Task {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public void crawlawJob (Document doc) throws MalformedURLException, URISyntaxException {
+	public void crawlawJob (Document doc, ChromeTask t) throws MalformedURLException, URISyntaxException {
 
 		Tenderer tenderer = new Tenderer(getUrl());
 		Pattern pattern = Pattern.compile("[0-9]*");
@@ -167,7 +171,7 @@ public class TendererTask extends Task {
 				String happy_num = element.getElementsByClass("score-num").text()
 						.replace(".","").replace("0","");
 				String happy = CrawlerAction.getNumbers(happy_num);
-				tendererRating.coop_rating = Integer.valueOf(happy);
+				tendererRating.rating = Integer.valueOf(happy);
 				tendererRating.insert();
 			}
 		}
@@ -209,6 +213,19 @@ public class TendererTask extends Task {
 		}
 
 		tenderer.insert();
+
+		// 注册定时任务
+		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+			try {
+				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+						t.getHolder(this.getClass(), this.init_map),
+						crons
+				);
+				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+			} catch (Exception e) {
+				logger.error("eror for creat ScheduledChromeTask", e);
+			}
+		}
 
 	}
 
