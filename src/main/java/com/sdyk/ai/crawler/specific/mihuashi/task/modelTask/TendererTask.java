@@ -6,12 +6,15 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
+import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -23,9 +26,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TendererTask extends com.sdyk.ai.crawler.task.Task{
+public class TendererTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000;
+
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -53,11 +58,11 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
             Document doc = getResponse().getDoc();
 
             //执行抓取任务
-	        crawlawJob(doc);
+	        crawlawJob(doc, (ChromeTask)t);
         });
     }
 
-	public void crawlawJob(Document doc){
+	public void crawlawJob(Document doc, ChromeTask t){
 
     	Tenderer tenderer = new Tenderer(getUrl());
 
@@ -165,6 +170,9 @@ public class TendererTask extends com.sdyk.ai.crawler.task.Task{
 		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		tenderer.insert();
+
+		// 注册定时任务
+		this.cronTask(t);
 	}
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){

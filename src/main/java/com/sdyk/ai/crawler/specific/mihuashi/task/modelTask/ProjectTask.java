@@ -2,15 +2,16 @@ package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
-import com.sdyk.ai.crawler.task.Task;
+import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -21,9 +22,7 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +33,8 @@ import java.util.regex.Pattern;
 public class ProjectTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000;
+
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -62,7 +63,6 @@ public class ProjectTask extends Task {
 			//页面错误
 			if ( src.contains("非常抱歉") || src.contains("权限不足") ) {
 
-				this.setRetry();
 				return;
 			}
 
@@ -70,11 +70,11 @@ public class ProjectTask extends Task {
 			FileUtil.writeBytesToFile(src.getBytes(), "project.html");
 
 			//抓取页面
-			crawlJob(doc);
+			crawlJob(doc, (ChromeTask)t);
 		});
 	}
 
-	public void crawlJob(Document doc){
+	public void crawlJob(Document doc, ChromeTask t){
 
 		project = new Project(getUrl());
 
@@ -105,7 +105,7 @@ public class ProjectTask extends Task {
 		}
 
 		//类型
-		project.category = pub.replace(" · ", ",");
+		project.category = pub.replace("·", ",");
 
 		//预算
 		String budget = doc.select("#aside-rail > div > aside > p:nth-child(4)").text().replace("￥","");
@@ -127,6 +127,16 @@ public class ProjectTask extends Task {
 			project.due_time = DateFormatUtil.parseTime(remainingTime);
 		} catch (ParseException e) {
 			logger.error("error on String to date",e);
+		}
+
+		// 项目状态
+		if( new Date().getTime() > project.due_time.getTime() ){
+
+			project.status = "已截稿";
+		}
+		else {
+
+			project.status = "未截稿";
 		}
 
 		//描述
@@ -223,6 +233,14 @@ public class ProjectTask extends Task {
 		} catch (Exception e) {
 			logger.error("error on insert project", e);
 		}
+
+		// 项目状态为招募中，定期更新自身
+		if( project.status.contains("未截稿") ){
+
+			this.cronTask(t);
+
+		}
+
 	}
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){

@@ -3,11 +3,12 @@ package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
-import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -17,9 +18,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
+public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -49,7 +52,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 			//页面正常
 			else{
 				try {
-					crawlerJob(doc);
+					crawlerJob(doc, (ChromeTask)t);
 				} catch (ChromeDriverException.IllegalStatusException e) {
 					logger.info("error on crawlerJob",e);
 				}
@@ -58,7 +61,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		});
 	}
 
-	public void crawlerJob(Document doc) throws ChromeDriverException.IllegalStatusException {
+	public void crawlerJob(Document doc, ChromeTask t) throws ChromeDriverException.IllegalStatusException {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 		List<Task> tasks = new ArrayList<Task>();
@@ -141,6 +144,9 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		serviceProvider.cover_images = BinaryDownloader.download(getUrl(),url_name);
 
 		serviceProvider.insert();
+
+		// 注册定时任务
+		this.cronTask(t);
 
 	}
 }

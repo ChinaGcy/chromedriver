@@ -149,8 +149,8 @@ public class ProjectScanTask extends ScanTask {
 	            for(int i = current_page + 1; i <= maxPage; i++) {
 
 		            Map<String, Object> init_map = new HashMap<>();
-		            init_map.put("page", i);
-		            init_map.put("max_page", 0);
+		            init_map.put("page", String.valueOf(i));
+		            init_map.put("max_page", "0");
 
 		            ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
 

@@ -126,7 +126,7 @@ public class TendererRatingTask extends Task {
 			//合作愉快度
 			Elements happy = element.getElementsByClass("fa fa-star selected");
 			int happyNum = happy.size();
-			tendererRating.coop_rating = (happyNum/3);
+			tendererRating.rating = (happyNum/3);
 
 			tendererRating.insert();
 		}

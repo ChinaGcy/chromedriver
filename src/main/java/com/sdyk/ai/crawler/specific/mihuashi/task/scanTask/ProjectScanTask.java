@@ -6,18 +6,17 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,12 +27,14 @@ public class ProjectScanTask extends ScanTask {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+
 	static {
 		registerBuilder(
 				ProjectScanTask.class,
 				"https://www.mihuashi.com/projects?zone_id={{zone_id}}&page={{page}}",
-				ImmutableMap.of("zone_id", String.class, "page", String.class),
-				ImmutableMap.of("zone_id", "","page","")
+				ImmutableMap.of("zone_id", String.class, "page", String.class, "max_page", String.class),
+				ImmutableMap.of("zone_id", "","page","", "max_page", "3")
 		);
 	}
 
@@ -107,30 +108,73 @@ public class ProjectScanTask extends ScanTask {
 
             }
 
-            //判断是否为最大页
-            if( pageTurning(pagePath, page) )
-            {
+            String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
 
-	            try {
+            // 不含 max_page 参数，则表示可以一直翻页
+	        if( maxPageSrc.length() < 1 ){
 
-		            //设置参数
-		            Map<String, Object> init_map = new HashMap<>();
-		            init_map.put("zone_id", zoneId);
-		            init_map.put("page", String.valueOf(++page));
+		        //判断是否为最大页
+		        if( pageTurning(pagePath, page) )
+		        {
 
-		            //生成holder
-		            ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectScanTask.class, init_map);
+			        try {
 
-		            //提交任务
-		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+				        //设置参数
+				        Map<String, Object> init_map = new HashMap<>();
+				        init_map.put("zone_id", zoneId);
+				        init_map.put("page", String.valueOf(++page));
+				        init_map.put("max_page", "");
+
+				        //生成holder
+				        ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectScanTask.class, init_map);
+
+				        //提交任务
+				        ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 
-	            } catch (Exception e) {
-		            logger.error("error for submit ProjectScanTask", e);
-	            }
+			        } catch (Exception e) {
+				        logger.error("error for submit ProjectScanTask", e);
+			        }
 
-            }
+		        }
+	        }
+	        else {
+		        int maxPage = Integer.valueOf(maxPageSrc);
+		        int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));
 
+		        for(int i = current_page + 1; i <= maxPage; i++) {
+
+			        Map<String, Object> init_map = new HashMap<>();
+			        init_map.put("page", String.valueOf(i));
+			        init_map.put("zone_id", zoneId);
+			        init_map.put("max_page", "0");
+
+			        ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
+
+			        ChromeDriverDistributor.getInstance().submit(holder);
+		        }
+	        }
+
+	        ChromeTask t_ = (ChromeTask)t;
+
+	        // 注册定时任务, 只注册一次
+	        if( !ChromeTaskScheduler.getInstance().registered(t_._scheduledTaskId) ){
+		        try {
+
+			        Map<String, Object> init_map = new HashMap<>();
+			        init_map.put("page", "1");
+			        init_map.put("zone_id", zoneId);
+			        init_map.put("max_page","3");
+
+			        ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+					        t_.getHolder(this.getClass(), init_map),
+					        crons
+			        );
+			        ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+		        } catch (Exception e) {
+			        logger.error("eror for creat ScheduledChromeTask", e);
+		        }
+	        }
 
         });
     }
