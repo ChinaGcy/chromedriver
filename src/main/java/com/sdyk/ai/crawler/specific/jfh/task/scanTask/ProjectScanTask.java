@@ -6,17 +6,16 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +23,8 @@ import java.util.regex.Pattern;
 public class ProjectScanTask extends ScanTask {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -33,8 +34,8 @@ public class ProjectScanTask extends ScanTask {
 						+"jieBaoType=&" + "login=1&" + "maxPrice=&" + "minPrice=&" + "orderCondition=0&"
 						+"orderConfig=1&" + "orderType=&" + "pageNo={{page}}&" + "putTime=&" + "searchName=&"
 						+"serviceTypeKey=&" + "webSign=&" + "webSite=&" + "workStyleCode=",
-				ImmutableMap.of("page", String.class),
-				ImmutableMap.of("page", "")
+				ImmutableMap.of("page", String.class, "max_page", String.class),
+				ImmutableMap.of("page", "", "max_page", "3")
 		);
 	}
 
@@ -60,7 +61,7 @@ public class ProjectScanTask extends ScanTask {
 
 			while (matcher.find()) {
 				try {
-					project.add("https://www.jfh.com/jfportal/orders/jf" + matcher.group("Id"));
+					project.add(matcher.group("Id"));
 				} catch (Exception e) {
 					logger.error("error for matcher.group", e);
 				}
@@ -89,28 +90,68 @@ public class ProjectScanTask extends ScanTask {
 
 			}
 
-			if( !(project.size() < 10) ){
-				int nextPage = page +1;
+			String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
+			if( maxPageSrc.length() < 1 ){
 
+				if( !(project.size() < 10) ){
+					int nextPage = page +1;
+
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						init_map.put("page", String.valueOf(nextPage));
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.scanTask.ProjectScanTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ProjectScanTask.class", e);
+					}
+
+				}
+			}
+			else {
+
+				int maxPage = Integer.valueOf(maxPageSrc);
+				int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));
+
+				for(int i = current_page + 1; i <= maxPage; i++) {
+
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("page", i);
+					init_map.put("max_page", 0);
+
+					ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
+
+					ChromeDriverDistributor.getInstance().submit(holder);
+				}
+			}
+
+			ChromeTask t_ = (ChromeTask)t;
+
+			// 注册定时任务, 只注册一次
+			if( !ChromeTaskScheduler.getInstance().registered(t_._scheduledTaskId) ){
 				try {
 
-					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("page", String.valueOf(nextPage));
+					init_map.put("page", "1");
+					init_map.put("max_page","3");
 
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.scanTask.ProjectScanTask");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit ProjectScanTask.class", e);
+					ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+							t_.getHolder(this.getClass(), init_map),
+							crons
+					);
+					ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				} catch (Exception e) {
+					logger.error("eror for creat ScheduledChromeTask", e);
 				}
-
 			}
 
 		});

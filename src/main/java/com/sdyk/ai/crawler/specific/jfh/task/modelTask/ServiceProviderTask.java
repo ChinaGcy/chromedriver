@@ -9,8 +9,10 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -18,13 +20,13 @@ import org.jsoup.select.Elements;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -34,8 +36,6 @@ public class ServiceProviderTask extends Task {
 				ImmutableMap.of("user_id", "")
 		);
 	}
-
-	ServiceProvider serviceProvider;
 
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 
@@ -57,15 +57,15 @@ public class ServiceProviderTask extends Task {
 			}
 			//页面正确
 			else {
-				crawler(doc);
+				crawler(doc, (ChromeTask)t);
 			}
 
 		});
 	}
 
-	public void crawler(Document doc){
+	public void crawler(Document doc, ChromeTask t){
 
-		serviceProvider = new ServiceProvider(getUrl());
+		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
 		serviceProvider.origin_id = getUrl().split("com/")[1]
 				.replace("/bu","").replace("/","");
@@ -221,5 +221,7 @@ public class ServiceProviderTask extends Task {
 			logger.error("error for serviceProvider.insert", e);
 		}
 
+		// 注册定时任务
+		this.cornTask(t);
 	}
 }

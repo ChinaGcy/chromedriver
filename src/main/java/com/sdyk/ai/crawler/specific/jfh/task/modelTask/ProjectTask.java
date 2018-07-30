@@ -5,7 +5,9 @@ import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,12 +15,14 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.HashSet;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ProjectTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -37,18 +41,18 @@ public class ProjectTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
 
-			crawler(doc);
+			crawler(doc, (ChromeTask)t);
 
 		});
 	}
 
-	public void crawler(Document doc){
+	public void crawler(Document doc, ChromeTask t){
 
 		project = new Project(getUrl());
 
@@ -62,14 +66,24 @@ public class ProjectTask extends Task {
 
 		//发布时间与截止时间
 		try {
-			project.pubdate = DateFormatUtil.parseTime(
+			SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy-MM-dd" );
+			project.pubdate = sdf.parse(
 					doc.select("#fabuTime").text());
-			project.due_time = DateFormatUtil.parseTime(
-					doc.select("#wrap > div.orderexhead > div > div.orderextop_det > p > span:nth-child(3)").text());
+			project.due_time = sdf.parse(
+					doc.select("#wrap > div.left_wrap > div.lds_left_main > div.lds_list > ul > li:nth-child(3) > span")
+							.text().replaceAll("预期完成时间：", ""));
 		} catch (ParseException e) {
 			logger.error("error for String to Date", e);
 		}
 
+		if( new Date().getTime() > project.due_time.getTime() ){
+
+			project.status = "已截止";
+		}
+		else {
+
+			project.status = "未截止";
+		}
 
 		//价格
 		String price = doc.select("#wrap > div.orderexhead > div > div.ordercstate_top_price > span.font18.b")
@@ -98,10 +112,17 @@ public class ProjectTask extends Task {
 				tags = tags + detail.replace("技能要求：","").replace(" ", ",");
 			}
 		}
-		project.tags = tags;
+		project.tags = tags.substring(0, tags.length()-1);
 
 		//描述
 		project.content = StringUtil.cleanContent(doc.select("div.lds_des_main").toString(), new HashSet<>());
+
+		// 地点
+		String[] locations = doc.select("#wrap > div.left_wrap > div.lds_left_main > div.lds_list > ul > li:nth-child(4)")
+				.text().split("，");
+		if( locations != null && locations.length > 1 ){
+			project.location = locations[locations.length - 1].replaceAll("-", ",");
+		}
 
 		//以投标数
 		String bisdNum = doc.select("#people_change").text();
@@ -114,6 +135,12 @@ public class ProjectTask extends Task {
 			project.insert();
 		} catch (Exception e) {
 			logger.error("error for project.insert", e);
+		}
+
+		// 项目状态为招募中，定期更新自身
+		if( project.status.contains("未截止") ){
+
+			this.cornTask(t);
 		}
 
 	}
