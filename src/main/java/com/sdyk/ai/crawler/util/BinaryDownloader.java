@@ -94,6 +94,9 @@ public class BinaryDownloader {
 			}
 		}
 
+		if( result.length() < 1 ){
+			return null;
+		}
 		return  result.substring(1, result.length()-1);
 	}
 

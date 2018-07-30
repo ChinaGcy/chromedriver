@@ -51,7 +51,7 @@ public class SparkJavaTest {
 
 		Account account = AccountManager.getInstance().getAccountsByDomain("zbj.com", "select");
 
-		com.sdyk.ai.crawler.task.Task task = new ProjectTask("https://www.zbj.com");
+		ChromeTask task = new ProjectTask("https://www.zbj.com");
 
 		task.addAction(new LoginWithGeetestAction(account));
 
