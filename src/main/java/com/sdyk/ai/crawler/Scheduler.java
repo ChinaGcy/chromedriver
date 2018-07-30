@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler;
 
+import com.google.gson.Gson;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.Domain;
@@ -50,11 +51,13 @@ public class Scheduler {
 
 	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
 
-	public static int DefaultDriverCount = 1;
+	public static int DefaultDriverCount = 2;
 
 	public static Map<String, LoginTask> loginTasks = new HashedMap();
 
 	public static Scheduler instance;
+
+	public static Map<String, String> city_province_map = new HashMap<>();
 
 	/**
 	 * 单例方法
@@ -94,6 +97,8 @@ public class Scheduler {
 
 		initLoginTask();
 
+		initCityProvinceMap();
+
 		init();
 	}
 
@@ -127,6 +132,19 @@ public class Scheduler {
 	}
 
 	/**
+	 *  获取市-省map
+	 */
+	public void initCityProvinceMap(){
+
+		String city_province = readFileByLines("city_province/city_province.json");
+
+		Gson gson = new Gson();
+		Map<String, Object> map = new HashMap<String, Object>();
+		city_province_map = gson.fromJson(city_province, map.getClass());
+
+	}
+
+	/**
 	 * 重置Proxy 并根据情况 新建AliyunHost
 	 * @throws Exception
 	 */
@@ -136,9 +154,9 @@ public class Scheduler {
 
 		int currentFreeProxy = ProxyManager.getInstance().getValidProxyNum();
 
-		if(currentFreeProxy < DefaultDriverCount + 2 ) {
+		if(currentFreeProxy < DefaultDriverCount /*+ 2*/ ) {
 
-			int proxyNumToCreate = DefaultDriverCount + 2 - currentFreeProxy;
+			int proxyNumToCreate = DefaultDriverCount /*+ 2*/ - currentFreeProxy;
 
 			AliyunHost.batchBuild(proxyNumToCreate);
 
