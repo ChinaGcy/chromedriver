@@ -55,6 +55,10 @@ public class TendererRating extends Model {
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public double coop_rating;
 
+	// 评分，五分制
+	@DatabaseField(dataType = DataType.DOUBLE)
+	public double rating;
+
 	public TendererRating() {}
 
 	public TendererRating(String url) {

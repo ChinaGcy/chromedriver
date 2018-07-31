@@ -217,4 +217,17 @@ public class ServiceProvider extends Model {
 		// 保存快照
 		snapshot.insert();
 	}
+
+	/**
+	 * 通过ID查找数据
+	 */
+	public static ServiceProvider selectById( String id ){
+		Dao dao = daoMap.get(ServiceProvider.class.getSimpleName());
+
+		try {
+			return (ServiceProvider) dao.queryForId(id);
+		} catch (SQLException e) {
+			return null;
+		}
+	}
 }
