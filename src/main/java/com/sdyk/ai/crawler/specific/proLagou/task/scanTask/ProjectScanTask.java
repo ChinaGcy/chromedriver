@@ -27,8 +27,8 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 		registerBuilder(
 				ProjectScanTask.class,
 				"https://pro.lagou.com/project/{{page}}",
-				ImmutableMap.of("page", String.class),
-				ImmutableMap.of("page","")
+				ImmutableMap.of("page", String.class, "max_page", String.class),
+				ImmutableMap.of("page","", "max_page", "2")
 		);
 	}
 
@@ -78,30 +78,55 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
             }
 
-            String pagePath = "#pager > div > span:nth-child(9)";
-            if(pageTurning(pagePath, page)){
-                int nextPage = page+1;
+            String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
 
-	            try {
+            // 不含 max_page 参数，则表示可以一直翻页
+	        if( maxPageSrc.length() < 1 ){
+		        String pagePath = "#pager > div > span:nth-child(9)";
+		        if(pageTurning(pagePath, page)){
+			        int nextPage = page+1;
 
-		            //设置参数
-		            Map<String, Object> init_map = new HashMap<>();
-		            init_map.put("page", String.valueOf(nextPage));
+			        try {
 
-		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask");
+				        //设置参数
+				        Map<String, Object> init_map = new HashMap<>();
+				        init_map.put("page", String.valueOf(nextPage));
+				        init_map.put("max_page", "");
 
-		            //生成holder
-		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				        Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ProjectScanTask");
 
-		            //提交任务
-		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+				        //生成holder
+				        ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
-	            } catch ( Exception e) {
+				        //提交任务
+				        ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
-		            logger.error("error for submit ProjectScanTask.class", e);
-	            }
+			        } catch ( Exception e) {
 
-            }
+				        logger.error("error for submit ProjectScanTask.class", e);
+			        }
+
+		        }
+	        }
+	        // 含有 max_page 参数，若max_page小于当前页则不进行翻页
+	        else {
+
+		        int maxPage = Integer.valueOf(maxPageSrc);
+		        int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));
+
+		        for(int i = current_page + 1; i <= maxPage; i++) {
+
+			        Map<String, Object> init_map = new HashMap<>();
+			        init_map.put("page", String.valueOf(i));
+			        init_map.put("max_page", "0");
+
+			        ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
+
+			        ChromeDriverDistributor.getInstance().submit(holder);
+		        }
+	        }
+
+
 
         });
     }

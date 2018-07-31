@@ -2,8 +2,12 @@ package com.sdyk.ai.crawler.specific.proLagou.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Project;
+import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
@@ -11,10 +15,14 @@ import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 
 public class ProjectTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -49,12 +57,12 @@ public class ProjectTask extends Task {
 	            return;
             }
             //抓取页面
-            crawlJob(doc);
+            crawlJob(doc, (ChromeTask)t);
         });
     }
 
 
-	public void crawlJob(Document doc){
+	public void crawlJob(Document doc, ChromeTask t){
 
 		project = new Project(getUrl());
 
@@ -73,7 +81,7 @@ public class ProjectTask extends Task {
 		project.title = title;
 
 		//类型
-		project.category = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)").text();
+		project.category = currentStatus;
 
 		//招标人
 		project.tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
@@ -100,7 +108,22 @@ public class ProjectTask extends Task {
 		}
 
 		//工期
-		String tineLimt = doc.select("#project_detail > div.project_panel.fr > div:nth-child(2) > span.short_val").text();
+		String timeLimt = doc.select("#project_detail > div.project_panel.fr > div:nth-child(2) > span.short_val").text();
+		if( timeLimt.contains("-") ){
+			timeLimt = timeLimt.split("-")[1];
+		}
+		if( timeLimt.contains("月") ){
+			timeLimt = CrawlerAction.getNumbers(timeLimt);
+			if(timeLimt != null){
+				project.time_limit = Integer.valueOf(timeLimt) * 30;
+			}
+		}
+		else {
+			timeLimt = CrawlerAction.getNumbers(timeLimt);
+			if(timeLimt != null){
+				project.time_limit = Integer.valueOf(timeLimt);
+			}
+		}
 
 		//预算
 		String budget = doc.select("#project_detail > div.project_panel.fr > div:nth-child(1) > span.short_val").text().replace("元","").replace("以下","");
@@ -121,7 +144,8 @@ public class ProjectTask extends Task {
 						.html() + "</p>";
 
 		//浏览人数
-		String browse = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(3) > div.txt > strong").text();
+		String browse = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(3) > div.txt > strong")
+				.text();
 		if(browse!=null&&!"".equals(browse)){
 			try {
 				project.view_num = Integer.valueOf(browse);
@@ -129,10 +153,42 @@ public class ProjectTask extends Task {
 				logger.error("error on String"+browse +"To Integer", e);
 			}
 		}
+
+		// 推荐人数
+		String rcmd_num = CrawlerAction.getNumbers(
+				doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(1) > div.txt > strong").text());
+		if( rcmd_num != null ){
+			project.rcmd_num = Integer.valueOf(rcmd_num);
+		}
+
 		try {
 			project.insert();
 		} catch (Exception e) {
 			logger.error("error on insert project", e);
+		}
+
+		if(project.status.equals("已完成")){
+			// 此任务尚未注册
+			if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+				try {
+					ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+							t.getHolder(this.getClass(), this.init_map),
+							crons
+					);
+					ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				} catch (Exception e) {
+					logger.error("eror for creat ScheduledChromeTask", e);
+				}
+			}
+			// 任务已经注册过
+			else {
+				try {
+					// 增加延长时间
+					ChromeTaskScheduler.getInstance().degenerate(t._scheduledTaskId);
+				} catch (Exception e) {
+					logger.error("eror for degenerate ScheduledChromeTask", e);
+				}
+			}
 		}
 	}
 

@@ -94,7 +94,7 @@ public class ServiceScanTask extends ScanTask {
 						//设置参数
 						Map<String, Object> init_map = new HashMap<>();
 						init_map.put("page", String.valueOf(next));
-						init_map.put("max_page", "0");
+						init_map.put("max_page", "");
 
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.scanTask.ServiceScanTask");
 
