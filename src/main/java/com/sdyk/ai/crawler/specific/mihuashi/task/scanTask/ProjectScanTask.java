@@ -27,8 +27,6 @@ public class ProjectScanTask extends ScanTask {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
-
 	static {
 		registerBuilder(
 				ProjectScanTask.class,
@@ -152,27 +150,6 @@ public class ProjectScanTask extends ScanTask {
 			        ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
 
 			        ChromeDriverDistributor.getInstance().submit(holder);
-		        }
-	        }
-
-	        ChromeTask t_ = (ChromeTask)t;
-
-	        // 注册定时任务, 只注册一次
-	        if( !ChromeTaskScheduler.getInstance().registered(t_._scheduledTaskId) ){
-		        try {
-
-			        Map<String, Object> init_map = new HashMap<>();
-			        init_map.put("page", "1");
-			        init_map.put("zone_id", zoneId);
-			        init_map.put("max_page","3");
-
-			        ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-					        t_.getHolder(this.getClass(), init_map),
-					        crons
-			        );
-			        ChromeTaskScheduler.getInstance().schedule(scheduledTask);
-		        } catch (Exception e) {
-			        logger.error("eror for creat ScheduledChromeTask", e);
 		        }
 	        }
 

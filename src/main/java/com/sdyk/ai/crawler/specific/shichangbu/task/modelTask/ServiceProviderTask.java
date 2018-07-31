@@ -7,8 +7,10 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -16,16 +18,15 @@ import org.jsoup.select.Elements;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -50,7 +51,7 @@ public class ServiceProviderTask extends Task {
 
 			Document doc = getResponse().getDoc();
 
-			crawlerJob(doc);
+			crawlerJob(doc, (ChromeTask)t);
 
 		});
 	}
@@ -59,7 +60,7 @@ public class ServiceProviderTask extends Task {
 	 * 页面解析方法
 	 * @param doc
 	 */
-	public void crawlerJob(Document doc){
+	public void crawlerJob(Document doc, ChromeTask t){
 
 		serviceProvider = new ServiceProvider(getUrl());
 
@@ -222,6 +223,19 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.insert();
 		} catch (Exception e) {
 			logger.error("serviceProvider.insert() error", serviceProvider.toJSON(), e);
+		}
+
+		// 注册定时任务
+		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+			try {
+				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+						t.getHolder(this.getClass(), this.init_map),
+						crons
+				);
+				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+			} catch (Exception e) {
+				logger.error("eror for creat ScheduledChromeTask", e);
+			}
 		}
 
 	}

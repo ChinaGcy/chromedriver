@@ -167,7 +167,7 @@ public class ProjectTask extends Task {
 			logger.error("error on insert project", e);
 		}
 
-		if(project.status.equals("已完成")){
+		if(!project.status.equals("已完成")){
 			// 此任务尚未注册
 			if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
 				try {

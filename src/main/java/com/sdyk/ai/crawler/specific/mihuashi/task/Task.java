@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Task extends com.sdyk.ai.crawler.specific.clouderwork.task.Task {
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
