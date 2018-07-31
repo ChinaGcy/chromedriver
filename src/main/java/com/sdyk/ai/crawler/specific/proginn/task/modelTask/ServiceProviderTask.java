@@ -28,6 +28,8 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
+
 	static {
 		registerBuilder(
 				ServiceProviderTask.class,
@@ -49,13 +51,13 @@ public class ServiceProviderTask extends Task {
 
 			Document doc = getResponse().getDoc();
 
-			crawlerJob(doc);
+			crawlerJob(doc, (ChromeTask)t);
 
 		});
 
 	}
 
-	public void crawlerJob(Document doc) {
+	public void crawlerJob(Document doc, ChromeTask t) {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
@@ -362,6 +364,8 @@ public class ServiceProviderTask extends Task {
 		} catch (Exception e) {
 			logger.error("error for serviceProvider.insert()", e);
 		}
+
+		this.cornTask(t);
 
 
 	}
