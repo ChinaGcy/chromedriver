@@ -16,20 +16,11 @@ public abstract class ScanTask extends Task {
 	public boolean backtrace = true;
 
 	public ScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+
 		super(url);
-	}
 
-	/*public ScanTask(String url, String post_data) throws MalformedURLException, URISyntaxException {
-		super(url, post_data);
+		this.setBuildDom();
 	}
-
-	public ScanTask(String url, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
-		super(url, post_data, cookies, ref);
-	}
-
-	public ScanTask(String url, HashMap<String, String> headers, String post_data, String cookies, String ref) throws MalformedURLException, URISyntaxException {
-		super(url, headers, post_data, cookies, ref);
-	}*/
 
 	/**
 	 * 判断是否为最大页数

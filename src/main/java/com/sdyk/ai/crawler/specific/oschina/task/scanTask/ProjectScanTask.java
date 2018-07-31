@@ -7,9 +7,11 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.oschina.task.modelTask.ProjectTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -22,13 +24,15 @@ public class ProjectScanTask extends ScanTask {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
+	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+
 	static {
 		registerBuilder(
 				ProjectScanTask.class,
 				"https://zb.oschina.net/project/contractor-browse-project-and-reward?" +
 						"applicationAreas=&sortBy=30&pageSize=10&currentPage={{page}}",
-				ImmutableMap.of("page", String.class),
-				ImmutableMap.of("page", "")
+				ImmutableMap.of("page", String.class, "max_page", String.class),
+				ImmutableMap.of("page", "", "max_page", "2")
 		);
 	}
 
@@ -100,30 +104,75 @@ public class ProjectScanTask extends ScanTask {
 
 			}
 
-			if( !(projectId.size() < 10) ) {
+			String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
 
-				int nextPage = page+1;
+			// 不含 max_page 参数，则表示可以一直翻页
+			if( maxPageSrc.length() < 1 ){
 
+				if( !(projectId.size() < 10) ) {
+
+					int nextPage = page+1;
+
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						init_map.put("page", String.valueOf(nextPage));
+						init_map.put("max_page", "0");
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.scanTask.ProjectScanTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ProjectTask.class", e);
+					}
+
+				}
+			}
+			// 含有 max_page 参数，若max_page小于当前页则不进行翻页
+			else {
+
+				int maxPage = Integer.valueOf(maxPageSrc);
+				int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));
+
+				for(int i = current_page + 1; i <= maxPage; i++) {
+
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("page", String.valueOf(i));
+					init_map.put("max_page", "0");
+
+					ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
+
+					ChromeDriverDistributor.getInstance().submit(holder);
+				}
+			}
+			ChromeTask t_ = (ChromeTask)t;
+
+			// 注册定时任务, 只注册一次
+			if( !ChromeTaskScheduler.getInstance().registered(t_._scheduledTaskId) ){
 				try {
 
-					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("page", String.valueOf(nextPage));
+					init_map.put("page", "1");
+					init_map.put("max_page","3");
 
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.scanTask.ProjectScanTask");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit ProjectTask.class", e);
+					ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
+							t_.getHolder(this.getClass(), init_map),
+							crons
+					);
+					ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				} catch (Exception e) {
+					logger.error("eror for creat ScheduledChromeTask", e);
 				}
-
 			}
+
+
 
 		});
 

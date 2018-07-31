@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,6 +24,8 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
+
 	static {
 		registerBuilder(
 				ServiceProviderTask.class,
@@ -31,8 +34,6 @@ public class ServiceProviderTask extends Task {
 				ImmutableMap.of("user_id", "")
 		);
 	}
-
-	ServiceProvider serviceProvider;
 
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
@@ -47,21 +48,21 @@ public class ServiceProviderTask extends Task {
 
 			String src = getResponse().getText();
 
-			serviceProvider = new ServiceProvider(getUrl());
-
 			if( src.contains("对不起") || src.contains("错误了") || src.contains("错误码") ){
 				return;
 			}
 			//页面正常
 			else {
-				crawlerJob(doc, src);
+				crawlerJob(doc, (ChromeTask)t);
 			}
 
 		});
 
 	}
 
-	public void crawlerJob(Document doc, String src){
+	public void crawlerJob(Document doc, ChromeTask t){
+
+		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
 		//原网站ID
 		serviceProvider.origin_id = getUrl().split("html?")[1];
@@ -276,6 +277,8 @@ public class ServiceProviderTask extends Task {
 		} catch ( Exception e ) {
 			logger.error("error for serviceProvider.insert()", e);
 		}
+
+		this.cornTask(t);
 
 
 	}

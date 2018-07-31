@@ -2,7 +2,6 @@ package com.sdyk.ai.crawler.specific.oschina.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
@@ -10,15 +9,13 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
-import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +23,8 @@ import java.util.regex.Pattern;
 public class ProjectTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -42,7 +41,7 @@ public class ProjectTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -53,16 +52,16 @@ public class ProjectTask extends Task {
 			if( src.contains("对不起") ){
 				return ;
 			}
-			//页面正常
+			// 页面正常
 			else {
-				crawlerJob(doc);
+				crawlerJob(doc, (ChromeTask)t);
 			}
 
 		});
 
 	}
 
-	public void crawlerJob(Document doc){
+	public void crawlerJob(Document doc, ChromeTask t){
 
 		Project project = new Project(getUrl());
 
@@ -72,12 +71,12 @@ public class ProjectTask extends Task {
 
 		String price = doc.getElementsByClass("zb-money").text();
 
-		//标题
+		// 标题
 		project.title = doc.getElementsByClass("zb-workbench-h1").text().replace(price,"");
 
 		project.category = doc.select("#container > div.main-content > div.show-for-medium > div > div > div > div.el-row > div > div > div > div.el-card.box-card.zb-box-card.is-always-shadow > div > div > div.zb-workbench-box > div:nth-child(2) > span:nth-child(3)").text();
 
-		//价格
+		// 价格
 		if( price.contains("-") ){
 
 			String priceub = CrawlerAction.getNumbers(price.split("-")[1]);
@@ -91,7 +90,7 @@ public class ProjectTask extends Task {
 				project.budget_lb = Double.valueOf(pricelb);
 			}
 		}
-		//价格不为区间时
+		// 价格不为区间时
 		else {
 			price = CrawlerAction.getNumbers(price);
 			if( !"".equals(price) ){
@@ -100,21 +99,24 @@ public class ProjectTask extends Task {
 			}
 		}
 
-		//发布时间，周期，参与人数，地点
+		// 发布时间，周期，参与人数，地点
 		Elements elements = doc.getElementsByClass("zb-workbench-normal-text");
 		for(Element element : elements){
 			String detail = element.text();
 
-			//发布时间
+			// 发布时间
 			if(detail.contains("发布")){
 
 				try {
-					project.pubdate = DateFormatUtil.parseTime(detail);
+
+					SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy-MM-dd" );
+					Date date = sdf.parse( detail.replaceAll("发布于", "") );
+					project.pubdate = date;
 				} catch (ParseException e) {
 					logger.error("error for string ro date", e);
 				}
 			}
-			//周期
+			// 周期
 			else if( detail.contains("周期") || detail.contains("期望") ){
 				if( detail.contains("月") ){
 					detail = CrawlerAction.getNumbers(detail);
@@ -129,7 +131,7 @@ public class ProjectTask extends Task {
 					}
 				}
 			}
-			//地点
+			// 地点
 			else if( detail.contains("地域") ){
 
 				String[] areas = detail.split(":");
@@ -137,7 +139,7 @@ public class ProjectTask extends Task {
 					project.location = areas[1];
 				}
 			}
-			//参与人数
+			// 参与人数
 			else if( detail.contains("参与") ){
 
 				detail = CrawlerAction.getNumbers(detail);
@@ -147,7 +149,7 @@ public class ProjectTask extends Task {
 			}
 		}
 
-		//状态
+		// 状态
 		project.status = doc.getElementsByClass("zb-workbench-state").text();
 
 		// 行业
@@ -156,7 +158,7 @@ public class ProjectTask extends Task {
 		// 付款方式
 		project.trade_type = doc.select("span.zb-workbench-mark:nth-child(1)").text();
 
-		//小标签
+		// 小标签
 		Elements tagSrc = doc.getElementsByClass("zb-workbench-btn");
 		StringBuffer tags = new StringBuffer();
 		for( Element e : tagSrc ){
@@ -218,13 +220,13 @@ public class ProjectTask extends Task {
 			tId.add(matcher1.group("tId"));
 		}
 
-		for( String t : tId ){
+		for( String t_ : tId ){
 
 			try {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("tenderer_id", t);
+				init_map.put("tenderer_id", t_);
 
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.TendererTask");
 
@@ -250,6 +252,10 @@ public class ProjectTask extends Task {
 			project.insert();
 		} catch (Exception e) {
 			logger.error("error for project.insert()", e);
+		}
+
+		if( project.status.equals("竞标中") ){
+			this.cornTask(t);
 		}
 
 	}

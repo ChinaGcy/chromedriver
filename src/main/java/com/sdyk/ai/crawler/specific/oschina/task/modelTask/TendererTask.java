@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -12,6 +13,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
+
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	static {
 		registerBuilder(
@@ -22,7 +27,7 @@ public class TendererTask extends Task {
 		);
 	}
 
-	Tenderer tenderer;
+
 
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
@@ -37,21 +42,21 @@ public class TendererTask extends Task {
 
 			String src = getResponse().getText();
 
-			tenderer = new Tenderer(getUrl());
-
 			if( src.contains("对不起") || src.contains("错误了") || src.contains("错误码") ){
 				return;
 			}
 			//页面正常
 			else {
-				crawlerJob(doc, src);
+				crawlerJob(doc, (ChromeTask)t);
 			}
 
 		});
 
 	}
 
-	public void crawlerJob(Document doc, String src){
+	public void crawlerJob(Document doc, ChromeTask t){
+
+		Tenderer tenderer = new Tenderer(getUrl());
 
 		//甲方名称
 		tenderer.name = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-1 > div > span.font-20.font-bold.mb-3").text();
@@ -95,6 +100,9 @@ public class TendererTask extends Task {
 		} catch (Exception e){
 			logger.error("error for tenderer.insert();", e);
 		}
+
+		this.cornTask(t);
+
 	}
 
 }
