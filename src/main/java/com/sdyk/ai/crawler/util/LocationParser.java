@@ -293,7 +293,7 @@ public class LocationParser implements Serializable {
 			return locations;
 		}
 		else if( locations.size() > 1 ){
-			// 判断是否有城市
+			// 判断是否精确匹配城市
 			List<? extends Location> locations_city = matchCity(src, false);
 			if( locations_city.size() > 0 ){
 				for(Location location : locations){
@@ -303,7 +303,7 @@ public class LocationParser implements Serializable {
 				}
 			}
 			else {
-				// 判断是否有省
+				// 判断是否精确匹配省
 				List<Province> locations_provinces = matchProvince(src, false);
 				if( locations_provinces.size() > 0){
 					for(Location location : locations){
@@ -313,6 +313,25 @@ public class LocationParser implements Serializable {
 					}
 				}
 				else {
+					// 模糊匹配市
+					List<City> locations_city_ = matchCity(src, true);
+					if( locations_city_.size() > 0 ){
+						for(Location location : locations){
+							if( locations_city_.contains(((Area)location).city)  ){
+								return Arrays.asList(location);
+							}
+						}
+					}
+					// 模糊匹配省
+					List<Province> locations_provinces_ = matchProvince(src, true);
+					if(locations_provinces_.size() > 0){
+						for(Location location : locations){
+							if( locations_provinces_.contains(((Area)location).province)  ){
+								return Arrays.asList(location);
+							}
+						}
+					}
+					// 只包含精确区字段
 					return locations;
 				}
 			}
@@ -323,18 +342,22 @@ public class LocationParser implements Serializable {
 
 		List<Province> provinces = new ArrayList<>();
 		if(locations.size() == 0) {
+			// 精确匹配省
 			provinces = matchProvince(src, false);
 			if(provinces.size()>0 ) {
 				locations = provinces;
 			}
 		}
 
+		// 返回精确匹配结果
 		if(locations.size() > 0) return locations;
 
+		// 模糊匹配省
 		List<Province> provinces_ = matchProvince(src, true);
 
 		logger.info(provinces_);
 
+		// 模糊匹配市
 		List<City> cities_ = matchCity(src, true).stream()
 			.map(c -> {
 				logger.info(c);
@@ -342,12 +365,14 @@ public class LocationParser implements Serializable {
 			})
 			.filter(c -> {
 				if(provinces_ .size() > 0) {
+					// 找出被模糊匹配的省包含的模糊匹配的市
 					return provinces_.contains(c.province);
 				}
 				return true;
 			})
 			.collect(Collectors.toList());
 
+		// 模糊匹配区
 		List<Area> areas_ = matchArea(src, true).stream()
 			.map(a -> {
 				logger.info(a);
@@ -355,9 +380,11 @@ public class LocationParser implements Serializable {
 			})
 			.filter(a -> {
 				if(provinces_.size() > 0) {
+					// 找出被模糊匹配的省包含的模糊匹配的区
 					return provinces_.contains(a.province);
 				}
 				else if(cities_.size() > 0){
+					// 找去被模糊匹配并过滤的市包含的区
 					boolean city_match = false;
 					for(City c: cities_) {
 						if(a.city == c) city_match = true;
