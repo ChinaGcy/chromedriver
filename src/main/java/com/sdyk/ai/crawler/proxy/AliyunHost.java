@@ -472,7 +472,7 @@ public class AliyunHost {
 	public ProxyImpl createSquidProxy() {
 
 		String proxyUser = "tfelab";
-		String proxyPassword = "TfeLAB215";
+		String proxyPassword = "TfeLAB2@15";
 		int proxyPort = 59998;
 
 		ProxyImpl proxy = null;
