@@ -6,6 +6,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
 import one.rewind.db.DBName;
 
+import java.util.Date;
+
 /**
  * 作品描述
  * @author
@@ -66,6 +68,18 @@ public class Work extends Model {
 	// 附件
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String attachment_ids;
+
+	// 发布时间
+	@DatabaseField(dataType = DataType.DATE)
+	public Date pubdate;
+
+	// 截至时间
+	@DatabaseField(dataType = DataType.DATE)
+	public Date duedate ;
+
+	// 周期
+	@DatabaseField(dataType = DataType.STRING, width = 64)
+	public String time_limit;
 
 	public Work() {}
 
