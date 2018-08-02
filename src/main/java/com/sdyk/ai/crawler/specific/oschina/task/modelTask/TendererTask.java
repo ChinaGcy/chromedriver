@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.LocationParser;
 import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
@@ -34,7 +35,7 @@ public class TendererTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -54,17 +55,27 @@ public class TendererTask extends Task {
 
 	}
 
-	public void crawlerJob(Document doc, ChromeTask t){
+	public void crawlerJob(Document doc, ChromeTask t) throws Exception {
 
 		Tenderer tenderer = new Tenderer(getUrl());
 
 		//甲方名称
-		tenderer.name = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-1 > div > span.font-20.font-bold.mb-3").text();
+		tenderer.name = doc.select(
+				"#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-1 > div > span.font-20.font-bold.mb-3").text();
+		if( tenderer.name == null || tenderer.name.length() < 1 ){
+			tenderer.name = doc.select(
+					"#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-2 > div > span.font-20.font-bold.mb-3").text();
+		}
 
 		tenderer.origin_id = getUrl().split("html?")[1];
 
 		//甲方地址
 		tenderer.location = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-1 > div > span:nth-child(3)").text();
+		if( tenderer.location == null || tenderer.location.length() < 1 ){
+			tenderer.location = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-2 > div > span:nth-child(3)").text();
+		}
+		LocationParser parser = LocationParser.getInstance();
+		tenderer.location = parser.matchLocation(tenderer.location).size() > 0 ? parser.matchLocation(tenderer.location).get(0).toString() : null;
 
 		//认证情况
 		String certification = doc.getElementsByClass("user-icons").toString();
@@ -101,7 +112,7 @@ public class TendererTask extends Task {
 			logger.error("error for tenderer.insert();", e);
 		}
 
-		this.cornTask(t);
+		//this.cornTask(t);
 
 	}
 

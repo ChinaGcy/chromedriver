@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.task.ChromeTask;
@@ -52,7 +53,7 @@ public class ProjectTask extends Task {
 		});
 	}
 
-	public void crawler(Document doc, ChromeTask t){
+	public void crawler(Document doc, ChromeTask t) throws Exception {
 
 		project = new Project(getUrl());
 
@@ -67,22 +68,32 @@ public class ProjectTask extends Task {
 		//发布时间与截止时间
 		try {
 			SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy-MM-dd" );
-			project.pubdate = sdf.parse(
-					doc.select("#fabuTime").text());
-			project.due_time = sdf.parse(
-					doc.select("#wrap > div.left_wrap > div.lds_left_main > div.lds_list > ul > li:nth-child(3) > span")
-							.text().replaceAll("预期完成时间：", ""));
+			String pub = doc.select("#fabuTime").text();
+			if( pub != null && pub.length() > 1 ){
+				project.pubdate = sdf.parse(pub);
+			}
+
+			String due = doc.select("#wrap > div.left_wrap > div.lds_left_main > div.lds_list > ul > li:nth-child(3) > span").text();
+			if( !due.contains("完成时间") ){
+				due = doc.select("#wrap > div.left_wrap > div.lds_left_main > div.lds_list > ul > li:nth-child(4) > span").text();
+			}
+			if( due != null && due.length() > 0 ){
+				project.due_time = DateFormatUtil.parseTime(due.replaceAll("预期完成时间：", ""));
+			}
 		} catch (ParseException e) {
 			logger.error("error for String to Date", e);
 		}
 
-		if( new Date().getTime() > project.due_time.getTime() ){
+		if( project.due_time != null ){
 
-			project.status = "已截止";
-		}
-		else {
+			if( new Date().getTime() > project.due_time.getTime() ){
 
-			project.status = "未截止";
+				project.status = "已截止";
+			}
+			else {
+
+				project.status = "未截止";
+			}
 		}
 
 		//价格
@@ -112,16 +123,21 @@ public class ProjectTask extends Task {
 				tags = tags + detail.replace("技能要求：","").replace(" ", ",");
 			}
 		}
-		project.tags = tags.substring(0, tags.length()-1);
+		if( tags.length() > 0 ){
+			project.tags = tags.substring(0, tags.length()-1);
+		}
 
 		//描述
-		project.content = StringUtil.cleanContent(doc.select("div.lds_des_main").toString(), new HashSet<>());
+		project.content = StringUtil.cleanContent(doc.select("div.lds_des_main").toString().replace("附件：", ""), new HashSet<>());
 
 		// 地点
 		String[] locations = doc.select("#wrap > div.left_wrap > div.lds_left_main > div.lds_list > ul > li:nth-child(4)")
 				.text().split("，");
 		if( locations != null && locations.length > 1 ){
-			project.location = locations[locations.length - 1].replaceAll("-", ",");
+			LocationParser parser = LocationParser.getInstance();
+			project.location =
+					parser.matchLocation(locations[locations.length - 1]).size() > 0 ?
+							parser.matchLocation(locations[locations.length - 1]).get(0).toString() : null;
 		}
 
 		//以投标数
@@ -140,7 +156,7 @@ public class ProjectTask extends Task {
 		// 项目状态为招募中，定期更新自身
 		if( project.status.contains("未截止") ){
 
-			this.cornTask(t);
+			//this.cornTask(t);
 		}
 
 	}

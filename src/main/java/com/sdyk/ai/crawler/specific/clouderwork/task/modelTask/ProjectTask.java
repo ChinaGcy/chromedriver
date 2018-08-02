@@ -7,12 +7,14 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Project;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
+import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -76,7 +78,7 @@ public class ProjectTask extends Task {
 	 * 执行抓取任务
 	 * @param doc
 	 */
-	public void crawlJob( Document doc, ChromeTask t){
+	public void crawlJob( Document doc, ChromeTask t) throws Exception {
 
 		String authorUrl = null;
 
@@ -87,7 +89,12 @@ public class ProjectTask extends Task {
 		project.origin_id = getUrl().split("jobs/")[1];
 
 		//工作地点
-		project.location = doc.select("#project-detail > div > div.main-top > div.job-main > div.project-info > p.loc").text();
+		LocationParser parser = LocationParser.getInstance();
+		String lo = doc.select("#project-detail > div > div.main-top > div.job-main > div.project-info > p.loc").text();
+		if( lo != null && lo.length() > 1 ){
+			project.location = parser.matchLocation(lo).get(0).toString();
+		}
+
 
 		//项目描述
 		project.content = StringUtil.cleanContent(doc.select("#project-detail > div > div.main-detail > section > div").html(),
@@ -103,6 +110,9 @@ public class ProjectTask extends Task {
 
 		//项目类别
 		project.category = doc.getElementsByClass("scope").text().replace(" >", ",");
+		if( project.category.equals("") ){
+			project.category = "驻场";
+		}
 
 		// 标签
 		Elements elements = doc.select("span.skill");
@@ -221,7 +231,10 @@ public class ProjectTask extends Task {
 			}
 			//不以万元为单位
 			else {
-				budget_lb = Double.valueOf(budget.replace(",",""));
+				String s = budget.replace(",","");
+				if( s != null && s.length() > 0 ){
+					budget_lb = Double.valueOf(s);
+				}
 			}
 			budget_up = budget_lb;
 		}
@@ -266,27 +279,25 @@ public class ProjectTask extends Task {
 		//项目发布时间
 		project.pubdate = pubdate;
 
-		String numberP = doc.select("#project-detail > div > div.main-top > div.job-main > div.project-info > p:nth-child(3) > span").text();
-
-		//可投标人数
-		if( numberP!=null && !"".equals(numberP) ){
-			try {
-				project.bidder_total_num = Integer.valueOf(numberP);
-			} catch (Exception e) {
-				logger.error("error on String"+numberP +"To Integer", e);
-			}
-		}
-
 		// 查看人数
 		String bidder = doc.select("#project-detail > div > div.main-top > div.op-main > div.row > span").text();
 		String bidderNum = CrawlerAction.getNumbers(bidder);
-		if( bidderNum!=null ){
+		if( bidder.contains("投标") ){
 			try {
-				project.view_num = Integer.valueOf(bidderNum);
+				project.bids_num = Integer.valueOf(bidderNum);
 			} catch (Exception e) {
 				logger.error("error on String"+bidderNum +"To Integer", e);
 			}
-
+		}
+		else {
+			try {
+				bidderNum = CrawlerAction.getNumbers(bidderNum);
+				if( bidderNum.length() > 0 ){
+					project.view_num = Integer.valueOf(bidderNum);
+				}
+			} catch (Exception e) {
+				logger.error("error on String"+bidderNum +"To Integer", e);
+			}
 		}
 
 		//招商人ID
@@ -327,32 +338,22 @@ public class ProjectTask extends Task {
 		}
 
 		// 项目状态为招募中，定期更新自身
-		if( project.status.contains("招募中") ){
+		/*if( project.status.contains("招募中") ){
 
-			// 此任务尚未注册
-			if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
-				try {
-					ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-							t.getHolder(this.getClass(), this.init_map),
-							crons
-					);
-					ChromeTaskScheduler.getInstance().schedule(scheduledTask);
-				} catch (Exception e) {
-					logger.error("eror for creat ScheduledChromeTask", e);
-				}
+			ScheduledChromeTask st = t.getScheduledChromeTask();
+			if(st == null) {
+
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st.start();
 			}
-			// 任务已经注册过
 			else {
-				try {
-					// 增加延长时间
-					ChromeTaskScheduler.getInstance().degenerate(t._scheduledTaskId);
-				} catch (Exception e) {
-					logger.error("eror for degenerate ScheduledChromeTask", e);
+				if(project.status.contains("招募中")) {
+					st.degenerate();
+				} else {
+					st.stop();
 				}
 			}
-
-		}
-
+		}*/
 	}
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){

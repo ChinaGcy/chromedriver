@@ -18,8 +18,8 @@ public class WorkTask extends Task {
 		registerBuilder(
 				WorkTask.class,
 				"https://www.proginn.com{{work_id}}",
-				ImmutableMap.of("work_id", String.class),
-				ImmutableMap.of("work_id", "")
+				ImmutableMap.of("work_id", String.class, "like_num", String.class),
+				ImmutableMap.of("work_id", "", "like_num", "1")
 		);
 	}
 
@@ -37,17 +37,21 @@ public class WorkTask extends Task {
 
 			String uId = doc.select("div.nickname > a").attr("href");
 
-			crawler(doc, uId);
+			String like_num  = t.getStringFromInitMap("like_num");
+
+			crawler(doc, uId, like_num);
 
 		});
 
 	}
 
-	public void crawler( Document doc, String uId ){
+	public void crawler( Document doc, String uId, String like_num ){
 
 		Work work = new Work(getUrl());
 
 		work.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(uId));
+
+		work.like_num = Integer.valueOf(like_num);
 
 		//外部链接
 		work.external_url = doc.select("a.link").attr("href");

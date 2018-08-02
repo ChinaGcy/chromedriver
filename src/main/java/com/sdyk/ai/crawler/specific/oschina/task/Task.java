@@ -17,29 +17,22 @@ public class Task extends com.sdyk.ai.crawler.task.Task {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+		this.setBuildDom();
 	}
 
 	public void cornTask(ChromeTask t){
-		// 此任务尚未注册
-		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+		ScheduledChromeTask st = t.getScheduledChromeTask();
+		if(st == null) {
+
 			try {
-				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-						t.getHolder(this.getClass(), this.init_map),
-						this.crons
-				);
-				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st.start();
 			} catch (Exception e) {
-				logger.error("eror for creat ScheduledChromeTask", e);
+				logger.error("error for ScheduledChromeTask");
 			}
-		}
-		// 任务已经注册过
-		else {
-			try {
-				// 增加延长时间
-				ChromeTaskScheduler.getInstance().degenerate(t._scheduledTaskId);
-			} catch (Exception e) {
-				logger.error("eror for degenerate ScheduledChromeTask", e);
-			}
+
+		}else{
+			st.degenerate();
 		}
 	}
 

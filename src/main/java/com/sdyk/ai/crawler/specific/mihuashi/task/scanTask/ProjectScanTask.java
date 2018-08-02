@@ -32,7 +32,7 @@ public class ProjectScanTask extends ScanTask {
 				ProjectScanTask.class,
 				"https://www.mihuashi.com/projects?zone_id={{zone_id}}&page={{page}}",
 				ImmutableMap.of("zone_id", String.class, "page", String.class, "max_page", String.class),
-				ImmutableMap.of("zone_id", "","page","", "max_page", "3")
+				ImmutableMap.of("zone_id", "","page","", "max_page", "")
 		);
 	}
 

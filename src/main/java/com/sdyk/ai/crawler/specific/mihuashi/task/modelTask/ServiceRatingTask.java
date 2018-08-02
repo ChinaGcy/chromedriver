@@ -90,6 +90,10 @@ public class ServiceRatingTask extends Task {
 			serviceProviderRating.service_provider_id = one.rewind.txt.StringUtil.byteArrayToHex(
 					one.rewind.txt.StringUtil.uuid(getUrl()));
 
+			// 评分
+			Elements elements1 = element.select("div.rating > div:nth-child(1) > i");
+			serviceProviderRating.rating = elements1.size();
+
 			//甲方名字
 			Elements name = element.getElementsByClass("name");
 			serviceProviderRating.tenderer_name = name.get(1).text();
@@ -113,7 +117,7 @@ public class ServiceRatingTask extends Task {
 			//发布时间
 			String time = element.getElementsByClass("commented-time").text();
 			try {
-				serviceProviderRating.pubdate = DateFormatUtil.parseTime(time);
+				serviceProviderRating.pubdate = DateFormatUtil.parseTime(time.split("评论于")[1]);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

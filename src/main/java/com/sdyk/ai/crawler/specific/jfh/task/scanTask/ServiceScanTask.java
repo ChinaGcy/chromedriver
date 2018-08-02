@@ -37,13 +37,13 @@ public class ServiceScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
-		this.setParam("page", url.split("shops/?")[1]);
+		this.setParam("page", url.split("shops/\\?")[1]);
 
 		this.addDoneCallback((t) -> {
 
-			String pageUrl = url.split("shops/?")[1];
+			String pageUrl = url.split("shops/\\?")[1];
 
 			int page = Integer.valueOf(pageUrl);
 
@@ -55,7 +55,7 @@ public class ServiceScanTask extends ScanTask {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("servicer_id", String.valueOf(i));
+					init_map.put("user_id", String.valueOf(i));
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderTask");
 

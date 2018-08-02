@@ -122,7 +122,11 @@ public class ServiceScanTask extends ScanTask {
 					init_map.put("page", String.valueOf(i));
 					init_map.put("max_page", "0");
 
-					ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.scanTask.ServiceScanTask");
+
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
 
 					ChromeDriverDistributor.getInstance().submit(holder);
 				}

@@ -9,6 +9,7 @@ public class ScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
 	public ScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
+		this.setBuildDom();
 	}
 
 	public static String domain(){

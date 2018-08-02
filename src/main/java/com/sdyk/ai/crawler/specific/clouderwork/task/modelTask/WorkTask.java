@@ -3,11 +3,15 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class WorkTask extends Task {
@@ -95,8 +99,11 @@ public class WorkTask extends Task {
 
 		//抓取描述
 		String descreption = doc.getElementsByClass("desc simditor-content").html();
+		Set<String> set = new HashSet<>();
+		String img = StringUtil.cleanContent(doc.select("div.project-img").html(), set);
+		img = BinaryDownloader.download(img, set, getUrl());
 		if(descreption!=null&&!"".equals(descreption)){
-			workinfor.content = descreption;
+			workinfor.content = descreption + img;
 		}
 
 		try {

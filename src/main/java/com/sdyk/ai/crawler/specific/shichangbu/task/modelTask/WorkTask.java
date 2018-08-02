@@ -1,20 +1,24 @@
 package com.sdyk.ai.crawler.specific.shichangbu.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
 import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class WorkTask extends Task {
 
@@ -29,15 +33,13 @@ public class WorkTask extends Task {
 		);
 	}
 
-	public Work work;
-
 	public WorkTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 
 		this.setPriority(Priority.MEDIUM);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -53,7 +55,7 @@ public class WorkTask extends Task {
 	 */
 	public void crawlerJob(Document doc) {
 
-		work = new Work(getUrl());
+		Work work = new Work(getUrl());
 
 		String useUrl = "http://www.shichangbu.com/" +
 				doc.select("body > div.se-show.se-module.container > div.se-sh-con > div.se-sh-con-title > div > a:nth-child(1)")
@@ -63,10 +65,23 @@ public class WorkTask extends Task {
 		work.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(useUrl));
 
 		//案例名称
-		work.title = doc.getElementsByClass("se-sh-con-title").text();
+		String title_name = doc.getElementsByClass("se-sh-con-title").text();
+		String name = doc.select("div.fr").text();
+		work.title = title_name.replace(name, "");
+
+		// 标签
+		Elements elements = doc.select("div.mnl-right-tab > ul > li");
+		StringBuffer tagr = new StringBuffer();
+		for(Element element : elements){
+			tagr.append(element.text());
+			tagr.append(",");
+		}
+		if( tagr.length() > 1 ){
+			work.tags = tagr.substring(0, tagr.length()-1);
+		}
 
 		//浏览次数
-		String viewNum = doc.select("span.se-sh-star iconimg-eye").text();
+		String viewNum = doc.select("span.se-sh-star.iconimg-eye").text();
 		if( viewNum != null && !"".equals(viewNum) ) {
 			work.view_num = Integer.valueOf(CrawlerAction.getNumbers(viewNum));
 		}
@@ -79,13 +94,26 @@ public class WorkTask extends Task {
 		}
 
 		// 描述
-		String contentHtml = doc.select("div.se-editcon").html();
+		String contentHtml = doc.select("div.se-editcon").html()
+				.replaceAll(doc.select("div.mnl-right-tab").html(), "")
+				.replaceAll("使用模块：", "");
 		Set<String> extraUrls_img = new HashSet<>();
+
+		// 时间
+		String pub = doc.select("span.se-sh-time.iconimg-clock").text();
+
+		try {
+			work.pubdate = DateFormatUtil.parseTime(pub);
+		} catch (ParseException e) {
+			logger.error("error fro String to date", e);
+		}
+
 
 		contentHtml = StringUtil.cleanContent(contentHtml, extraUrls_img);
 
 		// 图片下载
 		work.content = BinaryDownloader.download(contentHtml, extraUrls_img, getUrl());
+
 
 		try {
 			work.insert();

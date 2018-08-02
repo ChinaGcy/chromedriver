@@ -18,13 +18,11 @@ public class CaseTask extends Task {
 	static {
 		registerBuilder(
 				CaseTask.class,
-				"{{user_id}}",
+				"http://shop.jfh.com/{{user_id}}",
 				ImmutableMap.of("user_id", String.class),
 				ImmutableMap.of("user_id", "")
 		);
 	}
-
-	Case caseInfo;
 
 	public CaseTask(String url) throws MalformedURLException, URISyntaxException {
 
@@ -32,7 +30,7 @@ public class CaseTask extends Task {
 
 		this.setPriority(Priority.MEDIUM);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -45,7 +43,7 @@ public class CaseTask extends Task {
 
 	public void crawler(Document doc){
 
-		caseInfo = new Case(getUrl());
+		Case caseInfo = new Case(getUrl());
 
 		String serUrl = getUrl().split("SL")[0] + "bu";
 

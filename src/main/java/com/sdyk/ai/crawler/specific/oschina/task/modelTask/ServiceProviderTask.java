@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.txt.DateFormatUtil;
@@ -40,7 +41,7 @@ public class ServiceProviderTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -60,7 +61,7 @@ public class ServiceProviderTask extends Task {
 
 	}
 
-	public void crawlerJob(Document doc, ChromeTask t){
+	public void crawlerJob(Document doc, ChromeTask t) throws Exception {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
@@ -70,7 +71,7 @@ public class ServiceProviderTask extends Task {
 		//名字
 		String name	= doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-1 > div > span.font-20.font-bold.mb-3").text();
 		if( name == null || name.length() < 1  ){
-			name = doc.select("//#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-2 > div > span.font-20.font-bold.mb-3").text();
+			name = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-2 > div > span.font-20.font-bold.mb-3").text();
 		}
 		serviceProvider.name = name;
 
@@ -104,7 +105,12 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.platform_certification = platformCertification.substring(0, platformCertification.length()-2);
 
 		//地理位置
+		LocationParser parser = LocationParser.getInstance();
 		serviceProvider.location = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-1 > div > span:nth-child(3)").text();
+		if( serviceProvider.location == null || serviceProvider.location.length() < 1){
+			serviceProvider.location = doc.select("#profile > div.show-for-medium.pc-profile > div.user-box.u-bg-2 > div > span:nth-child(3)").text();
+		}
+		serviceProvider.location = parser.matchLocation(serviceProvider.location).get(0).toString();
 
 		//描述
 		serviceProvider.content = StringUtil.cleanContent(doc.select("#profile > div.show-for-medium.pc-profile > div.mtb-large > div > div > div.el-col.el-col-18 > div:nth-child(1) > div.content > div > div").text(), new HashSet<>());
@@ -124,7 +130,7 @@ public class ServiceProviderTask extends Task {
 			}
 			//大标签
 			else if( skillLabel.contains("类型") ){
-				serviceProvider.category = skillItem;
+				serviceProvider.category = skillItem.replace("、", ",");
 			}
 			//小标签拼接
 			else if( skillLabel.contains("语言") || skillLabel.contains("技能") || skillLabel.contains("中间件")){
@@ -205,10 +211,10 @@ public class ServiceProviderTask extends Task {
 				}
 
 				//内容
-				serviceProviderRating.content = e.select("div.desc").text();
+				serviceProviderRating.content = e.select("div.desc").text().replaceAll("评价描述：", "");
 
-				//标签
-				serviceProviderRating.tags = e.getElementsByClass("tags").text();
+				/*//标签
+				serviceProviderRating.tags = e.getElementsByClass("tags").text();*/
 
 				//打分
 				Elements star = e.getElementsByClass("el-rate__item");
@@ -225,7 +231,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//项目
-		Elements workElements = doc.getElementsByClass("case-item");
+		Elements workElements = doc.select("div.case-item");
 		int j =0;
 		for( int n = workElements.size()/2 ; n<workElements.size(); n++  ){
 
@@ -247,15 +253,15 @@ public class ServiceProviderTask extends Task {
 				String count = e1.text();
 
 				if( count.contains("我的角色") ){
-					work.position = count.split("我的角色：")[1];
+					work.position = count.split("我的角色：")[1].replace("、", ",");
 				}
 				//小标签
 				else if ( count.contains("应用技术：") ) {
-					work.tags = count.replace("应用技术：","");
+					work.tags = count.replace("应用技术：","").replace("、", ",");
 				}
 				//简介
 				else if ( count.contains("项目简介：") ) {
-					work.content = count;
+					work.content = "<p>" + count + "</p>";
 				}
 				//外网地址
 				else if( count.contains("演示地址") ) {
@@ -263,6 +269,11 @@ public class ServiceProviderTask extends Task {
 				}
 
 			}
+
+			Elements elements1 = workItems.get(0).select("span");
+
+			// 周期
+			work.time_limit = elements1.get(1).text();
 
 			try {
 				work.insert();
@@ -278,7 +289,7 @@ public class ServiceProviderTask extends Task {
 			logger.error("error for serviceProvider.insert()", e);
 		}
 
-		this.cornTask(t);
+		//this.cornTask(t);
 
 
 	}

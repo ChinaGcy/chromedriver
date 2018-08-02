@@ -79,10 +79,15 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.origin_id = urls[1];
 
 		// 描述
-		serviceProvider.content = StringUtil.cleanContent(doc.select("p.overview").toString(), new HashSet<>());
+		serviceProvider.content = StringUtil.cleanContent(doc.select("section.p-item.p-basic > p.overview").toString(), new HashSet<>());
 
 		// 平台认证信息
 		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
+
+		String grade = doc.select("#profile > div > div > section.basic > section > img.icon-lv").attr("src");
+		if( grade != null && grade.length() > 0 ){
+			serviceProvider.grade = CrawlerAction.getNumbers(grade.split(".png")[0]);
+		}
 
 		// 头像
 		String imageUrl = doc.select("img.avator").attr("src");
@@ -164,7 +169,7 @@ public class ServiceProviderTask extends Task {
 
 			//擅长领域
 			if( expertise!=null && !"".equals(expertise) ){
-				serviceProvider.category = expertise.replace("、", ",");
+				serviceProvider.category = expertise.replace("、", ",").replace("擅长领域：", "");
 			}
 			String[] all2 = all1[1].split("所在城市：");
 
@@ -211,7 +216,7 @@ public class ServiceProviderTask extends Task {
 
 			//擅长领域
 			if(expertise!=null&&!"".equals(expertise)){
-				serviceProvider.category = expertise.replace("、", ",");
+				serviceProvider.category = expertise.replace("、", ",").replace("擅长领域：", "");
 			}
 			String[] all2 = all1[1].split("所在城市：");
 
@@ -250,6 +255,20 @@ public class ServiceProviderTask extends Task {
 					serviceProvider.work_experience = Integer.valueOf(workExperience);
 				}
 			}
+		}
+
+		// 职位
+		serviceProvider.position = doc.select("span.s-title.male").text();
+
+		// 标签数据过滤
+		if( serviceProvider.tags.substring(0, 1).equals(",") ){
+			serviceProvider.tags = serviceProvider.tags.substring(1, serviceProvider.tags.length() - 1);
+		}
+		if( serviceProvider.tags.contains("工作属性") ){
+			serviceProvider.tags = serviceProvider.tags.split(",工作属性")[0];
+		}
+		if( serviceProvider.tags.substring(serviceProvider.tags.length()-2, serviceProvider.tags.length()-1).equals(",") ){
+			serviceProvider.tags = serviceProvider.tags.substring(0, serviceProvider.tags.length()-2);
 		}
 
 		//成员数量
@@ -421,7 +440,7 @@ public class ServiceProviderTask extends Task {
 				resume.degree_occupation = element.select("div.sp-cont > span:nth-child(1)").text();
 				resume.content = element.select("div.sp-desc.desc").text();
 				resume.org = sp_title;
-				resume.dep = element.select("div.sp-cont > span").text();
+				//resume.dep = element.select("div.sp-cont > span").text();
 
 				String time = element.select("div.sp-cont > span:nth-child(3)").text();
 
@@ -497,18 +516,18 @@ public class ServiceProviderTask extends Task {
 			}
 		}
 
-		// 注册定时任务
-		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		if(st == null) {
+
 			try {
-				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-						t.getHolder(this.getClass(), this.init_map),
-						crons
-				);
-				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st.start();
 			} catch (Exception e) {
-				logger.error("eror for creat ScheduledChromeTask", e);
+				logger.error("error for ScheduledChromeTask");
 			}
-		}
+
+		}*/
+
 
 	}
 

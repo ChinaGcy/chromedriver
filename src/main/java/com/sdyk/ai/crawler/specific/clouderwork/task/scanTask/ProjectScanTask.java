@@ -35,7 +35,7 @@ public class ProjectScanTask extends ScanTask {
 				ProjectScanTask.class,
 				"https://www.clouderwork.com/api/v2/jobs/search?pagesize=20&pagenum={{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "1", "max_page", "3")
+				ImmutableMap.of("page", "1", "max_page", "")
 		);
 	}
 
@@ -45,11 +45,11 @@ public class ProjectScanTask extends ScanTask {
 
 		super(url);
 
+	    this.setNoFetchImages();
+
 		this.setParam("page", url.split("pagenum=")[1]);
 
         this.setPriority(Priority.HIGH);
-
-	    this.setNoFetchImages();
 
         this.setValidator((a, t) -> {
 
@@ -140,6 +140,8 @@ public class ProjectScanTask extends ScanTask {
             }
             // 含有 max_page 参数，若max_page小于当前页则不进行翻页
             else {
+
+            	System.out.println("最大页" + maxPageSrc);
 
             	int maxPage = Integer.valueOf(maxPageSrc);
 	            int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));

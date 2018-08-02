@@ -7,6 +7,8 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
@@ -43,7 +45,7 @@ public class ServiceProviderTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -63,7 +65,7 @@ public class ServiceProviderTask extends Task {
 		});
 	}
 
-	public void crawler(Document doc, ChromeTask t){
+	public void crawler(Document doc, ChromeTask t) throws Exception {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
@@ -76,11 +78,17 @@ public class ServiceProviderTask extends Task {
 		//类型
 		if( serviceProvider.name.contains("公司") ){
 			serviceProvider.company_name = serviceProvider.name;
-			serviceProvider.type = "团队-公司";
 		}
+		serviceProvider.type = "团队-公司";
+
+		// 头像
+		String headImg = doc.select("#entLogo").attr("src");
+		Map<String, String> map = new HashMap<>();
+		map.put(headImg, "head_portrait");
+		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), map);
 
 		//描述
-		serviceProvider.content = StringUtil.cleanContent(doc.select("div.companyProfile").toString(), new HashSet<>());
+		serviceProvider.content = StringUtil.cleanContent(doc.select("div.companyProfile").toString().replace("展开", ""), new HashSet<>());
 
 		Elements elements = doc.select("span.reset-style");
 		for(Element element : elements){
@@ -93,9 +101,9 @@ public class ServiceProviderTask extends Task {
 					serviceProvider.team_size = Integer.valueOf(detail);
 				}
 			}
-			//公司地址
+			// 地址
 			else if ( detail.contains("省") || detail.contains("市")){
-				serviceProvider.company_address = detail;
+				serviceProvider.location = LocationParser.getInstance().matchLocation(detail).get(0).toString();
 			}
 		}
 
@@ -106,7 +114,9 @@ public class ServiceProviderTask extends Task {
 			tags.append(tagE.text());
 			tags.append(",");
 		}
-		serviceProvider.tags = tags.substring(0, tags.length()-1);
+		if( tags.length() > 0 ){
+			serviceProvider.tags = tags.substring(0, tags.length()-1);
+		}
 
 		Elements jiaMess = doc.select("div.shopPingjiaMess > ul > li");
 		for(Element element : jiaMess){
@@ -142,6 +152,13 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.project_num = Integer.valueOf(projectNum);
 		}
 
+		// 认证情况
+		Elements platform_certification = doc.select("i.certificationQIye");
+		if( platform_certification.size() > 0 ){
+			serviceProvider.platform_certification = "企业认证";
+		}
+
+
 		//交易额
 		String incom = doc.select("#header_totalAmount").text();
 		incom = CrawlerAction.getNumbers(incom);
@@ -163,44 +180,45 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.view_num = Integer.valueOf(viewNum);
 		}
 
-		//案例
-		Elements works = doc.select("div.successfulCaseDiv_right");
-		int i = 0;
-		for( Element element : works ){
-			i++;
-
-			Work work = new Work(getUrl() +"?work=" + i);
-
-			work.user_id = getId();
-
-			work.title = element.select("div.successfulCaseDiv_right_top > span:nth-child(1)").text();
-
-			work.tenderer_name = element.select("div.successfulCaseDiv_right_top > span:nth-child(2) > i").text();
-
-			String price = doc.select("div.successfulCaseDiv_right_top > span:nth-child(2) > i").text();
-			price = CrawlerAction.getNumbers(price);
-			if( !"".equals(price) ){
-				work.price = Double.valueOf(price);
-			}
-
-			work.content = doc.select("div.successfulCaseDiv_right_bottom").toString();
-
-			try{
-				work.insert();
-			} catch (Exception e) {
-				logger.error("erroe for work.insert", e);
-			}
-
-		}
-
 		String servicer_id = getUrl().replace("/bu","")
 				.replace("http://shop.jfh.com/","");
 
+		// workTask
+		Elements elements1 = doc.select("a.seeInfoBtn");
+		for( Element element : elements1 ){
+
+			String uuidSecret = element.attr("onclick")
+					.replace("showCaseInfo('", "")
+					.replace("');", "");
+
+			try {
+
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("uuidSecret", uuidSecret);
+				init_map.put("uId", serviceProvider.id);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName(
+						"com.sdyk.ai.crawler.specific.jfh.task.modelTask.WorkTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch ( Exception e) {
+
+				e.printStackTrace();
+			}
+		}
+
+		// RatingTask
 		try {
 
 			//设置参数
 			Map<String, Object> init_map = new HashMap<>();
-			init_map.put("servicer_id", servicer_id);
+			init_map.put("user_id", servicer_id);
 
 			Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderRatingTask");
 

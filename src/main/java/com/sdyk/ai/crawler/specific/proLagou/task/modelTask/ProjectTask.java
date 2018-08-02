@@ -81,7 +81,7 @@ public class ProjectTask extends Task {
 		project.title = title;
 
 		//类型
-		project.category = currentStatus;
+		project.status = currentStatus;
 
 		//招标人
 		project.tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
@@ -109,20 +109,19 @@ public class ProjectTask extends Task {
 
 		//工期
 		String timeLimt = doc.select("#project_detail > div.project_panel.fr > div:nth-child(2) > span.short_val").text();
+		int unit = 1;
 		if( timeLimt.contains("-") ){
 			timeLimt = timeLimt.split("-")[1];
 		}
 		if( timeLimt.contains("月") ){
-			timeLimt = CrawlerAction.getNumbers(timeLimt);
-			if(timeLimt != null){
-				project.time_limit = Integer.valueOf(timeLimt) * 30;
-			}
+			unit = 30;
 		}
-		else {
-			timeLimt = CrawlerAction.getNumbers(timeLimt);
-			if(timeLimt != null){
-				project.time_limit = Integer.valueOf(timeLimt);
-			}
+		else if(timeLimt.contains("周")){
+			unit = 7;
+		}
+		timeLimt = CrawlerAction.getNumbers(timeLimt);
+		if(timeLimt != null){
+			project.time_limit = Integer.valueOf(timeLimt) * unit;
 		}
 
 		//预算
@@ -161,6 +160,10 @@ public class ProjectTask extends Task {
 			project.rcmd_num = Integer.valueOf(rcmd_num);
 		}
 
+		project.category = doc.select(
+				"#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)"
+		).text().replace("/", ",");
+
 		try {
 			project.insert();
 		} catch (Exception e) {
@@ -168,27 +171,29 @@ public class ProjectTask extends Task {
 		}
 
 		if(!project.status.equals("已完成")){
-			// 此任务尚未注册
-			if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+			/*ScheduledChromeTask st = t.getScheduledChromeTask();
+			if(st == null) {
+
 				try {
-					ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-							t.getHolder(this.getClass(), this.init_map),
-							crons
-					);
-					ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st.start();
 				} catch (Exception e) {
-					logger.error("eror for creat ScheduledChromeTask", e);
+					logger.error("error for ScheduledChromeTask on projectTask");
 				}
-			}
-			// 任务已经注册过
-			else {
-				try {
-					// 增加延长时间
-					ChromeTaskScheduler.getInstance().degenerate(t._scheduledTaskId);
-				} catch (Exception e) {
-					logger.error("eror for degenerate ScheduledChromeTask", e);
+
+			}else{
+				if(!project.status.equals("已完成")){
+					st.degenerate();
 				}
-			}
+				else{
+					try {
+						st.stop();
+					} catch (Exception e) {
+						logger.error("error for ScheduledChromeTask.stop");
+					}
+				}
+			}*/
+
 		}
 	}
 

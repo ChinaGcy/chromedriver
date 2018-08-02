@@ -118,7 +118,7 @@ public class TendererRatingTask extends Task {
 			//评价时间
 			String time = element.getElementsByClass("commented-time").text();
 			try {
-				tendererRating.pubdate = DateFormatUtil.parseTime(time);
+				tendererRating.pubdate = DateFormatUtil.parseTime(time.split("评论于")[1]);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

@@ -172,7 +172,7 @@ public class TendererTask extends Task {
 		tenderer.insert();
 
 		// 注册定时任务
-		this.cronTask(t);
+		//this.cronTask(t);
 	}
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){

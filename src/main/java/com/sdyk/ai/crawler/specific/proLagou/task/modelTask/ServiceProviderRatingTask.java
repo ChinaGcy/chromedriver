@@ -25,23 +25,18 @@ public class ServiceProviderRatingTask extends com.sdyk.ai.crawler.task.Task {
 		);
 	}
 
-	public static String domain(){
-		return "proLagou";
-	}
-
-	public ServiceProviderRating serviceProviderRating;
-
 	public ServiceProviderRatingTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 
 		this.setBuildDom();
 
+		this.setNoFetchImages();
+
 		this.setPriority(Priority.HIGH);
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
-			String src = getResponse().getText();
 
 			String userUrl = getUrl().replace("#bottom_comment","");
 
@@ -59,7 +54,7 @@ public class ServiceProviderRatingTask extends com.sdyk.ai.crawler.task.Task {
 		for(Element element : elements){
 			i++;
 
-			serviceProviderRating = new ServiceProviderRating(getUrl() + "&rating" + i);
+			ServiceProviderRating serviceProviderRating = new ServiceProviderRating(getUrl() + "&rating" + i);
 
 			serviceProviderRating.project_id = one.rewind.txt.StringUtil.byteArrayToHex(
 					one.rewind.txt.StringUtil.uuid(

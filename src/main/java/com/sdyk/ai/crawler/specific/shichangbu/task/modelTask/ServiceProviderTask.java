@@ -6,6 +6,8 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.task.ChromeTask;
@@ -45,7 +47,7 @@ public class ServiceProviderTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -79,11 +81,11 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.type = "团队-公司";
 
 		//标签
-		serviceProvider.tags = doc.getElementsByClass("se-fws-header-labs").text();
+		serviceProvider.tags = doc.getElementsByClass("se-fws-header-labs").text().replace(" ",",");
 
 		//成员数量
-		String src = getResponse().getText();
-		Pattern pTeanNum = Pattern.compile("公司规模:(?<T>.+?)</span>");
+		String src = doc.toString();
+		Pattern pTeanNum = Pattern.compile("公司规模:(?<T>.+?)人");
 		Matcher mTeamNum = pTeanNum.matcher(src);
 		if( mTeamNum.find() ) {
 			String teamNum = mTeamNum.group("T");
@@ -104,8 +106,28 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.location = doc.select(
 				"body > div.se-fws-header.se-module > div > div.se-fws-header-left > div.se-fws-header-info > div:nth-child(4) > span:nth-child(1)").text();
 
+		// 公司地点
+		serviceProvider.company_address = doc.select(
+				"body > div.se-fws-header.se-module > div > div.se-fws-header-left > div.se-fws-header-info > span > span")
+				.text().replace("公司地址：", "");
+
+		// 公司网址
+		serviceProvider.company_website = doc.select("i.se-fws-header-a").text();
+
+		// 头像
+		String head_portrait = doc.select("img.se-fws-header-img").attr("src");
+		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(head_portrait));
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(head_portrait, "head_portrait");
+		BinaryDownloader.download(getUrl(), url_filename);
+
+
+		Set<String> set = new HashSet<>();
 		//内容
-		serviceProvider.content = doc.select("#se-desc").html();
+		serviceProvider.content = StringUtil.cleanContent(doc.select("#se-desc").html(), set);
+		if( set.size() > 0 ){
+			serviceProvider.content = BinaryDownloader.download(serviceProvider.content, set, getUrl());
+		}
 
 		//浏览人数
 		Pattern pViewNum = Pattern.compile("浏览(?<T>.+?)</span>");
@@ -225,17 +247,18 @@ public class ServiceProviderTask extends Task {
 			logger.error("serviceProvider.insert() error", serviceProvider.toJSON(), e);
 		}
 
-		// 注册定时任务
-		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+		ScheduledChromeTask st = t.getScheduledChromeTask();
+		if(st == null) {
+
 			try {
-				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-						t.getHolder(this.getClass(), this.init_map),
-						crons
-				);
-				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st.start();
 			} catch (Exception e) {
-				logger.error("eror for creat ScheduledChromeTask", e);
+				logger.error("error for ScheduledChromeTask");
 			}
+
+		}else{
+			st.degenerate();
 		}
 
 	}

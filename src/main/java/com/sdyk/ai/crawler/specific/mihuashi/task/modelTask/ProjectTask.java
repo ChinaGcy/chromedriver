@@ -54,7 +54,7 @@ public class ProjectTask extends Task {
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 			Document doc = getResponse().getDoc();
@@ -237,7 +237,7 @@ public class ProjectTask extends Task {
 		// 项目状态为招募中，定期更新自身
 		if( project.status.contains("未截稿") ){
 
-			this.cronTask(t);
+			//this.cronTask(t);
 
 		}
 

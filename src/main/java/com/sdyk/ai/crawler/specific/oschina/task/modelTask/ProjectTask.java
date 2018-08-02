@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
@@ -39,6 +40,8 @@ public class ProjectTask extends Task {
 
 		super(url);
 
+		this.setBuildDom();
+
 		this.setPriority(Priority.HIGH);
 
 		//this.setNoFetchImages();
@@ -49,7 +52,7 @@ public class ProjectTask extends Task {
 
 			String src = getResponse().getText();
 
-			if( src.contains("对不起") ){
+			if( src.contains("对不起") || src.contains("undefined") || src.contains("错误了") ){
 				return ;
 			}
 			// 页面正常
@@ -61,7 +64,7 @@ public class ProjectTask extends Task {
 
 	}
 
-	public void crawlerJob(Document doc, ChromeTask t){
+	public void crawlerJob(Document doc, ChromeTask t) throws Exception {
 
 		Project project = new Project(getUrl());
 
@@ -136,7 +139,8 @@ public class ProjectTask extends Task {
 
 				String[] areas = detail.split(":");
 				if( areas.length>1 ){
-					project.location = areas[1];
+					LocationParser parser = LocationParser.getInstance();
+					project.location = parser.matchLocation(areas[1]).get(0).toString();
 				}
 			}
 			// 参与人数
@@ -153,10 +157,13 @@ public class ProjectTask extends Task {
 		project.status = doc.getElementsByClass("zb-workbench-state").text();
 
 		// 行业
-		project.category = doc.select("span.zb-workbench-mark:nth-child(2)").text();
+		project.category = doc.select("span.zb-workbench-mark:nth-child(3)").text();
+		if( project.category == null || project.category.length() < 1 ){
+			project.category = doc.select("span.zb-workbench-mark:nth-child(2)").text();
+		}
 
 		// 付款方式
-		project.trade_type = doc.select("span.zb-workbench-mark:nth-child(1)").text();
+		project.trade_type = doc.select("span.zb-workbench-mark:nth-child(2)").text();
 
 		// 小标签
 		Elements tagSrc = doc.getElementsByClass("zb-workbench-btn");
@@ -165,7 +172,10 @@ public class ProjectTask extends Task {
 			tags.append(e.text());
 			tags.append(",");
 		}
-		project.tags = tags.substring(0, tags.length()-1);
+
+		if( tags.length() > 0 ){
+			project.tags = tags.substring(0, tags.length()-1);
+		}
 
 		//描述
 		project.content = StringUtil.cleanContent(doc.select("div.minh-mini").html(), new HashSet<>());
@@ -255,7 +265,7 @@ public class ProjectTask extends Task {
 		}
 
 		if( project.status.equals("竞标中") ){
-			this.cornTask(t);
+			//this.cornTask(t);
 		}
 
 	}

@@ -94,9 +94,11 @@ public class TendererTask extends Task {
 		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		//招标人描述
-		tenderer.content = "<p>" +
-				doc.select("#profile > div > div > section > section > div.prjectBox > p.overview-p").text() +
-				"</p>";
+
+		String content = doc.select("#profile > div > div > section > section > div.prjectBox > p.overview-p").text();
+		if( content != null && content.length() > 0 ){
+			tenderer.content = "<p>" + content + "</p>";
+		}
 
 		//线上消费金额
 		String totalSpendingt =doc.select("#profile > div > div > section > section > div.prjectBox > section > span:nth-child(1)").text().replaceAll("￥","");
@@ -214,18 +216,17 @@ public class TendererTask extends Task {
 
 		tenderer.insert();
 
-		// 注册定时任务
-		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		if(st == null) {
+
 			try {
-				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-						t.getHolder(this.getClass(), this.init_map),
-						crons
-				);
-				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st.start();
 			} catch (Exception e) {
-				logger.error("eror for creat ScheduledChromeTask", e);
+				logger.error("error for ScheduledChromeTask on TendererTask");
 			}
-		}
+
+		}*/
 
 	}
 

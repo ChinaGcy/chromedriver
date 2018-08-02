@@ -52,7 +52,9 @@ public class ServiceProviderTask extends Task {
 			//页面正常
 			else{
 				try {
-					crawlerJob(doc, (ChromeTask)t);
+
+					ChromeTask t_ = (ChromeTask) t;
+					crawlerJob(doc, t_);
 				} catch (ChromeDriverException.IllegalStatusException e) {
 					logger.info("error on crawlerJob",e);
 				}
@@ -61,10 +63,10 @@ public class ServiceProviderTask extends Task {
 		});
 	}
 
-	public void crawlerJob(Document doc, ChromeTask t) throws ChromeDriverException.IllegalStatusException {
+	public void crawlerJob(Document doc, ChromeTask task) throws ChromeDriverException.IllegalStatusException {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
-		List<Task> tasks = new ArrayList<Task>();
+
 		String[] url = getUrl().split("users");
 
 		try {
@@ -78,12 +80,15 @@ public class ServiceProviderTask extends Task {
 		String renzhang = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > h5 > span").text();
 		serviceProvider.name = name.replace(renzhang,"");
 
+		// 平台认真
+		serviceProvider.platform_certification = doc.select("span.enterprise").text();
+
 		//介绍
-		String content = doc.select("section.profile__summary-wrapper").html();
-		if( content != null && !"".equals(content) ) {
-			content = doc.select("section.summary").html();
+		Set<String> set = new HashSet<>();
+		serviceProvider.content = StringUtil.cleanContent( doc.select("div.summary").html(), set);
+		if( set.size() > 0 ){
+			serviceProvider.content = BinaryDownloader.download(serviceProvider.content, set, getUrl());
 		}
-		serviceProvider.content = StringUtil.cleanContent(content, new HashSet<>());
 
 		//评论数
 		String ratNum = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > section.credit > p")
@@ -146,7 +151,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.insert();
 
 		// 注册定时任务
-		this.cronTask(t);
+		//this.cronTask(task);
 
 	}
 }

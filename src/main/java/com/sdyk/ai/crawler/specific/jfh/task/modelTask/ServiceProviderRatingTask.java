@@ -2,7 +2,7 @@ package com.sdyk.ai.crawler.specific.jfh.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
@@ -13,15 +13,10 @@ import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServiceProviderRatingTask extends Task {
 
@@ -42,7 +37,7 @@ public class ServiceProviderRatingTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -65,14 +60,17 @@ public class ServiceProviderRatingTask extends Task {
 
 	public void crawler(Document doc){
 
-		List<Task> task = new ArrayList<>();
-
-		int i =0;
+		System.out.println("执行解放号乙方评论任务");
 
 		String uId = one.rewind.txt.StringUtil.byteArrayToHex(
 				one.rewind.txt.StringUtil.uuid(getUrl() + "/bu"));
 
 		Elements ratingElement = doc.select("div.companyInfomation");
+
+		ServiceProvider serviceProvider = ServiceProvider.selectById(uId);
+
+		int ratings = ratingElement.size();
+		int good_ratings = 0;
 
 		for(Element rating : ratingElement){
 
@@ -84,17 +82,24 @@ public class ServiceProviderRatingTask extends Task {
 			serviceProviderRating.project_name = rating.select("div.companyInfomationCenter > a").text();
 
 			//价格
-			String price = CrawlerAction.getNumbers(rating.select("div.companyInfomationCenter > span").text());
+			String price = CrawlerAction.getNumbers(
+					rating.select("div.companyInfomationCenter > span").text().replaceAll(",", ""));
+
 			if( !"".equals(price) ){
 				serviceProviderRating.price = Double.valueOf(price);
 			}
 
+			if( rating.select("p.population").contains("好评") ){
+				good_ratings = good_ratings + 1;
+			}
+
 			//内容
-			serviceProviderRating.content = rating.select("div.companyInfomationCenter > p:nth-child(4) > span:nth-child(2)")
-					.toString();
+			serviceProviderRating.content = com.sdyk.ai.crawler.util.StringUtil.cleanContent(
+					rating.select("div.companyInfomationCenter > p:nth-child(4) > span:nth-child(2)").toString(),
+					new HashSet<>());
 
 			//时间
-			String time = rating.select("div.companyInfomationLeft").text();
+			String time = rating.select("div.companyInfomationLeft > p:nth-child(2)").text();
 			try {
 				serviceProviderRating.pubdate = DateFormatUtil.parseTime(time);
 			} catch (ParseException e) {
@@ -112,19 +117,25 @@ public class ServiceProviderRatingTask extends Task {
 
 		}
 
+		serviceProvider.rating_num = ratings;
+		serviceProvider.praise_num = good_ratings;
+		serviceProvider.update();
+
 		//服务
 		Elements cases = doc.select("#productServerContainer > a");
 		for( Element element : cases ){
 
 			String url = element.attr("href");
+			url = url.replace("http://shop.jfh.com/","");
 
 			try {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("servicer_id", url);
+				init_map.put("user_id", url);
 
-				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.CaseTask");
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName(
+						"com.sdyk.ai.crawler.specific.jfh.task.modelTask.CaseTask");
 
 				//生成holder
 				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);

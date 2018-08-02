@@ -15,7 +15,10 @@ public class Task extends com.sdyk.ai.crawler.specific.clouderwork.task.Task {
 	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
+
 		super(url);
+
+		this.setBuildDom();
 	}
 
 	public static String domain(){
@@ -24,26 +27,16 @@ public class Task extends com.sdyk.ai.crawler.specific.clouderwork.task.Task {
 
 	public void cornTask(ChromeTask t){
 
-		// 注册定时任务
-		if( !ChromeTaskScheduler.getInstance().registered(t._scheduledTaskId) ){
+		ScheduledChromeTask st = t.getScheduledChromeTask();
+		if(st == null) {
+
 			try {
-				ScheduledChromeTask scheduledTask = new ScheduledChromeTask(
-						t.getHolder(this.getClass(), this.init_map),
-						this.crons
-				);
-				ChromeTaskScheduler.getInstance().schedule(scheduledTask);
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st.start();
 			} catch (Exception e) {
-				logger.error("eror for creat ScheduledChromeTask", e);
+				logger.error("error for ScheduledChromeTask");
 			}
-		}
-		// 任务已经注册过
-		else {
-			try {
-				// 增加延长时间
-				ChromeTaskScheduler.getInstance().degenerate(t._scheduledTaskId);
-			} catch (Exception e) {
-				logger.error("eror for degenerate ScheduledChromeTask", e);
-			}
+
 		}
 
 	}

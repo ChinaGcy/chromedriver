@@ -30,7 +30,7 @@ public class ServiceScanTask extends ScanTask {
 				ServiceScanTask.class,
 				"https://www.mihuashi.com/artists?page={{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page","", "max_page", "3")
+				ImmutableMap.of("page","", "max_page", "")
 		);
 	}
 

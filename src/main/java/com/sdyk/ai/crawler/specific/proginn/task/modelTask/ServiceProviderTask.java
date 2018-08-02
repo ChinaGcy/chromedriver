@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
@@ -57,11 +58,9 @@ public class ServiceProviderTask extends Task {
 
 	}
 
-	public void crawlerJob(Document doc, ChromeTask t) {
+	public void crawlerJob(Document doc, ChromeTask t) throws Exception {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
-
-		List<Task> task = new ArrayList<>();
 
 		//原网站ID
 		serviceProvider.origin_id = getUrl().split("wo/")[1];
@@ -91,15 +90,17 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.position = introductions[2];
 		}
 		//信息不全时
-		else if( introduction.length() ==2 ) {
+		else if( introductions.length ==2 ) {
 
-			if( introductions[0].contains("公司") ){
-				serviceProvider.company_name = introductions[0];
-			}
-			//不是公司信息
-			else {
+			Elements icon1 = doc.select("div.introduction > i.arrow.location.icon");
+
+			if( icon1 != null && icon1.size() > 0 ){
 				serviceProvider.location = introductions[0];
 			}
+			else{
+				serviceProvider.company_name = introductions[0];
+			}
+
 			serviceProvider.position = introductions[1];
 		}
 
@@ -115,14 +116,14 @@ public class ServiceProviderTask extends Task {
 				doc.select("#J_WoMainContent > div:nth-child(1) > div").toString(), new HashSet<>());
 
 		//点赞
-		String zan = doc.select("#J_WoMainContent > div:nth-child(8) > a > em").text();
+		String zan = doc.select("#J_WoMainContent > div:nth-child(6) > a > em").text();
 		zan = CrawlerAction.getNumbers(zan);
 		if( !"".equals(zan) ){
 			serviceProvider.like_num = Integer.valueOf(zan);
 		}
 
 		//浏览数
-		String updateView = doc.select("#J_WoMainContent > div:nth-child(8) > div").text();
+		String updateView = doc.select("div.ui.icon.compact.button").text();
 		String[] views = updateView.split("浏览");
 		if( views.length > 1 ){
 			String view = CrawlerAction.getNumbers(views[1]);
@@ -133,7 +134,8 @@ public class ServiceProviderTask extends Task {
 
 		//更新时间
 		try {
-			serviceProvider.update_time = DateFormatUtil.parseTime(updateView);
+			serviceProvider.update_time = DateFormatUtil.parseTime(
+					updateView.replace("更新于: ", "").split(" ")[0]);
 		} catch (ParseException e) {
 			logger.error("error for String to Date", e);
 		}
@@ -142,7 +144,7 @@ public class ServiceProviderTask extends Task {
 		String favNum = doc.select("body > div.main > div > div.four.wide.column.side-profile > div.stats > dl:nth-child(2) > dd > a").text();
 		favNum = CrawlerAction.getNumbers(favNum);
 		if( !"".equals(favNum) ){
-			serviceProvider.fav_num = Integer.valueOf(favNum);
+			serviceProvider.like_num = Integer.valueOf(favNum);
 		}
 
 		//粉丝
@@ -216,7 +218,8 @@ public class ServiceProviderTask extends Task {
 			String workLocation = doc.select("body > div.main > div > div.four.wide.column.side-profile > div.hire-info > p:nth-child(2)")
 					.text().replace("可工作地点: ", "").replace("远程", "");
 			if( workLocation != null && workLocation.length() > 1){
-				serviceProvider.location = workLocation;
+				serviceProvider.location = LocationParser.getInstance().matchLocation(workLocation).size() > 0 ?
+						LocationParser.getInstance().matchLocation(workLocation).get(0).toString() : null;
 			}
 		}
 
@@ -292,6 +295,8 @@ public class ServiceProviderTask extends Task {
 			j++;
 			ServiceProviderRating serviceProviderRating = new ServiceProviderRating(getUrl() + "?rating=" + j);
 
+			serviceProviderRating.service_provider_id = serviceProvider.id;
+
 			serviceProviderRating.tenderer_name = element.select("a.author").text();
 			String tendererUrl = "https://www.proginn.com/"
 					+ element.select("a.author").attr("href");
@@ -299,7 +304,7 @@ public class ServiceProviderTask extends Task {
 			serviceProviderRating.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 					one.rewind.txt.StringUtil.uuid(tendererUrl));
 
-			serviceProviderRating.content = element.select("div.text").text();
+			serviceProviderRating.content = "<p>" + element.select("div.text").text() + "</p>";
 
 			String ratingTime = element.select("div.date").text();
 			try {
@@ -334,15 +339,18 @@ public class ServiceProviderTask extends Task {
 		Elements workList = doc.select("div.work-list > ul > li");
 		for( Element element : workList ){
 
-			String workUrl = "https://www.proginn.com"
-					+ element.select("a.media").attr("href");
+			String workUrl = element.select("a.media").attr("href");
+			String like_num = element.select("a.plus_button > em").text();
 
 			try {
 
 				//设置参数
 				Map<String, Object> init_map = new HashMap<>();
 				init_map.put("work_id", workUrl);
-				init_map.put("uId", getId());
+				//init_map.put("uId", getId());
+				if( like_num != null ){
+					init_map.put("like_num", like_num);
+				}
 
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
 
@@ -358,6 +366,8 @@ public class ServiceProviderTask extends Task {
 			}
 
 		}
+
+		serviceProvider.project_num = workList.size();
 
 		try{
 			serviceProvider.insert();
