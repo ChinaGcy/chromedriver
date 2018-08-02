@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -54,9 +55,15 @@ public class LocationParserTest {
 	@Test
 	public void tryParse() {
 
-		for( String s : map.keySet() ){
-			Assert.assertEquals(parser.matchLocation(s).get(0).toString(), map.get(s));
+		String src = "杭州";
+		List<LocationParser.Location> locations = (List<LocationParser.Location>) parser.matchLocation(src);
+		for( LocationParser.Location l : locations ){
+			System.out.println(l.toString());
 		}
+
+		/*for( String s : map.keySet() ){
+			Assert.assertEquals(parser.matchLocation(s).get(0).toString(), map.get(s));
+		}*/
 	}
 
 	@Test

@@ -120,7 +120,8 @@ public class  ChromeDriverAgentTest {
 	public void noFetchImagesTest() throws MalformedURLException, URISyntaxException, ChromeDriverException.IllegalStatusException, InterruptedException {
 
 		ChromeTask t = new ChromeTask("https://beijing.zbj.com/").setNoFetchImages();
-		ChromeTask t2 = new ChromeTask("https://www.baidu.com/s?word=ip").setNoFetchImages();
+		ChromeTask t2 = new ChromeTask("http://www.shichangbu.com/portal.php?mod=product&op=view&id=2244").setNoFetchImages();
+		// http://www.shichangbu.com/portal.php?mod=product&op=view&id=2244
 
 		Proxy proxy = new ProxyImpl("scisaga.net", 60103, null, null);
 		ChromeDriverAgent agent = new ChromeDriverAgent(ChromeDriverAgent.Flag.MITM);

@@ -1,15 +1,38 @@
 package com.sdyk.ai.crawler.versions;
 
+import com.sdyk.ai.crawler.model.witkey.Project;
 import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.util.Date;
 
 public class StringTest {
 
 	@Test
 	public void test(){
 
-		Object a = 1;
+		int a = 1;
+		int b = 2;
 
-		System.out.println(a.toString().equals(""));
+		Date c = new Date();
+		Date d = new Date();
+
+		System.out.println(String.valueOf(d).equals(String.valueOf(c)));
+		System.out.println(String.valueOf(c));
+
+	}
+
+	@Test
+	public void trstField(){
+
+		Project project = new Project("http://www.baidu.com");
+
+		Field[] fieldList = project.getClass().getDeclaredFields();
+
+		for(Field f : fieldList) {
+
+			System.out.println(f.getName());
+		}
 
 	}
 

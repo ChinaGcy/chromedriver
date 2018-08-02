@@ -31,7 +31,7 @@ public class ChromeDriverDistributorRemoteTest {
 	@Before
 	public void loadClass() throws Exception {
 
-		Class.forName(TestChromeTask.class.getName());
+		Class.forName(one.rewind.io.requester.test.TestChromeTask.class.getName());
 
 		/*ChromeTaskHolder holder = new ChromeTaskHolder(
 

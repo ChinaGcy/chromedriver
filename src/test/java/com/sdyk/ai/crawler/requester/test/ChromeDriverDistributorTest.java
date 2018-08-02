@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.requester.test;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.docker.model.DockerHost;
@@ -9,7 +10,9 @@ import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
+import one.rewind.io.requester.chrome.action.PostAction;
 import one.rewind.io.requester.chrome.action.RedirectAction;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -34,10 +37,10 @@ public class ChromeDriverDistributorTest {
 	@Before
 	public void loadClass() throws Exception {
 
-		Class.forName(TestChromeTask.class.getName());
-		Class.forName(TestChromeTask.T1.class.getName());
-		Class.forName(TestChromeTask.T2.class.getName());
-		Class.forName(TestChromeTask.T3.class.getName());
+		Class.forName(one.rewind.io.requester.test.TestChromeTask.class.getName());
+		Class.forName(one.rewind.io.requester.test.TestChromeTask.T1.class.getName());
+		Class.forName(one.rewind.io.requester.test.TestChromeTask.T2.class.getName());
+		Class.forName(one.rewind.io.requester.test.TestChromeTask.T3.class.getName());
 		Class.forName(TestFailedChromeTask.class.getName());
 	}
 
@@ -66,12 +69,12 @@ public class ChromeDriverDistributorTest {
 
 			if(i%2 == 0) {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(
-						TestChromeTask.T1.class, ImmutableMap.of("q", String.valueOf(1950 + i)));
+						one.rewind.io.requester.test.TestChromeTask.T1.class, ImmutableMap.of("q", String.valueOf(1950 + i)));
 
 				Map<String, Object> info = distributor.submit(holder);
 			} else {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(
-						TestChromeTask.T2.class, ImmutableMap.of("k", String.valueOf(1950 + i)));
+						one.rewind.io.requester.test.TestChromeTask.T2.class, ImmutableMap.of("k", String.valueOf(1950 + i)));
 
 				Map<String, Object> info = distributor.submit(holder);
 			}
@@ -98,7 +101,7 @@ public class ChromeDriverDistributorTest {
 		for(int i=0; i<10; i++) {
 
 			ChromeTaskHolder holder = ChromeTask.buildHolder(
-					TestChromeTask.T3.class,
+					one.rewind.io.requester.test.TestChromeTask.T3.class,
 					ImmutableMap.of("k", String.valueOf(1950 + i)));
 
 			Map<String, Object> info = distributor.submit(holder);
@@ -127,7 +130,7 @@ public class ChromeDriverDistributorTest {
 		distributor.layout();
 
 		ChromeTaskHolder holder = ChromeTask.buildHolder(
-				TestChromeTask.T3.class, ImmutableMap.of("k", String.valueOf(1950)));
+				one.rewind.io.requester.test.TestChromeTask.T3.class, ImmutableMap.of("k", String.valueOf(1950)));
 
 		Map<String, Object> info = ChromeTaskScheduler.getInstance().schedule(new ScheduledChromeTask(holder, "* * * * *"));
 
@@ -165,7 +168,7 @@ public class ChromeDriverDistributorTest {
 		for(int i=0; i<1; i++) {
 
 			ChromeTaskHolder holder =
-					ChromeTask.buildHolder(TestChromeTask.T1.class, ImmutableMap.of("q", "ip"));
+					ChromeTask.buildHolder(one.rewind.io.requester.test.TestChromeTask.T1.class, ImmutableMap.of("q", "ip"));
 
 			distributor.submit(holder);
 		}
@@ -367,7 +370,7 @@ public class ChromeDriverDistributorTest {
 		// distributor.layout();
 
 		ChromeTaskHolder holder = ChromeTask.buildHolder(
-				TestChromeTask.T4.class, ImmutableMap.of("q", String.valueOf(1950)));
+				one.rewind.io.requester.test.TestChromeTask.T4.class, ImmutableMap.of("q", String.valueOf(1950)));
 
 		distributor.submit(holder);
 
@@ -389,11 +392,59 @@ public class ChromeDriverDistributorTest {
 		// distributor.layout();
 
 		ChromeTaskHolder holder = ChromeTask.buildHolder(
-				TestChromeTask.T5.class, ImmutableMap.of("q", String.valueOf(1950), "max_page", 60));
+				one.rewind.io.requester.test.TestChromeTask.T5.class, ImmutableMap.of("q", String.valueOf(1950), "max_page", 60));
 
 		distributor.submit(holder);
 
 		Thread.sleep(600000);
 
 	}
+
+	@Test
+	public void testPostRequest() throws Exception {
+
+		String url = "https://www.jfh.com/jfhrm/buinfo/showbucaseinfo";
+		Map<String, String> data = ImmutableMap.of("uuidSecret", "MTQxODM7NDQ%3D");
+
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		agent.start();
+
+		ChromeTask task = new ChromeTask(url);
+		task.addAction(new PostAction(url, data));
+		agent.submit(task);
+	}
+
+	@Test
+	public void testResponseFilter() throws Exception {
+
+		String url = "https://www.mihuashi.com/users/Nianless?role=employer";
+
+		//Proxy proxy = new ProxyImpl("10.0.0.56", 49999, null, null);
+		ChromeDriverAgent agent = new ChromeDriverAgent(ChromeDriverAgent.Flag.MITM);
+
+		agent.start();
+
+		ChromeTask task = new ChromeTask(url);
+
+		task.addAction(new ClickAction("#users-show > div.container-fluid > div.profile__container > main > header > ul > li:nth-child(2) > a", 1000));
+
+		task.addAction(new LoadMoreContentAction("#vue-comments-app > div:nth-child(2) > a > span:nth-child(1)"));
+
+		task.setResponseFilter((response, contents, messageInfo) -> {
+
+			if(messageInfo.getOriginalUrl().matches(".*?/users/Nianless/comments\\?role=employer&per=\\d+&page=\\d+")) {
+				task.getResponse().setVar("content",
+						task.getResponse().getVar("content") == null?
+								contents.getTextContents() :
+								task.getResponse().getVar("content") + "\n" + contents.getTextContents());
+			}
+		});
+
+		agent.submit(task);
+
+		System.err.println(task.getResponse().getVar("content"));
+
+		Thread.sleep(10000000);
+	}
 }
+
