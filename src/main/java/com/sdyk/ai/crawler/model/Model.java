@@ -186,7 +186,6 @@ public abstract class Model {
 	}
 
 	public void createSnapshot(Model oldVersion) throws Exception {
-		System.out.println("111");
 	}
 
 	/**
@@ -272,4 +271,5 @@ public abstract class Model {
 		}
 
 	}
+
 }

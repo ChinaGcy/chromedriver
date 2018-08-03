@@ -198,6 +198,10 @@ public class ServiceProvider extends Model {
 	@DatabaseField(dataType = DataType.STRING, width = 1024)
 	public String attachment_ids;
 
+	// 原网站 domain
+	@DatabaseField(dataType = DataType.INTEGER, width = 4)
+	public int domain_id;
+
 	public ServiceProvider() {}
 
 	public ServiceProvider(String url) {

@@ -26,7 +26,7 @@ public class TaskTrace implements JSONable {
 	private transient Long id;
 
 	// 删除 uniqueCombo = true 配置，实时数据重采出错
-	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, indexName = "scanindex")
+	@DatabaseField(dataType = DataType.STRING, width = 512, canBeNull = false, indexName = "scanindex")
 	public String type;
 
 	@DatabaseField(dataType = DataType.STRING, width = 64, canBeNull = false, indexName = "scanindex")
@@ -41,7 +41,7 @@ public class TaskTrace implements JSONable {
 	public TaskTrace() {};
 
 	public TaskTrace(Class clazz, String channel, String page) {
-		this.type = clazz.getSimpleName();
+		this.type = clazz.getName();
 		this.channel = channel;
 		this.page = page;
 	}
