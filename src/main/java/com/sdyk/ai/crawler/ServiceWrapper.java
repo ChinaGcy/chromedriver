@@ -6,9 +6,6 @@ import one.rewind.io.server.MsgTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.Map;
-
 import static spark.Spark.*;
 
 public class ServiceWrapper {
@@ -117,6 +114,9 @@ public class ServiceWrapper {
 			post("/get_contact/:id", ZbjRoute.getContactByProjectId, new ModelMsgTransformer());
 
 		});
+
+		// 查询地区
+		get("/location/parse", LocationParserRoute.parseLocation, new MsgTransformer());
 
 		// 适用于跨域调用
 		after((request, response) -> {

@@ -7,7 +7,7 @@ import one.rewind.json.JSONable;
 import spark.ResponseTransformer;
 
 
-public class ModelMsgTransformer implements ResponseTransformer {
+public class  ModelMsgTransformer implements ResponseTransformer {
 
 	private ObjectMapper mapper = new ObjectMapper();
 
