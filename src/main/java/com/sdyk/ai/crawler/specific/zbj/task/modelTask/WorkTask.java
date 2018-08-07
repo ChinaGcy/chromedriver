@@ -84,10 +84,10 @@ public class WorkTask extends Task {
 		// 获取work类型
 		String src_ = getString(
 				"body > div.det-bg.yahei > div.det-content.clearfix > div.det-middle.clearfix > div.det-right.fr > div.det-middle-content > ul",
-				"") + " ";
+				"");
 		Pattern pattern = Pattern.compile(".*客户名称：(?<T>.+?)\\s+");
-		Pattern pattern_type = Pattern.compile(".*类型.*： ?(?<T>.+?)\\s+");
-		Pattern pattern_field = Pattern.compile(".*行业.*： ?(?<T>.+?)\\s+");
+		Pattern pattern_type = Pattern.compile(".*类型.*?： *(?<T>.+?)\\s+");
+		Pattern pattern_field = Pattern.compile("行业.*?： *(?<T>.+?)\\s+");
 		Matcher matcher = pattern.matcher(src_);
 		Matcher matcher_type = pattern_type.matcher(src_);
 		Matcher matcher_field = pattern_field.matcher(src_);
@@ -95,8 +95,9 @@ public class WorkTask extends Task {
 		if (matcher.find()) {
 			work.tenderer_name = matcher.group("T");
 		}
-		if (matcher_type.find()) {
-			work.tags = matcher_type.group("T");
+		while (matcher_type.find()) {
+			work.tags = "";
+			work.tags = work.tags + matcher_type.group("T");
 		}
 		if (matcher_field.find()) {
 			work.category = matcher_field.group("T");

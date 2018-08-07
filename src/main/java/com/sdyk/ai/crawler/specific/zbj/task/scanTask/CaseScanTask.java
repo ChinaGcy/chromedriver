@@ -29,7 +29,7 @@ public class CaseScanTask extends ScanTask {
 	static {
 		registerBuilder(
 				CaseScanTask.class,
-				"http://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html",
+				"https://shop.zbj.com/{{user_id}}/servicelist-p{{page}}.html",
 				ImmutableMap.of("user_id", String.class,"page", String.class),
 				ImmutableMap.of("user_id", "0", "page", "0"),
 				false,
@@ -39,28 +39,15 @@ public class CaseScanTask extends ScanTask {
 
 	public static List<String> list = new ArrayList<>();
 
-	/*//   http://shop.zbj.com/7523816/
-	public static CaseScanTask generateTask(String uid, int page) {
-
-		String url = "http://shop.zbj.com/" + uid + "/servicelist-p" + page + ".html";
-
-		try {
-			CaseScanTask t = new CaseScanTask(url, uid, page);
-			return t;
-		} catch (MalformedURLException | URISyntaxException | ProxyException.Failed e) {
-			e.printStackTrace();
-		}
-		return null;
-	}*/
+	String user_Id;
 
 	/**
 	 *
 	 * @param url
-	 * @param i
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public CaseScanTask(String url, int i) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public CaseScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
 
@@ -71,13 +58,14 @@ public class CaseScanTask extends ScanTask {
 
 			String userId = null;
 			int page = 0;
-			Pattern pattern_url = Pattern.compile("http://shop.zbj.com/(?<userId>.+?)\\/servicelist-p(?<page>.+?).html");
+			Pattern pattern_url = Pattern.compile("https://shop.zbj.com/(?<userId>.+?)\\/servicelist-p(?<page>.+?).html");
 			Matcher matcher_url = pattern_url.matcher(url);
 			if (matcher_url.find()) {
 				userId = matcher_url.group("userId");
 				page = Integer.parseInt(matcher_url.group("page"));
 			}
 
+			user_Id = userId;
 			try {
 
 				String src = getResponse().getText();
@@ -128,7 +116,7 @@ public class CaseScanTask extends ScanTask {
 
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), this.getParamString("uid"), this.getParamString("page"));
+		return new TaskTrace(this.getClass(), user_Id, this.getParamString("page"));
 	}
 
 	/**

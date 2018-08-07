@@ -50,11 +50,11 @@ public class Case extends Model {
 
 	// 工作速度
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double work_speed;
+	public double service_speed;
 
 	// 完成质量
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public double complete_quality;
+	public double service_quality;
 
 	// 购买人数
 	@DatabaseField(dataType = DataType.INTEGER)

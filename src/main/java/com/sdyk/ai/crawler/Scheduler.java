@@ -15,6 +15,7 @@ import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginAction;
+import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
@@ -381,7 +382,18 @@ public class Scheduler {
 
 						try {
 
-							account = AccountManager.getInstance().getAccountByDomain(d);
+							if(d.contains("zbj")) {
+								//account = AccountManager.getInstance().getAccountByDomain(d);
+
+								System.err.println(account.toJSON());
+
+								ChromeTask task = new ChromeTask("https://www.zbj.com");/*.addAction(new LoginWithGeetestAction(account));*/
+								//System.err.println(task.getActions().size());
+								((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, task);
+
+							}
+
+							/*account = AccountManager.getInstance().getAccountByDomain(d);
 
 							if(account != null) {
 
@@ -396,7 +408,7 @@ public class Scheduler {
 
 							} else {
 								return;
-							}
+							}*/
 
 						} catch (Exception e) {
 							logger.info("Error get {}:{}. ", d, account, e);

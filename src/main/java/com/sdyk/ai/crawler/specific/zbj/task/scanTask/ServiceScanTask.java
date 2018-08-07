@@ -27,73 +27,72 @@ public class ServiceScanTask extends ScanTask {
 
 	static {
 		registerBuilder(
-				ProjectSuccessSacnTask.class,
-				"https://www.zbj.com/{{channel}}/pk{page}.html",
-				ImmutableMap.of("channel", String.class,"page", String.class),
-				ImmutableMap.of("channel", "all", "page", "0"),
+				ServiceScanTask.class,
+				"https://www.zbj.com/home/pk{{page}}.html",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page", "1"),
 				false,
 				Priority.MEDIUM
 		);
 	}
 
-	/*public static ServiceScanTask generateTask(String channel, int page) {
-
-		String url = "https://www.zbj.com/" + channel + "/pk" + page + ".html";
-
-		try {
-			ServiceScanTask t = new ServiceScanTask(url, channel, page);
-			return t;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}*/
+	String page_;
 
 	/**
 	 *
 	 * @param url
-	 * @param i
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ServiceScanTask(String url, int i) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public ServiceScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
+
 		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback((t) -> {
 
-			String channel = null;
 			int page = 0;
-			Pattern pattern_url = Pattern.compile("https://www.zbj.com/(?<channel>.+?)\\/pk(?<page>.+?).html");
+			Pattern pattern_url = Pattern.compile("https://www.zbj.com/home/pk(?<page>\\d+)");
 			Matcher matcher_url = pattern_url.matcher(url);
 			if (matcher_url.find()) {
-				channel = matcher_url.group("channel");
 				page = Integer.parseInt(matcher_url.group("page"));
 			}
-
+			page_ = page + "";
 			try {
 
 				String src = getResponse().getText();
 
-				Document document = getResponse().getDoc();
 
-				Pattern pattern = Pattern.compile("//shop.zbj.com/\\d+/");
+				Pattern pattern = Pattern.compile("//shop.zbj.com/(?<userid>\\d+)/");
 				Matcher matcher = pattern.matcher(src);
-
-				List<String> list = new ArrayList<>();
 
 				while (matcher.find()) {
 
-					String new_url = "https:" + matcher.group();
+					String user_id = matcher.group("userid");
+					try {
 
-					if (!list.contains(new_url)) {
+						try {
 
-						list.add(new_url);
+							//设置参数
+							Map<String, Object> init_map = ImmutableMap.of("user_id", user_id);
 
+							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask");
+
+							//生成holder
+							ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+							//提交任务
+							ChromeDriverDistributor.getInstance().submit(holder);
+
+						} catch ( Exception e) {
+
+							logger.error("error for submit ProjectTask.class", e);
+						}
+
+
+					} catch (Exception e) {
+						logger.error(e);
 					}
 				}
 
@@ -108,8 +107,8 @@ public class ServiceScanTask extends ScanTask {
 					try {
 
 						//设置参数
-						Map<String, Object> init_map = new HashMap<>();
-						ImmutableMap.of("channel", channel,"page", String.valueOf(page+40));
+						Map<String, Object> init_map = ImmutableMap.of("page", String.valueOf(page+40));
+
 
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask");
 
@@ -134,7 +133,7 @@ public class ServiceScanTask extends ScanTask {
 	}
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
+		return new TaskTrace(this.getClass(), "service", page_);
 	}
 
 }

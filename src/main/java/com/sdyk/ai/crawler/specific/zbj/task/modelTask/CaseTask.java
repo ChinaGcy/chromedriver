@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Case;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
@@ -16,14 +17,16 @@ import java.util.regex.Pattern;
  */
 public class CaseTask extends Task {
 
-	/*static {
-		// init_map_class
-		init_map_class = ImmutableMap.of("user_id", String.class,"case_id", String.class);
-		// init_map_defaults
-		init_map_defaults = ImmutableMap.of("user_id", "0","case_id", "0");
-		// url_template
-		url_template = "https://shop.zbj.com/{{user_id}}/sid-{{case_id}}.html";
-	}*/
+	static {
+		registerBuilder(
+				CaseTask.class,
+				"https://shop.zbj.com/{{user_id}}/sid-{{case_id}}.html",
+				ImmutableMap.of("user_id", String.class,"case_id", String.class),
+				ImmutableMap.of("user_id", "0", "case_id", "0"),
+				false,
+				Priority.MEDIUM
+		);
+	}
 
 	Case ca;
 
@@ -62,7 +65,7 @@ public class CaseTask extends Task {
 
 					// 以下是两个页面共有的信息
 					// 二进制文件下载
-					String description_src = doc.select("#J-content").html();
+					String description_src = doc.select("#J-description").html();
 
 					try {
 						ca.content = download(description_src);
@@ -71,7 +74,9 @@ public class CaseTask extends Task {
 					}
 
 					try {
-						ca.insert();
+						System.err.println(ca.toJSON());
+
+						//ca.insert();
 					} catch (Exception e) {
 						logger.error(e);
 					}
@@ -88,10 +93,10 @@ public class CaseTask extends Task {
 	public void budgetZBJ(Document doc) {
 
 		try {
-			double[] budget = StringUtil.budget_all(doc,"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-cost-warp.yahei.clearfix.qrcode-version > div.cost-with-qrcode > dl.cost-panel.app-cost-panel.hot-cost > dd > span.cost",
+			double[] budget = StringUtil.budget_all(doc,"body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode.no-app-price > dl.price-panel.app-price-panel.hot-price > dd > span.price",
 					"");
 			if (budget[0] == 0.00 && budget[1] == 0.00) {
-				budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-cost-warp.yahei.clearfix.qrcode-version > div.cost-with-qrcode.no-app-cost > dl:nth-child(1) > dd > span.cost",
+				budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div.price-with-qrcode.no-app-price > dl:nth-child(1) > dd > span.price",
 						"");
 				ca.budget_lb = budget[0];
 				ca.budget_ub = budget[1];
@@ -112,7 +117,7 @@ public class CaseTask extends Task {
 	public void budgetTPW(Document doc) {
 
 		try {
-			double[] budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-cost-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.cost",
+			double[] budget = StringUtil.budget_all(doc, "body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-price-warp.yahei.clearfix.qrcode-version > div > dl:nth-child(1) > dd > span.price",
 					"");
 			ca.budget_lb = budget[0];
 			ca.budget_ub = budget[1];
@@ -131,9 +136,8 @@ public class CaseTask extends Task {
 		ca.title = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > h2",
 				"");
 
-		// body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong
-		/*ca.time_limit = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong",
-				"");*/
+		ca.time_limit = getString("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-other-number.clearfix > div.service-complate-time > strong",
+				"");
 
 		// 价格预算
 		budgetZBJ(doc);
@@ -144,10 +148,10 @@ public class CaseTask extends Task {
 		ca.service_attitude = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li.first > strong",
 				"");
 
-		ca.work_speed = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(2) > strong",
+		ca.service_speed = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(2) > strong",
 				"");
 
-		ca.complete_quality = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(3) > strong",
+		ca.service_quality = getDouble("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > ul > li:nth-child(3) > strong",
 				"");
 
 		ca.rating = getFloat("body > div.grid.service-main.J-service-main.J-refuse-external-link > div.service-main-r > div.service-comment-warp.J-service-comment-warp > div.service-star-warp.clearfix > div.service-star-box > div.service-star-score",
@@ -168,6 +172,7 @@ public class CaseTask extends Task {
 		if (matcher_tags.find()) {
 			ca.category = matcher_tags.group("T");
 		}
+
 	}
 
 	/**

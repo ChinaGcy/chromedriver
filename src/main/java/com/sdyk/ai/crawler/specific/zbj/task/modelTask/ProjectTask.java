@@ -66,7 +66,9 @@ public class ProjectTask extends Task {
 			try {
 
 				String src = getResponse().getText();
+
 				Document doc = getResponse().getDoc();
+
 				String tenderer_webId = null;
 
 				FileUtil.writeBytesToFile(src.getBytes(), "project.html");
@@ -84,16 +86,18 @@ public class ProjectTask extends Task {
 					return;
 				}
 
-				// TODO 补充示例页面 channel: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
+				// TODO 猪八戒页面更新
+				// 补充示例页面 channel: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
 				// A 无法请求页面内容 #headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
-				//#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title
+				//#headerNavWrap > div:nth-child(1) > div > a
 				if (pageAccessible(src)) {
 					String header;
-					header = doc.select("#headerNavWrap > div.header-nav-width-ctrl > div.header-nav.clearfix > div.header-nav-sub-title").text();
+					header = doc.select("#j-zbj-header-bd-wrap > div > div.bd-logo.clearfix > a > h1").text();
 
+					//#j-zbj-header-bd-wrap > div > div.bd-logo.clearfix > a > h1
 					if (header == null || header.equals("")) {
-						header = doc.select("#headerNavWrap > div.header-nav-width-ctrl > div.header-nav.clearfix > a").text();
+						header = doc.select("#headerNavWrap > div:nth-child(1) > div > div.header-nav-sub-title").text();
 					}
 
 					// B1 页面格式1 ：http://task.zbj.com/12954152/
@@ -119,7 +123,7 @@ public class ProjectTask extends Task {
 
 
 					// TODO 调用需求评分接口
-					try {
+					/*try {
 
 						String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
 						ChromeTask chromeTask = new ChromeTask(Project_url);
@@ -127,28 +131,30 @@ public class ProjectTask extends Task {
 						BasicRequester.getInstance().submit(t);
 					} catch (Exception e) {
 						logger.error("Error calculate project rating. ", e);
-					}
+					}*/
 
 					try {
 
-						//设置参数
-						Map<String, Object> init_map = new HashMap<>();
-						ImmutableMap.of("tenderer_id", tenderer_webId);
+						if (tenderer_webId != null && tenderer_webId.length() > 0) {
 
-						Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask");
+							//设置参数
+							Map<String, Object> init_map = ImmutableMap.of("tenderer_id", tenderer_webId);
 
-						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+							Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask");
 
-						//提交任务
-						ChromeDriverDistributor.getInstance().submit(holder);
+							//生成holder
+							ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+							//提交任务
+							ChromeDriverDistributor.getInstance().submit(holder);
+						}
 
 					} catch (Exception e) {
 
 						logger.error("error for submit TendererTask.class", e);
 					}
-
 				}
+
 			} catch (Exception e) {
 				logger.error("", e);
 			}
@@ -230,10 +236,11 @@ public class ProjectTask extends Task {
 	 */
 	public void projectStateTwo(Document doc) {
 
-		// 项目状态  #trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.piecework.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(3)
-		//          #trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.timeline > div > div > ul > li.current > p:nth-child(2)
+		// 项目状态
+		// A 当前状态
 		String status = doc.select(".timeline > div > div > ul > li.current > p:nth-child(3)")
 					.text();
+		// B 结束状态
 		String status1 = doc.select(".timeline > div > div > ul > li.current > p:nth-child(2)")
 				.text();
 		Elements elements = doc.select(".timeline > div > div > ul > li");
@@ -245,14 +252,16 @@ public class ProjectTask extends Task {
 			project.status = elements.get(elements.size()-1).select(" p:nth-child(2)").text() + " - "
 					+ getString(".main-content > div.header-banner > i", "");;
 			project.due_time = null;
+		// 未完成
 		} else {
 
+			// 停止/关闭 状态
 			if (time.equals("") || time == null ) {
-				project.status = status1 + " - " + getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+				project.status = status1 + " - " + getString(".main-content > div.header-banner > i", "");
 				project.due_time = null;
-
+				// 正常 状态
 			} else {
-				project.status = status + " - " + getString("#trade-content > div.page-info-content.clearfix > div.main-content > div.header-banner > i", "");
+				project.status = status + " - " + getString(".main-content > div.header-banner > i", "");
 				project.due_time = new Date(Long.valueOf(time)*1000 + System.currentTimeMillis());
 			}
 		}
@@ -285,7 +294,7 @@ public class ProjectTask extends Task {
 				.attr("src")
 				.split("\\.")[2];
 
-		System.err.println(link);
+		//https://avatar.zbjimg.com/014/00/94/200x200_avatar_48.jpg!middle
 
 		String[] links = link.split("/");
 
@@ -303,9 +312,7 @@ public class ProjectTask extends Task {
 		if (matcher.find()) {
 			project.reward_type = one.rewind.txt.StringUtil.removeHTML(matcher.group("rewardType"));
 		}
-		System.err.println("********" + s1 + links[2] + links[3] + ss);
 		return "" + s1 + links[2] + links[3] + ss;
-
 	}
 
 	/**
@@ -352,7 +359,6 @@ public class ProjectTask extends Task {
 
 		try {
 
-			project.type = head;
 			// 项目是否可投标，以及投标数量
 			finishProject(src, doc);
 
@@ -377,7 +383,7 @@ public class ProjectTask extends Task {
 					.replace("</label>", "")
 					.replace("<label>", "");
 
-			project.content = download(description_src);
+			project.content = download(description_src).replaceAll("<p>附件:.+?下载</p>", "");
 
 			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.content));
 
@@ -450,19 +456,25 @@ public class ProjectTask extends Task {
 
 		try {
 
-			project.type = head;
-
 			project.title = getString(
 					".wrapper.header-block-div > h1", "");
 
+			//#utopia_widget_2 > li:nth-child(1)
 			project.category = getString(
 					"#utopia_widget_2 > li:nth-child(2) > a",
-					"");
+					"").replace(">", "");
 
 			Elements elements = doc.select("#utopia_widget_2 > li");
 			project.tags = "";
 			for (int i = 2; i < elements.size(); i++) {
-				project.tags = project.tags + elements.get(i).text();
+				if (i == elements.size()-1 ) {
+					project.tags = project.tags + elements.get(i).text().replace(">", "");
+				}else {
+					project.tags = project.tags + elements.get(i).text().replace(">", ",");
+				}
+			}
+			if (project.tags.length() == 0) {
+				project.tags = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(3) > b").text();
 			}
 
 			String description_src = doc.select(".order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")
@@ -476,13 +488,13 @@ public class ProjectTask extends Task {
 			project.time_limit = StringUtil.getTimeSpan(StringUtil.detectTimeSpanString(project.content));
 
 			// 获取地点，来源
-			if (doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span").size() == 2) {
-				project.location = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+			if (doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.task-detail.wrapper > div.task-detail-content.content > div > span").size() == 2) {
+				project.location = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
 						.text().replace("-", " ");
-				project.origin_from = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
+				project.origin_from = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(2)")
 						.text().replace("来自：", "");
 			} else {
-				project.origin_from = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
+				project.origin_from = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block > div.task-detail.wrapper > div.task-detail-content.content > div > span:nth-child(1)")
 						.text().replace("来自：", "");
 			}
 
@@ -499,16 +511,15 @@ public class ProjectTask extends Task {
 			projectStateTwo(doc);
 
 			// 投标总数与投标人数
-			//#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p.data-user-info > span
+			//#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p > span:nth-child(1)
 			project.bidder_total_num = StringUtil.getBidderTotalNum(doc,
 					".task-wantbid-launch > p.data-task-info > span:nth-child(1)");
 			//#taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > p > span:nth-child(2)
 			project.bids_available = StringUtil.getBidderNum(doc,
 					".task-wantbid-launch > p.data-task-info > span:nth-child(2)");
 
-			if (project.bidder_total_num > 0 ) {
-				project.trade_type = "投标";
-			}
+			project.trade_type = "投标";
+
 
 			// 获取甲方id 昵称 webId
 			String src = doc.head().select("#storage").toString();
@@ -533,8 +544,7 @@ public class ProjectTask extends Task {
 			}
 		}
 		catch (Exception e) {
-			logger.error("Error handle page category 2, {}, ", getUrl(), e);
-			logger.error("error is", e);
+			logger.error("error is {}", e);
 		}
 		return null;
 	}

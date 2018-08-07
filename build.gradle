@@ -1,5 +1,5 @@
 group 'com.sdyk.ai'
-version '1.0-SNAPSHOT'
+version '1.0.4-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -45,19 +45,6 @@ repositories {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: 'http://10.0.0.56:8081/artifactory/libs-release-local/') {
-                authentication(userName: artifactory_username, password: artifactory_password)
-            }
-            snapshotRepository(url: 'http://10.0.0.56:8081/artifactory/libs-snapshot-local/') {
-                authentication(userName: artifactory_username, password: artifactory_password)
-            }
-        }
-    }
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -94,9 +81,9 @@ artifactory {
 
 dependencies {
 
-    compile 'one.rewind:common:1.1.18-SNAPSHOT'
+    compile 'one.rewind:common:1.1.19-SNAPSHOT'
 
-    compile name: 'opencv-341'
+    //compile name: 'opencv-341'
 
     compile group: 'org.elasticsearch.client', name: 'transport', version: '6.2.4'
 

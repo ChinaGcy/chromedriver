@@ -1,15 +1,15 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
+
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.util.DateFormatUtil;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
-import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
@@ -29,8 +29,8 @@ public class TendererTask extends Task {
 
 	static {
 		registerBuilder(
-				TendererRatingTask.class,
-				"https://home.zbj.com/{{tenderer_id}}/",
+				TendererTask.class,
+				"https://home.zbj.com/{{tenderer_id}}",
 				ImmutableMap.of("tenderer_id", String.class),
 				ImmutableMap.of("tenderer_id", "0"),
 				false,
@@ -71,13 +71,11 @@ public class TendererTask extends Task {
 						.text().contains("个月前")) {
 
 				}
-				try {
-					tenderer.login_time =
-							DateFormatUtil.parseTime(doc.select("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login")
-									.text());
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
+
+				tenderer.login_time =
+						DateFormatUtil.parseTime(doc.select("#utopia_widget_1 > div > div.topinfo-top > div > div > span.last-login")
+								.text());
+
 
 				tenderer.trade_num =
 						Integer.parseInt(doc.select("#utopia_widget_1 > div > div.topinfo-bottom > div > div > div.statistics-item.statistics-trade > div.statistics-item-val > strong")
