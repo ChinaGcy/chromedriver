@@ -28,7 +28,7 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -106,6 +106,8 @@ public class ServiceProviderTask extends Task {
 				serviceProvider.location = LocationParser.getInstance().matchLocation(detail).get(0).toString();
 			}
 		}
+
+		serviceProvider.domain_id = 6;
 
 		//小标签
 		Elements tagsE = doc.select("#beGoodAtDiv > div > div > span");
@@ -234,12 +236,36 @@ public class ServiceProviderTask extends Task {
 		}
 
 		try{
-			serviceProvider.insert();
+
+			boolean status = false;
+
+			if( serviceProvider.name != null && serviceProvider.name.length() > 1 ){
+				serviceProvider.insert();
+			}
+
+			ScheduledChromeTask st = t.getScheduledChromeTask();
+
+			// 第一次抓取生成定时任务
+			if(st == null) {
+
+				try {
+					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st.start();
+				} catch (Exception e) {
+					logger.error("error for creat ScheduledChromeTask", e);
+				}
+
+			}
+			else {
+				if( !status ){
+					st.degenerate();
+				}
+			}
+
+
 		} catch (Exception e) {
 			logger.error("error for serviceProvider.insert", e);
 		}
 
-		// 注册定时任务
-		this.cornTask(t);
 	}
 }

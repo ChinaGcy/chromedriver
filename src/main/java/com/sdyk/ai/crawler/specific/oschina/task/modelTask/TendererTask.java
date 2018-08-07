@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.LocationParser;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -17,7 +18,7 @@ public class TendererTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -35,7 +36,7 @@ public class TendererTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -77,6 +78,8 @@ public class TendererTask extends Task {
 		LocationParser parser = LocationParser.getInstance();
 		tenderer.location = parser.matchLocation(tenderer.location).size() > 0 ? parser.matchLocation(tenderer.location).get(0).toString() : null;
 
+		tenderer.domain_id = 5;
+
 		//认证情况
 		String certification = doc.getElementsByClass("user-icons").toString();
 
@@ -107,12 +110,31 @@ public class TendererTask extends Task {
 		tenderer.head_portrait  = BinaryDownloader.download(getUrl(), url_filename);
 
 		try{
-			tenderer.insert();
+			boolean status = tenderer.insert();
+
+			ScheduledChromeTask st = t.getScheduledChromeTask();
+
+			// 第一次抓取生成定时任务
+			if(st == null) {
+
+				try {
+					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st.start();
+				} catch (Exception e) {
+					logger.error("error for creat ScheduledChromeTask", e);
+				}
+
+			}
+			else {
+				if( !status ){
+					st.degenerate();
+				}
+			}
+
 		} catch (Exception e){
 			logger.error("error for tenderer.insert();", e);
 		}
 
-		//this.cornTask(t);
 
 	}
 

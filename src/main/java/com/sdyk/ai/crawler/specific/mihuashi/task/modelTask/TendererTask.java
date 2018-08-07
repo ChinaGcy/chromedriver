@@ -30,7 +30,7 @@ public class TendererTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000;
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -112,6 +112,8 @@ public class TendererTask extends Task {
 		//简介
 		tenderer.content = StringUtil.cleanContent(doc.getElementsByClass("profile__summary-wrapper").html(), new HashSet<>());
 
+		tenderer.domain_id = 4;
+
 		//平台项目数
 		String projecrs = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span")
 				.text();
@@ -169,10 +171,26 @@ public class TendererTask extends Task {
 		url_filename.put(imageUrl, "head_portrait");
 		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
-		tenderer.insert();
+		boolean status = tenderer.insert();
 
-		// 注册定时任务
-		//this.cronTask(t);
+		ScheduledChromeTask st = t.getScheduledChromeTask();
+
+		// 第一次抓取生成定时任务
+		if(st == null) {
+
+			try {
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st.start();
+			} catch (Exception e) {
+				logger.error("error for creat ScheduledChromeTask", e);
+			}
+
+		}
+		else {
+			if( !status ){
+				st.degenerate();
+			}
+		}
 	}
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){

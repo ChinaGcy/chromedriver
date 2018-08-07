@@ -30,7 +30,7 @@ public class CaseTask extends Task {
 
 		this.setPriority(Priority.MEDIUM);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

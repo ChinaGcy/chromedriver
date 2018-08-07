@@ -17,6 +17,7 @@ public class Task extends com.sdyk.ai.crawler.task.Task {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
+		this.setBuildDom();
 	}
 
 	public void cornTask(ChromeTask t){

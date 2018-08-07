@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
+import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
@@ -113,6 +114,16 @@ public class ServiceRatingTask extends Task {
 
 			//描述
 			serviceProviderRating.content = element.getElementsByClass("content").text();
+
+			// 价格
+			String price = element.select("span.budget-interval").text();
+			if( price.contains("-") ){
+				price = price.split("-")[1];
+			}
+			price = CrawlerAction.getNumbers(price);
+			if( price.length() > 1 ){
+				serviceProviderRating.price = Double.valueOf(price);
+			}
 
 			//发布时间
 			String time = element.getElementsByClass("commented-time").text();

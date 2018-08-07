@@ -14,6 +14,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,7 +30,7 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -78,16 +79,20 @@ public class ServiceProviderTask extends Task {
 		//介绍
 		String introduction = doc.select("div.introduction").text();
 
+		serviceProvider.position = "";
 		String[] introductions = introduction.split(" ");
-		if( introductions.length == 3 ){
+		if( introductions.length > 2 ){
 
-			serviceProvider.location = introductions[0];
+			serviceProvider.location = LocationParser.getInstance().matchLocation(introductions[0]).size() > 0 ?
+					LocationParser.getInstance().matchLocation(introductions[0]).get(0).toString() : null;
 
 			if( !introductions[1].contains("远程") ){
 				serviceProvider.company_name = introductions[1];
 			}
+			for( int i = 2; i < introductions.length ; i++  ){
+				serviceProvider.position = serviceProvider.position + introductions[i];
+			}
 
-			serviceProvider.position = introductions[2];
 		}
 		//信息不全时
 		else if( introductions.length ==2 ) {
@@ -95,7 +100,8 @@ public class ServiceProviderTask extends Task {
 			Elements icon1 = doc.select("div.introduction > i.arrow.location.icon");
 
 			if( icon1 != null && icon1.size() > 0 ){
-				serviceProvider.location = introductions[0];
+				serviceProvider.location = LocationParser.getInstance().matchLocation(introductions[0]).size() > 0 ?
+						LocationParser.getInstance().matchLocation(introductions[0]).get(0).toString() : null;
 			}
 			else{
 				serviceProvider.company_name = introductions[0];
@@ -277,7 +283,7 @@ public class ServiceProviderTask extends Task {
 			}
 
 			//描述
-			resume.content = e.getElementsByClass("summary").text();
+			resume.content =  "</p>" + e.getElementsByClass("summary").text() + "</p>";
 
 			try{
 				resume.insert();
@@ -286,6 +292,8 @@ public class ServiceProviderTask extends Task {
 			}
 
 		}
+
+		serviceProvider.domain_id = 9;
 
 		//评论内容
 		Elements ratingContent = doc.select("div.comment");
@@ -318,14 +326,27 @@ public class ServiceProviderTask extends Task {
 				serviceProviderRating.rating = Integer.valueOf(ratingList.size());
 			}
 
-			//甲方任务添加
-			/*try {
-				task.add(new TendererTask(tendererUrl));
-			} catch (MalformedURLException e) {
-				logger.error("error for task.add", e);
-			} catch (URISyntaxException e) {
-				logger.error("error for task.add", e);
-			}*/
+			// 添加甲方任务
+			try {
+
+				String tenderer_id = element.select("a.author").attr("href");
+
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("tenderer_id", tenderer_id);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.TendererTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit ProjectTask.class", e);
+			}
 
 			try{
 				serviceProviderRating.insert();
@@ -370,13 +391,34 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.project_num = workList.size();
 
 		try{
-			serviceProvider.insert();
+
+			boolean status = false;
+
+			if( serviceProvider.name != null && serviceProvider.name.length() > 1 ){
+				status = serviceProvider.insert();
+			}
+
+			ScheduledChromeTask st = t.getScheduledChromeTask();
+
+			// 第一次抓取生成定时任务
+			if(st == null) {
+
+				try {
+					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st.start();
+				} catch (Exception e) {
+					logger.error("error for creat ScheduledChromeTask", e);
+				}
+
+			}
+			else {
+				if( !status ){
+					st.degenerate();
+				}
+			}
 		} catch (Exception e) {
 			logger.error("error for serviceProvider.insert()", e);
 		}
-
-		this.cornTask(t);
-
 
 	}
 }

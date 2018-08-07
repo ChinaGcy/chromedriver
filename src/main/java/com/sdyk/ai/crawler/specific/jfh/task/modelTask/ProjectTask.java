@@ -34,28 +34,33 @@ public class ProjectTask extends Task {
 		);
 	}
 
-	public Project project;
-
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 
 		this.setPriority(Priority.HIGH);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
-			Document doc = getResponse().getDoc();
+			String src = getResponse().getText();
+			if( src.contains("错误了") || src.contains("登陆") ){
+				return;
+			}
+			else{
 
-			crawler(doc, (ChromeTask)t);
+				Document doc = getResponse().getDoc();
+
+				crawler(doc, (ChromeTask)t);
+			}
 
 		});
 	}
 
 	public void crawler(Document doc, ChromeTask t) throws Exception {
 
-		project = new Project(getUrl());
+		Project project = new Project(getUrl());
 
 		project.origin_id = getUrl().split("orders/jf")[1];
 
@@ -148,16 +153,13 @@ public class ProjectTask extends Task {
 		}
 
 		try{
-			project.insert();
+			if( project.title != null && project.title.length() > 1 ){
+				project.insert();
+			}
 		} catch (Exception e) {
 			logger.error("error for project.insert", e);
 		}
 
-		// 项目状态为招募中，定期更新自身
-		if( project.status.contains("未截止") ){
-
-			//this.cornTask(t);
-		}
 
 	}
 

@@ -42,6 +42,15 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
         this.setParam("page", url.split("project/")[1]);
 
+        this.setValidator((a,t) -> {
+
+        	String text = getResponse().getText();
+        	if( text.contains("被封禁") ){
+        		throw new ProxyException.Failed(a.proxy);
+	        }
+
+        });
+
         this.addDoneCallback((t) -> {
 
 	        int page = Integer.valueOf(url.split("project/")[1]);

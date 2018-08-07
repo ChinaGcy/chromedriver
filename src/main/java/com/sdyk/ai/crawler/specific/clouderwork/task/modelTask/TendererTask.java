@@ -28,7 +28,7 @@ public class TendererTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000;
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -80,6 +80,8 @@ public class TendererTask extends Task {
 		//原网站ID
 		String[] urlarray = getUrl().split("clients/");
 		tenderer.origin_id = urlarray[1];
+
+		tenderer.domain_id = 2;
 
 		//招标人名字
 		String name = doc.select("#profile > div > div > section > section > div.prjectBox > p.name-p").text();
@@ -214,19 +216,26 @@ public class TendererTask extends Task {
 
 		}
 
-		tenderer.insert();
+		boolean status = tenderer.insert();
 
-		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		ScheduledChromeTask st = t.getScheduledChromeTask();
+
+		// 第一次抓取生成定时任务
 		if(st == null) {
 
 			try {
 				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
 			} catch (Exception e) {
-				logger.error("error for ScheduledChromeTask on TendererTask");
+				logger.error("error for creat ScheduledChromeTask", e);
 			}
 
-		}*/
+		}
+		else {
+			if( !status ){
+				st.degenerate();
+			}
+		}
 
 	}
 

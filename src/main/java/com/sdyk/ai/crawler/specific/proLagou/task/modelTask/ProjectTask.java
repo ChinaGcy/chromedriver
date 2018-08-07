@@ -20,9 +20,9 @@ import java.util.List;
 
 public class ProjectTask extends Task {
 
-	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *");
 
 	static {
 		registerBuilder(
@@ -49,126 +49,143 @@ public class ProjectTask extends Task {
             Document doc = getResponse().getDoc();
             String src = getResponse().getText();
 
-            //下载页面
+            // 下载页面
             FileUtil.writeBytesToFile(src.getBytes(), "project.html");
 
             if ( src.contains("失败") || src.contains("错误") ) {
 	            this.setRetry();
 	            return;
             }
+
             //抓取页面
-            crawlJob(doc, (ChromeTask)t);
+	        project = new Project(getUrl());
+
+	        project.domain_id = 3;
+
+	        //项目名
+	        String title = doc.select("#project_detail > div.project_info.fl > div.title > div").text();
+
+	        project.origin_id = getUrl().split("project/")[1].replace(".html","");
+
+	        //状态
+	        String currentStatus = doc.select("#project_detail > div.project_info.fl > div.title > div > span").text();
+	        if(currentStatus!=null&&!"".equals(currentStatus)){
+		        title = title.replace(currentStatus, "");
+	        }
+	        project.title = title;
+
+	        //类型
+	        project.status = currentStatus;
+
+	        //招标人
+	        project.tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
+
+	        //发布时间
+	        String pubdata = doc.select("#project_detail > div.project_info.fl > ul:nth-child(3) > li:nth-child(1) > span:nth-child(3)").text();
+	        if(pubdata!=null&&!"".equals(pubdata)){
+		        DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
+		        try {
+			        project.pubdate = format1.parse(pubdata);
+		        } catch (ParseException e) {
+			        logger.error("error on String"+ pubdata +"to Data",e);
+		        }
+	        }
+
+	        //小标签
+	        project.tags = doc.select("#project_detail > div.project_info.fl > div.category_list")
+			        .text().replace(" ", ",");
+
+	        //已投标人数
+	        String num = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(2) > div.txt > strong").text();
+	        if(num!=null&&!"".equals(num)){
+		        project.bids_num = Integer.valueOf(num);
+	        }
+
+	        //工期
+	        String timeLimt = doc.select("#project_detail > div.project_panel.fr > div:nth-child(2) > span.short_val").text();
+	        int unit = 1;
+	        if( timeLimt.contains("-") ){
+		        timeLimt = timeLimt.split("-")[1];
+	        }
+	        if( timeLimt.contains("月") ){
+		        unit = 30;
+	        }
+	        else if(timeLimt.contains("周")){
+		        unit = 7;
+	        }
+	        timeLimt = CrawlerAction.getNumbers(timeLimt);
+	        if(timeLimt.length() > 1){
+		        project.time_limit = Integer.valueOf(timeLimt) * unit;
+	        }
+
+	        //预算
+	        String budget = doc.select("#project_detail > div.project_panel.fr > div:nth-child(1) > span.short_val").text().replace("元","").replace("以下","");
+	        if(budget!=null&&!"".equals(budget)){
+		        if(budget.contains("-")){
+			        String[] budgets = budget.split("-");
+			        project.budget_lb = Integer.valueOf(budgets[0]);
+			        project.budget_ub = Integer.valueOf(budgets[1]);
+		        }else{
+			        project.budget_ub = Integer.valueOf(budget);
+			        project.budget_lb = Integer.valueOf(budget);
+		        }
+	        }
+
+	        //描述
+	        project.content = "<p>" +
+			        doc.select("#project_detail > div.project_info.fl > div.project_content > div.project_txt > pre")
+					        .html() + "</p>";
+
+	        //浏览人数
+	        String browse = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(3) > div.txt > strong")
+			        .text();
+	        if(browse!=null&&!"".equals(browse)){
+		        try {
+			        project.view_num = Integer.valueOf(browse);
+		        } catch (Exception e) {
+			        logger.error("error on String"+browse +"To Integer", e);
+		        }
+	        }
+
+	        // 推荐人数
+	        String rcmd_num = CrawlerAction.getNumbers(
+			        doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(1) > div.txt > strong").text());
+	        if( rcmd_num != null ){
+		        project.rcmd_num = Integer.valueOf(rcmd_num);
+	        }
+
+	        project.category = doc.select(
+			        "#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)"
+	        ).text().replace("/", ",");
+
+	        try {
+		        project.insert();
+	        } catch (Exception e) {
+		        logger.error("error on insert project", e);
+	        }
+
+
+	        // 生成定时任务
+	        ScheduledChromeTask st = t.getScheduledChromeTask();
+
+	        // 第一次抓取生成定时任务
+	        if(st == null) {
+
+		        st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+		        st.start();
+	        }
+	        // 已完成项目停止定时任务
+	        if( project.status.contains("已完成") ){
+		        st.stop();
+	        }
+
         });
     }
 
 
 	public void crawlJob(Document doc, ChromeTask t){
 
-		project = new Project(getUrl());
 
-		project.domain_id = 3;
-
-		//项目名
-		String title = doc.select("#project_detail > div.project_info.fl > div.title > div").text();
-
-		project.origin_id = getUrl().split("project/")[1].replace(".html","");
-
-		//状态
-		String currentStatus = doc.select("#project_detail > div.project_info.fl > div.title > div > span").text();
-		if(currentStatus!=null&&!"".equals(currentStatus)){
-			title = title.replace(currentStatus, "");
-		}
-		project.title = title;
-
-		//类型
-		project.status = currentStatus;
-
-		//招标人
-		project.tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
-
-		//发布时间
-		String pubdata = doc.select("#project_detail > div.project_info.fl > ul:nth-child(3) > li:nth-child(1) > span:nth-child(3)").text();
-		if(pubdata!=null&&!"".equals(pubdata)){
-			DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
-			try {
-				project.pubdate = format1.parse(pubdata);
-			} catch (ParseException e) {
-				logger.error("error on String"+ pubdata +"to Data",e);
-			}
-		}
-
-		//小标签
-		project.tags = doc.select("#project_detail > div.project_info.fl > div.category_list")
-				.text().replace(" ", ",");
-
-		//已投标人数
-		String num = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(2) > div.txt > strong").text();
-		if(num!=null&&!"".equals(num)){
-			project.bids_num = Integer.valueOf(num);
-		}
-
-		//工期
-		String timeLimt = doc.select("#project_detail > div.project_panel.fr > div:nth-child(2) > span.short_val").text();
-		int unit = 1;
-		if( timeLimt.contains("-") ){
-			timeLimt = timeLimt.split("-")[1];
-		}
-		if( timeLimt.contains("月") ){
-			unit = 30;
-		}
-		else if(timeLimt.contains("周")){
-			unit = 7;
-		}
-		timeLimt = CrawlerAction.getNumbers(timeLimt);
-		if(timeLimt != null){
-			project.time_limit = Integer.valueOf(timeLimt) * unit;
-		}
-
-		//预算
-		String budget = doc.select("#project_detail > div.project_panel.fr > div:nth-child(1) > span.short_val").text().replace("元","").replace("以下","");
-		if(budget!=null&&!"".equals(budget)){
-			if(budget.contains("-")){
-				String[] budgets = budget.split("-");
-				project.budget_lb = Integer.valueOf(budgets[0]);
-				project.budget_ub = Integer.valueOf(budgets[1]);
-			}else{
-				project.budget_ub = Integer.valueOf(budget);
-				project.budget_lb = Integer.valueOf(budget);
-			}
-		}
-
-		//描述
-		project.content = "<p>" +
-				doc.select("#project_detail > div.project_info.fl > div.project_content > div.project_txt > pre")
-						.html() + "</p>";
-
-		//浏览人数
-		String browse = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(3) > div.txt > strong")
-				.text();
-		if(browse!=null&&!"".equals(browse)){
-			try {
-				project.view_num = Integer.valueOf(browse);
-			} catch (Exception e) {
-				logger.error("error on String"+browse +"To Integer", e);
-			}
-		}
-
-		// 推荐人数
-		String rcmd_num = CrawlerAction.getNumbers(
-				doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(1) > div.txt > strong").text());
-		if( rcmd_num != null ){
-			project.rcmd_num = Integer.valueOf(rcmd_num);
-		}
-
-		project.category = doc.select(
-				"#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)"
-		).text().replace("/", ",");
-
-		try {
-			project.insert();
-		} catch (Exception e) {
-			logger.error("error on insert project", e);
-		}
 
 		if(!project.status.equals("已完成")){
 			/*ScheduledChromeTask st = t.getScheduledChromeTask();

@@ -40,7 +40,7 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.setParam("page", url.split("currentPage=")[1]);
 

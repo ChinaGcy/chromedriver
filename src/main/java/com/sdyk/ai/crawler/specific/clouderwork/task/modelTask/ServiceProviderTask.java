@@ -30,7 +30,7 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -80,6 +80,8 @@ public class ServiceProviderTask extends Task {
 
 		// 描述
 		serviceProvider.content = StringUtil.cleanContent(doc.select("section.p-item.p-basic > p.overview").toString(), new HashSet<>());
+
+		serviceProvider.domain_id = 2;
 
 		// 平台认证信息
 		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
@@ -409,7 +411,7 @@ public class ServiceProviderTask extends Task {
 
 			work.title = sp_title;
 
-			work.content = element.select("div.sp-desc.desc").text();
+			work.content = "</p>" + element.select("div.sp-desc.desc").text() + "</p>";
 
 			work.category = element.select("div.sp-cont > span:nth-child(1)").text();
 
@@ -480,12 +482,6 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.attachment_ids = BinaryDownloader.download(getUrl(), fileMap);
 		}
 
-		try {
-			serviceProvider.insert();
-		} catch (Exception e) {
-			logger.error("error on insert serviceProvider", e);
-		}
-
 		//抓取乙方项目
 		Elements elements = doc.getElementsByClass("case-item");
 
@@ -516,18 +512,32 @@ public class ServiceProviderTask extends Task {
 			}
 		}
 
-		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		boolean status = false;
+
+		try {
+			status = serviceProvider.insert();
+		} catch (Exception e) {
+			logger.error("error on insert serviceProvider", e);
+		}
+
+		ScheduledChromeTask st = t.getScheduledChromeTask();
+
+		// 第一次抓取生成定时任务
 		if(st == null) {
 
 			try {
 				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
 			} catch (Exception e) {
-				logger.error("error for ScheduledChromeTask");
+				logger.error("error for creat ScheduledChromeTask", e);
 			}
 
-		}*/
-
+		}
+		else {
+			if( !status ){
+				st.degenerate();
+			}
+		}
 
 	}
 

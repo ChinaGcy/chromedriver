@@ -27,7 +27,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -65,6 +65,8 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		//名字
 		String name_position = doc.select("#profile > div > div.profile_content.table_cell > div.profile_base > div > div > h3").text();
 
+		serviceProvider.domain_id = 3;
+
 		String[] position = name_position.split(" ");
 		serviceProvider.position = position[position.length - 1];
 
@@ -73,8 +75,11 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		// 头像
 		String imageUrl = doc.getElementsByClass("show_face").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
-		url_filename.put(imageUrl, "head_portrait");
-		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		if( imageUrl != null && imageUrl.length() > 0 ){
+			url_filename.put(imageUrl, "head_portrait");
+			serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		}
+
 
 		//原网站ID
 		serviceProvider.origin_id = getUrl().split("user/")[1].replace(".html","");
@@ -107,7 +112,9 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		//服务质量
 		String serviceQuality = doc.getElementsByClass("center").text();
 		serviceQuality = CrawlerAction.getNumbers(serviceQuality);
-		serviceProvider.service_quality = Integer.valueOf(serviceQuality);
+		if( serviceQuality.length() > 1 ){
+			serviceProvider.service_quality = Integer.valueOf(serviceQuality);
+		}
 
 		//服务态度
 		String serviceAttatude = doc.getElementsByClass("fr").text();
@@ -117,7 +124,9 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		//准时率
 		String serviceSpeed = doc.getElementsByClass("fl").text();
 		serviceSpeed = CrawlerAction.getNumbers(serviceSpeed);
-		serviceProvider.service_speed = Integer.valueOf(serviceSpeed);
+		if( serviceSpeed.length() > 1 ){
+			serviceProvider.service_speed = Integer.valueOf(serviceSpeed);
+		}
 
 		//价格/天
 		String pricePerDay = doc.getElementsByClass("form_value").text();
@@ -141,7 +150,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		//地点
 		LocationParser parser = LocationParser.getInstance();
 		serviceProvider.location = doc.select("#profile > div > div.profile_content.table_cell > div.profile_base > div > ul > li:nth-child(1)").text();
-		serviceProvider.location = parser.matchLocation(serviceProvider.location).get(0).toString();
+		serviceProvider.location = parser.matchLocation(serviceProvider.location).size() > 0 ? parser.matchLocation(serviceProvider.location).get(0).toString() : null;
 
 		//类型
 		String type = doc.select("#profile > div > div.profile_content.table_cell > div.profile_base > div > ul > li:nth-child(2)").text();
@@ -205,8 +214,10 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 			String url = element.select("img").attr("src");
 			Map<String, String> map = new HashMap<>();
-			map.put(url, "workImg");
-			work.attachment_ids = BinaryDownloader.download(getUrl(), map);
+			if( url != null && url.length() > 0 ){
+				map.put(url, "workImg");
+				work.attachment_ids = BinaryDownloader.download(getUrl(), map);
+			}
 
 			//外部链接
 			work.external_url = element.getElementsByClass("quick_link").attr("href");
@@ -218,7 +229,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		//评价
-		/*String more = doc.getElementsByClass("more").text();
+		String more = doc.getElementsByClass("more").text();
 		if( more != null && !"".equals(more) ){
 
 			try {
@@ -239,23 +250,28 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 				logger.error("error for submit scanTaskServiceScanTask.class", e);
 			}
-		}*/
+		}
 
-		serviceProvider.insert();
+		boolean status = serviceProvider.insert();
 
-		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		ScheduledChromeTask st = t.getScheduledChromeTask();
+
+		// 第一次抓取生成定时任务
 		if(st == null) {
 
 			try {
 				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
 			} catch (Exception e) {
-				logger.error("error for ScheduledChromeTask");
+				logger.error("error for creat ScheduledChromeTask", e);
 			}
 
-		}else{
-			st.degenerate();
-		}*/
+		}
+		else {
+			if( !status ){
+				st.degenerate();
+			}
+		}
 
 	}
 

@@ -16,6 +16,7 @@ import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.io.requester.task.Task;
+import one.rewind.txt.DateFormatUtil;
 import one.rewind.txt.URLUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -29,6 +30,8 @@ import java.util.regex.Pattern;
 public class ProjectScanTask extends ScanTask {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("*/4 * * * *");
 
 	static {
 		registerBuilder(
@@ -49,6 +52,8 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setParam("page", url.split("pagenum=")[1]);
 
+	    this.setNoFetchImages();
+
         this.setPriority(Priority.HIGH);
 
         this.setValidator((a, t) -> {
@@ -60,7 +65,7 @@ public class ProjectScanTask extends ScanTask {
 			    throw new ProxyException.Failed(a.proxy);
 		    }
 		    // 账号出错
-		    else if( text.contains( "账号异常" ) || text.contains( "登陆异常" ) || text.contains( "重新登陆" ) ) {
+		    else if( text.contains( "账号异常" ) || text.contains( "登陆异常" ) || text.contains( "重新登陆" ) || text.contains("登陆") ) {
 			    throw new AccountException.Failed(a.accounts.get(t.getDomain()));
 		    }
 
@@ -157,6 +162,20 @@ public class ProjectScanTask extends ScanTask {
 		            ChromeDriverDistributor.getInstance().submit(holder);
 	            }
             }
+
+            // 设置定时任务
+		    ScheduledChromeTask st = t.getScheduledChromeTask();
+
+		    if(st == null) {
+
+			    /*Map<String, Object> init_map = new HashMap<>();
+			    init_map.put("max_page", "2");
+			    init_map.put("page", "1");
+			    init_map.put("step", 1);*/
+
+			    st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+			    st.start();
+		    }
 
         });
     }

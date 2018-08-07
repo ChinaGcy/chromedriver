@@ -28,7 +28,7 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -39,15 +39,13 @@ public class ServiceProviderTask extends Task {
 		);
 	}
 
-	ServiceProvider serviceProvider;
-
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
 
 		this.setPriority(Priority.HIGH);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -64,12 +62,12 @@ public class ServiceProviderTask extends Task {
 	 */
 	public void crawlerJob(Document doc, ChromeTask t){
 
-		serviceProvider = new ServiceProvider(getUrl());
+		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
 		serviceProvider.origin_id = getUrl().split("com/")[1].replace(".html","");
 
 		//名称
-		serviceProvider.name = doc.select("#se-fws-contact-cont > div > div.se-panel-header > div > span").text();
+		serviceProvider.name = doc.select("div.se-fws-header-title").text();
 
 		//公司名称
 		serviceProvider.company_name = doc.getElementsByClass("se-fws-header-title").text();
@@ -240,25 +238,37 @@ public class ServiceProviderTask extends Task {
 
 		}
 
+		serviceProvider.domain_id = 8;
+
 		//插入数据库
 		try {
-			serviceProvider.insert();
-		} catch (Exception e) {
-			logger.error("serviceProvider.insert() error", serviceProvider.toJSON(), e);
-		}
+			boolean status = false;
 
-		ScheduledChromeTask st = t.getScheduledChromeTask();
-		if(st == null) {
-
-			try {
-				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
-				st.start();
-			} catch (Exception e) {
-				logger.error("error for ScheduledChromeTask");
+			if( serviceProvider.name != null && serviceProvider.name.length() > 1 ){
+				status = serviceProvider.insert();
 			}
 
-		}else{
-			st.degenerate();
+			ScheduledChromeTask st = t.getScheduledChromeTask();
+
+			// 第一次抓取生成定时任务
+			if(st == null) {
+
+				try {
+					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st.start();
+				} catch (Exception e) {
+					logger.error("error for creat ScheduledChromeTask", e);
+				}
+
+			}
+			else {
+				if( !status ){
+					st.degenerate();
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error("serviceProvider.insert() error", serviceProvider.toJSON(), e);
 		}
 
 	}

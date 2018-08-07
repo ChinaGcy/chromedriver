@@ -27,7 +27,7 @@ public class CrawlerAction {
         while (matcher.find()) {
             return matcher.group(0);
         }
-        return "";
+        return "0";
     }
 
     /**

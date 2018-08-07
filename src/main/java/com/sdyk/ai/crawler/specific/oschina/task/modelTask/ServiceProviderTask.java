@@ -10,6 +10,7 @@ import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,7 +26,7 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0/1 * * ? ", "0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -41,7 +42,7 @@ public class ServiceProviderTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -78,9 +79,12 @@ public class ServiceProviderTask extends Task {
 		// 头像
 		String imageUrl = doc.getElementsByClass("u-icon").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
-		url_filename.put(imageUrl, "head_portrait");
-		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		if( imageUrl != null ){
+			url_filename.put(imageUrl, "head_portrait");
+			serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		}
 
+		serviceProvider.domain_id = 5;
 
 		String certification = doc.getElementsByClass("user-icons").toString();
 
@@ -267,6 +271,16 @@ public class ServiceProviderTask extends Task {
 				else if( count.contains("演示地址") ) {
 					work.external_url = e1.select("a").attr("href");
 				}
+				// 截图
+				else if( count.contains("截图") ){
+					Elements imgs = e1.select("div.images > img");
+					Map<String, String> map = new HashMap<>();
+					for( Element img : imgs ){
+						map.put(img.attr("src"), null);
+					}
+					work.attachment_ids = BinaryDownloader.download(getUrl(), map);
+
+				}
 
 			}
 
@@ -274,6 +288,7 @@ public class ServiceProviderTask extends Task {
 
 			// 周期
 			work.time_limit = elements1.get(1).text();
+
 
 			try {
 				work.insert();
@@ -283,14 +298,34 @@ public class ServiceProviderTask extends Task {
 
 		}
 
+		serviceProvider.position = serviceProvider.position.replace("、", ",");
+		if( serviceProvider.name.contains("公司") ){
+			serviceProvider.company_name = serviceProvider.name;
+		}
 		try {
-			serviceProvider.insert();
+			boolean status = serviceProvider.insert();
+
+			ScheduledChromeTask st = t.getScheduledChromeTask();
+
+			// 第一次抓取生成定时任务
+			if(st == null) {
+
+				try {
+					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st.start();
+				} catch (Exception e) {
+					logger.error("error for creat ScheduledChromeTask", e);
+				}
+
+			}
+			else {
+				if( !status ){
+					st.degenerate();
+				}
+			}
 		} catch ( Exception e ) {
 			logger.error("error for serviceProvider.insert()", e);
 		}
-
-		//this.cornTask(t);
-
 
 	}
 }

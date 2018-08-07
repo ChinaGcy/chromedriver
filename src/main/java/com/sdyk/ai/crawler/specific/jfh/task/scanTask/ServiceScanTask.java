@@ -37,7 +37,7 @@ public class ServiceScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.setParam("page", url.split("shops/\\?")[1]);
 

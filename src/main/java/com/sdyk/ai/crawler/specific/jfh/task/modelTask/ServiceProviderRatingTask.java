@@ -37,7 +37,7 @@ public class ServiceProviderRatingTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

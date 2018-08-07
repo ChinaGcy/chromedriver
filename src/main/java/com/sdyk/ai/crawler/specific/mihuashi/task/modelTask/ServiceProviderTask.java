@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -22,7 +23,7 @@ public class ServiceProviderTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("0 0 0 1/1 * ? *");
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -80,7 +81,9 @@ public class ServiceProviderTask extends Task {
 		String renzhang = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__avatar-wrapper > h5 > span").text();
 		serviceProvider.name = name.replace(renzhang,"");
 
-		// 平台认真
+		serviceProvider.domain_id = 4;
+
+		// 平台认证
 		serviceProvider.platform_certification = doc.select("span.enterprise").text();
 
 		//介绍
@@ -146,12 +149,37 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//下载图片
-		serviceProvider.cover_images = BinaryDownloader.download(getUrl(),url_name);
+		serviceProvider.cover_images = BinaryDownloader.download(getUrl(), url_name);
 
-		serviceProvider.insert();
+		serviceProvider.type = "个人";
 
-		// 注册定时任务
-		//this.cronTask(task);
+		if( serviceProvider.name.contains("工作室") ){
+			serviceProvider.type = "团队";
+		}
+		else if(  serviceProvider.name.contains("公司") ){
+			serviceProvider.type = "团队-公司";
+		}
+
+		boolean status = serviceProvider.insert();
+
+		ScheduledChromeTask st = task.getScheduledChromeTask();
+
+		// 第一次抓取生成定时任务
+		if(st == null) {
+
+			try {
+				st = new ScheduledChromeTask(task.getHolder(this.init_map), crons);
+				st.start();
+			} catch (Exception e) {
+				logger.error("error for creat ScheduledChromeTask", e);
+			}
+
+		}
+		else {
+			if( !status ){
+				st.degenerate();
+			}
+		}
 
 	}
 }
