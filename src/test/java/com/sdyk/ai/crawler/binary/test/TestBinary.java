@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.binary.test;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.account.AccountManager;
+import com.sdyk.ai.crawler.model.Binary;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
@@ -10,6 +11,8 @@ import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTa
 import com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ServiceScanTask;
 import com.sdyk.ai.crawler.specific.shichangbu.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.task.LoginTask;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
+import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
@@ -23,8 +26,7 @@ import org.junit.Test;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static one.rewind.util.FileUtil.readFileByLines;
 
@@ -127,6 +129,20 @@ public class TestBinary {
 
 		String src = "asdfgh";
 		System.out.println(src.getBytes("UTF-8").length);
+
+	}
+
+	@Test
+	public void testHeader() throws MalformedURLException, URISyntaxException {
+
+		Set<String> set = new HashSet<>();
+		set.add("https://images.mihuashi.com/2015/10/20/11/jw27oonvyg8zex1k53k58jea9mjy5ngq/52877956_p0.jpg!artwork.large");
+
+		String html = "</p><img src=\"https://images.mihuashi.com/2015/10/20/11/jw27oonvyg8zex1k53k58jea9mjy5ngq/52877956_p0.jpg!artwork.large\"></p>";
+
+		String result = BinaryDownloader.download(html, set, "https://www.mihuashi.com");
+
+		System.out.println(result);
 
 	}
 

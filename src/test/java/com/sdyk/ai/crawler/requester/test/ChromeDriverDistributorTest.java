@@ -41,6 +41,7 @@ public class ChromeDriverDistributorTest {
 		Class.forName(one.rewind.io.requester.test.TestChromeTask.T1.class.getName());
 		Class.forName(one.rewind.io.requester.test.TestChromeTask.T2.class.getName());
 		Class.forName(one.rewind.io.requester.test.TestChromeTask.T3.class.getName());
+		Class.forName(one.rewind.io.requester.test.TestChromeTask.T4.class.getName());
 		Class.forName(TestFailedChromeTask.class.getName());
 	}
 

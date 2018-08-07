@@ -33,7 +33,7 @@ public class ServiceSupplierTaskTest {
 
 		agent.submit(loginTask);*/
 
-		ServiceProviderTask serviceProviderTask = new ServiceProviderTask("https://www.mihuashi.com/users/zh10ya?role=painter");
+		ServiceProviderTask serviceProviderTask = new ServiceProviderTask("https://www.mihuashi.com/users/sroin66?role=painter");
 
 		agent.submit(serviceProviderTask);
 

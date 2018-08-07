@@ -13,7 +13,7 @@ public class ServiceProviderTaskTest {
 
 		agent.start();
 
-		ServiceProviderTask providerTask = new ServiceProviderTask("http://shop.jfh.com/1008/bu/");
+		ServiceProviderTask providerTask = new ServiceProviderTask("http://shop.jfh.com/1/bu");
 
 		agent.submit(providerTask);
 

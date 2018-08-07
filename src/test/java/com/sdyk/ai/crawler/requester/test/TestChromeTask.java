@@ -150,7 +150,7 @@ public class TestChromeTask {
 				}
 				else {
 					//
-					if(System.currentTimeMillis() < DateFormatUtil.parseTime("2018-07-27 16:35:20").getTime()) {
+					if(System.currentTimeMillis() < DateFormatUtil.parseTime("2018-08-3 16:20:20").getTime()) {
 						st.degenerate();
 					} else {
 						st.stop();

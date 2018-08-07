@@ -26,7 +26,7 @@ public class ProjectTaskTest {
 
 		agent.submit(loginTask);
 
-		ProjectTask projectTask = new ProjectTask("https://www.jfh.com/jfportal/orders/jf34704006");
+		ProjectTask projectTask = new ProjectTask("https://www.jfh.com/jfportal/orders/jf34958002");
 
 		agent.submit(projectTask);
 
