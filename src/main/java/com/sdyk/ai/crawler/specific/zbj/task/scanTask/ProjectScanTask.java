@@ -18,48 +18,50 @@ import java.util.regex.Pattern;
 
 /**
  * 获取项目信息
- * 1. 登录 TODO 待实现
+ * 1. 登录
  * 2. 找到url
  * 3. 翻页
  */
 public class ProjectScanTask extends ScanTask {
 
 	static {
+		// TODO 全部抓取是否需要在url中添加分类 channel
 		registerBuilder(
 				ProjectScanTask.class,
-				"http://task.zbj.com/{{channel}}/p{{page}}s5.html?o=1",
-				ImmutableMap.of("channel", String.class,"page", String.class),
-				ImmutableMap.of("channel", "all", "page", "0"),
+				"https://task.zbj.com/page{{page}}.html",
+				ImmutableMap.of("page", String.class),
+				ImmutableMap.of("page", "1"),
 				false,
 				Priority.MEDIUM
 		);
 	}
 
+	String page_;
+
 	/**
 	 *
 	 * @param url
-	 * @param i
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public ProjectScanTask(String url, int i) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
+	public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
+
 
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback((t) -> {
 
-			String channel = null;
 			int page = 0;
-			Pattern pattern_url = Pattern.compile("http://task.zbj.com/(?<channel>.+?)/p(?<page>.+?)s5.html\\?o=1");
-			Matcher matcher_url = pattern_url.matcher(getUrl());
+			Pattern pattern_url = Pattern.compile("task.zbj.com/page(?<page>\\d+).html");
+			Matcher matcher_url = pattern_url.matcher(url);
 			if (matcher_url.find()) {
-				channel = matcher_url.group("channel");
 				page = Integer.parseInt(matcher_url.group("page"));
-
 			}
+
+			page_ = page + "";
 
 			try {
 
@@ -74,13 +76,13 @@ public class ProjectScanTask extends ScanTask {
 				while (matcher.find()) {
 
 					String project_id = matcher.group("projectId");
+
 					try {
 
 						try {
 
 							//设置参数
-							Map<String, Object> init_map = new HashMap<>();
-							ImmutableMap.of("project_id", project_id);
+							Map<String, Object> init_map  = ImmutableMap.of("project_id", project_id);
 
 							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask");
 
@@ -102,13 +104,12 @@ public class ProjectScanTask extends ScanTask {
 				}
 
 				// 判断翻页
-				if (pageTurning("body > div.grid.grid-inverse > div.main-wrap > div > div > div.tab-switch.tab-progress > div > div.pagination > ul > li", page)) {
+				if (pageTurning("#utopia_widget_6 > div.trade-list-paging.clearfix > div > ul > li", page)) {
 
 					try {
 
 						//设置参数
-						Map<String, Object> init_map = new HashMap<>();
-						ImmutableMap.of("channel", channel, "page", String.valueOf(++page));
+						Map<String, Object> init_map = ImmutableMap.of("page", String.valueOf(++page));
 
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask");
 
@@ -133,7 +134,7 @@ public class ProjectScanTask extends ScanTask {
 
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), this.getParamString("channel"), this.getParamString("page"));
+		return new TaskTrace(this.getClass(), "task", page_);
 	}
 
 }

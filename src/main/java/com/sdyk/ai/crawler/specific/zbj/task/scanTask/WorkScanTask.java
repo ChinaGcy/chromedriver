@@ -29,14 +29,16 @@ public class WorkScanTask extends ScanTask {
 
 	static {
 		registerBuilder(
-				ProjectSuccessSacnTask.class,
-				"https://www.zbj.com/{{channel}}/pk{page}.html",
-				ImmutableMap.of("channel", String.class,"page", String.class),
-				ImmutableMap.of("channel", "all", "page", "0"),
+				WorkScanTask.class,
+				"https://shop.zbj.com/{{user_id}}/works-p{{page}}.html",
+				ImmutableMap.of("user_id", String.class,"page", String.class),
+				ImmutableMap.of("user_id", "0", "page", "1"),
 				false,
 				Priority.MEDIUM
 		);
 	}
+
+	String user_id;
 
 	public static List<String> list = new ArrayList<>();
 
@@ -48,57 +50,56 @@ public class WorkScanTask extends ScanTask {
 
 		this.addDoneCallback((t) -> {
 
-			String user_id = null;
+
+
+			String userId = null;
 			int page = 0;
-			Pattern pattern_url = Pattern.compile("http://shop.zbj.com/(?<userId>.+?)\\/works-p(?<page>.+?).html");
+			Pattern pattern_url = Pattern.compile("https://shop.zbj.com/(?<userId>\\d+)/works-p(?<page>\\d+).html");
 			Matcher matcher_url = pattern_url.matcher(url);
 			if (matcher_url.find()) {
-				user_id = matcher_url.group("userId");
+				userId = matcher_url.group("userId");
 				page = Integer.parseInt(matcher_url.group("page"));
 			}
 
+			user_id = userId;
 
-				String src = getResponse().getText();
+			String src = getResponse().getText();
 
-				if (src.contains(" 暂无项目案例")) {
-					return;
+			if (src.contains(" 暂无项目案例")) {
+				return;
+			}
+			//http://shop.zbj.com/works/detail-wid-131609.html
+			Pattern pattern = Pattern.compile("http://shop.zbj.com/works/detail-wid-\\d+.html");
+			Matcher matcher = pattern.matcher(src);
+			Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/works/detail-wid-\\d+.html");
+			Matcher matcher_tp = pattern_tp.matcher(src);
+
+			getWorkUrl(matcher);
+
+			getWorkUrl(matcher_tp);
+
+			// body > div.prod-bg.clearfix > div > div.pagination > ul > li
+			if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
+				//http://shop.zbj.com/18115303/works-p2.html
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page));
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+				} catch (Exception e) {
+
+					logger.error("error for submit WorkScanTask.class", e);
 				}
-				//http://shop.zbj.com/works/detail-wid-131609.html
-				Pattern pattern = Pattern.compile("http://shop.zbj.com/works/detail-wid-\\d+.html");
-				Matcher matcher = pattern.matcher(src);
-				Pattern pattern_tp = Pattern.compile("http://shop.tianpeng.com/works/detail-wid-\\d+.html");
-				Matcher matcher_tp = pattern_tp.matcher(src);
-
-				getWorkUrl(matcher);
-
-				getWorkUrl(matcher_tp);
-
-				// body > div.prod-bg.clearfix > div > div.pagination > ul > li
-				if (pageTurning("body > div.prod-bg.clearfix > div > div.pagination > ul > li", page)) {
-					//http://shop.zbj.com/18115303/works-p2.html
-
-					try {
-
-						//设置参数
-						Map<String, Object> init_map = new HashMap<>();
-						ImmutableMap.of("user_id", user_id, "page", String.valueOf(++page));
-
-						Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask");
-
-						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-						//提交任务
-						ChromeDriverDistributor.getInstance().submit(holder);
-
-					} catch (Exception e) {
-
-						logger.error("error for submit WorkScanTask.class", e);
-					}
-
-
-				}
-
+			}
 		});
 
 	}

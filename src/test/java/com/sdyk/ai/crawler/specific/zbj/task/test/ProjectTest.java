@@ -26,10 +26,10 @@ public class ProjectTest {
 	public void testBuildSnapshot() throws Exception {
 		Dao<Project, String> dao = DaoManager.getDao(Project.class);
 		Project project = dao.queryForId("00756aa02825b3193077791ea1aa1675");
-		ProjectSnapshot snapshot = new ProjectSnapshot(project);
+		//ProjectSnapshot snapshot = new ProjectSnapshot(project);
 
 		System.out.println(project.toJSON());
-		System.err.println(snapshot.toJSON());
+		//System.err.println(snapshot.toJSON());
 	}
 
 	// 6d351586e7ed7a2ef29ee40b2e6f35b0

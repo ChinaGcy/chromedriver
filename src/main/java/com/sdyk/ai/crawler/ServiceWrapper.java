@@ -1,10 +1,16 @@
 package com.sdyk.ai.crawler;
 
+import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.route.*;
+import com.sdyk.ai.crawler.route.es.ProjectQueryRoute;
+import com.sdyk.ai.crawler.route.es.ServiceQueryRoute;
+import com.sdyk.ai.crawler.route.es.TendererQueryRoute;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.server.MsgTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.security.Provider;
 
 import static spark.Spark.*;
 
@@ -38,6 +44,12 @@ public class ServiceWrapper {
 
 		before("/*", (q, a) -> logger.info("Received api call"));
 
+		// 通过es关键词匹配查询
+		get("/projects", ProjectQueryRoute.query, new ModelMsgTransformer());
+		get("/tenderers", TendererQueryRoute.query, new ModelMsgTransformer());
+		get("/providers", ServiceQueryRoute.query, new ModelMsgTransformer());
+
+
 		// 需求列表
 		get("/projects/:page", ProjectRoute.getProjects, new ModelMsgTransformer());
 
@@ -50,7 +62,7 @@ public class ServiceWrapper {
 		// 雇主列表
 		get("/tenderers/:page", TendererRoute.getTenderers, new ModelMsgTransformer());
 
-		// 服务商信息
+		// 单个雇主信息
 		path("/tenderer", () -> {
 
 			// 雇主详情
@@ -87,7 +99,7 @@ public class ServiceWrapper {
 
 		});
 
-		// 服务商信息
+		// 系统信息
 		path("/system", () -> {
 
 			// 队列信息
@@ -107,7 +119,7 @@ public class ServiceWrapper {
 
 		});
 
-		// 服务商信息
+		// 获取电话号码
 		path("/zbj", () -> {
 
 			// 根据project_id 获取联系方式

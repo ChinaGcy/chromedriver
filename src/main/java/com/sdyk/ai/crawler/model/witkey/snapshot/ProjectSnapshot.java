@@ -54,7 +54,6 @@ public class ProjectSnapshot extends Project {
 
 			Dao dao = DaoManager.getDao(this.getClass());
 
-
 			dao.create(this);
 
 			return true;

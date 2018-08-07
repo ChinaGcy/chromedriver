@@ -12,36 +12,25 @@
       },
       "title":{
         "type":"text",
-        "analyzer": "ik_max_word",
-        "boost": 4
+        "analyzer": "ik_max_word"
       },
       "category":{
         "type":"text",
-        "analyzer": "ik_max_word",
-        "boost": 4
+        "analyzer": "ik_max_word"
       },
       "tags":{
         "type":"text",
-        "analyzer": "ik_max_word",
-        "boost": 2
-      },
-      "sd":{
-        "type":"date"
-      },
-      "ed":{
-        "type":"date"
+        "analyzer": "ik_max_word"
       },
       "ongoing":{
         "type":"integer"
       },
       "description":{
         "type":"text",
-        "analyzer": "ik_max_word",
-        "boost": 4
+        "analyzer": "ik_max_word"
       },
       "cycle":{
         "type":"text"
-
       },
       "response_time":{
         "type":"text"

@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
@@ -75,6 +76,13 @@ public class ServiceProviderTask extends Task {
 				}
 
 				try {
+
+					if (!serviceProvider.type.contains("旗舰") && !serviceProvider.type.contains("专业")) {
+						serviceProvider.platform_certification = serviceProvider.type;
+					} else {
+						serviceProvider.platform_certification = "企业";
+					}
+
 					serviceProvider.insert();
 				} catch (Exception e) {
 					logger.error("insert/update error {}", e);
@@ -190,6 +198,9 @@ public class ServiceProviderTask extends Task {
 				}
 			}
 
+			// TODO 待写
+			//serviceProvider.view_num =
+
 			// body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div:nth-child(5)
 			/*Elements we = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div");
 
@@ -200,6 +211,10 @@ public class ServiceProviderTask extends Task {
 				}
 			}*/
 		}
+
+		//body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2)
+		String content_src = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2)")
+				.html();
 	}
 
 	/**
@@ -263,10 +278,12 @@ public class ServiceProviderTask extends Task {
 
 		webPageUcenter();
 
+		ZBJSalerinfo();
+
 		}
 
 	/**
-	 *服务商信息
+	 * 服务商信息
 	 */
 	public void webPageUcenter() {
 
@@ -301,12 +318,14 @@ public class ServiceProviderTask extends Task {
 		} catch (Exception e) {}
 
 		// 获取头像
-		String head = doc.select("body > div.grid > div.sidebar > div > div > div > div.w-head-pic > img").html();
-		Set<String> head_img = new HashSet<>();
-		String head1 = StringUtil.cleanContent(head, head_img);
+		String head = doc.select("#utopia_widget_2 > div > a > img").attr("src");
+		if (!head.contains("http:") || !head.contains("https:")) {
+			head = "https:" + head;
+		}
+
 		this.download(head);
 		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
-				one.rewind.txt.StringUtil.uuid(head1));;
+				one.rewind.txt.StringUtil.uuid(head));;
 	}
 
 	/**
@@ -358,7 +377,10 @@ public class ServiceProviderTask extends Task {
 				one.rewind.txt.StringUtil.uuid(head1));;
 	}
 
-	// 天棚网 服务商信息  https://shop.tianpeng.com/15199471/salerinfo.html
+	/**
+	 * 天棚网 服务商信息  https://shop.tianpeng.com/15199471/salerinfo.html
+	 * @throws IOException
+	 */
 	public void TPSalerinfo() throws IOException {
 
 		Document doc = Jsoup.connect(getUrl() + "salerinfo.html").get();
@@ -368,17 +390,51 @@ public class ServiceProviderTask extends Task {
 
 		serviceProvider.content = doc.select("body > div.grid > div.main-wrap > div > div > div > div.introduce-content.introduce-content-first > p.introduce-company-msg").text();
 
-		String head = doc.select("body > div.grid > div.main-wrap > div > div > div > div > ul > li.license-item.fl > div.license-item-pic").html();
-		Set<String> head_img = new HashSet<>();
-		String head1 = StringUtil.cleanContent(head, head_img);
-		this.download(head);
-		serviceProvider.cover_images = one.rewind.txt.StringUtil.byteArrayToHex(
-				one.rewind.txt.StringUtil.uuid(head1));
+		// 图片下载
+		Elements elements = doc.select("body > div.grid > div.main-wrap > div > div > div:nth-child(2) > div > ul > li");
 
-		serviceProvider.tags = doc.select("body > div.grid > div.main-wrap > div > div > div > div.introduce-content > div").text();
+		Map<String, String> map = new HashMap<>();
 
+		for (Element e : elements) {
+			map.put(e.select("div > img").attr("src"), e.select("span").text());
+		}
 
+		serviceProvider.cover_images = BinaryDownloader.download(getUrl(), map);
 
+		serviceProvider.tags = doc.select("body > div.grid > div.main-wrap > div > div > div:nth-child(3) > div.introduce-content > div").text();
+
+	}
+
+	/**
+	 * 猪八戒 服务商信息  https://shop.zbj.com/7163110/salerinfo.html
+	 * @throws IOException
+	 */
+	public void ZBJSalerinfo() throws IOException {
+
+		Document doc = Jsoup.connect(getUrl() + "salerinfo.html").get();
+		serviceProvider.company_name = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.company-wrap > div:nth-child(2)")
+				.text()
+				.replace("公司名称：", "");
+
+		serviceProvider.company_address = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.company-wrap > div:nth-child(2)")
+				.text().replace("公司地址：", "");
+
+		serviceProvider.content = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > pre")
+				.text();
+
+		// 图片下载
+		Elements elements = doc.select("#certificate-carousel-con > div > div > div");
+
+		Map<String, String> map = new HashMap<>();
+
+		for (Element e : elements) {
+			map.put(e.select("img.certificate-img").attr("src"), e.select("div").text());
+		}
+
+		// 图片下载
+		serviceProvider.cover_images = BinaryDownloader.download(getUrl(), map);
+
+		serviceProvider.tags = doc.select("#utopia_widget_15 > div.skill-wrap").text();
 
 	}
 
@@ -401,6 +457,7 @@ public class ServiceProviderTask extends Task {
 				serviceProvider.qq = qq;
 			} catch (Exception e) {}
 			try {
+				                                          //body > div.shop-fixed-im.sidebar-show > div.shop-fixed-im-hover.shop-customer.j-shop-fixed-im > div.shop-fix-im-qq > div.time-item
 				Elements list_phone = doc.select("body > div.shop-fixed-im.sidebar-show > div.shop-fixed-im-hover.shop-customer.j-shop-fixed-im > div.shop-fix-im-qq > div.time-item");
 
 				String cellphone = "";

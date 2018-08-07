@@ -34,4 +34,9 @@ public class EsTest {
 	public void createUserIndex() throws Exception {
 		ESTransportClientAdapter.createIndexAndMapping();
 	}
+
+	@Test
+	public void TestClient() {
+		ESTransportClientAdapter.getClient();
+	}
 }

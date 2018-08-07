@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.util.test;
 
+import com.sdyk.ai.crawler.util.DateFormatUtil;
 import org.junit.Test;
-import one.rewind.txt.DateFormatUtil;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -13,11 +13,11 @@ public class DateFormatUtilTest {
 	@Test
 	public void time() throws ParseException {
 
-		String s = "1天前来过";
+		String s = "2个月前来过";
 		String s1 = "";
 		Date ss = DateFormatUtil.parseTime(s);
 
-		Date date = new Date();
+		//Date date = new Date();
 
 		/*date.setTime(date.getTime() + 60000*60*24);
 
@@ -29,17 +29,20 @@ public class DateFormatUtilTest {
 		if (m.find()) {
 			String prefix = m.group();
 			s = s.replaceAll(prefix, "");
-			System.err.println(s);
+			//System.err.println(s);
 		}
 	}
 	@Test
 	public void date() {
 		Date date = new Date();
+		Date date1 = new Date();
 		System.err.println(date.getTime());
-		System.err.println(System.currentTimeMillis() - 30*24*60*60*1000);
-		date.setTime(System.currentTimeMillis() - 30*24*60*60);
+		System.err.println(System.currentTimeMillis() - 30*24*60*60*1000L);
+		date.setTime((System.currentTimeMillis() - 30*24*60*60*1000L));
+		date1.setTime(System.currentTimeMillis() );
 
 		System.err.println(date);
+		System.err.println(date1);
 
 	}
 }

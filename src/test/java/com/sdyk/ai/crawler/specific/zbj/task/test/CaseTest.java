@@ -1,13 +1,21 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
+import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.CaseTask;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import one.rewind.io.requester.callback.TaskCallback;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -32,25 +40,30 @@ public class CaseTest {
 	@Test
 	public void CaseScanTest() throws Exception {
 
-		ChromeDriverAgent agent = new ChromeDriverAgent();
+		/*Scheduler.getInstance();
 
-		com.sdyk.ai.crawler.task.Task t = new CaseScanTask("http://shop.zbj.com/19308846/",1);
+		Map<String, Object> init_map = new HashMap<>();
+		ImmutableMap.of("user_id", "19308846", "page", String.valueOf(1));
 
-		Queue<com.sdyk.ai.crawler.task.Task> queue = new LinkedBlockingQueue<>();
+		Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask");
 
-		queue.add(t);
+		//生成holder
+		ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
-		/*while(!queue.isEmpty()) {
+		//提交任务
+		ChromeDriverDistributor.getInstance().submit(holder);*/
 
-			Task tt = queue.poll();
+		ChromeDriverAgent chromeDriverAgent = new ChromeDriverAgent();
+		chromeDriverAgent.start();
 
-			agent.fetch(tt);
+		Task task = new CaseTask("https://shop.zbj.com/18115303/sid-1312573.html");
 
-			for (Task t1 : tt.postProc(agent.getDriver())) {
-				queue.add(t1);
-			}
+		chromeDriverAgent.submit(task);
 
-		}*/
+		for (TaskCallback done : task.doneCallbacks) {
+			done.run(task);
+		}
+
 	}
 
 	/**
