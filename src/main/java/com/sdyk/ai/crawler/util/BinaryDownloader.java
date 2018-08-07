@@ -69,6 +69,20 @@ public class BinaryDownloader {
 						BasicRequester.getInstance().submit(t_);
 
 						binary.src = t_.getResponse().getSrc();
+
+						List<String> contentTypeList = t_.getResponse().getHeader().get("Content-Type");
+						StringBuffer contentType = new StringBuffer();
+						for( String s : contentTypeList ){
+							contentType.append(s);
+							contentType.append(s);
+						}
+						if( contentType.length() > 0 ){
+							binary.content_type = contentType.substring(0, contentType.length() - 1);
+						}
+						else {
+							binary.content_type = url.split(".")[url.split(".").length -1];
+						}
+
 						binary.file_name = url_filename.get(oldurl);
 
 						if( binary.file_name == null ){
@@ -152,6 +166,19 @@ public class BinaryDownloader {
 
 					binary.src = t_.getResponse().getSrc();
 
+					List<String> contentTypeList = t_.getResponse().getHeader().get("Content-Type");
+					StringBuffer contentType = new StringBuffer();
+					for( String s : contentTypeList ){
+						contentType.append(s);
+						contentType.append(s);
+					}
+					if( contentType.length() > 0 ){
+						binary.content_type = contentType.substring(0, contentType.length() - 1);
+					}
+					else {
+						binary.content_type = url.split(".")[url.split(".").length -1];
+					}
+
 					binary.file_name = getFileName(url);
 
 					if (binary.file_name.length() < 128) {
@@ -160,7 +187,8 @@ public class BinaryDownloader {
 
 						binary.insert();
 
-						des_src = des_src.replace(oldUrl, binary.id);
+						// TODO ID前要添加主机接口
+						des_src = des_src.replace(oldUrl, "http://10.0.0.61:50100/binarys/" + binary.id);
 
 						logger.info(" Download done: {}.", url);
 					}
