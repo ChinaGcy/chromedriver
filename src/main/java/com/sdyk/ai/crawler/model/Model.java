@@ -4,8 +4,14 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
+import com.sdyk.ai.crawler.model.witkey.Project;
+import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
+import com.sdyk.ai.crawler.model.witkey.Tenderer;
+import one.rewind.db.RedissonAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redisson.api.RTopic;
+import org.redisson.api.RedissonClient;
 import org.reflections.Reflections;
 import one.rewind.db.DaoManager;
 import one.rewind.json.JSON;
@@ -30,6 +36,15 @@ public abstract class Model {
 
 	public static boolean ES_Index = false;
 
+	// 发布更新的项目ID
+	public static RTopic<String> projectTopicPub = RedissonAdapter.redisson.getTopic("ProjectTopic");
+
+	// 发布更新的甲方ID
+	public static RTopic<String> tendererTopicPub = RedissonAdapter.redisson.getTopic("TendererTopic");
+
+	// 发布更新的乙方ID
+	public static RTopic<String> serviceTopicPub = RedissonAdapter.redisson.getTopic("ServiceTopic");
+
 	static {
 
 		for (Class<?> clazz : getModelClasses()) {
@@ -44,6 +59,7 @@ public abstract class Model {
 				e.printStackTrace();
 			}
 		}
+
 	}
 
 	/**
@@ -114,6 +130,7 @@ public abstract class Model {
 				dao.create(this);
 				createSnapshot(this);
 				insertES();
+				return true;
 			}
 			// 存在旧版本
 			else {
@@ -123,12 +140,18 @@ public abstract class Model {
 					oldVersion.copy(this);
 					oldVersion.update();
 
+					// 向 redis 发布更新数据的ID
+					if( oldVersion.getClass() == Project.class ) projectTopicPub.publish(oldVersion.id);
+					else if( oldVersion.getClass() == Tenderer.class ) tendererTopicPub.publish(oldVersion.id);
+					else if( oldVersion.getClass() == ServiceProvider.class ) serviceTopicPub.publish(oldVersion.id);
+
 					createSnapshot(oldVersion);
 					oldVersion.updateES();
+					return true;
 				}
 			}
 
-			return true;
+			return false;
 		}
 		catch (SQLException e) {
 			logger.error("Model {} insert error. ", this.toJSON(), e);
