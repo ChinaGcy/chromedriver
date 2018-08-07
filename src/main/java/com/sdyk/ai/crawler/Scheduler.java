@@ -51,13 +51,11 @@ public class Scheduler {
 
 	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
 
-	public static int DefaultDriverCount = 2;
+	public static int DefaultDriverCount = 4;
 
 	public static Map<String, LoginTask> loginTasks = new HashedMap();
 
 	public static Scheduler instance;
-
-	public static Map<String, String> city_province_map = new HashMap<>();
 
 	/**
 	 * 单例方法
@@ -97,8 +95,6 @@ public class Scheduler {
 
 		initLoginTask();
 
-		initCityProvinceMap();
-
 		init();
 	}
 
@@ -129,19 +125,6 @@ public class Scheduler {
 					LoginTask.buildFromJson(readFileByLines("login_tasks/" + f.getName())) );
 
 		}
-	}
-
-	/**
-	 *  获取市-省map
-	 */
-	public void initCityProvinceMap(){
-
-		String city_province = readFileByLines("city_province/city_province.json");
-
-		Gson gson = new Gson();
-		Map<String, Object> map = new HashMap<String, Object>();
-		city_province_map = gson.fromJson(city_province, map.getClass());
-
 	}
 
 	/**
@@ -538,11 +521,13 @@ public class Scheduler {
 
 			try {
 
-				t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+				t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
 
 				t.start_time = new Date();
 
 				t.update();
+
+				HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
 
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -187,8 +187,8 @@ public class BinaryDownloader {
 
 						binary.insert();
 
-						// TODO ID前要添加主机接口
-						des_src = des_src.replace(oldUrl, "http://10.0.0.61:50100/binarys/" + binary.id);
+						String newUrl = "http://10.0.0.61:50100/binarys/" + binary.id;
+						des_src = des_src.replace(oldUrl, newUrl);
 
 						logger.info(" Download done: {}.", url);
 					}

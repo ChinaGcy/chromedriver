@@ -32,7 +32,7 @@ public class ServiceWrapper {
 	 */
 	public ServiceWrapper() {
 
-		//port(port);
+		port(port);
 
 		ChromeDriverDistributor.instance = new Distributor();
 
