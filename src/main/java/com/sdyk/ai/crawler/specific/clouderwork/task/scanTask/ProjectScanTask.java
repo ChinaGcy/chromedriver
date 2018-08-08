@@ -31,8 +31,6 @@ public class ProjectScanTask extends ScanTask {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
-	public static List<String> crons = Arrays.asList("*/4 * * * *");
-
 	static {
 		registerBuilder(
 				ProjectScanTask.class,
@@ -47,8 +45,6 @@ public class ProjectScanTask extends ScanTask {
     public ProjectScanTask(String url) throws Exception{
 
 		super(url);
-
-	    this.setNoFetchImages();
 
 		this.setParam("page", url.split("pagenum=")[1]);
 
@@ -93,7 +89,7 @@ public class ProjectScanTask extends ScanTask {
 
             for(String user : usernames){
 
-	            try {
+	            /*try {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
@@ -110,7 +106,7 @@ public class ProjectScanTask extends ScanTask {
 	            } catch ( Exception e) {
 
 		            logger.error("error for submit ProjectTask.class", e);
-	            }
+	            }*/
 
             }
 
@@ -163,19 +159,6 @@ public class ProjectScanTask extends ScanTask {
 	            }
             }
 
-            // 设置定时任务
-		    ScheduledChromeTask st = t.getScheduledChromeTask();
-
-		    if(st == null) {
-
-			    /*Map<String, Object> init_map = new HashMap<>();
-			    init_map.put("max_page", "2");
-			    init_map.put("page", "1");
-			    init_map.put("step", 1);*/
-
-			    st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
-			    st.start();
-		    }
 
         });
     }
