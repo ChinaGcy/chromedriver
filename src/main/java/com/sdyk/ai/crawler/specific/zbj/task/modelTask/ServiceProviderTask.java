@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
 
@@ -87,14 +89,6 @@ public class ServiceProviderTask extends Task {
 				} catch (Exception e) {
 					logger.error("insert/update error {}", e);
 				}
-				// 服务商评价地址：http://shop.zbj.com/evaluation/evallist-uid-13046360-type-1-page-5.html
-				/*tasks.add(ServiceProviderRatingTask.generateTask(serviceProvider.origin_id, 1));
-				tasks.add(CaseScanTask.generateTask(serviceProvider.origin_id, 1));
-				tasks.add(WorkScanTask.generateTask(getUrl(), 1));
-
-				for (com.sdyk.ai.proc.task.Task t : tasks) {
-					ChromeTaskScheduler.getInstance().submit(t);
-				}*/
 
 				try {
 
@@ -186,35 +180,42 @@ public class ServiceProviderTask extends Task {
 		// 获取店铺流量
 		if (src.contains("店铺流量")) {
 
-			Element el = doc.selectFirst(".my-home");
+			Elements el = doc.select(".my-home");
 			if(el != null) {
-				String text = el.text()
-						.replaceAll("(?s)^.+?收藏量：", "")
-						.replaceAll(" *人", "");
+				String text = el.text();
 
-				if (!(text.equals("") || text == null)) {
-					serviceProvider.fav_num = Integer
-							.parseInt(text);
+				Pattern pattern = Pattern.compile("一周浏览量：(?<view>\\d+)次");
+				Pattern pattern_ = Pattern.compile("收藏量：(?<fav>\\d+)人");
+
+				Matcher matcher = pattern.matcher(text);
+				Matcher matcher_ = pattern_.matcher(text);
+
+				if (matcher.find()) {
+					serviceProvider.view_num = Integer.parseInt(matcher.group("view"));
+				}
+				if (matcher_.find()) {
+					serviceProvider.fav_num = Integer.parseInt(matcher.group("fav"));
 				}
 			}
-
-			// TODO 待写
-			//serviceProvider.view_num =
-
-			// body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div:nth-child(5)
-			/*Elements we = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div.diy-sec.diy.w990 > div.case2-left > div");
-
-			for (Element web : we) {
-				if (web.text().contains("店铺流量") && web.text().contains("收藏量")) {
-					serviceProvider.collection_num = Integer
-							.parseInt(web.select("orange").get(2).text());
-				}
-			}*/
 		}
 
 		//body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2)
 		String content_src = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2)")
 				.html();
+
+		// 图片下载
+		Elements elements = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2) > div.part");
+
+		Map<String, String> map = new HashMap<>();
+
+		for (Element e : elements) {
+			map.put(e.select("img").attr("src"), e.select("img").attr("src").split("/task/")[1].split("/")[0]);
+		}
+
+		// 图片下载
+		serviceProvider.cover_images = "";
+		serviceProvider.cover_images = serviceProvider.cover_images + BinaryDownloader.download(getUrl(), map);
+
 	}
 
 	/**
@@ -250,8 +251,10 @@ public class ServiceProviderTask extends Task {
 					.replace("差评(", "").replace(")", ""));
 		} catch (NumberFormatException e) {}
 
+		//
 		webPageUcenter();
 		try {
+			// 服务商详情
 			TPSalerinfo();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -274,10 +277,12 @@ public class ServiceProviderTask extends Task {
 		else {
 			serviceProvider.type = "个人";
 		}
+		// 交易评价
 		webPageEvaluation();
 
 		webPageUcenter();
 
+		// 服务商档案
 		ZBJSalerinfo();
 
 		}
@@ -399,7 +404,7 @@ public class ServiceProviderTask extends Task {
 			map.put(e.select("div > img").attr("src"), e.select("span").text());
 		}
 
-		serviceProvider.cover_images = BinaryDownloader.download(getUrl(), map);
+		serviceProvider.cover_images = serviceProvider.cover_images + "," + BinaryDownloader.download(getUrl(), map);
 
 		serviceProvider.tags = doc.select("body > div.grid > div.main-wrap > div > div > div:nth-child(3) > div.introduce-content > div").text();
 

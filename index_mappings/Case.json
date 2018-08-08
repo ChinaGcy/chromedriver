@@ -47,8 +47,11 @@
       "purchase_num":{
         "type":"integer"
       },
-      "budget":{
-        "type":"double_range"
+      "budget_ub":{
+        "type":"double"
+      },
+      "budget_lb":{
+        "type":"double"
       },
       "rating":{
         "type":"float"

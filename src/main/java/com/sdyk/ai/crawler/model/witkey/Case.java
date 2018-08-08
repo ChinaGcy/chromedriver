@@ -62,11 +62,11 @@ public class Case extends Model {
 
 	// 预算上限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public transient double budget_ub;
+	public double budget_ub;
 
 	// 预算下限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public transient double budget_lb;
+	public double budget_lb;
 
 	// 客户评分
 	@DatabaseField(dataType = DataType.FLOAT)

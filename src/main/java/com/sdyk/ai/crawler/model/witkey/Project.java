@@ -53,11 +53,11 @@ public class Project extends Model{
 
 	// 预算下限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public transient double budget_lb;
+	public double budget_lb;
 
 	// 预算上限
 	@DatabaseField(dataType = DataType.DOUBLE)
-	public transient double budget_ub;
+	public double budget_ub;
 
 	// 工期
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
@@ -148,7 +148,7 @@ public class Project extends Model{
 	}
 
 	public void fullfill() {
-		this.budget = new Range(this.budget_lb, this.budget_ub, true);
+		this.budget = new Range(this.budget_lb, this.budget_ub, false);
 	}
 
 	/**

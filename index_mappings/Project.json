@@ -39,8 +39,11 @@
         "analyzer": "ik_max_word",
         "boost": 4
       },
-      "budget":{
-        "type":"double_range"
+      "budget_lb":{
+        "type":"double"
+      },
+      "budget_ub":{
+        "type":"double"
       },
       "time_limit": {
         "type":"integer"

@@ -423,9 +423,7 @@ public class Scheduler {
 
 								account = AccountManager.getInstance().getAccountByDomain(d);
 
-								System.err.println(account.toJSON());
-
-								ChromeTask task = new ChromeTask("https://www.zbj.com");/*.addAction(new LoginWithGeetestAction(account));*/
+								ChromeTask task = new ChromeTask("https://login.zbj.com/login").addAction(new LoginWithGeetestAction(account));
 
 								((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, task);
 

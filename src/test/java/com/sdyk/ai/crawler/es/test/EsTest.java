@@ -5,13 +5,15 @@ import org.junit.Test;
 
 public class EsTest {
 
+	/**
+	 * 将数据库中的数据导入到ES中
+	 */
 	@Test
 	public void SQLToES(){
 		try {
 
 			ESTransportClientAdapter.deleteIndexAndMapping();
 			ESTransportClientAdapter.createIndexAndMapping();
-
 			ESTransportClientAdapter.dumpDBtoES();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -33,6 +35,8 @@ public class EsTest {
 	@Test
 	public void createUserIndex() throws Exception {
 		ESTransportClientAdapter.createIndexAndMapping();
+
+
 	}
 
 	@Test

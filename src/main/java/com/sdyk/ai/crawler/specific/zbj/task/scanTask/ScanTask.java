@@ -15,6 +15,7 @@ public abstract class ScanTask extends com.sdyk.ai.crawler.task.ScanTask{
 
 	public ScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
+		this.setNoFetchImages();
 		this.addDoneCallback((t) -> {
 			FileUtil.appendLineToFile(
 					url + "\t" + DateFormatUtil.dff.print(System.currentTimeMillis()),

@@ -16,10 +16,10 @@ public class GetProjectContactTask extends Task {
 
 	static {
 		registerBuilder(
-				GetProjectContactTask.class,
-				"https://shop.zbj.com/{{user_id}}/sid-{{case_id}}.html",
-				ImmutableMap.of("user_id", String.class,"case_id", String.class),
-				ImmutableMap.of("user_id", "0", "case_id", "0"),
+				ProjectTask.class,
+				"https://task.zbj.com/{{project_id}}/",
+				ImmutableMap.of("project_id", String.class),
+				ImmutableMap.of("project_id", "0"),
 				false,
 				Priority.MEDIUM
 		);
@@ -29,77 +29,49 @@ public class GetProjectContactTask extends Task {
 
 	public ProjectEval projectEval;
 
-	public static GetProjectContactTask getTask(Project project) {
-
-		try {
-
-			Dao dao = DaoManager.getDao(ProjectEval.class);
-
-			// A 赋值
-			GetProjectContactTask task = new GetProjectContactTask(project.url);
-			task.project = project;
-
-			task.projectEval = (ProjectEval) dao.queryForId(project.id);
-
-			/*Account account = AccountManager.getAccountsByDomain("zbj.com", "select");*/
-			/*task.addAction(new LoginWithGeetestAction(account));
-			task.addAction(new RedirectAction(project.url));*/
-
-			// B 添加动作
-			task.addAction(new GetProjectContactAction(task.projectEval));
-
-			// C 填写手机号
-			task.addDoneCallback((t)-> {
-
-				try {
-					task.project.cellphone = task.getResponse().getVar("cellphone");
-					task.projectEval.cellphone = task.project.cellphone;
-					ServiceWrapper.logger.info("project {} update {} projectscore {}.",
-							task.project.id, task.project.update(), task.projectEval.update());
-				} catch (Exception e) {
-					logger.error("Error update project:{} cellphone.", task.project.id, e);
-				}
-
-			});
-
-			// D 监听异步请求
-			task.setResponseFilter((res, contents, messageInfo) -> {
-
-				// D1 通过返回数据获取手机号
-				if(messageInfo.getOriginalUrl().contains("getANumByTask")) {
-
-					ServiceWrapper.logger.info(messageInfo.getOriginalUrl());
-
-					if(contents != null) {
-						String src = new String(contents.getBinaryContents());
-						String cellphone = src.replaceAll("^.+?\"data\":\"", "")
-								.replaceAll("\"}", "");
-
-						ServiceWrapper.logger.info(cellphone);
-						task.getResponse().setVar("cellphone", cellphone);
-					} else {
-						logger.info("NOT Find Cellphone");
-					}
-				}
-			});
-
-			return task;
-
-		} catch (Exception e) {
-			logger.error(e);
-		}
-
-		return null;
-	}
-
 	public GetProjectContactTask(String url) throws Exception {
 
 		super(url);
 		// 设置优先级
 		this.setPriority(Priority.HIGH);
 
+		project = DaoManager.getDao(Project.class).queryForId(getUrl().split("/")[3]);
+
+		projectEval = DaoManager.getDao(ProjectEval.class).queryForId(getUrl().split("/")[3]);
+
+		this.addAction(new GetProjectContactAction(projectEval));
+
+		// D 监听异步请求
+		this.setResponseFilter((res, contents, messageInfo) -> {
+
+			// D1 通过返回数据获取手机号
+			if(messageInfo.getOriginalUrl().contains("getANumByTask")) {
+
+				ServiceWrapper.logger.info(messageInfo.getOriginalUrl());
+
+				if(contents != null) {
+					String src = new String(contents.getBinaryContents());
+					String cellphone = src.replaceAll("^.+?\"data\":\"", "")
+							.replaceAll("\"}", "");
+
+					ServiceWrapper.logger.info(cellphone);
+					getResponse().setVar("cellphone", cellphone);
+				} else {
+					logger.info("NOT Find Cellphone");
+				}
+			}
+		});
+
 		this.addDoneCallback((t) -> {
 
+			try {
+				project.cellphone = getResponse().getVar("cellphone");
+				projectEval.cellphone = project.cellphone;
+				ServiceWrapper.logger.info("project {} update {} projectscore {}.",
+						project.id, project.update(), projectEval.update());
+			} catch (Exception e) {
+				logger.error("Error update project:{} cellphone.", project.id, e);
+			}
 
 		});
 	}
