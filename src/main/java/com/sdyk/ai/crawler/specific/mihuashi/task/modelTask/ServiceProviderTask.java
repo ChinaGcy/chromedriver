@@ -1,14 +1,17 @@
 package com.sdyk.ai.crawler.specific.mihuashi.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import java.io.UnsupportedEncodingException;
@@ -161,6 +164,28 @@ public class ServiceProviderTask extends Task {
 		}
 
 		boolean status = serviceProvider.insert();
+
+		// 公司信息补全任务
+		if( serviceProvider.type.contains("公司") ){
+			try {
+
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("company_name", serviceProvider.name);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch (Exception e){
+				logger.error("error for create CompanyInformationTask", e);
+			}
+		}
+
 
 		ScheduledChromeTask st = task.getScheduledChromeTask();
 

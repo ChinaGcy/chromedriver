@@ -173,6 +173,27 @@ public class TendererTask extends Task {
 
 		boolean status = tenderer.insert();
 
+		// 公司信息补全任务
+		if( tenderer.name.contains("公司") ){
+			try {
+
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("company_name", tenderer.name);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch (Exception e){
+				logger.error("error for create CompanyInformationTask", e);
+			}
+		}
+
 		ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务

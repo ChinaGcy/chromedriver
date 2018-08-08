@@ -53,6 +53,7 @@ public class ServiceScanTask extends ScanTask {
 
         	//获取当前页数
 	        int page = Integer.valueOf(url.split("pagenum=")[1]);
+	        System.out.println("当前页数为 ： " + page);
 
 	        //获取页面信息
             String src = getResponse().getDoc().text();
@@ -100,6 +101,9 @@ public class ServiceScanTask extends ScanTask {
 
             // 不含 max_page 参数，则表示可以一直翻页
 	        if( maxPageSrc.length() < 1 ){
+
+	        	System.out.println("生成无最大页查询任务");
+
 		        //生成智库列表任务
 		        if( usernames.size()>0 ){
 			        try {
@@ -123,6 +127,8 @@ public class ServiceScanTask extends ScanTask {
 		        }
 	        }
 	        else {
+
+		        System.out.println("生成最大页查询任务");
 
 		        int maxPage = Integer.valueOf(maxPageSrc);
 		        int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));

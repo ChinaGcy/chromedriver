@@ -192,7 +192,7 @@ public class TendererTask extends Task {
 		tenderer.praise_num = Integer.valueOf(sRatings);
 
 		//获取项目连接
-		Elements jobs = doc.select("div.job-list > a");
+		/*Elements jobs = doc.select("div.job-list > a");
 		for(  Element element : jobs ){
 
 			String jobId = element.attr("href").replace("/jobs/","");
@@ -214,7 +214,7 @@ public class TendererTask extends Task {
 				logger.error("error for submit ProjectTask.class", e);
 			}
 
-		}
+		}*/
 
 		boolean status = tenderer.insert();
 

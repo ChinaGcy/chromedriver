@@ -98,9 +98,11 @@ public class WorkTask extends Task {
 		}
 
 		//抓取描述
-		String descreption = doc.getElementsByClass("desc simditor-content").html();
+		String descreption = "<p>" + doc.getElementsByClass("desc simditor-content").html() + "</p>";
+
 		Set<String> set = new HashSet<>();
 		String img = StringUtil.cleanContent(doc.select("div.project-img").html(), set);
+
 		img = BinaryDownloader.download(img, set, getUrl());
 		if(descreption!=null&&!"".equals(descreption)){
 			workinfor.content = descreption + img;

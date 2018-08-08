@@ -44,7 +44,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 		this.setBuildDom();
 
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 
 		this.setPriority(Priority.HIGHER);
 
