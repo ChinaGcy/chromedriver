@@ -10,6 +10,7 @@ import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import one.rewind.db.RedissonAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.reflections.Reflections;
@@ -37,13 +38,13 @@ public abstract class Model {
 	public static boolean ES_Index = false;
 
 	// 发布更新的项目ID
-	public static RTopic<String> projectTopicPub = RedissonAdapter.redisson.getTopic("ProjectTopic");
+	public static RBlockingQueue<String> SdykCrawlerProjectUpdate = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Projects-Update");
 
 	// 发布更新的甲方ID
-	public static RTopic<String> tendererTopicPub = RedissonAdapter.redisson.getTopic("TendererTopic");
+	public static RBlockingQueue<String> SdykCrawlerTendererUpdate = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Tenderers-Update");
 
 	// 发布更新的乙方ID
-	public static RTopic<String> serviceTopicPub = RedissonAdapter.redisson.getTopic("ServiceTopic");
+	public static RBlockingQueue<String> SdykCrawlerServiceUpdate = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-ServiceProviders-Update");
 
 	static {
 
@@ -141,9 +142,9 @@ public abstract class Model {
 					oldVersion.update();
 
 					// 向 redis 发布更新数据的ID
-					if( oldVersion.getClass() == Project.class ) projectTopicPub.publish(oldVersion.id);
-					else if( oldVersion.getClass() == Tenderer.class ) tendererTopicPub.publish(oldVersion.id);
-					else if( oldVersion.getClass() == ServiceProvider.class ) serviceTopicPub.publish(oldVersion.id);
+					if( oldVersion.getClass() == Project.class ) SdykCrawlerProjectUpdate.offer(oldVersion.id);
+					else if( oldVersion.getClass() == Tenderer.class ) SdykCrawlerTendererUpdate.offer(oldVersion.id);
+					else if( oldVersion.getClass() == ServiceProvider.class ) SdykCrawlerServiceUpdate.offer(oldVersion.id);
 
 					createSnapshot(oldVersion);
 					oldVersion.updateES();
@@ -257,6 +258,7 @@ public abstract class Model {
 						&& !f.getName().equals("budget")) {
 
 					if( !String.valueOf(f.get(model)).equals(String.valueOf(f.get(this))) ){
+						System.out.println("更新数据为" + f.getName() + " : " + String.valueOf(f.get(model)));
 						return true;
 					}
 				}
