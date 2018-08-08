@@ -1,10 +1,6 @@
 package com.sdyk.ai.crawler;
 
-import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.route.*;
-import com.sdyk.ai.crawler.route.es.ProjectQueryRoute;
-import com.sdyk.ai.crawler.route.es.ServiceQueryRoute;
-import com.sdyk.ai.crawler.route.es.TendererQueryRoute;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.server.MsgTransformer;
 import org.apache.logging.log4j.LogManager;
@@ -44,13 +40,7 @@ public class ServiceWrapper {
 
 		before("/*", (q, a) -> logger.info("Received api call"));
 
-		// 通过es关键词匹配查询
-		get("/projects", ProjectQueryRoute.query, new ModelMsgTransformer());
-		get("/tenderers", TendererQueryRoute.query, new ModelMsgTransformer());
-		get("/providers", ServiceQueryRoute.query, new ModelMsgTransformer());
 
-
-		// 需求列表
 		get("/projects/:page", ProjectRoute.getProjects, new ModelMsgTransformer());
 
 		// 需求详情
