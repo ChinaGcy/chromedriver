@@ -113,7 +113,6 @@ public class ServiceWrapper {
 		path("/zbj", () -> {
 
 			// 根据project_id 获取联系方式
-			post("/get_contact/:id", ZbjRoute.getContactByProjectId, new ModelMsgTransformer());
 
 		});
 

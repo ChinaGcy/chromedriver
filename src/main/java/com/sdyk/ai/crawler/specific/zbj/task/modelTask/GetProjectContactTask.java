@@ -27,7 +27,7 @@ public class GetProjectContactTask extends Task {
 
 	public Project project;
 
-	public ProjectEval projectEval;
+	//public ProjectEval projectEval;
 
 	public GetProjectContactTask(String url) throws Exception {
 
@@ -37,9 +37,9 @@ public class GetProjectContactTask extends Task {
 
 		project = DaoManager.getDao(Project.class).queryForId(getUrl().split("/")[3]);
 
-		projectEval = DaoManager.getDao(ProjectEval.class).queryForId(getUrl().split("/")[3]);
+		//projectEval = DaoManager.getDao(ProjectEval.class).queryForId(getUrl().split("/")[3]);
 
-		this.addAction(new GetProjectContactAction(projectEval));
+		this.addAction(new GetProjectContactAction());
 
 		// D 监听异步请求
 		this.setResponseFilter((res, contents, messageInfo) -> {
@@ -66,9 +66,8 @@ public class GetProjectContactTask extends Task {
 
 			try {
 				project.cellphone = getResponse().getVar("cellphone");
-				projectEval.cellphone = project.cellphone;
-				ServiceWrapper.logger.info("project {} update {} projectscore {}.",
-						project.id, project.update(), projectEval.update());
+				ServiceWrapper.logger.info("project {} update {}.",
+						project.id, project.update());
 			} catch (Exception e) {
 				logger.error("Error update project:{} cellphone.", project.id, e);
 			}
