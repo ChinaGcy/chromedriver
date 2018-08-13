@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 public class TendererOrderTask extends ScanTask {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000;
+
 	static {
 		registerBuilder(
 				TendererOrderTask.class,

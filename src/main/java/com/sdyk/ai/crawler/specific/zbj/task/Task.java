@@ -21,7 +21,7 @@ public class Task extends ChromeTask {
 
 	public Task(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
-		this.setNoFetchImages();
+		//this.setNoFetchImages();
 	}
 
 	/*public Task(String url) throws MalformedURLException, URISyntaxException {

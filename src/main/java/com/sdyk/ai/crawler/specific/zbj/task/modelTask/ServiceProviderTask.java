@@ -2,11 +2,13 @@ package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.HttpTaskPoster;
+import com.sdyk.ai.crawler.model.witkey.Resume;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.DateFormatUtil;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
@@ -16,6 +18,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,6 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
+
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -55,8 +62,6 @@ public class ServiceProviderTask extends Task {
 
 				String src = getResponse().getText();
 				Document doc = getResponse().getDoc();
-
-				List<com.sdyk.ai.crawler.task.Task> tasks = new ArrayList<>();
 
 				shareData(doc, src);
 
@@ -93,8 +98,7 @@ public class ServiceProviderTask extends Task {
 				try {
 
 					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
+					Map<String, Object> init_map = ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
 
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask");
 
@@ -112,8 +116,7 @@ public class ServiceProviderTask extends Task {
 				try {
 
 					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
+					Map<String, Object> init_map = ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
 
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask");
 
@@ -132,8 +135,7 @@ public class ServiceProviderTask extends Task {
 				try {
 
 					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
+					Map<String, Object> init_map = ImmutableMap.of("user_id", serviceProvider.origin_id, "page", String.valueOf(1));
 
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask");
 
@@ -152,7 +154,6 @@ public class ServiceProviderTask extends Task {
 				logger.error(e);
 			}
 		});
-
 	}
 
 	/**3
@@ -163,59 +164,59 @@ public class ServiceProviderTask extends Task {
 	public void shareData(Document doc, String src) {
 
 		//https://shop.zbj.com/15774587/
-		serviceProvider.origin_id = this.getUrl().split("/")[3];
+		try {
+			serviceProvider.origin_id = this.getUrl().split("/")[3];
+			// 获取等级
+			if (src.contains("<img align=\"absmiddle\" src=\"https://t5.zbjimg.com/t5s/common/img/user-level/level-")) {
 
-		// 获取等级
-		if (src.contains("<img align=\"absmiddle\" src=\"https://t5.zbjimg.com/t5s/common/img/user-level/level-")) {
+				String s = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc > img")
+						.get(0).attr("src");
 
-			String s = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc > img")
-					.get(0).attr("src");
+					serviceProvider.grade = s.split("/level-")[1].split(".png")[0];
 
-			serviceProvider.grade = s.split("/level-")[1].split(".png")[0];
-		}
+			}
 
-		// 获取联系方式
-		contactWay(src, serviceProvider, doc);
+			// 获取联系方式
+			contactWay(src, serviceProvider, doc);
 
-		// 获取店铺流量
-		if (src.contains("店铺流量")) {
+			// 获取店铺流量
+			if (src.contains("店铺流量")) {
 
-			Elements el = doc.select(".my-home");
-			if(el != null) {
-				String text = el.text();
+				Elements el = doc.select(".my-home");
+				if(el != null) {
+					String text = el.text();
 
-				Pattern pattern = Pattern.compile("一周浏览量：(?<view>\\d+)次");
-				Pattern pattern_ = Pattern.compile("收藏量：(?<fav>\\d+)人");
+					Pattern pattern = Pattern.compile("一周浏览量：(?<view>\\d+)次");
+					Pattern pattern_ = Pattern.compile("收藏量：(?<fav>\\d+)人");
 
-				Matcher matcher = pattern.matcher(text);
-				Matcher matcher_ = pattern_.matcher(text);
+					Matcher matcher = pattern.matcher(text);
+					Matcher matcher_ = pattern_.matcher(text);
 
-				if (matcher.find()) {
-					serviceProvider.view_num = Integer.parseInt(matcher.group("view"));
-				}
-				if (matcher_.find()) {
-					serviceProvider.fav_num = Integer.parseInt(matcher.group("fav"));
+					if (matcher.find()) {
+						serviceProvider.view_num = Integer.parseInt(matcher.group("view"));
+					}
+					if (matcher_.find()) {
+						serviceProvider.fav_num = Integer.parseInt(matcher.group("fav"));
+					}
 				}
 			}
+
+			// 图片下载
+			Elements elements = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2) > div.part");
+
+			Map<String, String> map = new HashMap<>();
+
+			for (Element e : elements) {
+				map.put(e.select("img").attr("src"), e.select("img").attr("src").split("/task/")[1].split("/")[0]);
+			}
+
+			// 图片下载
+			serviceProvider.cover_images = "";
+			serviceProvider.cover_images = serviceProvider.cover_images + BinaryDownloader.download(getUrl(), map);
+
+		} catch (Exception e) {
+
 		}
-
-		//body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2)
-		String content_src = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2)")
-				.html();
-
-		// 图片下载
-		Elements elements = doc.select("body > div.diy-content.preview.J-refuse-external-link > div > div:nth-child(2) > div.part");
-
-		Map<String, String> map = new HashMap<>();
-
-		for (Element e : elements) {
-			map.put(e.select("img").attr("src"), e.select("img").attr("src").split("/task/")[1].split("/")[0]);
-		}
-
-		// 图片下载
-		serviceProvider.cover_images = "";
-		serviceProvider.cover_images = serviceProvider.cover_images + BinaryDownloader.download(getUrl(), map);
-
 	}
 
 	/**
@@ -267,6 +268,39 @@ public class ServiceProviderTask extends Task {
 	 * @param serviceProvider
 	 */
 	public void pageTwo(String src, ServiceProvider serviceProvider, Document doc) throws IOException {
+
+		// head 店铺主页
+		if (src.contains("关于我们") && doc.title().contains("店铺主页")) {
+
+			serviceProvider.origin_id = this.getUrl().split("/")[3];
+
+			serviceProvider.name = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > h1").text();
+			serviceProvider.grade = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.tag-wrap > div.ability-tag.ability-tag-0.text-tag").text();
+			serviceProvider.type = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.tag-wrap > div.personal-tag.text-tag").text();
+			serviceProvider.content = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.no-about").text();
+			serviceProvider.location = doc.select("#utopia_widget_4 > div.left-wrap.fl > div.address-wrap").text();
+			serviceProvider.tags = doc.select("#utopia_widget_15 > div.skill-wrap").text();
+			serviceProvider.rating_num = Integer.parseInt(doc.select("#utopia_widget_18 > div.left-card-title").text().split("（")[1].split("）")[0]);
+
+			String s = doc.select("#head-img").html();
+			Set<String> url = new HashSet<>();
+			StringUtil.cleanContent(s, url);
+			serviceProvider.head_portrait = BinaryDownloader.download(s, url, getUrl());
+
+			serviceProvider.insert();
+
+			if (doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.our-info > div.work-wrap").text().contains("工作经历")) {
+
+				getResumeInfo_work(doc);
+			}
+
+			if (doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.our-info > div.study-wrap").text().contains("教育经历")) {
+
+				getResumeInfo_study(doc);
+			}
+
+			return;
+		}
 
 		serviceProvider.name = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc > a > h1")
 				.text();
@@ -481,6 +515,110 @@ public class ServiceProviderTask extends Task {
 				}
 
 			} catch (Exception e) {}
+		}
+	}
+
+	/**
+	 * 工作经历
+	 * @param doc
+	 */
+	public void getResumeInfo_work(Document doc) {
+
+		Elements elements = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.our-info > div.work-wrap > div.content-item");
+
+		for (int i = 0; i < elements.size(); i++) {
+
+			Resume resume = new Resume(getUrl() +"?_work_"+ i);
+			resume.user_id = serviceProvider.id;
+
+			String time = elements.get(i).select("div.time.item").text();
+			String st = time.split("~")[0];
+			int indes = st.split("\\.").length - 1;
+
+			if (indes == 0) {
+				st = st + ".01.01";
+			}
+			if (indes == 1) {
+				st = st + ".01";
+			}
+
+			resume.sd = DateFormatUtil.parseTime(st);
+
+
+			if (time.split("~")[1].contains("至今")) {
+				resume.ed = new Date();
+			} else {
+				String et = time.split("~")[1];
+				int inde = et.split("\\.").length - 1;
+
+				if (inde == 0) {
+					et = et + ".01.01";
+				}
+				if (inde == 1) {
+					et = et + ".01";
+				}
+
+				resume.ed = DateFormatUtil.parseTime(et);
+
+			}
+
+			resume.org = elements.get(i).select("div.name.item").text();
+			resume.degree_occupation = elements.get(i).select("div.position.item").text();
+
+			resume.insert();
+		}
+	}
+
+	/**
+	 * 教育经历
+	 * @param doc
+	 */
+	public void getResumeInfo_study(Document doc) {
+
+		Elements elements = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.our-info > div.study-wrap > div.content-item");
+
+		for (int i = 0; i < elements.size(); i++) {
+
+			Resume resume = new Resume(getUrl() +"?_study_"+ i);
+			resume.user_id = serviceProvider.id;
+
+			String time = elements.get(i).select("div.time.item").text();
+			String st = time.split("~")[0];
+			int indes = st.split("\\.").length - 1;
+
+			if (indes == 0) {
+				st = st + ".01.01";
+			}
+			if (indes == 1) {
+				st = st + ".01";
+			}
+
+			resume.sd = DateFormatUtil.parseTime(st);
+
+
+			if (time.split("~")[1].contains("至今")) {
+				resume.ed = new Date();
+			} else {
+				String et = time.split("~")[1];
+				int inde = et.split("\\.").length - 1;
+
+				if (inde == 0) {
+					et = et + ".01.01";
+				}
+				if (inde == 1) {
+					et = et + ".01";
+				}
+
+				resume.ed = DateFormatUtil.parseTime(et);
+
+			}
+
+			// #utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.our-info > div.work-wrap > div.content-item > div.name.item
+			resume.org = elements.get(i).select("div.name.item").text();
+			resume.degree_occupation = elements.get(i).select("div.educlass.item").text();
+			resume.content = elements.get(i).select("div.field.item").text();
+
+			resume.insert();
 		}
 	}
 }

@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
  */
 public class CaseTask extends Task {
 
+	public static long MIN_INTERVAL = 365 * 24 * 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				CaseTask.class,

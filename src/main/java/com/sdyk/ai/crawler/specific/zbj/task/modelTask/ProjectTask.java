@@ -11,6 +11,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -19,9 +20,7 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +28,10 @@ import java.util.regex.Pattern;
  * 甲方需求详情
  */
 public class ProjectTask extends Task {
+
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
+	public static List<String> crons = Arrays.asList("* * */1 * *");
 
 	static {
 		registerBuilder(
@@ -151,6 +154,19 @@ public class ProjectTask extends Task {
 					} catch (Exception e) {
 
 						logger.error("error for submit TendererTask.class", e);
+					}
+
+					ScheduledChromeTask st = t.getScheduledChromeTask();
+
+					// 第一次抓取生成定时任务
+					if(st == null) {
+
+						st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+						st.start();
+					}
+					// 已完成项目停止定时任务
+					if( project.status.contains("完成") || project.status.contains("成功") || project.status.contains("失败")){
+						st.stop();
 					}
 				}
 
