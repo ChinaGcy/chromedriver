@@ -1,0 +1,15 @@
+{
+  "url": "https://www.oschina.net/home/login",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://www.oschina.net/home/login?goto_page=https://zb.oschina.net",
+        "usernameCssPath": "#userMail",
+        "passwordCssPath": "#userPassword",
+        "loginButtonCssPath": "#account_login > form > div > div.form-item.form-button > button",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}

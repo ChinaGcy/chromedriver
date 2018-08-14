@@ -1,0 +1,15 @@
+{
+  "url": "https://passport.lagou.com/login/login.html",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://passport.lagou.com/login/login.html",
+        "usernameCssPath": "body > section > div.left_area.fl > div:nth-child(2) > form > div:nth-child(1) > input",
+        "passwordCssPath": "body > section > div.left_area.fl > div:nth-child(2) > form > div:nth-child(2) > input",
+        "loginButtonCssPath": "body > section > div.left_area.fl > div:nth-child(2) > form > div.input_item.btn_group.clearfix > input",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}
