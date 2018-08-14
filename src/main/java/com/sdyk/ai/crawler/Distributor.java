@@ -109,10 +109,13 @@ public class Distributor extends ChromeDriverDistributor {
 		}
 
 		// 上次采集时间过滤
-		if(last_visit != 0 && last_visit < min_interval) {
+		if(last_visit != 0 && (new Date().getTime() - last_visit) < min_interval) {
+			System.err.println("Collection interval is too short :" + url);
 			logger.error("{} {} fetch interval is less than MIN_INTERVAL {}, discard.", clazz.getName(), url, min_interval);
 			throw new TaskException.LessThanMinIntervalException();
 		}
+
+
 
 		URL_VISITS.put(hash, new Date().getTime());
 
@@ -167,7 +170,9 @@ public class Distributor extends ChromeDriverDistributor {
 			// todo Collectors.toList() 返回值为0
 			agent = queues.keySet().stream()
 				.filter( a -> {
-					return !ProxyManager.getInstance().isProxyBannedByDomain(a.proxy, holder.domain);
+					return !ProxyManager.getInstance().isProxyBannedByDomain(a.proxy, holder.domain) &&
+							!a.accounts.keySet().contains("tianyancha.com") &&
+							!a.accounts.keySet().contains("lagou.com");
 				})
 				.map(a -> {
 					int queue_size = queues.get(a).size();
