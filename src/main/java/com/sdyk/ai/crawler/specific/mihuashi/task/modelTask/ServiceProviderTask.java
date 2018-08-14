@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000L;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
@@ -41,7 +41,7 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGH);
+		this.setPriority(Priority.HIGHER);
 
 		this.setNoFetchImages();
 
@@ -167,6 +167,7 @@ public class ServiceProviderTask extends Task {
 
 		// 公司信息补全任务
 		if( serviceProvider.type.contains("公司") ){
+
 			try {
 
 				//设置参数
@@ -185,9 +186,31 @@ public class ServiceProviderTask extends Task {
 				logger.error("error for create CompanyInformationTask", e);
 			}
 		}
+		else {
+
+			// 提交天眼查查询任务
+			try {
+
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("company_id", "");
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit TianyanchaTask.class", e);
+			}
+		}
 
 
-		ScheduledChromeTask st = task.getScheduledChromeTask();
+		/*ScheduledChromeTask st = task.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务
 		if(st == null) {
@@ -204,7 +227,7 @@ public class ServiceProviderTask extends Task {
 			if( !status ){
 				st.degenerate();
 			}
-		}
+		}*/
 
 	}
 }

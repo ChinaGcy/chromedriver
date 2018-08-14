@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
@@ -29,7 +30,7 @@ import java.util.regex.Pattern;
 
 public class ServiceProviderTask extends Task {
 
-	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000L;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
@@ -46,19 +47,36 @@ public class ServiceProviderTask extends Task {
 
     	super(url);
 
-    	this.setPriority(Priority.HIGH);
+    	this.setPriority(Priority.HIGHER);
 
 	    this.setNoFetchImages();
 
     	this.addDoneCallback((t) -> {
 
-            Document doc = getResponse().getDoc();
+		    Document doc = getResponse().getDoc();
 
-            try {
-                crawlerJob(doc, (ChromeTask) t);
-            } catch (ChromeDriverException.IllegalStatusException e) {
-                logger.info("error on crawlerJob",e);
-            }
+		    boolean status =  crawlerJob(doc);
+
+		    /*ScheduledChromeTask st = t.getScheduledChromeTask();
+
+		    // 第一次抓取生成定时任务
+		    if(st == null) {
+
+			    try {
+				    st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				    st.start();
+			    } catch (Exception e) {
+				    logger.error("error for creat ScheduledChromeTask", e);
+			    }
+
+		    }
+		    else {
+
+			    if( !status ){
+				    st.degenerate();
+			    }
+		    }*/
+
 
         });
 
@@ -69,7 +87,7 @@ public class ServiceProviderTask extends Task {
 	 * @param doc
 	 * @throws ChromeDriverException.IllegalStatusException
 	 */
-	public void crawlerJob(Document doc, ChromeTask t) throws ChromeDriverException.IllegalStatusException {
+	public boolean crawlerJob(Document doc) throws Exception {
 
 		ServiceProvider serviceProvider = new ServiceProvider(getUrl());
 
@@ -146,6 +164,9 @@ public class ServiceProviderTask extends Task {
 
 					// 团队名称中不含有公司
 					if( !teamName.contains("公司") ){
+						if( teamName == null ){
+							teamName = serviceProvider.name;
+						}
 						serviceProvider.company_name = teamName + "有限公司";
 					}
 					// 团队名称中含有公司
@@ -158,6 +179,10 @@ public class ServiceProviderTask extends Task {
 				else {
 					serviceProvider.company_name = name;
 				}
+			}
+			else if( name.contains("公司") ){
+				serviceProvider.type = "团队-公司";
+				serviceProvider.company_name = name;
 			}
 
 			// 名字
@@ -198,11 +223,18 @@ public class ServiceProviderTask extends Task {
 			//地点
 			String location = all3[0];
 			if( location!=null && !"".equals(location) ){
-				serviceProvider.location = location;
+				serviceProvider.location = LocationParser.getInstance().matchLocation(location).size() > 0 ? LocationParser.getInstance().matchLocation(location).get(0).toString() : null;
 			}
 
 			//工作经验
 			if( all3.length > 1 ){
+				String workExperience = CrawlerAction.getNumbers(all3[1]);
+				if( workExperience != null &&
+						!"".equals(workExperience)) {
+					serviceProvider.work_experience = Integer.valueOf(workExperience);
+				}
+			}
+			if( location.contains("项目经验") ){
 				String workExperience = CrawlerAction.getNumbers(all3[1]);
 				if( workExperience != null &&
 						!"".equals(workExperience)) {
@@ -247,11 +279,18 @@ public class ServiceProviderTask extends Task {
 			//地点
 			String location = all3[0];
 			if(location!=null&&!"".equals(location)){
-				serviceProvider.location = location;
+				serviceProvider.location = LocationParser.getInstance().matchLocation(location).size() > 0 ? LocationParser.getInstance().matchLocation(location).get(0).toString() : null;
 			}
 
 			//工作经验
 			if( all3.length > 1 ){
+				String workExperience = CrawlerAction.getNumbers(all3[1]);
+				if( workExperience != null &&
+						!"".equals(workExperience)) {
+					serviceProvider.work_experience = Integer.valueOf(workExperience);
+				}
+			}
+			if( location.contains("项目经验") ){
 				String workExperience = CrawlerAction.getNumbers(all3[1]);
 				if( workExperience != null &&
 						!"".equals(workExperience)) {
@@ -513,15 +552,6 @@ public class ServiceProviderTask extends Task {
 			}
 		}
 
-		boolean status = false;
-
-		try {
-			status = serviceProvider.insert();
-		} catch (Exception e) {
-			logger.error("error on insert serviceProvider", e);
-		}
-
-		// 公司信息补全任务
 		if( serviceProvider.type.contains("公司") ){
 			try {
 
@@ -540,26 +570,30 @@ public class ServiceProviderTask extends Task {
 			} catch (Exception e){
 				logger.error("error for create CompanyInformationTask", e);
 			}
-		}
+		}else {
 
-		ScheduledChromeTask st = t.getScheduledChromeTask();
-
-		// 第一次抓取生成定时任务
-		if(st == null) {
-
+			// 提交天眼查查询任务
 			try {
-				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
-				st.start();
-			} catch (Exception e) {
-				logger.error("error for creat ScheduledChromeTask", e);
-			}
 
-		}
-		else {
-			if( !status ){
-				st.degenerate();
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("company_id", "");
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit TianyanchaTask.class", e);
 			}
 		}
+
+		return serviceProvider.insert();
 
 	}
 

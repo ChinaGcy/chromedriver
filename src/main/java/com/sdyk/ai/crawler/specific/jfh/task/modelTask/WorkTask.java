@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.exception.AccountException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -25,7 +26,9 @@ public class WorkTask extends Task {
 				WorkTask.class,
 				"https://www.jfh.com/jfhrm/buinfo/showbucaseinfo?uuidSecret={{uuidSecret}}",
 				ImmutableMap.of("uuidSecret", String.class, "uId", String.class),
-				ImmutableMap.of("uuidSecret", "MTQxODM7NDQ", "uId", "")
+				ImmutableMap.of("uuidSecret", "MTQxODM7NDQ", "uId", ""),
+				true,
+				Priority.MEDIUM
 		);
 	}
 
@@ -35,7 +38,18 @@ public class WorkTask extends Task {
 
 		this.setPriority(Priority.MEDIUM);
 
-		this.setNoFetchImages();
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("Log in JointForce") && src.contains("Don't have an account?") ){
+
+				throw new AccountException.Failed(a.accounts.get("jfh.com"));
+
+			}
+
+		});
+
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

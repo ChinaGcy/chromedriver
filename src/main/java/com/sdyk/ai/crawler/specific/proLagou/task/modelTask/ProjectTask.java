@@ -1,12 +1,15 @@
 package com.sdyk.ai.crawler.specific.proLagou.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -16,7 +19,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProjectTask extends Task {
 
@@ -40,7 +45,7 @@ public class ProjectTask extends Task {
     	super(url);
 
     	// 设置优先级
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.HIGHER);
 
 	    this.setNoFetchImages();
 
@@ -154,6 +159,28 @@ public class ProjectTask extends Task {
 		        project.rcmd_num = Integer.valueOf(rcmd_num);
 	        }
 
+	        if( project.tenderer_name.contains("公司") ){
+
+		        // 生成公司信息补全任务
+		        try {
+
+			        //设置参数
+			        Map<String, Object> init_map = new HashMap<>();
+			        init_map.put("company_name", project.tenderer_name);
+
+			        Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
+
+			        //生成holder
+			        ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+			        //提交任务
+			        ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+		        } catch (Exception e){
+			        logger.error("error for create CompanyInformationTask", e);
+		        }
+	        }
+
 	        project.category = doc.select(
 			        "#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)"
 	        ).text().replace("/", ",");
@@ -164,54 +191,8 @@ public class ProjectTask extends Task {
 		        logger.error("error on insert project", e);
 	        }
 
-
-	        // 生成定时任务
-	        ScheduledChromeTask st = t.getScheduledChromeTask();
-
-	        // 第一次抓取生成定时任务
-	        if(st == null) {
-
-		        st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
-		        st.start();
-	        }
-	        // 已完成项目停止定时任务
-	        if( project.status.contains("已完成") ){
-		        st.stop();
-	        }
-
         });
     }
 
-
-	public void crawlJob(Document doc, ChromeTask t){
-
-
-
-		if(!project.status.equals("已完成")){
-			/*ScheduledChromeTask st = t.getScheduledChromeTask();
-			if(st == null) {
-
-				try {
-					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
-					st.start();
-				} catch (Exception e) {
-					logger.error("error for ScheduledChromeTask on projectTask");
-				}
-
-			}else{
-				if(!project.status.equals("已完成")){
-					st.degenerate();
-				}
-				else{
-					try {
-						st.stop();
-					} catch (Exception e) {
-						logger.error("error for ScheduledChromeTask.stop");
-					}
-				}
-			}*/
-
-		}
-	}
 
 }

@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
@@ -27,7 +28,9 @@ public class ServiceProviderRatingTask extends Task {
 				ServiceProviderRatingTask.class,
 				"http://shop.jfh.com/{{user_id}}",
 				ImmutableMap.of("user_id", String.class),
-				ImmutableMap.of("user_id", "")
+				ImmutableMap.of("user_id", ""),
+				true,
+				Priority.MEDIUM
 		);
 	}
 
@@ -37,7 +40,18 @@ public class ServiceProviderRatingTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("Log in JointForce") && src.contains("Don't have an account?") ){
+
+				throw new AccountException.Failed(a.accounts.get("jfh.com"));
+
+			}
+
+		});
+
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

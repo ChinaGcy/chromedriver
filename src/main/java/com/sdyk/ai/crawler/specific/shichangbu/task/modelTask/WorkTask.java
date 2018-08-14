@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,6 +39,17 @@ public class WorkTask extends Task {
 		super(url);
 
 		this.setPriority(Priority.MEDIUM);
+
+		/*this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("登陆") ){
+
+				throw new AccountException.Failed(a.accounts.get("shichangbu.com"));
+
+			}
+
+		});*/
 
 		this.setNoFetchImages();
 

@@ -30,7 +30,9 @@ public class ProjectScanTask extends ScanTask {
 				"https://zb.oschina.net/project/contractor-browse-project-and-reward?" +
 						"applicationAreas=&sortBy=30&pageSize=10&currentPage={{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "", "max_page", "2")
+				ImmutableMap.of("page", "", "max_page", "2"),
+				true,
+				Priority.HIGH
 		);
 	}
 
@@ -39,8 +41,6 @@ public class ProjectScanTask extends ScanTask {
 		super(url);
 
 		this.setPriority(Priority.HIGH);
-
-		this.setNoFetchImages();
 
 		this.setParam("page", url.split("currentPage=")[1]);
 

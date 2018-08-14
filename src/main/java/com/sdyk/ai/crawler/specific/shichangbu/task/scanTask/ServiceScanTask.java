@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.shichangbu.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -38,6 +39,17 @@ public class ServiceScanTask extends ScanTask {
 		super(url);
 
 		this.setPriority(Priority.HIGH);
+
+		/*this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("登陆") ){
+
+				throw new AccountException.Failed(a.accounts.get("shichangbu.com"));
+
+			}
+
+		});*/
 
 		this.setNoFetchImages();
 

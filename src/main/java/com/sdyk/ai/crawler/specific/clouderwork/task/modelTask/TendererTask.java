@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
+import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
 
-	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 0;//12 * 60 * 60 * 1000;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
@@ -43,22 +44,35 @@ public class TendererTask extends Task {
 
         super(url);
 
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.HIGHER);
 
 	    this.setNoFetchImages();
 
         this.addDoneCallback((t)->{
 
-            Document doc = getResponse().getDoc();
+	        Document doc = getResponse().getDoc();
 
-            //执行抓取任务
-            try {
-                crawlawJob(doc, (ChromeTask)t);
-            } catch (MalformedURLException e) {
-                logger.info("error on crawlawJob");
-            } catch (URISyntaxException e) {
-                logger.info("error on crawlawJob");
-            }
+	        boolean status = crawlawJob(doc);
+
+	        /*ScheduledChromeTask st = t.getScheduledChromeTask();
+
+	        // 第一次抓取生成定时任务
+	        if(st == null) {
+
+		        try {
+			        st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+			        st.start();
+		        } catch (Exception e) {
+			        logger.error("error for creat ScheduledChromeTask", e);
+		        }
+
+	        }
+	        else {
+
+		        if( !status ){
+			        st.degenerate();
+		        }
+	        }*/
 
         });
 
@@ -72,7 +86,7 @@ public class TendererTask extends Task {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public void crawlawJob (Document doc, ChromeTask t) throws MalformedURLException, URISyntaxException {
+	public boolean crawlawJob (Document doc) throws MalformedURLException, URISyntaxException {
 
 		Tenderer tenderer = new Tenderer(getUrl());
 		Pattern pattern = Pattern.compile("[0-9]*");
@@ -192,51 +206,42 @@ public class TendererTask extends Task {
 		tenderer.praise_num = Integer.valueOf(sRatings);
 
 		//获取项目连接
-		/*Elements jobs = doc.select("div.job-list > a");
+		Elements jobs = doc.select("div.job-list > a");
 		for(  Element element : jobs ){
 
 			String jobId = element.attr("href").replace("/jobs/","");
 
-			try {
+			// 判断执行间隔
+			String pUrl = "https://www.clouderwork.com/jobs/" + jobId;
 
-				//设置参数
-				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("project_id", jobId);
-
-				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map);
-
-				//提交任务
-				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-			} catch ( Exception e) {
-
-				logger.error("error for submit ProjectTask.class", e);
+			long lastRunTime = 0;
+			if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(pUrl)) ){
+				lastRunTime = Distributor.URL_VISITS.get(one.rewind.txt.StringUtil.MD5(pUrl));
 			}
 
-		}*/
+			if( (new Date().getTime() - lastRunTime) > ProjectTask.MIN_INTERVAL ){
 
-		boolean status = tenderer.insert();
+				try {
 
-		ScheduledChromeTask st = t.getScheduledChromeTask();
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("project_id", jobId);
+					init_map.put("flage", "0");
 
-		// 第一次抓取生成定时任务
-		if(st == null) {
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map);
 
-			try {
-				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
-				st.start();
-			} catch (Exception e) {
-				logger.error("error for creat ScheduledChromeTask", e);
-			}
+					//提交任务
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
-		}
-		else {
-			if( !status ){
-				st.degenerate();
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectTask.class", e);
+				}
 			}
 		}
 
+		return tenderer.insert();
 	}
 
 }

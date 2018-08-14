@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
@@ -30,7 +31,9 @@ public class ProjectTask extends Task {
 				ProjectTask.class,
 				"https://www.jfh.com/jfportal/orders/jf{{project_id}}",
 				ImmutableMap.of("project_id", String.class),
-				ImmutableMap.of("project_id", "")
+				ImmutableMap.of("project_id", ""),
+				true,
+				Priority.HIGHER
 		);
 	}
 
@@ -38,9 +41,20 @@ public class ProjectTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGH);
+		this.setPriority(Priority.HIGHER);
 
-		this.setNoFetchImages();
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("Log in JointForce") && src.contains("Don't have an account?") ){
+
+				throw new AccountException.Failed(a.accounts.get("jfh.com"));
+
+			}
+
+		});
+
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

@@ -13,6 +13,7 @@ import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
+import one.rewind.txt.StringUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -21,16 +22,13 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServiceRatingTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(
@@ -68,7 +66,6 @@ public class ServiceRatingTask extends Task {
 
 	public void crawlawJob(Document doc){
 
-		List<Task> tasks = new ArrayList();
 		Pattern pattern = Pattern.compile("/users/(?<username>.+?)\\?role=painter");
 		Matcher matcher = pattern.matcher(getUrl());
 		String web=null;
@@ -141,23 +138,33 @@ public class ServiceRatingTask extends Task {
 
 				String project_id = matcher2.group().replace("/projects/","");
 
-				try {
+				String pUrl = "https://www.mihuashi.com/projects/" + project_id + "/";
+				long lastRunTime = 0;
+				if( Distributor.URL_VISITS.keySet().contains(StringUtil.MD5(pUrl)) ){
+					lastRunTime = Distributor.URL_VISITS.get( StringUtil.MD5(pUrl));
+				}
 
-					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("project_id", project_id);
+				if( (new Date().getTime() - lastRunTime > ProjectTask.MIN_INTERVAL) ){
 
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask");
+					try {
 
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						init_map.put("project_id", project_id);
+						init_map.put("flage", "0");
 
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask");
 
-				} catch ( Exception e) {
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
-					logger.error("error for submit ProjectTask.class", e);
+						//提交任务
+						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ProjectTask.class", e);
+					}
 				}
 			}
 

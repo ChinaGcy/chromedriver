@@ -25,7 +25,9 @@ public class TendererTask extends Task {
 				TendererTask.class,
 				"https://zb.oschina.net/profile/index.html?u={{tenderer_id}}&t=p",
 				ImmutableMap.of("tenderer_id", String.class),
-				ImmutableMap.of("tenderer_id", "")
+				ImmutableMap.of("tenderer_id", ""),
+				true,
+				Priority.HIGH
 		);
 	}
 
@@ -35,8 +37,6 @@ public class TendererTask extends Task {
 		super(url);
 
 		this.setPriority(Priority.HIGH);
-
-		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -112,7 +112,7 @@ public class TendererTask extends Task {
 		try{
 			boolean status = tenderer.insert();
 
-			ScheduledChromeTask st = t.getScheduledChromeTask();
+			/*ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -129,7 +129,7 @@ public class TendererTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}
+			}*/
 
 		} catch (Exception e){
 			logger.error("error for tenderer.insert();", e);

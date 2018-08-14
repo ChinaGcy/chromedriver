@@ -48,9 +48,9 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setParam("page", url.split("pagenum=")[1]);
 
-	    this.setNoFetchImages();
+	    //this.setNoFetchImages();
 
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.HIGHER);
 
         this.setValidator((a, t) -> {
 
@@ -87,9 +87,28 @@ public class ProjectScanTask extends ScanTask {
                 }
             }
 
-            for(String user : usernames){
+		    try {
 
-	            /*try {
+			    //设置参数
+			    Map<String, Object> init_map = new HashMap<>();
+			    init_map.put("project_id", "2a0996e0accaac6d");
+
+			    Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask");
+
+			    //生成holder
+			    ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+			    //提交任务
+			    ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+		    } catch ( Exception e) {
+
+			    logger.error("error for submit ProjectTask.class", e);
+		    }
+
+            /*for(String user : usernames){
+
+	            try {
 
 		            //设置参数
 		            Map<String, Object> init_map = new HashMap<>();
@@ -106,14 +125,14 @@ public class ProjectScanTask extends ScanTask {
 	            } catch ( Exception e) {
 
 		            logger.error("error for submit ProjectTask.class", e);
-	            }*/
+	            }
 
-            }
+            }*/
 
             String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
 
             // 不含 max_page 参数，则表示可以一直翻页
-            if( maxPageSrc.length() < 1 ){
+            /*if( maxPageSrc.length() < 1 ){
 
 	            if( usernames.size()>0 ){
 
@@ -142,8 +161,6 @@ public class ProjectScanTask extends ScanTask {
             // 含有 max_page 参数，若max_page小于当前页则不进行翻页
             else {
 
-            	System.out.println("最大页" + maxPageSrc);
-
             	int maxPage = Integer.valueOf(maxPageSrc);
 	            int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));
 
@@ -157,7 +174,7 @@ public class ProjectScanTask extends ScanTask {
 
 		            ChromeDriverDistributor.getInstance().submit(holder);
 	            }
-            }
+            }*/
 
 
         });

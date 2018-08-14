@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ServiceProviderTask extends Task {
@@ -45,7 +46,7 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGH);
+		this.setPriority(Priority.HIGHER);
 
 		this.setNoFetchImages();
 
@@ -232,6 +233,7 @@ public class ServiceProviderTask extends Task {
 		//工作经验及教育经历
 		Elements workException = doc.select("ul.J_Works > li");
 		int i = 0;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
 		for(Element e : workException){
 
 			i++;
@@ -248,7 +250,7 @@ public class ServiceProviderTask extends Task {
 
 				//开始时间
 				try {
-					resume.sd = DateFormatUtil.parseTime(times[0]);
+					resume.sd = sdf.parse(times[0].replaceAll(" ", ""));
 				} catch (ParseException e1) {
 					logger.error("error for String to Date", e1);
 				}
@@ -259,7 +261,7 @@ public class ServiceProviderTask extends Task {
 					resume.is_current = 0;
 
 					try {
-						resume.ed = DateFormatUtil.parseTime(times[1]);
+						resume.ed = sdf.parse(times[1].replaceAll(" ", ""));
 					} catch (ParseException e1) {
 						logger.error("error for string to Date", e1);
 					}
@@ -331,17 +333,26 @@ public class ServiceProviderTask extends Task {
 
 				String tenderer_id = element.select("a.author").attr("href");
 
-				//设置参数
-				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("tenderer_id", tenderer_id);
+				String tUrl = "https://www.proginn.com/" + tenderer_id;
+				long lastRunTime = 0;
+				if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(tUrl)) ){
+					lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(tUrl));
+				}
 
-				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.TendererTask");
+				if( (new Date().getTime() - lastRunTime) > TendererTask.MIN_INTERVAL ){
 
-				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("tenderer_id", tenderer_id);
 
-				//提交任务
-				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.TendererTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+				}
 
 			} catch ( Exception e) {
 
@@ -363,29 +374,38 @@ public class ServiceProviderTask extends Task {
 			String workUrl = element.select("a.media").attr("href");
 			String like_num = element.select("a.plus_button > em").text();
 
-			try {
+			String wUrl = "https://www.proginn.com" + workUrl;
+			long lastRunTime = 0;
 
-				//设置参数
-				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("work_id", workUrl);
-				//init_map.put("uId", getId());
-				if( like_num != null ){
-					init_map.put("like_num", like_num);
-				}
-
-				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
-
-				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-				//提交任务
-				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-			} catch ( Exception e) {
-
-				logger.error("error for submit ProjectTask.class", e);
+			if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(wUrl)) ){
+				lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(wUrl));
 			}
 
+			if( (new Date().getTime() - lastRunTime) > WorkTask.MIN_INTERVAL ){
+
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("work_id", workUrl);
+					//init_map.put("uId", getId());
+					if( like_num != null ){
+						init_map.put("like_num", like_num);
+					}
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectTask.class", e);
+				}
+			}
 		}
 
 		serviceProvider.project_num = workList.size();
@@ -398,7 +418,7 @@ public class ServiceProviderTask extends Task {
 				status = serviceProvider.insert();
 			}
 
-			ScheduledChromeTask st = t.getScheduledChromeTask();
+			/*ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -415,7 +435,7 @@ public class ServiceProviderTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}
+			}*/
 		} catch (Exception e) {
 			logger.error("error for serviceProvider.insert()", e);
 		}

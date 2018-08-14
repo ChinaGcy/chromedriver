@@ -128,7 +128,7 @@ public class ServiceScanTask extends ScanTask {
 
 					//ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
 
-					ChromeDriverDistributor.getInstance().submit(holder);
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 				}
 			}
 

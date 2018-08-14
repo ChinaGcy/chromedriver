@@ -33,7 +33,9 @@ public class ProjectTask extends Task {
 				ProjectTask.class,
 				"https://zb.oschina.net/{{project_id}}",
 				ImmutableMap.of("project_id", String.class),
-				ImmutableMap.of("project_id", "")
+				ImmutableMap.of("project_id", ""),
+				true,
+				Priority.HIGHER
 		);
 	}
 
@@ -44,8 +46,6 @@ public class ProjectTask extends Task {
 		this.setBuildDom();
 
 		this.setPriority(Priority.HIGH);
-
-		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -158,19 +158,10 @@ public class ProjectTask extends Task {
 			project.trade_type = doc.select("span.zb-workbench-mark:nth-child(2)").text();
 
 			// 小标签
-			Elements tagSrc = doc.getElementsByClass("zb-workbench-btn");
-			StringBuffer tags = new StringBuffer();
-			for( Element e : tagSrc ){
-				tags.append(e.text());
-				tags.append(",");
-			}
-
-			if( tags.length() > 0 ){
-				project.tags = tags.substring(0, tags.length()-1);
-			}
+			String tagSrc = "<p>" + doc.getElementsByClass("zb-workbench-btn").text() + "</p>";
 
 			//描述
-			project.content = StringUtil.cleanContent(doc.select("div.minh-mini").html(), new HashSet<>());
+			project.content = tagSrc + StringUtil.cleanContent(doc.select("div.minh-mini").html(), new HashSet<>());
 
 			project.tenderer_name = doc.select("a.zb-header-box > img").attr("title");
 
@@ -188,26 +179,33 @@ public class ProjectTask extends Task {
 
 			for( String id : uId ) {
 
-				try {
-
-					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("user_id", id);
-
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.ServiceProviderTask");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit ServiceProviderTask.class", e);
+				String sId = "https://zb.oschina.net/profile/index.html?u=" + id + "&t=d";
+				long lastRunTime = 0;
+				if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(sId)) ){
+					lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(sId));
 				}
 
+				if( (new Date().getTime() - lastRunTime) > ServiceProviderTask.MIN_INTERVAL ){
 
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						init_map.put("user_id", id);
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.ServiceProviderTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit ServiceProviderTask.class", e);
+					}
+				}
 			}
 
 			//甲方任务
@@ -224,39 +222,40 @@ public class ProjectTask extends Task {
 
 			for( String t_ : tId ){
 
-				try {
-
-					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("tenderer_id", t_);
-
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.TendererTask");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit TendererTask.class", e);
+				String tUrl = "https://zb.oschina.net/profile/index.html?u=" + t_ + "&t=p";
+				long lastRunTime = 0;
+				if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(tUrl)) ){
+					lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(tUrl));
 				}
 
-				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
-						one.rewind.txt.StringUtil.uuid(
-								"https://zb.oschina.net/profile/index.html?u=" + t + "&t=p"));
+				if( (new Date().getTime() - lastRunTime) > TendererTask.MIN_INTERVAL ){
 
+					try {
+
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						init_map.put("tenderer_id", t_);
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.TendererTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+					} catch ( Exception e) {
+
+						logger.error("error for submit TendererTask.class", e);
+					}
+
+					project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
+							one.rewind.txt.StringUtil.uuid(
+									"https://zb.oschina.net/profile/index.html?u=" + t + "&t=p"));
+				}
 			}
 
-			//插入数据
-			try{
-				project.insert();
-			} catch (Exception e) {
-				logger.error("error for project.insert()", e);
-			}
-
-			ScheduledChromeTask st = t.getScheduledChromeTask();
+			/*ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			if( project.status.equals("竞标中") ){
 
@@ -271,6 +270,17 @@ public class ProjectTask extends Task {
 				if( st != null ){
 					st.stop();
 				}
+			}*/
+
+			//插入数据
+			try{
+
+				if( project.title != null && project.title.length() > 0 ){
+					project.insert();
+				}
+
+			} catch (Exception e) {
+				logger.error("error for project.insert()", e);
 			}
 
 		});

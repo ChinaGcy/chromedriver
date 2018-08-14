@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -33,7 +34,9 @@ public class ProjectScanTask extends ScanTask {
 						+"orderConfig=1&" + "orderType=&" + "pageNo={{page}}&" + "putTime=&" + "searchName=&"
 						+"serviceTypeKey=&" + "webSign=&" + "webSite=&" + "workStyleCode=",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "", "max_page", "3")
+				ImmutableMap.of("page", "", "max_page", ""),
+				true,
+				Priority.HIGH
 		);
 	}
 
@@ -43,7 +46,19 @@ public class ProjectScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("Log in JointForce") && src.contains("Don't have an account?") ){
+
+				throw new AccountException.Failed(a.accounts.get("jfh.com"));
+
+			}
+
+		});
+
+
+		//this.setNoFetchImages();
 
 		this.setParam("page", url.split("pageNo=")[1].split("&putTime")[0]);
 

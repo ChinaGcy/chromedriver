@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Case;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -20,7 +21,9 @@ public class CaseTask extends Task {
 				CaseTask.class,
 				"http://shop.jfh.com/{{user_id}}",
 				ImmutableMap.of("user_id", String.class),
-				ImmutableMap.of("user_id", "")
+				ImmutableMap.of("user_id", ""),
+				true,
+				Priority.LOW
 		);
 	}
 
@@ -28,9 +31,20 @@ public class CaseTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.MEDIUM);
+		this.setPriority(Priority.LOW);
 
-		this.setNoFetchImages();
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("Log in JointForce") && src.contains("Don't have an account?") ){
+
+				throw new AccountException.Failed(a.accounts.get("jfh.com"));
+
+			}
+
+		});
+
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

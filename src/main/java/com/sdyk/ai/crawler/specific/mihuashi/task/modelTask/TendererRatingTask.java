@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class TendererRatingTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000;
 
 	static {
 		registerBuilder(
@@ -128,7 +128,10 @@ public class TendererRatingTask extends Task {
 			int happyNum = happy.size();
 			tendererRating.rating = (happyNum/3);
 
-			tendererRating.insert();
+			if( tendererRating.service_provider_name != null && tendererRating.service_provider_name.length() > 1 ){
+				tendererRating.insert();
+			}
+
 		}
 	}
 }

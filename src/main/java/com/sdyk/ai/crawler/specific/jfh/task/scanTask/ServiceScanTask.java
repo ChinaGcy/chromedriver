@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -27,7 +28,9 @@ public class ServiceScanTask extends ScanTask {
 				ServiceScanTask.class,
 				"https://list.jfh.com/shops/?{{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "", "max_page", "1")
+				ImmutableMap.of("page", "", "max_page", "1"),
+				true,
+				Priority.HIGH
 		);
 	}
 
@@ -37,7 +40,18 @@ public class ServiceScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("Log in JointForce") && src.contains("Don't have an account?") ){
+
+				throw new AccountException.Failed(a.accounts.get("jfh.com"));
+
+			}
+
+		});
+
+		//this.setNoFetchImages();
 
 		this.setParam("page", url.split("shops/\\?")[1]);
 

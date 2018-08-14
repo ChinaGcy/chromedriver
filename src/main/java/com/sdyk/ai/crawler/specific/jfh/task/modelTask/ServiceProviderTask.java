@@ -12,6 +12,7 @@ import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
@@ -35,7 +36,9 @@ public class ServiceProviderTask extends Task {
 				ServiceProviderTask.class,
 				"http://shop.jfh.com/{{user_id}}/bu",
 				ImmutableMap.of("user_id", String.class),
-				ImmutableMap.of("user_id", "")
+				ImmutableMap.of("user_id", ""),
+				true,
+				Priority.HIGHER
 		);
 	}
 
@@ -43,9 +46,20 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGH);
+		this.setPriority(Priority.HIGHER);
 
-		this.setNoFetchImages();
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("Log in JointForce") && src.contains("Don't have an account?") ){
+
+				throw new AccountException.Failed(a.accounts.get("jfh.com"));
+
+			}
+
+		});
+
+		//this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -240,7 +254,6 @@ public class ServiceProviderTask extends Task {
 			boolean status = false;
 
 			if( serviceProvider.name != null && serviceProvider.name.length() > 1 ){
-				serviceProvider.insert();
 
 				// 生成公司信息补全任务
 				try {
@@ -260,9 +273,54 @@ public class ServiceProviderTask extends Task {
 				} catch (Exception e){
 					logger.error("error for create CompanyInformationTask", e);
 				}
+
+				serviceProvider.insert();
+			}
+			else {
+
+				//System.err.println("生成天眼查首页任务");
+				// 提交天眼查查询任务
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("company_id", "");
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit TianyanchaTask.class", e);
+				}
+
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("jobUrl", "");
+					init_map.put("uId", "");
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.lagou.LagouTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit TianyanchaTask.class", e);
+				}
 			}
 
-			ScheduledChromeTask st = t.getScheduledChromeTask();
+			/*ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -279,7 +337,7 @@ public class ServiceProviderTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}
+			}*/
 
 
 		} catch (Exception e) {

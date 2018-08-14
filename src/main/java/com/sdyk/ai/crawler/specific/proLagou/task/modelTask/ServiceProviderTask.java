@@ -44,9 +44,9 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 		this.setBuildDom();
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
-		this.setPriority(Priority.HIGHER);
+		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback((t) -> {
 
@@ -254,7 +254,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 		boolean status = serviceProvider.insert();
 
-		ScheduledChromeTask st = t.getScheduledChromeTask();
+		/*ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务
 		if(st == null) {
@@ -271,7 +271,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 			if( !status ){
 				st.degenerate();
 			}
-		}
+		}*/
 
 	}
 

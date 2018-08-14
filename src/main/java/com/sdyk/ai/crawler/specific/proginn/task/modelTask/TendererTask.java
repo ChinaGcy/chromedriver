@@ -38,7 +38,7 @@ public class TendererTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGH);
+		this.setPriority(Priority.HIGHER);
 
 		this.setNoFetchImages();
 
@@ -134,7 +134,7 @@ public class TendererTask extends Task {
 
 		boolean status = tenderer.insert();
 
-		ScheduledChromeTask st = t.getScheduledChromeTask();
+		/*ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务
 		if(st == null) {
@@ -151,7 +151,7 @@ public class TendererTask extends Task {
 			if( !status ){
 				st.degenerate();
 			}
-		}
+		}*/
 
 	}
 

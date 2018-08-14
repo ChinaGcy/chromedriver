@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class ServiceScanTask extends ScanTask {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000L;
 
 	static {
 		registerBuilder(

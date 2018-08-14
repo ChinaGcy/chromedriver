@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000;
+	public static long MIN_INTERVAL =  12 * 60 * 60 * 1000;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
@@ -47,7 +47,7 @@ public class TendererTask extends Task {
 
         super(url);
 
-        this.setPriority(Priority.HIGH);
+        this.setPriority(Priority.HIGHER);
 
 	    this.setNoFetchImages();
 
@@ -126,23 +126,32 @@ public class TendererTask extends Task {
 		for(Element element : elements){
 			String project_id = element.attr("href").replace("/projects/","");
 
-			try {
-
-				//设置参数
-				Map<String, Object> init_map1 = new HashMap<>();
-				init_map1.put("project_id", project_id);
-
-				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map1);
-
-				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
-
-
-			} catch (Exception e) {
-				logger.error("error for submit TendererRatingTask", e);
+			String tUrl = "https://www.mihuashi.com/projects/" + project_id + "/";
+			long lastRunTime = 0;
+			if(Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(tUrl))){
+				lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(tUrl));
 			}
 
+			if((new Date().getTime() - lastRunTime) > ProjectTask.MIN_INTERVAL){
+
+				try {
+
+					//设置参数
+					Map<String, Object> init_map1 = new HashMap<>();
+					init_map1.put("project_id", project_id);
+					init_map1.put("flage", "0");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map1);
+
+					//提交任务
+					ChromeDriverDistributor.getInstance().submit(holder);
+
+
+				} catch (Exception e) {
+					logger.error("error for submit TendererRatingTask", e);
+				}
+			}
 		}
 
 		if( tenderer.tender_type==null || !tenderer.tender_type.equals("团体-公司") ) {
@@ -194,7 +203,7 @@ public class TendererTask extends Task {
 			}
 		}
 
-		ScheduledChromeTask st = t.getScheduledChromeTask();
+		/*ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务
 		if(st == null) {
@@ -211,7 +220,7 @@ public class TendererTask extends Task {
 			if( !status ){
 				st.degenerate();
 			}
-		}
+		}*/
 	}
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){

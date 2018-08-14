@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.oschina.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.model.witkey.Work;
@@ -9,7 +10,9 @@ import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -33,7 +36,9 @@ public class ServiceProviderTask extends Task {
 				ServiceProviderTask.class,
 				"https://zb.oschina.net/profile/index.html?u={{user_id}}&t=d",
 				ImmutableMap.of("user_id", String.class),
-				ImmutableMap.of("user_id", "")
+				ImmutableMap.of("user_id", ""),
+				true,
+				Priority.HIGH
 		);
 	}
 
@@ -41,8 +46,6 @@ public class ServiceProviderTask extends Task {
 		super(url);
 
 		this.setPriority(Priority.HIGH);
-
-		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -300,31 +303,79 @@ public class ServiceProviderTask extends Task {
 
 		serviceProvider.position = serviceProvider.position.replace("、", ",");
 		if( serviceProvider.name.contains("公司") ){
+
 			serviceProvider.company_name = serviceProvider.name;
+			try {
+
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("company_name", serviceProvider.company_name);
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
+
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch (Exception e){
+				logger.error("error for create CompanyInformationTask", e);
+			}
+
 		}
-		try {
-			boolean status = serviceProvider.insert();
+		else {
 
-			ScheduledChromeTask st = t.getScheduledChromeTask();
+			// 提交天眼查查询任务
+			try {
 
-			// 第一次抓取生成定时任务
-			if(st == null) {
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("company_id", "");
 
-				try {
-					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
-					st.start();
-				} catch (Exception e) {
-					logger.error("error for creat ScheduledChromeTask", e);
-				}
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
 
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit TianyanchaTask.class", e);
 			}
-			else {
-				if( !status ){
-					st.degenerate();
+
+		}
+
+
+		if( serviceProvider.name != null && serviceProvider.name.length() > 0 ){
+
+			try {
+
+				boolean status = serviceProvider.insert();
+
+				/*ScheduledChromeTask st = t.getScheduledChromeTask();
+
+				// 第一次抓取生成定时任务
+				if(st == null) {
+
+					try {
+						st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+						st.start();
+					} catch (Exception e) {
+						logger.error("error for creat ScheduledChromeTask", e);
+					}
+
 				}
+				else {
+					if( !status ){
+						st.degenerate();
+					}
+				}*/
+			} catch ( Exception e ) {
+				logger.error("error for serviceProvider.insert()", e);
 			}
-		} catch ( Exception e ) {
-			logger.error("error for serviceProvider.insert()", e);
 		}
 
 	}
