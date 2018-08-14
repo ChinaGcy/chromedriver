@@ -1,0 +1,29 @@
+{
+  "url": "https://www.tianyancha.com/",
+  "actions": [
+    {
+      "className": "one.rewind.io.requester.chrome.action.ClickAction",
+      "content": {
+        "elementPath": "a.link-white",
+        "sleepTime": 2000
+      }
+    },
+    {
+      "className": "one.rewind.io.requester.chrome.action.ClickAction",
+      "content": {
+        "elementPath": "#_modal_container > div > div > div.body.-detail.modal-scroll > div > div > div.module.module1.module2.loginmodule.collapse.in > div.modulein.modulein2.message_box.pl15.pr15.f-base.collapse.in > div.mt10.mb10.link-click.text-right",
+        "sleepTime": 2000
+      }
+    },
+    {
+      "className": "one.rewind.io.requester.chrome.action.LoginAction",
+      "content": {
+        "url": "https://www.tianyancha.com/",
+        "usernameCssPath": "#_modal_container > div > div > div.body.-detail.modal-scroll > div > div > div.module.module1.module2.loginmodule.collapse.in > div.modulein.modulein1.mobile_box.pl15.pr15.f-base.collapse.in > div.pb30.position-rel > input",
+        "passwordCssPath": "#_modal_container > div > div > div.body.-detail.modal-scroll > div > div > div.module.module1.module2.loginmodule.collapse.in > div.modulein.modulein1.mobile_box.pl15.pr15.f-base.collapse.in > div.pb40.position-rel > input",
+        "loginButtonCssPath": "#_modal_container > div > div > div.body.-detail.modal-scroll > div > div > div.module.module1.module2.loginmodule.collapse.in > div.modulein.modulein1.mobile_box.pl15.pr15.f-base.collapse.in > div.c-white.b-c9.pt8.f18.text-center.login_btn",
+        "errorMsgReg": "账号或密码错误"
+      }
+    }
+  ]
+}
