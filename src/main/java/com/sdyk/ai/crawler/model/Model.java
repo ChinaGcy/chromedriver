@@ -255,7 +255,10 @@ public abstract class Model {
 				if ((f.get(model) != null || f.get(model) != null && f.get(model) instanceof String && !f.get(model).equals(""))
 						&& !f.getName().equals("insert_time")
 						&& !f.getName().equals("update_time")
-						&& !f.getName().equals("budget")) {
+						&& !f.getName().equals("budget")
+						&& !f.getName().equals("sd")
+						&& !f.getName().equals("ed")
+						&& !f.getName().equals("view_num")) {
 
 					if( !String.valueOf(f.get(model)).equals(String.valueOf(f.get(this))) ){
 						System.out.println("更新数据为" + f.getName() + " : " + String.valueOf(f.get(model)));
