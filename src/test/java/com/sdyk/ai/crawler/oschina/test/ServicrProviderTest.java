@@ -13,7 +13,7 @@ public class ServicrProviderTest {
 
 		agent.start();
 
-		ServiceProviderTask serviceProviderTask = new ServiceProviderTask("https://zb.oschina.net/profile/index.html?u=24530&t=d&work4");
+		ServiceProviderTask serviceProviderTask = new ServiceProviderTask("https://zb.oschina.net/profile/index.html?u=368678&t=d");
 
 		agent.submit(serviceProviderTask);
 

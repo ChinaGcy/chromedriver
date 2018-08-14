@@ -40,24 +40,32 @@ public class Test {
 	}
 
 	@org.junit.Test
-	public void testQueue(){
+	public void testQueue() throws InterruptedException {
+
+		new Thread(() ->{
+
+			RBlockingQueue<String> queue = RedissonAdapter.redisson.getBlockingQueue("TEST");
+
+			System.out.println("start");
+			while( true ){
+				try {
+					System.out.println(queue.take());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}).start();
+
+		Thread.sleep(3000);
 
 		new Thread(() -> {
 			BlockingQueue b = new BlockingQueue();
 			b.test();
 		}).start();
 
-		RBlockingQueue<String> queue = RedissonAdapter.redisson.getBlockingQueue("TEST");
 
-		System.out.println("start");
-		while( true ){
-			try {
-				System.out.println(queue.take());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-
+		Thread.sleep(100000000);
 
 	}
 

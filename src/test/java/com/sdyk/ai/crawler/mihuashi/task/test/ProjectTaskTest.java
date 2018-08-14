@@ -24,16 +24,16 @@ public class ProjectTaskTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		agent.start();
-
+/*
 		LoginTask loginTask = LoginTask.buildFromJson(readFileByLines("login_tasks/mihuashi.com.json"));
 
 		// 添加账号
 		Account a = AccountManager.getInstance().getAccountByDomain("clouderwork.com");
 		((LoginAction)loginTask.getActions().get(loginTask.getActions().size() - 1)).setAccount(a);
 
-		agent.submit(loginTask);
+		agent.submit(loginTask);*/
 
-		ProjectTask projectTask = new ProjectTask("https://www.mihuashi.com/projects/19970/");
+		ProjectTask projectTask = new ProjectTask("https://www.mihuashi.com/projects/1838/");
 
 		agent.submit(projectTask);
 

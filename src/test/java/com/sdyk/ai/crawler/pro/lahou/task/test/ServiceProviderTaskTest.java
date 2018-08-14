@@ -12,7 +12,7 @@ public class ServiceProviderTaskTest {
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 		agent.start();
 
-		ServiceProviderTask providerTask = new ServiceProviderTask("https://pro.lagou.com/user/848849983.html");
+		ServiceProviderTask providerTask = new ServiceProviderTask("https://pro.lagou.com/user/1298289106.html");
 
 		agent.submit(providerTask);
 

@@ -21,8 +21,10 @@ public class ServiceProviderTaskTest {
 		ChromeDriverDistributor.instance = new Distributor();
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
-		//agent.start();
-		ChromeDriverDistributor.getInstance().addAgent(agent);
+
+		agent.start();
+
+		/*ChromeDriverDistributor.getInstance().addAgent(agent);
 
 		Map<String, Object> init_map = new HashMap<>();
 		init_map.put("servicer_id", "138970");
@@ -33,11 +35,11 @@ public class ServiceProviderTaskTest {
 		ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		//提交任务
-		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);*/
 
-		/*ServiceProviderTask serviceProviderTask = new ServiceProviderTask("https://www.proginn.com/wo/138970");
+		ServiceProviderTask serviceProviderTask = new ServiceProviderTask("https://www.proginn.com/wo/67486");
 
-		agent.submit(serviceProviderTask);*/
+		agent.submit(serviceProviderTask);
 
 		Thread.sleep(10000000);
 	}
@@ -45,8 +47,9 @@ public class ServiceProviderTaskTest {
 	@Test
 	public void test1() throws ParseException {
 
-		String s = "2016-06-01";
-		System.out.println(DateFormatUtil.parseTime(s));
+		String s = "2011-9 - 2015-7";
+		System.out.println(DateFormatUtil.parseTime(s.split("-")[1].replace(" ", "")));
+		System.out.println(DateFormatUtil.parseTime("2011-9-1"));
 
 	}
 }

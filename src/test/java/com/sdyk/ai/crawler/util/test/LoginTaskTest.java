@@ -22,11 +22,13 @@ import static one.rewind.util.FileUtil.readFileByLines;
 public class LoginTaskTest {
 
 	@Test
-	public void test() throws ClassNotFoundException, MalformedURLException, ProxyException.Failed, URISyntaxException {
+	public void test() throws Exception {
 
 		Map<String, LoginTask> loginTasks = new HashedMap();
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
+
+		agent.start();
 
 		File file = new File("login_tasks");
 		File[] tempList = file.listFiles();
@@ -73,6 +75,8 @@ public class LoginTaskTest {
 					}
 
 				});
+
+		Thread.sleep(100000000);
 
 
 	}

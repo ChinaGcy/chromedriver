@@ -55,7 +55,7 @@ public class LocationParserTest {
 	@Test
 	public void tryParse() {
 
-		String src = "杭州";
+		String src = "北京市帅府园一号";
 		List<LocationParser.Location> locations = (List<LocationParser.Location>) parser.matchLocation(src);
 		for( LocationParser.Location l : locations ){
 			System.out.println(l.toString());

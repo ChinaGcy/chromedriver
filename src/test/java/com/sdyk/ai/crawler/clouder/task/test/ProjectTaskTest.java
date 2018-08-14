@@ -13,6 +13,8 @@ import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProjectTaskTest {
 
@@ -50,6 +52,28 @@ public class ProjectTaskTest {
 	    distributor.submit(holder);
 
 	    Thread.sleep(600000);
+    }
+
+    @Test
+    public void getTags(){
+
+    	String src = "{[getLevel(2,'IOS')]}";
+
+	    Pattern pattern_1 = Pattern.compile("getLevel\\((?<t>.+?),'");
+	    Matcher matcher_1 = pattern_1.matcher(src);
+	    String lv = "1";
+
+	    if( matcher_1.find() ){
+
+	    	switch (matcher_1.group("t")){
+			    case "1" : lv = "初级"; break;
+			    case "2" : lv = "中极"; break;
+			    case "3" : lv = "高级";
+		    }
+	    }
+
+	    System.out.println(lv);
+
     }
 
 }
