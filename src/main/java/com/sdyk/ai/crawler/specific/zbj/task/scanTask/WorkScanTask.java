@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
  */
 public class WorkScanTask extends ScanTask {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		registerBuilder(
 				WorkScanTask.class,

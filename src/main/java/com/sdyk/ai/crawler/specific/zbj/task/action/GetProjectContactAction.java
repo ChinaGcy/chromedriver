@@ -10,8 +10,6 @@ import org.openqa.selenium.WebElement;
 
 public class GetProjectContactAction extends Action {
 
-	ProjectEval evalProjects;
-
 	// 投标按钮
 	// #taskTabs > div > div:nth-child(1) > div > div.task-wantbid-launch > a
 	public String bidButtonCssPath = "div.task-wantbid-launch > a";
@@ -25,8 +23,8 @@ public class GetProjectContactAction extends Action {
 	// 确认投标按钮
 	public String confirmBidCssPath = ".ui-dialog-confirm > a";
 
-	public GetProjectContactAction(ProjectEval evalProjects) {
-		this.evalProjects = evalProjects;
+	public GetProjectContactAction() {
+
 	}
 
 	/**
@@ -62,7 +60,7 @@ public class GetProjectContactAction extends Action {
 			String status = bidButton.getAttribute("title");
 
 			if (status.contains("标数已满") || status.contains("暂停投标")) {
-				logger.info("Project:{} bidder is full.", evalProjects.id);
+				logger.info("Project:{} bidder is full.");
 				// 更新项目状态
 				return false;
 			}
@@ -133,11 +131,11 @@ public class GetProjectContactAction extends Action {
 
 		// C 取得投标花费（猪币）
 		// body > div:nth-child(21) > div.ui-dialog.newbid-bid-dialog > div > div.ui-dialog-container > div.ui-dialog-message > p > span
-		evalProjects.cost = Double.parseDouble(agent.getDriver()
+		double cost = Double.parseDouble(agent.getDriver()
 				.findElement(By.cssSelector(spendMsgCssPath))
 				.getText());
 
-		logger.info("cost : {}", evalProjects.cost);
+		logger.info("cost : {}", cost);
 
 		// D 确认投标
 		agent.getElementWait(confirmBidCssPath).click();

@@ -10,15 +10,13 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +24,10 @@ import java.util.regex.Pattern;
  * 雇主详情
  */
 public class TendererTask extends Task {
+
+	public static long MIN_INTERVAL = 24 * 60 * 60 * 1000;
+
+	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
 	static {
 		registerBuilder(
@@ -113,7 +115,26 @@ public class TendererTask extends Task {
 				tenderer.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid("https:" + head1));
 
-				tenderer.insert();
+				// 定时任务
+				boolean status = tenderer.insert();
+				ScheduledChromeTask st = t.getScheduledChromeTask();
+
+				// 第一次抓取生成定时任务
+				if(st == null) {
+
+					try {
+						st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+						st.start();
+					} catch (Exception e) {
+						logger.error("error for creat ScheduledChromeTask", e);
+					}
+
+				}
+				else {
+					if( !status ){
+						st.degenerate();
+					}
+				}
 
 				// 添加projectTask
 				try {

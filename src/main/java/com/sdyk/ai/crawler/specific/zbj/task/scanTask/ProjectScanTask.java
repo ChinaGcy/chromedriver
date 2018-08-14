@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
  */
 public class ProjectScanTask extends ScanTask {
 
+	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+
 	static {
 		// TODO 全部抓取是否需要在url中添加分类 channel
 		registerBuilder(
