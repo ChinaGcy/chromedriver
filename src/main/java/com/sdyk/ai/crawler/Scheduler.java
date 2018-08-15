@@ -97,55 +97,15 @@ public class Scheduler {
 
 		resetRedis();
 
-		// 会造成账户信息覆盖
-		//initLoginTask();
-
 		init();
 
-		//loginTianyancha();
-
-		//Thread.sleep(5000);
+		Thread.sleep(10000);
 
 		loginShichangbu();
 	}
 
 	/**
-	 * 天眼查\开源中国登陆任务
-	 */
-	public void loginTianyancha(){
-
-		try{
-
-			// 创建新容器
-			DockerHostManager.getInstance().createDockerContainers(2);
-
-			// 获取新容器
-			ChromeDriverDockerContainer container_tianyancha = DockerHostManager.getInstance().getFreeContainer();
-
-			ChromeDriverAgent agent = new ChromeDriverAgent(container_tianyancha.getRemoteAddress(), container_tianyancha);
-
-			LoginTask loginTask = LoginTask.buildFromJson(readFileByLines("login_tasks/tianyancha.com.json"));
-			((LoginAction)loginTask.getActions().get(loginTask.getActions().size() - 1)).setAccount(
-					AccountManager.getInstance().getAccountByDomain("tianyancha.com")
-			);
-
-			LoginTask loginTask1 = LoginTask.buildFromJson(readFileByLines("login_tasks/zb.oschina.net.json"));
-			((LoginAction)loginTask1.getActions().get(loginTask1.getActions().size() - 1)).setAccount(
-					AccountManager.getInstance().getAccountByDomain("zb.oschina.net")
-			);
-
-			ChromeDriverDistributor.getInstance().addAgent(agent);
-
-			((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
-			((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask1);
-		} catch ( Exception e ){
-			logger.error("error fro tianyancha Login", e);
-		}
-
-	}
-
-	/**
-	 * 解放号/拉钩 登录操作
+	 * 解放号/拉钩/天眼查 登录操作
 	 */
 	public void loginShichangbu() throws Exception {
 
@@ -552,6 +512,8 @@ public class Scheduler {
 
 		//ChromeDriverDistributor.instance = new Distributor();
 
+		DockerHostManager.getInstance().createDockerContainers(1);
+
 		CountDownLatch downLatch = new CountDownLatch(DefaultDriverCount);
 
 		for(int i=0; i<DefaultDriverCount; i++) {
@@ -643,7 +605,7 @@ public class Scheduler {
 		// Scheduler 初始化
 		Scheduler.getInstance();
 
-		Thread.sleep(60000);
+		Thread.sleep(10000);
 
 		TaskInitializer.getAll().stream().filter(t -> {
 			return t.enable == true;
