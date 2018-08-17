@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -65,7 +66,7 @@ public class ServiceScanTask extends ScanTask {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask");
 
 					//生成holder
-					//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -80,10 +81,10 @@ public class ServiceScanTask extends ScanTask {
 			Elements pageList= doc.getElementsByClass("item");
 			String pageLast = pageList.get(pageList.size() - 1).text();
 
-			//String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
+			String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
 
 			// 不含 max_page 参数，则表示可以一直翻页
-			/*if( maxPageSrc.length() < 1 ){
+			if( maxPageSrc.length() < 1 ){
 				if( !pageLast.equals("...") ){
 
 					int next = page + 1;
@@ -129,7 +130,7 @@ public class ServiceScanTask extends ScanTask {
 
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 				}
-			}*/
+			}
 
 		});
 	}

@@ -33,7 +33,7 @@ public class ESTransportClientAdapter {
     public final static int port;
 
 	public static List<Class<?>> clazzes = Arrays.asList(
-			Project.class, Tenderer.class, ServiceProvider.class
+			Project.class, Tenderer.class, ServiceProvider.class, Case.class, Resume.class, Work.class
 	);
 
     public static TransportClient client;
@@ -195,10 +195,8 @@ public class ESTransportClientAdapter {
 			List<Model> models = dao.queryForAll();
 
 			for(Model m : models) {
-
 				logger.info(m.id);
-
-				m.insertES();
+				insertOne(m);
 			}
 		}
 	}

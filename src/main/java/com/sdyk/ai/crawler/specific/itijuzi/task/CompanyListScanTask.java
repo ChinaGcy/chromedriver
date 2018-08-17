@@ -12,6 +12,7 @@ import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.chrome.action.SetValueAction;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -104,7 +105,7 @@ public class CompanyListScanTask extends ScanTask {
 
 			Class clazz = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyTask");
 
-			//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
+			ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
 
 			ChromeDriverDistributor.getInstance().submit(holder);
 
@@ -122,7 +123,7 @@ public class CompanyListScanTask extends ScanTask {
 
 				Class clazz = Class.forName("com.sdyk.ai.crawler.specific.itijuzi.task.CompanyListScanTask");
 
-				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
 
 				ChromeDriverDistributor.getInstance().submit(holder);
 

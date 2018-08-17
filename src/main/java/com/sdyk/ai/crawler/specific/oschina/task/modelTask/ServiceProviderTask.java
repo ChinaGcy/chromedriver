@@ -13,6 +13,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -93,7 +94,10 @@ public class ServiceProviderTask extends Task {
 		Map<String, String> url_filename = new HashMap<>();
 		if( imageUrl != null ){
 			url_filename.put(imageUrl, "head_portrait");
-			serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+			List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+			if( headList != null ){
+				serviceProvider.head_portrait = headList.get(0);
+			}
 		}
 
 		serviceProvider.domain_id = 5;
@@ -118,7 +122,7 @@ public class ServiceProviderTask extends Task {
 			platformCertification.append(",");
 		}
 
-		//serviceProvider.platform_certification = platformCertification.substring(0, platformCertification.length()-2);
+		serviceProvider.platform_certification = Arrays.asList(platformCertification.substring(0, platformCertification.length()-2), ",");
 
 		//地理位置
 		LocationParser parser = LocationParser.getInstance();
@@ -159,7 +163,7 @@ public class ServiceProviderTask extends Task {
 
 		//小标签
 		if( tags.length() > 0 ){
-			//serviceProvider.tags = tags.substring(0, tags.length()-1).replace("、", ",");
+			serviceProvider.tags = Arrays.asList(tags.substring(0, tags.length()-1).replace("、", ","), ",");
 		}
 
 		Elements ratingGrade = doc.getElementsByClass("comment-item");
@@ -273,7 +277,7 @@ public class ServiceProviderTask extends Task {
 				}
 				//小标签
 				else if ( count.contains("应用技术：") ) {
-					//work.tags = count.replace("应用技术：","").replace("、", ",");
+					work.tags = Arrays.asList(count.replace("应用技术：","").replace("、", ","), ",");
 				}
 				//简介
 				else if ( count.contains("项目简介：") ) {
@@ -290,7 +294,7 @@ public class ServiceProviderTask extends Task {
 					for( Element img : imgs ){
 						map.put(img.attr("src"), null);
 					}
-					//work.attachment_ids = BinaryDownloader.download(getUrl(), map);
+					work.attachment_ids = BinaryDownloader.download(getUrl(), map);
 
 				}
 
@@ -323,7 +327,7 @@ public class ServiceProviderTask extends Task {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 				//生成holder
-				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -347,7 +351,7 @@ public class ServiceProviderTask extends Task {
 				if(st == null) {
 
 					try {
-						//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+						st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 						st.start();
 					} catch (Exception e) {
 						logger.error("error for creat ScheduledChromeTask", e);

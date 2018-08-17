@@ -24,7 +24,7 @@ public class CompanyFinancing extends Model {
 
 	// 投资方名称
 	@DatabaseField(persisterClass = JSONableListPersister.class)
-	public List<String> investors;
+	public List<String> name;
 
 	// 轮次
 	@DatabaseField(dataType = DataType.STRING, width = 32)

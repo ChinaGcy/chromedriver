@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Map;
 
 public class CaseTask extends Task {
@@ -30,8 +31,6 @@ public class CaseTask extends Task {
 	public CaseTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-
-		//this.setPriority(Priority.LOW);
 
 		this.setValidator((a,t) -> {
 
@@ -87,7 +86,7 @@ public class CaseTask extends Task {
 		caseInfo.category = doc.select("#showdetail-category-categories").text();
 
 		//标签
-		//caseInfo.tags = doc.select("#showdetail-category > div:nth-child(3) > div:nth-child(2)").text();
+		caseInfo.tags = Arrays.asList(doc.select("#showdetail-category > div:nth-child(3) > div:nth-child(2)").text(), ",");
 
 		//评价
 		String rating = CrawlerAction.getNumbers(doc.select("#dis_rateNum").text());

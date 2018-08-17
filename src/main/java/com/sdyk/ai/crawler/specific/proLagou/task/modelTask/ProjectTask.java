@@ -10,6 +10,7 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -25,7 +26,7 @@ import java.util.Map;
 
 public class ProjectTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000L;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *");
 
@@ -93,7 +94,10 @@ public class ProjectTask extends Task {
 	        project.status = currentStatus;
 
 	        //招标人
-	        project.tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
+	        String tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
+			if( tenderer_name != null && tenderer_name.length() > 1 ){
+				project.tenderer_name = tenderer_name;
+			}
 
 	        //发布时间
 	        String pubdata = doc.select("#project_detail > div.project_info.fl > ul:nth-child(3) > li:nth-child(1) > span:nth-child(3)").text();
@@ -107,8 +111,9 @@ public class ProjectTask extends Task {
 	        }
 
 	        //小标签
-	       // project.tags = doc.select("#project_detail > div.project_info.fl > div.category_list")
-			//        .text().replace(" ", ",");
+	        project.tags = Arrays.asList(
+	        		doc.select("#project_detail > div.project_info.fl > div.category_list").text(),
+			        ",");
 
 	        //已投标人数
 	        String num = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(2) > div.txt > strong").text();
@@ -181,7 +186,7 @@ public class ProjectTask extends Task {
 			        Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 			        //生成holder
-			       // ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+			        ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 			        //提交任务
 			        ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

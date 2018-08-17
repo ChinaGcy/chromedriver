@@ -53,9 +53,9 @@ public class WorkTask extends Task {
 
 			Document doc = getResponse().getDoc();
 
-			/*String uid = t.getStringFromInitMap("uId");
+			String uid = t.getStringFromInitMap("uId");
 
-			crawler(doc, uid);*/
+			crawler(doc, uid);
 
 		});
 
@@ -98,7 +98,7 @@ public class WorkTask extends Task {
 		}
 
 		// 下载附件
-		//work.attachment_ids = BinaryDownloader.download(getUrl(), map);
+		work.attachment_ids = BinaryDownloader.download(getUrl(), map);
 
 		try {
 			work.insert();

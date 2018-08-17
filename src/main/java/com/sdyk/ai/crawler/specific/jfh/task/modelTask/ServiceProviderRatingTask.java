@@ -9,7 +9,7 @@ import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
-
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,8 +37,6 @@ public class ServiceProviderRatingTask extends Task {
 	public ServiceProviderRatingTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-
-		//this.setPriority(Priority.HIGH);
 
 		this.setValidator((a,t) -> {
 
@@ -152,7 +150,7 @@ public class ServiceProviderRatingTask extends Task {
 						"com.sdyk.ai.crawler.specific.jfh.task.modelTask.CaseTask");
 
 				//生成holder
-				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

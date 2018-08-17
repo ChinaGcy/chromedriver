@@ -14,7 +14,9 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
+import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -71,7 +73,7 @@ public class TendererTask extends Task {
 	        if(st == null) {
 
 		        try {
-			       // st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+			        st = new ScheduledChromeTask(t.getHolder(), crons);
 			        st.start();
 		        } catch (Exception e) {
 			        logger.error("error for creat ScheduledChromeTask", e);
@@ -118,10 +120,12 @@ public class TendererTask extends Task {
 		String imageUrl = doc.select("div.avatorBox > img").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			tenderer.head_portrait = headList.get(0);
+		}
 
 		//招标人描述
-
 		String content = doc.select("#profile > div > div > section > section > div.prjectBox > p.overview-p").text();
 		if( content != null && content.length() > 0 ){
 			tenderer.content = "<p>" + content + "</p>";
@@ -232,7 +236,7 @@ public class TendererTask extends Task {
 				init_map.put("flage", "0");
 
 				//生成holder
-				//ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map);
+				TaskHolder holder = this.getHolder(ProjectTask.class, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

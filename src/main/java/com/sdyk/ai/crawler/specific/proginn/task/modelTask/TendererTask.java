@@ -85,7 +85,12 @@ public class TendererTask extends Task {
 
 		tenderer.company_name = doc.select("span.name-txt").text();
 
-		//tenderer.platform_certification = doc.select("span.tag").text();
+		List<String> plist = Arrays.asList(doc.select("span.tag").text(), ",");
+		if( plist != null
+				&& plist.size() > 0
+				&& !plist.get(0).equals("")){
+			tenderer.platform_certification = plist;
+		}
 
 		Elements elements = doc.select("div.rate > p");
 		for(Element element : elements){
@@ -141,7 +146,10 @@ public class TendererTask extends Task {
 		String img = doc.select("a.ui.tiny.circular.image > img").attr("src");
 		Map<String, String> map = new HashMap<>();
 		map.put(img, "head_portrait");
-		tenderer.head_portrait = BinaryDownloader.download(getUrl(), map);
+		List<String> headList = BinaryDownloader.download(getUrl(), map);
+		if( headList != null ){
+			tenderer.head_portrait = headList.get(0);
+		}
 
 		tenderer.category.replace(" ", "");
 
@@ -153,7 +161,7 @@ public class TendererTask extends Task {
 		if(st == null) {
 
 			try {
-				//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
 			} catch (Exception e) {
 				logger.error("error for creat ScheduledChromeTask", e);

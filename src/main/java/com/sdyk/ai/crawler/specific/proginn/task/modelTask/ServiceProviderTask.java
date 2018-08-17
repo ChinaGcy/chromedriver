@@ -14,8 +14,8 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
-import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -87,7 +87,10 @@ public class ServiceProviderTask extends Task {
 				.attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			serviceProvider.head_portrait = headList.get(0);
+		}
 
 		//介绍
 		String introduction = doc.select("div.introduction").text();
@@ -174,7 +177,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//小标签
-		//serviceProvider.tags = doc.select("div.skill-list").text().replace(" ", ",");
+		serviceProvider.tags = Arrays.asList(doc.select("div.skill-list").text(), " ");
 
 		//成功率及评价数
 		String ratioRating = doc.select("#proginn_wo_omment > h3 > div").text();
@@ -360,7 +363,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.TendererTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -408,7 +411,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -435,7 +438,7 @@ public class ServiceProviderTask extends Task {
 			ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
-			/*if(st == null) {
+			if(st == null) {
 
 				try {
 					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
@@ -449,7 +452,7 @@ public class ServiceProviderTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}*/
+			}
 		} catch (Exception e) {
 			logger.error("error for serviceProvider.insert()", e);
 		}

@@ -14,6 +14,7 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -143,7 +144,7 @@ public class TendererTask extends Task {
 				init_map1.put("flage", "0");
 
 				//生成holder
-				//ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map1);
+				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map1);
 
 				//提交任务
 				ChromeDriverDistributor.getInstance().submit(holder);
@@ -178,7 +179,11 @@ public class TendererTask extends Task {
 		String imageUrl = doc.select("img.profile__avatar-image").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = new ArrayList<>();
+		headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			tenderer.head_portrait = headList.get(0);
+		}
 
 		tenderer.category.replace(" ", "");
 
@@ -195,7 +200,7 @@ public class TendererTask extends Task {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 				//生成holder
-				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -211,7 +216,7 @@ public class TendererTask extends Task {
 		if(st == null) {
 
 			try {
-				//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
 			} catch (Exception e) {
 				logger.error("error for creat ScheduledChromeTask", e);

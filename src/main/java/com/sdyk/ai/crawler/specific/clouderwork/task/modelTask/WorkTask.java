@@ -10,6 +10,7 @@ import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -86,9 +87,8 @@ public class WorkTask extends Task {
 			//抓取行业
 			String[] all2 = all1[1].split("工期：");
 			if(all2[0]!=null&&!"".equals(all2[0])){
-				//workinfor.tags = all2[0];
+				workinfor.tags = Arrays.asList(all2[0], ",");
 			}
-
 			String[] all3 = all2[1].split("报价：");
 
 			//抓取报价
