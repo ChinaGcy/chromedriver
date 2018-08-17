@@ -1,11 +1,13 @@
 package com.sdyk.ai.crawler.model.company;
 
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 
 import java.util.Date;
 
@@ -133,6 +135,20 @@ public class CompanyInformation extends Model {
 
 	public CompanyInformation(String url) {
 		super(url);
+	}
+
+	public static CompanyInformation getCompanyInformationById (String id){
+
+		try {
+
+			Dao dao = DaoManager.getDao(CompanyInformation.class);
+			CompanyInformation companyInformation = (CompanyInformation) dao.queryForId(id);
+			return  companyInformation;
+		} catch (Exception e) {
+			logger.error("error for getCompanyInformationById : {{}}", id);
+		}
+
+		return null;
 	}
 
 }
