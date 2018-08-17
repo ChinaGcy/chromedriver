@@ -13,6 +13,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -90,11 +91,33 @@ public class ServiceProviderTask extends Task {
 						serviceProvider.platform_certification.add("企业");
 					}
 
-					serviceProvider.insert();
+					// 定时任务 快照
+					boolean status = serviceProvider.insert();
+					ScheduledChromeTask st = t.getScheduledChromeTask();
+
+					// 第一次抓取生成定时任务
+					if(st == null) {
+
+						try {
+							st = new ScheduledChromeTask(t.getHolder(), crons);
+							st.start();
+						} catch (Exception e) {
+							logger.error("error for creat ScheduledChromeTask", e);
+						}
+
+					}
+					else {
+						if( !status ){
+							st.degenerate();
+						}
+					}
+
 				} catch (Exception e) {
+
 					logger.error("insert/update error {}", e);
 				}
 
+				// 评论任务
 				try {
 
 					//设置参数
@@ -113,6 +136,7 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for submit ServiceProviderRatingTask.class", e);
 				}
 
+				// case 列表任务
 				try {
 
 					//设置参数
@@ -131,7 +155,7 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for submit CaseScanTask.class", e);
 				}
 
-
+				// work 列表任务
 				try {
 
 					//设置参数

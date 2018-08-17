@@ -19,7 +19,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class loginConfTest {
+public class LoginConfTest {
 
 	@Test
 	public void test() throws ClassNotFoundException {

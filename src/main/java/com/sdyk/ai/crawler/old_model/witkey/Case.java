@@ -3,7 +3,7 @@ package com.sdyk.ai.crawler.old_model.witkey;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.old_model.Model;
+import com.sdyk.ai.crawler.model.Model;
 import one.rewind.db.DBName;
 
 /**

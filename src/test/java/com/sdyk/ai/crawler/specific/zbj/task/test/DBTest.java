@@ -45,16 +45,6 @@ public class DBTest {
 	}
 
 	/**
-	 * 更新插入project
-	 * @throws Exception
-	 */
-	@Test
-	public void projectToNew() throws Exception {
-
-		DBUtil.companyInformationConvert();
-	}
-
-	/**
 	 * 测试多值字段正确性
 	 * @throws Exception
 	 */
@@ -66,8 +56,17 @@ public class DBTest {
 
 		for (Project project : list) {
 			System.err.println(project.tags.size());
-
 		}
+	}
+
+	/**
+	 * 数据转移更新
+	 * @throws Exception
+	 */
+	@Test
+	public void convertData() throws Exception {
+
+		DBUtil.convertData();
 
 	}
 

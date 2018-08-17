@@ -3,7 +3,7 @@ package com.sdyk.ai.crawler.old_model.witkey;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.old_model.Model;
+import com.sdyk.ai.crawler.model.Model;
 import com.sdyk.ai.crawler.old_model.witkey.snapshot.ProjectSnapshot;
 import com.sdyk.ai.crawler.util.Range;
 import one.rewind.db.DBName;
@@ -153,7 +153,7 @@ public class Project extends Model {
 
 	public boolean insert() {
 
-		super.insert();
+		/*super.insert();
 
 		try {
 
@@ -173,7 +173,8 @@ public class Project extends Model {
 
 			logger.error("Can not find Tenderer: {}", this.tenderer_id, e);
 			return false;
-		}
+		}*/
+		return true;
 	}
 
 	/**

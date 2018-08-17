@@ -474,7 +474,11 @@ public class StringUtil {
 	}
 
 	public static List<String> strToList(String src) {
-		return Arrays.asList("".split(",")).stream().map(el -> el.trim()).filter(el -> !el.equals(" ") && !el.equals("")).collect(Collectors.toList());
+
+		if(src == null) return null;
+		List list =  Arrays.asList(src.split(",")).stream().map(el -> el.trim()).filter(el -> !el.equals(" ") && !el.equals("")).collect(Collectors.toList());
+		if(list.size() == 0) list = null;
+		return list;
 	}
 
 }
