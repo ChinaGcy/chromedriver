@@ -31,7 +31,7 @@ public class Task extends com.sdyk.ai.crawler.specific.clouderwork.task.Task {
 		if(st == null) {
 
 			try {
-				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
 			} catch (Exception e) {
 				logger.error("error for ScheduledChromeTask");

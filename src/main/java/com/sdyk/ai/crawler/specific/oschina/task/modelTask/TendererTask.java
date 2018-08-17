@@ -110,7 +110,7 @@ public class TendererTask extends Task {
 			platformCertification.append(",");
 		}
 
-		tenderer.platform_certification = platformCertification.substring(0, platformCertification.length()-1);
+		//tenderer.platform_certification = platformCertification.substring(0, platformCertification.length()-1);
 
 		// 头像
 		String imageUrl = doc.getElementsByClass("u-icon").attr("src");
@@ -129,7 +129,7 @@ public class TendererTask extends Task {
 			if(st == null) {
 
 				try {
-					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 					st.start();
 				} catch (Exception e) {
 					logger.error("error for creat ScheduledChromeTask", e);

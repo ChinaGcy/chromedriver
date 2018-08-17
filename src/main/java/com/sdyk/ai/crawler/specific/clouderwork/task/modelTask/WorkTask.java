@@ -86,7 +86,7 @@ public class WorkTask extends Task {
 			//抓取行业
 			String[] all2 = all1[1].split("工期：");
 			if(all2[0]!=null&&!"".equals(all2[0])){
-				workinfor.tags = all2[0];
+				//workinfor.tags = all2[0];
 			}
 
 			String[] all3 = all2[1].split("报价：");

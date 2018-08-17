@@ -24,7 +24,7 @@ public class CompanyRecruitment extends Model {
 
 	// 学历
 	@DatabaseField(dataType = DataType.STRING, width = 32)
-	public String educational;
+	public String education;
 
 	// 薪资下限
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)

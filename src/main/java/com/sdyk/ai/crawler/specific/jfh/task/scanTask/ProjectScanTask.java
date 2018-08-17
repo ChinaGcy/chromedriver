@@ -10,7 +10,7 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+
 import one.rewind.io.requester.task.ScheduledChromeTask;
 
 import java.io.UnsupportedEncodingException;
@@ -91,7 +91,7 @@ public class ProjectScanTask extends ScanTask {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -103,8 +103,8 @@ public class ProjectScanTask extends ScanTask {
 
 			}
 
-			String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
-			if( maxPageSrc.length() < 1 ){
+			//String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
+			/*if( maxPageSrc.length() < 1 ){
 
 				if( !(project.size() < 10) ){
 					int nextPage = page +1;
@@ -146,7 +146,7 @@ public class ProjectScanTask extends ScanTask {
 
 					ChromeDriverDistributor.getInstance().submit(holder);
 				}
-			}
+			}*/
 
 		});
 

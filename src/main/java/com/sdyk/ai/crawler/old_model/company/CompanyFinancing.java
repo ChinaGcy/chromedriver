@@ -22,7 +22,7 @@ public class CompanyFinancing extends Model {
 
 	// 投资方名称
 	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String name;
+	public String investors;
 
 	// 轮次
 	@DatabaseField(dataType = DataType.STRING, width = 32)

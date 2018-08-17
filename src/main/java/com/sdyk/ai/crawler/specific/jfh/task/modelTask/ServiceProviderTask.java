@@ -14,7 +14,6 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -129,7 +128,7 @@ public class ServiceProviderTask extends Task {
 			tags.append(",");
 		}
 		if( tags.length() > 0 ){
-			serviceProvider.tags = tags.substring(0, tags.length()-1);
+			//serviceProvider.tags = tags.substring(0, tags.length()-1);
 		}
 
 		Elements jiaMess = doc.select("div.shopPingjiaMess > ul > li");
@@ -169,7 +168,7 @@ public class ServiceProviderTask extends Task {
 		// 认证情况
 		Elements platform_certification = doc.select("i.certificationQIye");
 		if( platform_certification.size() > 0 ){
-			serviceProvider.platform_certification = "企业认证";
+			//serviceProvider.platform_certification = "企业认证";
 		}
 
 
@@ -216,7 +215,7 @@ public class ServiceProviderTask extends Task {
 						"com.sdyk.ai.crawler.specific.jfh.task.modelTask.WorkTask");
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -237,7 +236,7 @@ public class ServiceProviderTask extends Task {
 			Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderRatingTask");
 
 			//生成holder
-			ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+			//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 			//提交任务
 			((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -263,7 +262,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -283,7 +282,7 @@ public class ServiceProviderTask extends Task {
 			if(st == null) {
 
 				try {
-					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 					st.start();
 				} catch (Exception e) {
 					logger.error("error for creat ScheduledChromeTask", e);

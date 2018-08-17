@@ -13,7 +13,6 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
@@ -88,7 +87,7 @@ public class ProjectTask extends Task {
 	        // 第一次抓取生成定时任务
 	        if(st == null) {
 
-		        st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+		        //st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 		        st.start();
 	        }
 	        else {
@@ -147,7 +146,7 @@ public class ProjectTask extends Task {
 		    tags.append(",");
 	    }
 	    if(tags.length() > 0){
-		    project.tags = tags.substring(0, tags.length()-1);
+		    //project.tags = tags.substring(0, tags.length()-1);
 	    }
 	    else {
 		    String tags_ = doc.select("div.offer").text();
@@ -156,7 +155,7 @@ public class ProjectTask extends Task {
 		    Matcher matcher_1 = pattern_1.matcher(tags_);
 
 		    if( matcher_1.find() ){
-			    project.tags = matcher_1.group("t");
+			    //project.tags = matcher_1.group("t");
 		    }
 
 		    Pattern pattern_2 = Pattern.compile("getLevel\\((?<t>.+?),'");
@@ -174,7 +173,7 @@ public class ProjectTask extends Task {
 		    }
 
 		    if( lv.length() > 1 ){
-		    	project.tags = project.tags + "-" + lv;
+		    	//project.tags = project.tags + "-" + lv;
 		    }
 	    }
 
@@ -358,8 +357,8 @@ public class ProjectTask extends Task {
 	    }
 
 	    //采集招标人信息
-	    String flage = (String) init_map.get("flage");
-	    if( flage.equals("1") ){
+	    //String flage = (String) init_map.get("flage");
+	    /*if( flage.equals("1") ){
 
 		    if( tendererId!=null && !"".equals(tendererId) ){
 
@@ -382,7 +381,7 @@ public class ProjectTask extends Task {
 				    logger.error("error for submit TendererTask.class", e);
 			    }
 	        }
-	    }
+	    }*/
 
 	    project.category.replace(" ", "");
 	    project.insert();

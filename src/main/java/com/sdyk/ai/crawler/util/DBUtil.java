@@ -14,9 +14,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import one.rewind.db.Refacter;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class DBUtil {
 
@@ -38,7 +38,43 @@ public class DBUtil {
 		}
 	}
 
-	/**project 数据信息重构
+	public static void convertData() throws Exception {
+
+		// old model -> new model
+		Map<Class<? extends Model>, Class<? extends Model>> classMap = new HashMap();
+
+		for(Class<? extends Model> clazz : classMap.keySet()){
+
+			Dao oldModelDao = DaoManager.getDao(clazz);
+			Dao newModelDao = DaoManager.getDao(classMap.get(clazz));
+
+			List<Model> oldModels = oldModelDao.queryForAll();
+
+			for(Model model : oldModels) {
+
+				Map<String, Object> map = ReflectModelUtil.toMap(model);
+				Map<String, Object> newMap = new HashMap<>();
+				newMap.putAll(map);
+
+				for(String key : map.keySet()) {
+					if(key.matches("tags|attachment_ids")) {
+						newMap.put(key, StringUtil.strToList((String) map.get(key)));
+					}
+				}
+
+
+
+			}
+
+		}
+
+
+
+
+	}
+
+	/**
+	 * project 数据信息重构
 	 *
 	 * @throws Exception
 	 */
@@ -61,29 +97,17 @@ public class DBUtil {
 				if (f.getName().contains("tags")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(project_old)).split(","));
-						f_.set(project, list);
-					}catch (NullPointerException e) {
+						f_.set(project, StringUtil.strToList( (String) f.get(project_old) ));
+					} catch (NullPointerException e) {
 						continue;
 					}
 
 				}
-				/*else if (f.getName().contains("location")) {
-					LocationParser parser = LocationParser.getInstance();
-
-					try {
-						String location = parser.matchLocation((String) f.get(project_old)).size() > 0 ? parser.matchLocation((String) f.get(project_old)).get(0).toString() : null;
-						f_.set(project, location);
-
-					} catch (NullPointerException e) {
-						continue;
-					}
-				}*/
 				else if (f.getName().contains("attachment_ids")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(project_old)).split(","));
-						f_.set(project, list);
+
+						f_.set(project, StringUtil.strToList( (String) f.get(project_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -98,7 +122,7 @@ public class DBUtil {
 	}
 
 	/**
-	 * tenderer 数据信息重构
+	 *
 	 */
 	public static void tendererConvert() throws Exception {
 
@@ -120,8 +144,7 @@ public class DBUtil {
 				if (f.getName().contains("platform_certification")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(tenderer_old)).split(","));
-						f_.set(tenderer, list);
+						f_.set(tenderer, StringUtil.strToList( (String) f.get(tenderer_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -141,8 +164,7 @@ public class DBUtil {
 				else if (f.getName().contains("attachment_ids")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(tenderer_old)).split(","));
-						f_.set(tenderer, list);
+						f_.set(tenderer, StringUtil.strToList( (String) f.get(tenderer_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -157,8 +179,7 @@ public class DBUtil {
 
 	}
 
-
-	/**serviceprivoder 数据信息重构
+	/**
 	 *
 	 */
 	public static void serviceproviderConvert() throws Exception {
@@ -183,8 +204,7 @@ public class DBUtil {
 				if (f.getName().contains("tags")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(serviceProvider_old)).replace(" ", "").split(","));
-						f_.set(serviceProvider, list);
+						f_.set(serviceProvider, StringUtil.strToList(( (String) f.get(serviceProvider_old)).replace(" ", "") ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -193,8 +213,8 @@ public class DBUtil {
 				else if (f.getName().contains("attachment_ids")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(serviceProvider_old)).split(","));
-						f_.set(serviceProvider, list);
+
+						f_.set(serviceProvider, StringUtil.strToList( (String) f.get(serviceProvider_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -202,8 +222,8 @@ public class DBUtil {
 				else if (f.getName().contains("cover_images")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(serviceProvider_old)).split(","));
-						f_.set(serviceProvider, list);
+
+						f_.set(serviceProvider, StringUtil.strToList( (String) f.get(serviceProvider_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -211,13 +231,19 @@ public class DBUtil {
 				else if (f.getName().contains("platform_certification")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(serviceProvider_old)).split(","));
-						f_.set(serviceProvider, list);
+						f_.set(serviceProvider, StringUtil.strToList( (String) f.get(serviceProvider_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
 				}
+				else if (f.getName().contains("catgory")) {
 
+					try {
+						f_.set(serviceProvider, ((String) f.get(serviceProvider_old)).replace(" ", ""));
+					}catch (NullPointerException e) {
+						continue;
+					}
+				}
 				else {
 					f_.set(serviceProvider, f.get(serviceProvider_old));
 				}
@@ -229,7 +255,7 @@ public class DBUtil {
 	}
 
 	/**
-	 * serviceProviderRating 数据信息重构
+	 *
 	 */
 	public static void serviceProviderRatingConvert() throws Exception {
 
@@ -253,8 +279,7 @@ public class DBUtil {
 				if (f.getName().contains("tags")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(serviceProviderRating_old)).split(" "));
-						f_.set(serviceProviderRating, list);
+						f_.set(serviceProviderRating, StringUtil.strToList( (String) f.get(serviceProviderRating_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -269,7 +294,7 @@ public class DBUtil {
 		}
 	}
 
-	/** tendererRating 数据信息重构
+	/**
 	 *
 	 */
 	public static void tendererRatingConvert() throws Exception {
@@ -294,8 +319,7 @@ public class DBUtil {
 				if (f.getName().contains("tags")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(TendererRating_old)).split(" "));
-						f_.set(tendererRating, list);
+						f_.set(tendererRating, StringUtil.strToList( (String) f.get(TendererRating_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -337,8 +361,7 @@ public class DBUtil {
 				if (f.getName().contains("tags")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(case_old)).split(" "));
-						f_.set(case_, list);
+						f_.set(case_, StringUtil.strToList( (String) f.get(case_old) ));
 					} catch (NullPointerException e) {
 						continue;
 					}
@@ -347,8 +370,7 @@ public class DBUtil {
 				else if (f.getName().contains("attachment_ids")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(case_old)).split(","));
-						f_.set(case_, list);
+						f_.set(case_, StringUtil.strToList( (String) f.get(case_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -389,8 +411,7 @@ public class DBUtil {
 				if (f.getName().contains("tags")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(work_old)).replace(" ", ""));
-						f_.set(work, list);
+						f_.set(work, StringUtil.strToList( (String) f.get(work_old) ));
 					} catch (NullPointerException e) {
 						continue;
 					}
@@ -399,8 +420,8 @@ public class DBUtil {
 				else if (f.getName().contains("attachment_ids")) {
 
 					try {
-						List list = Arrays.asList(((String) f.get(work_old)).split(","));
-						f_.set(work, list);
+
+						f_.set(work, StringUtil.strToList( (String) f.get(work_old) ));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -445,7 +466,7 @@ public class DBUtil {
 			projectSnapshot.origin_from = projectSnapshot_old.origin_from;
 			projectSnapshot.category = projectSnapshot_old.category;
 			try {
-				projectSnapshot.tags = Arrays.asList(projectSnapshot_old.tags.split(" >"));
+				projectSnapshot.tags = StringUtil.strToList( projectSnapshot_old.tags );
 			} catch (NullPointerException e) {
 			}
 			projectSnapshot.content = projectSnapshot_old.content;
@@ -471,7 +492,7 @@ public class DBUtil {
 			projectSnapshot.rcmd_num = projectSnapshot_old.rcmd_num;
 			projectSnapshot.delivery_steps = projectSnapshot_old.delivery_steps;
 			try {
-				projectSnapshot.attachment_ids = Arrays.asList(projectSnapshot_old.attachment_ids.split(","));
+				projectSnapshot.attachment_ids = StringUtil.strToList( projectSnapshot_old.attachment_ids );
 			} catch (NullPointerException e) {
 			}
 			projectSnapshot.insert_time = projectSnapshot_old.insert_time;
@@ -507,7 +528,7 @@ public class DBUtil {
 			serviceProviderSnapshot.name = serviceProviderSnapshot_old.name;
 			serviceProviderSnapshot.head_portrait = serviceProviderSnapshot_old.head_portrait;
 			try{
-				serviceProviderSnapshot.platform_certification = Arrays.asList(serviceProviderSnapshot_old.platform_certification.split(","));
+				serviceProviderSnapshot.platform_certification = StringUtil.strToList( serviceProviderSnapshot_old.platform_certification );
 			} catch (NullPointerException e) {}
 			serviceProviderSnapshot.company_name = serviceProviderSnapshot_old.company_name;
 			serviceProviderSnapshot.company_address = serviceProviderSnapshot_old.company_address;
@@ -519,9 +540,11 @@ public class DBUtil {
 			serviceProviderSnapshot.content = serviceProviderSnapshot_old.content;
 			serviceProviderSnapshot.team_size = serviceProviderSnapshot_old.team_size;
 			serviceProviderSnapshot.work_experience = serviceProviderSnapshot_old.work_experience;
-			serviceProviderSnapshot.category = serviceProviderSnapshot_old.category;
 			try {
-				serviceProviderSnapshot.tags = Arrays.asList(serviceProviderSnapshot_old.tags.split(" "));
+				serviceProviderSnapshot.category = serviceProviderSnapshot_old.category.replace(" ", "");
+			} catch (NullPointerException e) {}
+			try {
+				serviceProviderSnapshot.tags = StringUtil.strToList( serviceProviderSnapshot_old.platform_certification );
 			} catch (NullPointerException e) {}
 			serviceProviderSnapshot.service_attitude = serviceProviderSnapshot_old.service_attitude;
 			serviceProviderSnapshot.service_speed = serviceProviderSnapshot_old.service_speed;
@@ -548,15 +571,15 @@ public class DBUtil {
 			serviceProviderSnapshot.view_num = serviceProviderSnapshot_old.view_num;
 			serviceProviderSnapshot.position = serviceProviderSnapshot_old.position;
 			try {
-				serviceProviderSnapshot.cover_images = Arrays.asList(serviceProviderSnapshot_old.cover_images.split(","));
-			} catch (NullPointerException e) {}
+				serviceProviderSnapshot.cover_images = StringUtil.strToList( serviceProviderSnapshot_old.cover_images );
+		} catch (NullPointerException e) {}
 			serviceProviderSnapshot.rating = serviceProviderSnapshot_old.rating;
 			serviceProviderSnapshot.rcmd_num = serviceProviderSnapshot_old.rcmd_num;
 			serviceProviderSnapshot.rating_num = serviceProviderSnapshot_old.rating_num;
 			serviceProviderSnapshot.praise_num = serviceProviderSnapshot_old.praise_num;
 			serviceProviderSnapshot.negative_num = serviceProviderSnapshot_old.negative_num;
 			try {
-				serviceProviderSnapshot.attachment_ids = Arrays.asList(serviceProviderSnapshot_old.attachment_ids.split(","));
+				serviceProviderSnapshot.attachment_ids = StringUtil.strToList( serviceProviderSnapshot_old.attachment_ids );
 			} catch (NullPointerException e) {}
 			serviceProviderSnapshot.domain_id = serviceProviderSnapshot_old.domain_id;
 			serviceProviderSnapshot.insert_time = serviceProviderSnapshot_old.insert_time;
@@ -591,7 +614,9 @@ public class DBUtil {
 			tendererSnapshot.origin_id = tendererSnapshot_old.origin_id;
 			tendererSnapshot.name = tendererSnapshot_old.name;
 			tendererSnapshot.head_portrait = tendererSnapshot_old.head_portrait;
-			tendererSnapshot.location = parser.matchLocation(tendererSnapshot_old.location).size() > 0 ? parser.matchLocation(tendererSnapshot_old.location).get(0).toString() : null;
+			try {
+				tendererSnapshot.location = parser.matchLocation(tendererSnapshot_old.location).size() > 0 ? parser.matchLocation(tendererSnapshot_old.location).get(0).toString() : null;
+			} catch (NullPointerException e) {}
 			tendererSnapshot.login_time = tendererSnapshot_old.login_time;
 			tendererSnapshot.trade_num = tendererSnapshot_old.trade_num;
 			tendererSnapshot.category = tendererSnapshot_old.category;
@@ -610,13 +635,13 @@ public class DBUtil {
 			tendererSnapshot.grade = tendererSnapshot_old.grade;
 			tendererSnapshot.company_name = tendererSnapshot_old.company_name;
 			try {
-				tendererSnapshot.platform_certification = Arrays.asList(tendererSnapshot_old.platform_certification.split(","));
+				tendererSnapshot.platform_certification = StringUtil.strToList( tendererSnapshot_old.platform_certification );
 			} catch (NullPointerException e) {}
 			tendererSnapshot.credit = tendererSnapshot_old.credit;
 			tendererSnapshot.insert_time = tendererSnapshot_old.insert_time;
 			tendererSnapshot.update_time = tendererSnapshot_old.update_time;
 			try {
-				tendererSnapshot.attachment_ids = Arrays.asList(tendererSnapshot_old.attachment_ids.split(","));
+				tendererSnapshot.attachment_ids = StringUtil.strToList( tendererSnapshot_old.attachment_ids );
 			} catch (NullPointerException e) {}
 			tendererSnapshot.domain_id = tendererSnapshot_old.domain_id;
 
@@ -653,8 +678,7 @@ public class DBUtil {
 				if (f.getName().contains("name")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(companyFinancing_old)).split(","));
-						f_.set(companyFinancing, list);
+						f_.set(companyFinancing, StringUtil.strToList( (String) f.get(companyFinancing_old)));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -676,7 +700,7 @@ public class DBUtil {
 	public static void companyInformationConvert() throws Exception {
 
 		Dao dao = DaoManager.getDao(com.sdyk.ai.crawler.old_model.company.CompanyInformation.class);
-		Dao dao1 = DaoManager.getDao(CompanyFinancing.class);
+		Dao dao1 = DaoManager.getDao(CompanyInformation.class);
 
 		int i = 0;
 
@@ -698,8 +722,8 @@ public class DBUtil {
 				if (f.getName().contains("tags")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(companyInformation_old)).split(","));
-						f_.set(companyInformation, list);
+
+						f_.set(companyInformation, StringUtil.strToList( (String) f.get(companyInformation_old)));
 					}catch (NullPointerException e) {
 						continue;
 					}
@@ -708,8 +732,7 @@ public class DBUtil {
 				else if (f.getName().contains("competing_company_ids")){
 
 					try {
-						List list = Arrays.asList(((String) f.get(companyInformation_old)).split(","));
-						f_.set(companyInformation, list);
+						f_.set(companyInformation, StringUtil.strToList( (String) f.get(companyInformation_old)));
 					}catch (NullPointerException e) {
 						continue;
 					}

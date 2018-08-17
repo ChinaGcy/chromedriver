@@ -16,7 +16,6 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -75,7 +74,7 @@ public class ServiceProviderTask extends Task {
 		    if(st == null) {
 
 			    try {
-				    st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				    //st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				    st.start();
 			    } catch (Exception e) {
 				    logger.error("error for creat ScheduledChromeTask", e);
@@ -113,7 +112,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.domain_id = 2;
 
 		// 平台认证信息
-		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
+		//serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
 
 		String grade = doc.select("#profile > div > div > section.basic > section > img.icon-lv").attr("src");
 		if( grade != null && grade.length() > 0 ){
@@ -127,7 +126,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
 		// 类型
-		String type = serviceProvider.platform_certification;
+		/*String type = serviceProvider.platform_certification;
 		if( type!=null && !"".equals(type) ){
 
 			if( type.contains("企业") ){
@@ -160,8 +159,8 @@ public class ServiceProviderTask extends Task {
 			else {
 				type = "个人";
 			}
-		}
-		serviceProvider.type = type;
+		}*/
+		//serviceProvider.type = type;
 
 		// 名字及公司名称
 		String name = doc.getElementsByClass("name-box").text();
@@ -226,7 +225,7 @@ public class ServiceProviderTask extends Task {
 				skills = all2[0];
 			}
 			if( skills!=null && !"".equals(skills) ){
-				serviceProvider.tags = skills.replace(" ", ",");
+				//serviceProvider.tags = skills.replace(" ", ",");
 			}
 			String[] all3 = all2[1].split("工作经验：");
 
@@ -282,7 +281,7 @@ public class ServiceProviderTask extends Task {
 				skills = all2[0];
 			}
 			if( skills!=null && !"".equals(skills) ){
-				serviceProvider.tags = skills.replace(" ", ",");
+				//serviceProvider.tags = skills.replace(" ", ",");
 			}
 			String[] all3 = all2[1].split("工作经验：");
 
@@ -313,7 +312,7 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.position = doc.select("span.s-title.male").text();
 
 		// 标签数据过滤
-		if( serviceProvider.tags.substring(0, 1).equals(",") ){
+		/*if( serviceProvider.tags.substring(0, 1).equals(",") ){
 			serviceProvider.tags = serviceProvider.tags.substring(1, serviceProvider.tags.length() - 1);
 		}
 		if( serviceProvider.tags.contains("工作属性") ){
@@ -321,7 +320,7 @@ public class ServiceProviderTask extends Task {
 		}
 		if( serviceProvider.tags.substring(serviceProvider.tags.length()-2, serviceProvider.tags.length()-1).equals(",") ){
 			serviceProvider.tags = serviceProvider.tags.substring(0, serviceProvider.tags.length()-2);
-		}
+		}*/
 
 		//成员数量
 		String memberNum = CrawlerAction.getNumbers(doc.getElementsByClass("members").text());
@@ -465,7 +464,7 @@ public class ServiceProviderTask extends Task {
 
 			work.category = element.select("div.sp-cont > span:nth-child(1)").text();
 
-			work.tags = element.select("span.skill").text();
+			//work.tags = element.select("span.skill").text();
 
 			work.external_url = element.select("p.show-link > a").attr("href");
 
@@ -529,7 +528,7 @@ public class ServiceProviderTask extends Task {
 				String fileName = element.select("a:nth-child(1)").text();
 				fileMap.put(fileurl, fileName);
 			}
-			serviceProvider.attachment_ids = BinaryDownloader.download(getUrl(), fileMap);
+			//serviceProvider.attachment_ids = BinaryDownloader.download(getUrl(), fileMap);
 		}
 
 		//抓取乙方项目
@@ -549,7 +548,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.WorkTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -572,7 +571,7 @@ public class ServiceProviderTask extends Task {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

@@ -11,7 +11,6 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
@@ -188,7 +187,7 @@ public class ProjectTask extends Task {
 				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid(authorUrl));
 
-				String flage = (String) init_map.get("flage");
+				/*String flage = (String) init_map.get("flage");
 
 				if( flage.equals("1") ){
 
@@ -231,7 +230,7 @@ public class ProjectTask extends Task {
 					} catch (Exception e) {
 						logger.error("error for submit TendererRatingTask", e);
 					}
-				}
+				}*/
 
 			}
 
@@ -247,12 +246,12 @@ public class ProjectTask extends Task {
 
 			ScheduledChromeTask st = t.getScheduledChromeTask();
 
-			// 第一次抓取生成定时任务
+			/*// 第一次抓取生成定时任务
 			if(st == null) {
 
 				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
-			}
+			}*/
 			// 已完成项目停止定时任务
 			if( project.status.contains("已截稿") ){
 				st.stop();

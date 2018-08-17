@@ -15,7 +15,8 @@ import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.TaskException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.json.JSON;
 import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
@@ -96,9 +97,9 @@ public class Distributor extends ChromeDriverDistributor {
 	 * 向队列中添加任务
 	 * 当程序异常退出，需要重构 URL_VISITS
 	 */
-	public Map<String, Object> submit(ChromeTaskHolder holder) throws Exception {
+	public Map<String, Object> submit(TaskHolder holder) throws Exception {
 
-		Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(holder.class_name);
+		/*Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(holder.class_name);
 
 		ChromeTask.Builder builder = ChromeTask.Builders.get(clazz);
 
@@ -225,10 +226,10 @@ public class Distributor extends ChromeDriverDistributor {
 
 		logger.warn("Agent not found for task:{}-{}.", domain, username);
 
-		throw new ChromeDriverException.NotFoundException();
+		throw new ChromeDriverException.NotFoundException();*/
 
 
-		//return super.submit(holder);
+		return super.submit(holder);
 	}
 
 	/**
@@ -239,7 +240,7 @@ public class Distributor extends ChromeDriverDistributor {
 	 */
 	public ChromeTask distribute(ChromeDriverAgent agent) throws InterruptedException {
 
-		ChromeTask task = null;
+		/*ChromeTask task = null;
 
 		if( loginTaskQueues.get(agent) != null && !loginTaskQueues.get(agent).isEmpty() ){
 			task = loginTaskQueues.get(agent).poll();
@@ -353,9 +354,9 @@ public class Distributor extends ChromeDriverDistributor {
 		catch (Exception e) {
 
 			// Recursive call to get task
-			logger.error("Task submit failed. {} ", task != null? task : holder, e);
+			logger.error("Task submit failed. {} ", task != null? task : holder, e);*/
 			return distribute(agent);
-		}
+		//}
 	}
 
 	/**

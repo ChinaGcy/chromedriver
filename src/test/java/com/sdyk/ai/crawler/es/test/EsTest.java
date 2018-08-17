@@ -18,6 +18,7 @@ public class EsTest {
 
 			ESTransportClientAdapter.deleteIndexAndMapping();
 			ESTransportClientAdapter.createIndexAndMapping();
+			ESTransportClientAdapter.dumpDBtoES();
 
 		} catch (Exception e) {
 			e.printStackTrace();

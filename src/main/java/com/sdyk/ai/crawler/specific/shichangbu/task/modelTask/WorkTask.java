@@ -89,7 +89,7 @@ public class WorkTask extends Task {
 			tagr.append(",");
 		}
 		if( tagr.length() > 1 ){
-			work.tags = tagr.substring(0, tagr.length()-1);
+			//work.tags = tagr.substring(0, tagr.length()-1);
 		}
 
 		//浏览次数

@@ -87,7 +87,7 @@ public class CaseTask extends Task {
 		caseInfo.category = doc.select("#showdetail-category-categories").text();
 
 		//标签
-		caseInfo.tags = doc.select("#showdetail-category > div:nth-child(3) > div:nth-child(2)").text();
+		//caseInfo.tags = doc.select("#showdetail-category > div:nth-child(3) > div:nth-child(2)").text();
 
 		//评价
 		String rating = CrawlerAction.getNumbers(doc.select("#dis_rateNum").text());

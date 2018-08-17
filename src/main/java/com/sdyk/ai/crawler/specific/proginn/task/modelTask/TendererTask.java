@@ -85,7 +85,7 @@ public class TendererTask extends Task {
 
 		tenderer.company_name = doc.select("span.name-txt").text();
 
-		tenderer.platform_certification = doc.select("span.tag").text();
+		//tenderer.platform_certification = doc.select("span.tag").text();
 
 		Elements elements = doc.select("div.rate > p");
 		for(Element element : elements){
@@ -153,7 +153,7 @@ public class TendererTask extends Task {
 		if(st == null) {
 
 			try {
-				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 				st.start();
 			} catch (Exception e) {
 				logger.error("error for creat ScheduledChromeTask", e);

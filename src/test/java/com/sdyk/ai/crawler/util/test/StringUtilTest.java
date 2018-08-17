@@ -9,6 +9,7 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 测试StringUtil相关功能
@@ -197,5 +198,12 @@ public class StringUtilTest {
 		list.add("123456");
 
 		System.err.println(list.toString());
+	}
+
+	@Test
+	public void stringSplitTest() {
+		List list = Arrays.asList("".split(",")).stream().map(el -> el.trim()).filter(el -> !el.equals(" ") && !el.equals("")).collect(Collectors.toList());
+		System.out.print(list.size());
+		System.out.print(list);
 	}
 }

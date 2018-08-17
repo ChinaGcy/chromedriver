@@ -141,7 +141,7 @@ public class ProjectTask extends Task {
 			}
 		}
 		if( tags.length() > 0 ){
-			project.tags = tags.substring(0, tags.length()-1);
+			//project.tags = tags.substring(0, tags.length()-1);
 		}
 
 		//描述

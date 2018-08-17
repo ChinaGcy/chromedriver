@@ -13,7 +13,6 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -116,7 +115,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		// 平台认证
-		serviceProvider.platform_certification = doc.select("span.check_status.active").text();
+		//serviceProvider.platform_certification = doc.select("span.check_status.active").text();
 
 		//服务质量
 		String serviceQuality = doc.getElementsByClass("center").text();
@@ -187,7 +186,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		if(targ != null && targ.length() > 1){
-			serviceProvider.tags = targ.substring(0, targ.length() - 1);
+			//serviceProvider.tags = targ.substring(0, targ.length() - 1);
 		}
 
 		//评价数
@@ -213,7 +212,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 			String[] arg = title.split("•");
 			if( arg.length > 1 ){
-				work.tags = arg[1].replace("、", "").replace("与", "").replace("及", "");
+				//work.tags = arg[1].replace("、", "").replace("与", "").replace("及", "");
 			}
 
 			work.title = title.split("•")[0];
@@ -225,7 +224,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 			Map<String, String> map = new HashMap<>();
 			if( url != null && url.length() > 0 ){
 				map.put(url, "workImg");
-				work.attachment_ids = BinaryDownloader.download(getUrl(), map);
+				//work.attachment_ids = BinaryDownloader.download(getUrl(), map);
 			}
 
 			//外部链接
@@ -250,7 +249,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.modelTask.ServiceProviderRatingTask");
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				ChromeDriverDistributor.getInstance().submit(holder);
