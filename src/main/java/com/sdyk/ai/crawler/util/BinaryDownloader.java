@@ -10,6 +10,7 @@ import one.rewind.io.requester.BasicRequester;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,9 +29,9 @@ public class BinaryDownloader {
 	 * 3. 相对路径
 	 * 4. 完整路径
 	 */
-	public static String download(String context_url, Map<String, String> url_filename ) {
+	public static List<String> download(String context_url, Map<String, String> url_filename ) {
 
-		StringBuffer result = new StringBuffer();
+		List<String> result = new ArrayList<>();
 
 		// 处理下载
 		for (String url : url_filename.keySet()) {
@@ -46,8 +47,7 @@ public class BinaryDownloader {
 			// 已存在该附件
 			if( oldBinary != null ){
 
-				result.append(id);
-				result.append(",");
+				result.add(id);
 			}
 			// 不存在附件
 			else {
@@ -94,8 +94,7 @@ public class BinaryDownloader {
 							binary.file_size = binary.src.length / 1024;
 							binary.insert();
 
-							result.append(binary.id);
-							result.append(",");
+							result.add(binary.id);
 
 							logger.info(" Download done: {}.", url);
 						}
@@ -108,10 +107,10 @@ public class BinaryDownloader {
 			}
 		}
 
-		if( result.length() < 1 ){
+		if( result.size() < 1 ){
 			return null;
 		}
-		return  result.substring(1, result.length()-1);
+		return  result;
 	}
 
 
