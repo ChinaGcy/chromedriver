@@ -53,9 +53,9 @@ public class WorkTask extends Task {
 
 			Document doc = getResponse().getDoc();
 
-			String uid = t.getStringFromInitMap("uId");
+			//String uid = t.getStringFromInitMap("uId");
 
-			crawler(doc, uid);
+			//crawler(doc, uid);
 
 		});
 

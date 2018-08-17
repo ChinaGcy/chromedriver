@@ -8,7 +8,6 @@ import com.sdyk.ai.crawler.specific.proLagou.task.modelTask.ProjectTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 
 import java.io.UnsupportedEncodingException;
@@ -75,7 +74,7 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.modelTask.ProjectTask");
 
 		            //生成holder
-		            ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+		            //ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 		            //提交任务
 		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -87,7 +86,7 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
             }
 
-            String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
+           /* String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
 
             // 不含 max_page 参数，则表示可以一直翻页
 	        if( maxPageSrc.length() < 1 ){
@@ -133,7 +132,7 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
 			        ChromeDriverDistributor.getInstance().submit(holder);
 		        }
-	        }
+	        }*/
 
 
 

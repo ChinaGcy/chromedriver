@@ -10,7 +10,6 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
@@ -186,7 +185,7 @@ public class ProjectTask extends Task {
 			        Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 			        //生成holder
-			        ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+			        //ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 			        //提交任务
 			        ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

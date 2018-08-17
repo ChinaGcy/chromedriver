@@ -235,7 +235,7 @@ public class ServiceProviderTask extends Task {
 			}
 
 			// 图片下载
-			serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
+			//serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
 
 		} catch (Exception e) {
 
@@ -461,7 +461,7 @@ public class ServiceProviderTask extends Task {
 			map.put(e.select("div > img").attr("src"), e.select("span").text());
 		}
 
-		serviceProvider.cover_images.addAll(Arrays.asList(BinaryDownloader.download(getUrl(), map).split(",")));
+		//serviceProvider.cover_images.addAll(Arrays.asList(BinaryDownloader.download(getUrl(), map).split(",")));
 
 		//serviceProvider.tags = Arrays.asList(doc.select("body > div.grid > div.main-wrap > div > div > div:nth-child(3) > div.introduce-content > div").text().split(" "));
 
@@ -494,7 +494,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		// 图片下载
-		serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
+		//serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
 
 		//serviceProvider.tags = Arrays.asList(doc.select("#utopia_widget_15 > div.skill-wrap").text().split(" "));
 

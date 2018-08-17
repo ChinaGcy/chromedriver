@@ -51,9 +51,9 @@ public class BinaryTask extends ChromeTask {
 					.attr("download")
 			);
 
-			String description = BinaryDownloader.download(contain, files);
+			//String description = BinaryDownloader.download(contain, files);
 
-			System.err.println("处理后附件代码：" + description);
+			//System.err.println("处理后附件代码：" + description);
 
 		});
 

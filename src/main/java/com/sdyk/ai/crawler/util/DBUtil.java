@@ -50,13 +50,13 @@ public class DBUtil {
 		classMap.put(com.sdyk.ai.crawler.old_model.witkey.TendererRating.class, TendererRating.class);
 		classMap.put(com.sdyk.ai.crawler.old_model.witkey.ServiceProviderRating.class, ServiceProviderRating.class);
 
-		//classMap.put(com.sdyk.ai.crawler.old_model.witkey.Work.class, Work.class);
+		classMap.put(com.sdyk.ai.crawler.old_model.witkey.Work.class, Work.class);
 
 		classMap.put(com.sdyk.ai.crawler.old_model.witkey.Case.class, Case.class);
 
 		classMap.put(com.sdyk.ai.crawler.old_model.witkey.snapshot.TendererSnapshot.class, TendererSnapshot.class);
 		classMap.put(com.sdyk.ai.crawler.old_model.witkey.snapshot.ProjectSnapshot.class, ProjectSnapshot.class);
-		//classMap.put(com.sdyk.ai.crawler.old_model.witkey.snapshot.ServiceProviderSnapshot.class, ServiceProviderSnapshot.class);
+		classMap.put(com.sdyk.ai.crawler.old_model.witkey.snapshot.ServiceProviderSnapshot.class, ServiceProviderSnapshot.class);
 		classMap.put(com.sdyk.ai.crawler.old_model.company.CompanyFinancing.class, CompanyFinancing.class);
 		classMap.put(com.sdyk.ai.crawler.old_model.company.CompanyInformation.class, CompanyInformation.class);
 

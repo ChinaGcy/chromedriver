@@ -1,11 +1,16 @@
 package com.sdyk.ai.crawler.es.test;
 
+import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.model.witkey.Resume;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
+import one.rewind.db.DaoManager;
 import org.junit.Test;
+
+import java.util.List;
 
 public class EsTest {
 
@@ -18,6 +23,8 @@ public class EsTest {
 
 			ESTransportClientAdapter.deleteIndexAndMapping();
 			ESTransportClientAdapter.createIndexAndMapping();
+
+			//ESTransportClientAdapter.dumpDBtoES();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,6 +81,24 @@ public class EsTest {
 		//ESTransportClientAdapter.deleteOne(key, key, resume.user_id);
 
 		resume.insert();
+	}
+
+	@Test
+	public void testAddModelToES() throws Exception {
+
+		//ESTransportClientAdapter.dumpDBtoES();
+
+		Dao dao = DaoManager.getDao(Project.class);
+
+		System.err.println(((Model) dao.queryForId("01944b42c68337f67a2ebc5e5ed5303c")).toJSON());
+
+		ESTransportClientAdapter.insertOne(((Model) dao.queryForId("01944b42c68337f67a2ebc5e5ed5303c")));
+
+		/*List<Model> models = dao.queryForAll();
+
+		for(Model m : models) {
+			ESTransportClientAdapter.insertOne(m);
+		}*/
 	}
 
 }

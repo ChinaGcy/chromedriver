@@ -7,7 +7,6 @@ import com.sdyk.ai.crawler.specific.proLagou.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -90,7 +89,7 @@ public class ServiceProviderScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.modelTask.ServiceProviderTask");
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				ChromeDriverDistributor.getInstance().submit(holder);
@@ -117,7 +116,7 @@ public class ServiceProviderScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.scanTask.ServiceProviderScanTask");
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
 				ChromeDriverDistributor.getInstance().submit(holder);
