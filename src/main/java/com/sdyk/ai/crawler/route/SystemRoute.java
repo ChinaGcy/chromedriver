@@ -126,4 +126,36 @@ public class SystemRoute {
 
 	};
 
+	/**
+	 * agent-taskNum 统计
+	 */
+	public static Route getAgentTaskNum = (Request request, Response response ) -> {
+
+		Map<String, Integer> agentTaskNum = new HashMap<>();
+
+		ChromeDriverDistributor.getInstance().queues.keySet().forEach(k -> {
+			agentTaskNum.put(k.name, ChromeDriverDistributor.getInstance().queues.get(k).size());
+		});
+
+		try{
+			return new Msg<Map<String, Integer>>(Msg.SUCCESS, agentTaskNum);
+		} catch (Exception e) {
+			return new Msg<>(Msg.KERNEL_FAILURE);
+		}
+
+	};
+
+	/**
+	 * agent-taskNum 统计
+	 */
+	public static Route getAgentTaskInformation = (Request request, Response response ) -> {
+
+		try{
+			return new Msg<Map<String, List<String>>>(Msg.SUCCESS, Distributor.AGENT_TASK_MAP);
+		} catch (Exception e) {
+			return new Msg<>(Msg.KERNEL_FAILURE);
+		}
+
+	};
+
 }

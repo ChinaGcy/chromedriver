@@ -102,10 +102,16 @@ public class ServiceWrapper {
 			get("/agentInformation", SystemRoute.getAgentInformation, new ModelMsgTransformer());
 
 			// domain-Agents 统计
-			get("/domainInformation", SystemRoute.getAgentInformation, new ModelMsgTransformer());
+			get("/domainInformation", SystemRoute.getDomainInformation, new ModelMsgTransformer());
 
 			// proxy-domains 统计
 			get("/proxyInformation", SystemRoute.getProxyInformation, new ModelMsgTransformer());
+
+			// agent-taskNum 统计
+			get("/agentTaskNum", SystemRoute.getAgentTaskNum, new ModelMsgTransformer());
+
+			// agent-taskInformation 统计
+			get("/agentTaskInformation", SystemRoute.getAgentTaskInformation, new ModelMsgTransformer());
 
 		});
 
