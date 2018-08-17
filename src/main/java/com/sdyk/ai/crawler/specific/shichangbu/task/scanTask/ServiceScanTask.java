@@ -30,7 +30,7 @@ public class ServiceScanTask extends ScanTask {
 				ServiceScanTask.class,
 				"http://www.shichangbu.com/portal.php?mod=provider&op=search&sort=2&page={{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "", "max_page", "2")
+				ImmutableMap.of("page", "", "max_page", "")
 		);
 	}
 
@@ -40,18 +40,18 @@ public class ServiceScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		/*this.setValidator((a,t) -> {
+		this.setNoFetchImages();
+
+		// 检测异常
+		this.setValidator((a,t) -> {
 
 			String src = getResponse().getText();
-			if( src.contains("登陆") ){
+			if( src.contains("账号登陆")
+					&& src.contains("第三方登陆")){
 
 				throw new AccountException.Failed(a.accounts.get("shichangbu.com"));
-
 			}
-
-		});*/
-
-		this.setNoFetchImages();
+		});
 
 		this.setParam("page", url.split("page=")[1]);
 

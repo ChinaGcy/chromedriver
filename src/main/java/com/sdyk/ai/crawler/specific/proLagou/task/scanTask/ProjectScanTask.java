@@ -28,7 +28,7 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 				ProjectScanTask.class,
 				"https://pro.lagou.com/project/{{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page","", "max_page", "2")
+				ImmutableMap.of("page","", "max_page", "")
 		);
 	}
 
@@ -92,7 +92,7 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
             // 不含 max_page 参数，则表示可以一直翻页
 	        if( maxPageSrc.length() < 1 ){
 		        String pagePath = "#pager > div > span:nth-child(9)";
-		        if(pageTurning(pagePath, page)){
+		        if(page < 100){
 			        int nextPage = page+1;
 
 			        try {

@@ -36,8 +36,6 @@ public class WorkTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.MEDIUM);
-
 		this.setValidator((a,t) -> {
 
 			String src = getResponse().getText();

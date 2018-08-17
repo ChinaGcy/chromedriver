@@ -267,7 +267,6 @@ public abstract class Model {
 						&& !f.getName().equals("view_num")) {
 
 					if( !String.valueOf(f.get(model)).equals(String.valueOf(f.get(this))) ){
-						System.out.println("更新数据为" + f.getName() + " : " + String.valueOf(f.get(model)));
 						return true;
 					}
 				}

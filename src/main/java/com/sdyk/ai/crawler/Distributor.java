@@ -16,9 +16,11 @@ import one.rewind.io.requester.exception.TaskException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.json.JSON;
 import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.json.Json;
 import org.redisson.api.RMap;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -35,6 +37,10 @@ public class Distributor extends ChromeDriverDistributor {
 	public static final Logger logger = LogManager.getLogger(ChromeDriverDistributor.class.getName());
 
 	public static RMap<String, Long> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
+
+	public static Set<String> URL_VISITS_SET = new HashSet<>();
+
+	public static Map<String, List<String>> AGENT_TASK_MAP = new HashMap<>();
 
 	static {
 		logger.info("Replace {} with {}.", ChromeDriverDistributor.class.getName(), Distributor.class.getName());
@@ -78,7 +84,7 @@ public class Distributor extends ChromeDriverDistributor {
 		loginTaskQueues.get(agent).add(loginTask);
 
 		// 更新统计信息
-		if(!taskQueueStat.contains(loginTask.getClass().getName())) {
+		if(!taskQueueStat.keySet().contains(loginTask.getClass().getName())) {
 			taskQueueStat.put(loginTask.getClass().getName(), 1);
 		} else {
 			taskQueueStat.put(loginTask.getClass().getName(), taskQueueStat.get(loginTask.getClass().getName()) + 1);
@@ -87,6 +93,7 @@ public class Distributor extends ChromeDriverDistributor {
 	}
 
 	/**
+	 * 向队列中添加任务
 	 * 当程序异常退出，需要重构 URL_VISITS
 	 */
 	public Map<String, Object> submit(ChromeTaskHolder holder) throws Exception {
@@ -115,17 +122,7 @@ public class Distributor extends ChromeDriverDistributor {
 			throw new TaskException.LessThanMinIntervalException();
 		}
 
-
-
 		URL_VISITS.put(hash, new Date().getTime());
-
-		// 更新统计信息
-		if(!taskQueueStat.contains(holder.class_name)) {
-			taskQueueStat.put(holder.class_name, 1);
-		} else {
-			taskQueueStat.put(holder.class_name, taskQueueStat.get(holder.class_name) + 1);
-		}
-
 
 		String domain = holder.domain;
 		String username = holder.username;
@@ -190,15 +187,40 @@ public class Distributor extends ChromeDriverDistributor {
 
 			logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.init_map, agent.name);
 
-			queues.get(agent).put(holder);
+			if( !URL_VISITS_SET.contains(hash) ){
 
-			Map<String, Object> info = new HashMap<>();
-			info.put("localIp", LOCAL_IP);
-			info.put("agent", agent.getInfo());
-			info.put("domain", domain);
-			info.put("account", username);
+				// 更新统计信息
+				if(!taskQueueStat.keySet().contains(holder.class_name)) {
+					taskQueueStat.put(holder.class_name, 1);
+				} else {
+					taskQueueStat.put(holder.class_name, taskQueueStat.get(holder.class_name) + 1);
+				}
 
-			return info;
+				// 添加task信息
+				if(!AGENT_TASK_MAP.keySet().contains(agent.name)){
+					List<String> taskUrl = new ArrayList<>();
+					taskUrl.add(url);
+					AGENT_TASK_MAP.put(agent.name, taskUrl);
+				}
+				else {
+					List<String> taskUrl = AGENT_TASK_MAP.get(agent.name);
+					taskUrl.add(url);
+					AGENT_TASK_MAP.put(agent.name, taskUrl);
+				}
+
+				// 添加任务
+				queues.get(agent).put(holder);
+				URL_VISITS_SET.add(hash);
+
+				Map<String, Object> info = new HashMap<>();
+				info.put("localIp", LOCAL_IP);
+				info.put("agent", agent.getInfo());
+				info.put("domain", domain);
+				info.put("account", username);
+
+				return info;
+			}
+			logger.warn("warn Agent-queue hive this task");
 		}
 
 		logger.warn("Agent not found for task:{}-{}.", domain, username);
@@ -244,6 +266,18 @@ public class Distributor extends ChromeDriverDistributor {
 			}
 
 			if( task != null ){
+
+				// 记录访问量，任务数，队列任务信息
+				task.addDoneCallback((t) -> {
+
+					StatManager.getInstance().count();
+					taskQueueStat.put(t.getClass().getName(), taskQueueStat.get(t.getClass().getName()) - 1);
+					String hash = StringUtil.MD5(t.getUrl());
+					URL_VISITS_SET.remove(hash);
+				});
+
+				// 记录task信息
+				AGENT_TASK_MAP.get(agent.name).remove(task.getUrl());
 				return task;
 			}
 
@@ -253,10 +287,13 @@ public class Distributor extends ChromeDriverDistributor {
 
 			String className = task != null ? task.getClass().getName() : holder.class_name;
 
+			// 记录访问量，任务数，队列任务信息
 			task.addDoneCallback((t) -> {
 
 				StatManager.getInstance().count();
 				taskQueueStat.put(className, taskQueueStat.get(className) - 1);
+				String hash = StringUtil.MD5(t.getUrl());
+				URL_VISITS_SET.remove(hash);
 			});
 
 			// 对于ScanTask 记录TaskTrace

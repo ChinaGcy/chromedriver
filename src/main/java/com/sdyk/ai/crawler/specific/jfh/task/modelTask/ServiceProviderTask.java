@@ -38,15 +38,13 @@ public class ServiceProviderTask extends Task {
 				ImmutableMap.of("user_id", String.class),
 				ImmutableMap.of("user_id", ""),
 				true,
-				Priority.HIGHER
+				Priority.HIGH
 		);
 	}
 
 	public ServiceProviderTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-
-		this.setPriority(Priority.HIGHER);
 
 		this.setValidator((a,t) -> {
 
@@ -274,53 +272,12 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for create CompanyInformationTask", e);
 				}
 
+				serviceProvider.category.replace(" ", "");
+
 				serviceProvider.insert();
 			}
-			else {
 
-				//System.err.println("生成天眼查首页任务");
-				// 提交天眼查查询任务
-				try {
-
-					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("company_id", "");
-
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit TianyanchaTask.class", e);
-				}
-
-				try {
-
-					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("jobUrl", "");
-					init_map.put("uId", "");
-
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.lagou.LagouTask");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit TianyanchaTask.class", e);
-				}
-			}
-
-			/*ScheduledChromeTask st = t.getScheduledChromeTask();
+			ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -337,7 +294,7 @@ public class ServiceProviderTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}*/
+			}
 
 
 		} catch (Exception e) {

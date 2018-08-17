@@ -31,7 +31,7 @@ public class CaseTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.LOW);
+		//this.setPriority(Priority.LOW);
 
 		this.setValidator((a,t) -> {
 

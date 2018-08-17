@@ -11,6 +11,7 @@ import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -47,9 +48,18 @@ public class TendererTask extends Task {
 
         super(url);
 
-        this.setPriority(Priority.HIGHER);
+        this.setPriority(Priority.HIGH);
 
 	    this.setNoFetchImages();
+
+	    this.setValidator((a,t) -> {
+
+		    String src = getResponse().getText();
+		    if( src.contains("邮箱登陆") && src.contains("注册新账号") ){
+
+			    throw new AccountException.Failed(a.accounts.get("mihuashi.com"));
+		    }
+	    });
 
 	    this.addAction(new LoadMoreContentAction(moreProjectPath));
 
@@ -126,31 +136,22 @@ public class TendererTask extends Task {
 		for(Element element : elements){
 			String project_id = element.attr("href").replace("/projects/","");
 
-			String tUrl = "https://www.mihuashi.com/projects/" + project_id + "/";
-			long lastRunTime = 0;
-			if(Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(tUrl))){
-				lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(tUrl));
-			}
+			try {
 
-			if((new Date().getTime() - lastRunTime) > ProjectTask.MIN_INTERVAL){
+				//设置参数
+				Map<String, Object> init_map1 = new HashMap<>();
+				init_map1.put("project_id", project_id);
+				init_map1.put("flage", "0");
 
-				try {
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map1);
 
-					//设置参数
-					Map<String, Object> init_map1 = new HashMap<>();
-					init_map1.put("project_id", project_id);
-					init_map1.put("flage", "0");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map1);
-
-					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+				//提交任务
+				ChromeDriverDistributor.getInstance().submit(holder);
 
 
-				} catch (Exception e) {
-					logger.error("error for submit TendererRatingTask", e);
-				}
+			} catch (Exception e) {
+				logger.error("error for submit TendererRatingTask", e);
 			}
 		}
 
@@ -180,6 +181,8 @@ public class TendererTask extends Task {
 		url_filename.put(imageUrl, "head_portrait");
 		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
+		tenderer.category.replace(" ", "");
+
 		boolean status = tenderer.insert();
 
 		// 公司信息补全任务
@@ -203,7 +206,7 @@ public class TendererTask extends Task {
 			}
 		}
 
-		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务
 		if(st == null) {
@@ -220,7 +223,7 @@ public class TendererTask extends Task {
 			if( !status ){
 				st.degenerate();
 			}
-		}*/
+		}
 	}
 
 	public static void registerBuilder(Class<? extends ChromeTask> clazz, String url_template, Map<String, Class> init_map_class, Map<String, Object> init_map_defaults){

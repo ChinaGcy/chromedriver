@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.specific.mihuashi.task.Task;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -53,6 +54,15 @@ public class ProjectTask extends Task {
 		this.setPriority(Priority.HIGH);
 
 		this.setNoFetchImages();
+
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("邮箱登陆") && src.contains("注册新账号") ){
+
+				throw new AccountException.Failed(a.accounts.get("mihuashi.com"));
+			}
+		});
 
 		this.addDoneCallback((t) -> {
 			Document doc = getResponse().getDoc();
@@ -182,67 +192,60 @@ public class ProjectTask extends Task {
 
 				if( flage.equals("1") ){
 
-					String tUrl = "https://www.mihuashi.com/users/" + tenderer_id + "?role=employer";
+					//添加甲方任务
+					try {
 
-					long lastRunTime = 0;
-					if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(tUrl))){
-						lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(tUrl));
+						//设置参数
+						Map<String, Object> init_map = new HashMap<>();
+						init_map.put("tenderer_id", tenderer_id);
+
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererTask");
+
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+						//提交任务
+						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+
+					} catch (Exception e) {
+						logger.error("error for submit TendererTask", e);
 					}
 
-					if( (new Date().getTime() - lastRunTime) > TendererTask.MIN_INTERVAL ){
+					//添加甲方评论任务
+					try {
 
-						//添加甲方任务
-						try {
+						//设置参数
+						Map<String, Object> init_map1 = new HashMap<>();
+						init_map1.put("tenderer_id", tenderer_id);
 
-							//设置参数
-							Map<String, Object> init_map = new HashMap<>();
-							init_map.put("tenderer_id", tenderer_id);
+						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererRatingTask");
 
-							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererTask");
+						//生成holder
+						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map1);
 
-							//生成holder
-							ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-							//提交任务
-							((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+						//提交任务
+						ChromeDriverDistributor.getInstance().submit(holder);
 
 
-						} catch (Exception e) {
-							logger.error("error for submit TendererTask", e);
-						}
-
-						//添加甲方评论任务
-						try {
-
-							//设置参数
-							Map<String, Object> init_map1 = new HashMap<>();
-							init_map1.put("tenderer_id", tenderer_id);
-
-							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererRatingTask");
-
-							//生成holder
-							ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map1);
-
-							//提交任务
-							ChromeDriverDistributor.getInstance().submit(holder);
-
-
-						} catch (Exception e) {
-							logger.error("error for submit TendererRatingTask", e);
-						}
+					} catch (Exception e) {
+						logger.error("error for submit TendererRatingTask", e);
 					}
 				}
+
 			}
 
 			try {
 				if( project.title != null && project.title.length() > 1 ){
+
+					project.category.replace(" ", "");
 					project.insert();
 				}
 			} catch (Exception e) {
 				logger.error("error on insert project", e);
 			}
 
-			/*ScheduledChromeTask st = t.getScheduledChromeTask();
+			ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -253,7 +256,7 @@ public class ProjectTask extends Task {
 			// 已完成项目停止定时任务
 			if( project.status.contains("已截稿") ){
 				st.stop();
-			}*/
+			}
 
 		});
 	}

@@ -40,16 +40,16 @@ public class WorkTask extends Task {
 
 		this.setPriority(Priority.MEDIUM);
 
-		/*this.setValidator((a,t) -> {
+		// 检测异常
+		this.setValidator((a,t) -> {
 
 			String src = getResponse().getText();
-			if( src.contains("登陆") ){
+			if( src.contains("账号登陆")
+					&& src.contains("第三方登陆")){
 
 				throw new AccountException.Failed(a.accounts.get("shichangbu.com"));
-
 			}
-
-		});*/
+		});
 
 		this.setNoFetchImages();
 

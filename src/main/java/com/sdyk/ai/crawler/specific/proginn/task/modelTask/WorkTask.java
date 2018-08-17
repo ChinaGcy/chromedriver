@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.exception.AccountException;
 import org.jsoup.nodes.Document;
 
 import java.util.HashSet;
@@ -30,6 +31,16 @@ public class WorkTask extends Task {
 		this.setPriority(Priority.MEDIUM);
 
 		this.setNoFetchImages();
+
+		// 检测异常
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("手机登陆") && src.contains("忘记密码") ){
+
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+		});
 
 		this.addDoneCallback((t) -> {
 

@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
@@ -27,11 +28,6 @@ public class WorkTask extends Task {
 		);
 	}
 
-	public static String domain() {
-		return "clouderwork";
-	}
-
-
 	public WorkTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
@@ -39,6 +35,17 @@ public class WorkTask extends Task {
 		this.setPriority(Priority.MEDIUM);
 
 		this.setNoFetchImages();
+
+		// 判断是否发生异常
+		this.setValidator((a, t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("帐号登录")
+					&& src.contains("登录开启云工作") ){
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+
+		});
 
 		this.addDoneCallback((t) -> {
 
