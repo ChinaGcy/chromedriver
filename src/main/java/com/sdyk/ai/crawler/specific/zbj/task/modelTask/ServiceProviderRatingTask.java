@@ -8,7 +8,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
@@ -16,6 +16,7 @@ import org.openqa.selenium.NoSuchElementException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -96,7 +97,7 @@ public class ServiceProviderRatingTask extends ScanTask {
 						Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask");
 
 						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+						TaskHolder holder = this.getHolder(clazz, init_map);
 
 						//提交任务
 						ChromeDriverDistributor.getInstance().submit(holder);
@@ -148,7 +149,7 @@ public class ServiceProviderRatingTask extends ScanTask {
 		String tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
 				.text();
 		if (tags != null && !tags.equals("")) {
-			serviceProviderRating.tags = tags.split("印象：")[1];
+			serviceProviderRating.tags = Arrays.asList(tags.split("印象：")[1]);
 
 		}
 		try {

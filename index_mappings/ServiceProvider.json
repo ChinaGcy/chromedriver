@@ -24,7 +24,8 @@
         "type":"text"
       },
       "location":{
-        "type":"text"
+        "type":"text",
+        "analyzer": "ik_max_word"
       },
       "content":{
         "type":"text",
@@ -141,6 +142,181 @@
       },
       "update_time": {
         "type":"date"
+      },
+      "works": {
+        "type": "nested",
+        "properties":{
+          "id": {
+            "type":"keyword"
+          },
+          "url": {
+            "type":"text"
+          },
+          "user_id":{
+            "type":"keyword"
+          },
+          "tenderer_name":{
+            "type":"text",
+            "analyzer": "my_analyzer",
+            "boost": 4
+          },
+          "tags":{
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 2
+          },
+          "category":{
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 4
+          },
+          "content":{
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 4
+          },
+          "title":{
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 4
+          },
+          "fav_num":{
+            "type":"integer"
+          },
+          "like_num":{
+            "type":"integer"
+          },
+          "view_num":{
+            "type":"integer"
+          },
+          "price":{
+            "type":"double"
+          },
+          "insert_time": {
+            "type":"date"
+          },
+          "update_time": {
+            "type":"date"
+          },
+          "postion": {
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 2
+          }
+        }
+      },
+      "cases": {
+        "type": "nested",
+        "properties":{
+          "id": {
+            "type":"keyword"
+          },
+          "url": {
+            "type":"text"
+          },
+          "user_id":{
+            "type":"keyword"
+          },
+          "title":{
+            "type":"text",
+            "analyzer": "ik_max_word"
+          },
+          "category":{
+            "type":"text",
+            "analyzer": "ik_max_word"
+          },
+          "tags":{
+            "type":"text",
+            "analyzer": "ik_max_word"
+          },
+          "ongoing":{
+            "type":"integer"
+          },
+          "description":{
+            "type":"text",
+            "analyzer": "ik_max_word"
+          },
+          "cycle":{
+            "type":"text"
+          },
+          "response_time":{
+            "type":"text"
+          },
+          "service_attitude":{
+            "type":"double"
+          },
+          "work_speed":{
+            "type":"double"
+          },
+          "complete_quality":{
+            "type":"double"
+          },
+          "purchase_num":{
+            "type":"integer"
+          },
+          "budget_ub":{
+            "type":"double"
+          },
+          "budget_lb":{
+            "type":"double"
+          },
+          "rating":{
+            "type":"float"
+          },
+          "rate_num":{
+            "type":"integer"
+          },
+          "insert_time": {
+            "type":"date"
+          },
+          "update_time": {
+            "type":"date"
+          }
+        }
+      },
+      "resumes": {
+        "type": "nested",
+        "properties":{
+          "id": {
+            "type":"keyword"
+          },
+          "url": {
+            "type":"text"
+          },
+          "user_id":{
+            "type":"keyword"
+          },
+          "sd":{
+            "type":"date"
+          },
+          "ed":{
+            "type":"date"
+          },
+          "org":{
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 4
+          },
+          "dep":{
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 4
+          },
+          "degree_occupation":{
+            "type":"text",
+            "analyzer": "ik_max_word",
+            "boost": 4
+          },
+          "is_current":{
+            "type":"integer"
+          },
+          "insert_time":{
+            "type":"date"
+          },
+          "update_time":{
+            "type":"date"
+          }
+        }
       }
     }
   }

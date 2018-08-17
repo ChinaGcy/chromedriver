@@ -8,7 +8,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -56,7 +56,7 @@ public class TendererOrderTask extends ScanTask {
 
 			// 获取历史数据（简略）
 			try {
-				getSimpleProjectTask(doc, userId);
+				getSimpleProjectTask(doc, userId, this);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -74,7 +74,7 @@ public class TendererOrderTask extends ScanTask {
 					Class<? extends ChromeTask> clazz = this.getClass();
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -94,7 +94,7 @@ public class TendererOrderTask extends ScanTask {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public static void getSimpleProjectTask(Document doc, String userId) throws Exception {
+	public static void getSimpleProjectTask(Document doc, String userId, TendererOrderTask tendererOrderTask) throws Exception {
 
 		Elements elements = doc.select("#order > div > div.panel-content > ul > li");
 
@@ -170,7 +170,7 @@ public class TendererOrderTask extends ScanTask {
 				Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask");
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				TaskHolder holder = tendererOrderTask.getHolder(clazz, init_map);
 
 				//提交任务
 				ChromeDriverDistributor.getInstance().submit(holder);

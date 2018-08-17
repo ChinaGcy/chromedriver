@@ -19,7 +19,6 @@ import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.proxy.ProxyImpl;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.json.JSON;
 import org.junit.Before;
@@ -68,7 +67,7 @@ public class ChromeDriverDistributorTest {
 
 		for(int i=0; i<1000; i++) {
 
-			if(i%2 == 0) {
+			/*if(i%2 == 0) {
 				ChromeTaskHolder holder = ChromeTask.buildHolder(
 						one.rewind.io.requester.test.TestChromeTask.T1.class, ImmutableMap.of("q", String.valueOf(1950 + i)));
 
@@ -78,7 +77,7 @@ public class ChromeDriverDistributorTest {
 						one.rewind.io.requester.test.TestChromeTask.T2.class, ImmutableMap.of("k", String.valueOf(1950 + i)));
 
 				Map<String, Object> info = distributor.submit(holder);
-			}
+			}*/
 		}
 
 		Thread.sleep(60000);
@@ -101,11 +100,11 @@ public class ChromeDriverDistributorTest {
 
 		for(int i=0; i<10; i++) {
 
-			ChromeTaskHolder holder = ChromeTask.buildHolder(
+			/*ChromeTaskHolder holder = ChromeTask.buildHolder(
 					one.rewind.io.requester.test.TestChromeTask.T3.class,
 					ImmutableMap.of("k", String.valueOf(1950 + i)));
 
-			Map<String, Object> info = distributor.submit(holder);
+			Map<String, Object> info = distributor.submit(holder);*/
 		}
 
 		Thread.sleep(60000);
@@ -130,12 +129,12 @@ public class ChromeDriverDistributorTest {
 
 		distributor.layout();
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(
 				one.rewind.io.requester.test.TestChromeTask.T3.class, ImmutableMap.of("k", String.valueOf(1950)));
 
-		Map<String, Object> info = ChromeTaskScheduler.getInstance().schedule(new ScheduledChromeTask(holder, "* * * * *"));
+		Map<String, Object> info = ChromeTaskScheduler.getInstance().schedule(new ScheduledChromeTask(holder, "* * * * *"));*/
 
-		System.err.println(JSON.toPrettyJson(info));
+		//System.err.println(JSON.toPrettyJson(info));
 
 		Thread.sleep(600000);
 
@@ -168,10 +167,10 @@ public class ChromeDriverDistributorTest {
 
 		for(int i=0; i<1; i++) {
 
-			ChromeTaskHolder holder =
+			/*ChromeTaskHolder holder =
 					ChromeTask.buildHolder(one.rewind.io.requester.test.TestChromeTask.T1.class, ImmutableMap.of("q", "ip"));
 
-			distributor.submit(holder);
+			distributor.submit(holder);*/
 		}
 
 		/*for(ChromeDriverAgent agent : distributor.queues.keySet()) {
@@ -203,10 +202,10 @@ public class ChromeDriverDistributorTest {
 
 		for(int i=0; i<10; i++) {
 
-			ChromeTaskHolder holder = ChromeTask.buildHolder(
+			/*ChromeTaskHolder holder = ChromeTask.buildHolder(
 					TestFailedChromeTask.class, ImmutableMap.of("q", "ip"));
 
-			distributor.submit(holder);
+			distributor.submit(holder);*/
 		}
 
 		Thread.sleep(6000000);
@@ -219,8 +218,8 @@ public class ChromeDriverDistributorTest {
 
 		Class.forName(TestFailedChromeTask.class.getName());
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(
-				TestFailedChromeTask.class, ImmutableMap.of("q", "ip"));
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(
+				TestFailedChromeTask.class, ImmutableMap.of("q", "ip"));*/
 
 	}
 
@@ -277,10 +276,10 @@ public class ChromeDriverDistributorTest {
 
 		});
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(
 				TestFailedChromeTask.class, ImmutableMap.of("q", "ip"));
 
-		distributor.submit(holder);
+		distributor.submit(holder);*/
 
 		Thread.sleep(6000000);
 
@@ -337,10 +336,10 @@ public class ChromeDriverDistributorTest {
 
 		distributor.addAgent(agent);
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(
 				TestFailedChromeTask.class, ImmutableMap.of("q", "ip"));
 
-		distributor.submit(holder);
+		distributor.submit(holder);*/
 
 		Thread.sleep(6000000);
 
@@ -370,10 +369,10 @@ public class ChromeDriverDistributorTest {
 
 		// distributor.layout();
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(
 				one.rewind.io.requester.test.TestChromeTask.T4.class, ImmutableMap.of("q", String.valueOf(1950)));
 
-		distributor.submit(holder);
+		distributor.submit(holder);*/
 
 		Thread.sleep(600000);
 
@@ -392,10 +391,10 @@ public class ChromeDriverDistributorTest {
 
 		// distributor.layout();
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(
 				one.rewind.io.requester.test.TestChromeTask.T5.class, ImmutableMap.of("q", String.valueOf(1950), "max_page", 60));
 
-		distributor.submit(holder);
+		distributor.submit(holder);*/
 
 		Thread.sleep(600000);
 

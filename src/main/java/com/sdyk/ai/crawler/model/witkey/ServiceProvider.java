@@ -4,15 +4,17 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import com.sdyk.ai.crawler.model.Model;
-import com.sdyk.ai.crawler.model.witkey.snapshot.ProjectSnapshot;
 import com.sdyk.ai.crawler.model.witkey.snapshot.ServiceProviderSnapshot;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "service_providers")
@@ -31,8 +33,8 @@ public class ServiceProvider extends Model {
 	public String head_portrait;
 
 	// 平台认证
-	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String platform_certification;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> platform_certification;
 
 	// 公司
 	@DatabaseField(dataType = DataType.STRING, width = 32)
@@ -71,8 +73,8 @@ public class ServiceProvider extends Model {
 	public String category;
 
 	// 擅长技能
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String tags;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> tags;
 
 	//服务质量
 	@DatabaseField(dataType = DataType.DOUBLE)
@@ -171,8 +173,8 @@ public class ServiceProvider extends Model {
 	public String position;
 
 	// 存放图片
-	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String cover_images;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> cover_images;
 
 	// 客户评分
 	@DatabaseField(dataType = DataType.FLOAT)
@@ -195,17 +197,43 @@ public class ServiceProvider extends Model {
 	public int negative_num;
 
 	// 附件
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String attachment_ids;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> attachment_ids;
 
 	// 原网站 domain
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int domain_id;
 
+	public List<Work> works = new ArrayList<>();
+
+	public List<Case> cases = new ArrayList<>();
+
+	public List<Resume> resumes = new ArrayList<>();
+
 	public ServiceProvider() {}
 
 	public ServiceProvider(String url) {
 		super(url);
+	}
+
+	/**
+	 *
+	 */
+	public void fullfill() {
+
+		try {
+
+			Dao dao_case = DaoManager.getDao(Case.class);
+			Dao dao_work = DaoManager.getDao(Work.class);
+			Dao dao_resume = DaoManager.getDao(Resume.class);
+
+			this.cases.addAll((Collection<? extends Case>) dao_case.queryBuilder().where().eq("user_id", this.id).query());
+			this.works.addAll((Collection<? extends Work>) dao_work.queryBuilder().where().eq("user_id", this.id).query());
+			this.resumes.addAll((Collection<? extends Resume>) dao_resume.queryBuilder().where().eq("user_id", this.id).query());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

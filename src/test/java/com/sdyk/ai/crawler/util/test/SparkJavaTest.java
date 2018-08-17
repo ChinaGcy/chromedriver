@@ -11,7 +11,6 @@ import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.junit.Test;
 import spark.Spark;
 
@@ -77,9 +76,9 @@ public class SparkJavaTest {
 		agent.start();
 
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(GetProjectContactTask.class, ImmutableMap.of("user_id", String.class,"case_id", String.class));
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(GetProjectContactTask.class, ImmutableMap.of("user_id", String.class,"case_id", String.class));
 
-		AuthorizedRequester.getInstance().submit(holder);
+		AuthorizedRequester.getInstance().submit(holder);*/
 
 		ServiceWrapper.getInstance();
 

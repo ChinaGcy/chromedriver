@@ -4,10 +4,10 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
-import com.sdyk.ai.crawler.util.Range;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * 服务
@@ -17,7 +17,7 @@ import java.util.Date;
 public class Case extends Model {
 
 	// 服务商id
-	@DatabaseField(dataType = DataType.STRING, width = 32)
+	@DatabaseField(dataType = DataType.STRING, width = 32, index = true)
 	public String user_id;
 
 	// 名称
@@ -29,8 +29,8 @@ public class Case extends Model {
 	public String category;
 
 	// 标签
-	@DatabaseField(dataType = DataType.STRING, width = 512)
-	public String tags;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> tags;
 
 	// 描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
@@ -77,10 +77,8 @@ public class Case extends Model {
 	public int rate_num;
 
 	// 附件
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String attachment_ids;
-
-	public Range budget;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> attachment_ids;
 
 	public Case(){}
 
@@ -88,7 +86,25 @@ public class Case extends Model {
 		super(url);
 	}
 
-	public void fullfill() {
-		this.budget = new Range(this.budget_lb, this.budget_ub, true);
+	/**
+	 * 插入ES
+	 * @return
+	 */
+	public boolean insert() {
+
+		super.insert();
+
+		try {
+
+			ServiceProvider serviceProvider = (ServiceProvider) getById(ServiceProvider.class, this.user_id);
+			serviceProvider.fullfill();
+			serviceProvider.updateES();
+
+			return true;
+		} catch (Exception e) {
+
+			logger.error("Can not find ServiceProvider: {}", this.user_id, e);
+			return false;
+		}
 	}
 }

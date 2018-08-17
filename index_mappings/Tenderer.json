@@ -16,7 +16,8 @@
         "boost": 4
       },
       "location":{
-        "type":"text"
+        "type":"text",
+        "analyzer": "ik_max_word"
       },
       "login_time":{
         "type":"date"
@@ -80,6 +81,11 @@
       },
       "update_time": {
         "type":"date"
+      },
+      "projects": {
+        "type":"text",
+        "analyzer": "ik_max_word",
+        "boost": 4
       }
     }
   }

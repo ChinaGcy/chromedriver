@@ -16,7 +16,6 @@ import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.UnsupportedEncodingException;
@@ -282,10 +281,10 @@ public class SchedulerProxyFailedTest {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask.class;
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				/*ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 				//提交任务
-				ChromeDriverDistributor.getInstance().submit(holder);
+				ChromeDriverDistributor.getInstance().submit(holder);*/
 
 			} catch ( Exception e) {
 
@@ -307,10 +306,10 @@ public class SchedulerProxyFailedTest {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) ServiceScanTask.class;
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					/*ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 					//提交任务
-					ChromeDriverDistributor.getInstance().submit(holder);
+					ChromeDriverDistributor.getInstance().submit(holder);*/
 
 				} catch ( Exception e) {
 

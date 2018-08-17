@@ -4,9 +4,11 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 
 import java.util.Date;
+import java.util.List;
 
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "service_provider_ratings")
@@ -41,8 +43,8 @@ public class ServiceProviderRating extends Model {
 	public String content;
 
 	// 评价标签
-	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String  tags;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> tags;
 
 	// 客户评价时间
 	@DatabaseField(dataType = DataType.DATE)

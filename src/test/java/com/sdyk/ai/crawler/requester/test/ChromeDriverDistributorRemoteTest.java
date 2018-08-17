@@ -13,7 +13,6 @@ import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.proxy.ProxyImpl;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.json.JSON;
 import org.junit.Before;
 import org.junit.Test;
@@ -188,9 +187,9 @@ public class ChromeDriverDistributorRemoteTest {
 
 		for(int i=0; i<10; i++) {
 
-			ChromeTaskHolder holder = ChromeTask.buildHolder(TestFailedChromeTask.class, ImmutableMap.of("q", String.valueOf(1950 + i)));
+			/*ChromeTaskHolder holder = ChromeTask.buildHolder(TestFailedChromeTask.class, ImmutableMap.of("q", String.valueOf(1950 + i)));
 
-			distributor.submit(holder);
+			distributor.submit(holder);*/
 		}
 
 		Thread.sleep(1000000);
@@ -236,7 +235,7 @@ public class ChromeDriverDistributorRemoteTest {
 
 		distributor.addAgent(agent);
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(TestProxyFailedChromeTask.class, ImmutableMap.of("q", "ip"));
+		//ChromeTaskHolder holder = ChromeTask.buildHolder(TestProxyFailedChromeTask.class, ImmutableMap.of("q", "ip"));
 
 		//
 		/*agent.addIdleCallback((a)->{
@@ -247,7 +246,7 @@ public class ChromeDriverDistributorRemoteTest {
 			}
 		});*/
 
-		distributor.submit(holder);
+		//distributor.submit(holder);
 
 		Thread.sleep(6000000);
 
@@ -301,9 +300,9 @@ public class ChromeDriverDistributorRemoteTest {
 
 		});
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(TestFailedChromeTask.class, "17600668061", ImmutableMap.of("q", ""));
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(TestFailedChromeTask.class, "17600668061", ImmutableMap.of("q", ""));
 
-		distributor.submit(holder);
+		distributor.submit(holder);*/
 
 		Thread.sleep(6000000);
 

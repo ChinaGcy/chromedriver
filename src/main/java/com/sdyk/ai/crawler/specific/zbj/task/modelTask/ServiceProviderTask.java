@@ -13,7 +13,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -85,9 +85,9 @@ public class ServiceProviderTask extends Task {
 				try {
 
 					if (!serviceProvider.type.contains("旗舰") && !serviceProvider.type.contains("专业")) {
-						serviceProvider.platform_certification = serviceProvider.type;
+						serviceProvider.platform_certification.add(serviceProvider.type);
 					} else {
-						serviceProvider.platform_certification = "企业";
+						serviceProvider.platform_certification.add("企业");
 					}
 
 					serviceProvider.insert();
@@ -103,7 +103,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -121,7 +121,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -140,7 +140,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -211,8 +211,7 @@ public class ServiceProviderTask extends Task {
 			}
 
 			// 图片下载
-			serviceProvider.cover_images = "";
-			serviceProvider.cover_images = serviceProvider.cover_images + BinaryDownloader.download(getUrl(), map);
+			serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
 
 		} catch (Exception e) {
 
@@ -279,7 +278,7 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.type = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.tag-wrap > div.personal-tag.text-tag").text();
 			serviceProvider.content = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.no-about").text();
 			serviceProvider.location = doc.select("#utopia_widget_4 > div.left-wrap.fl > div.address-wrap").text();
-			serviceProvider.tags = doc.select("#utopia_widget_15 > div.skill-wrap").text();
+			serviceProvider.tags = Arrays.asList(doc.select("#utopia_widget_15 > div.skill-wrap").text().split(","));
 			serviceProvider.rating_num = Integer.parseInt(doc.select("#utopia_widget_18 > div.left-card-title").text().split("（")[1].split("）")[0]);
 
 			String s = doc.select("#head-img").html();
@@ -336,8 +335,8 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.location = doc.select("#utopia_widget_3 > div.shop-center-tit.clearfix > span.fr.active-address")
 					.text();
 
-		serviceProvider.tags = doc.select("#utopia_widget_5 > p.label-box-wrap")
-				.text();
+		serviceProvider.tags = Arrays.asList(doc.select("#utopia_widget_5 > p.label-box-wrap")
+				.text().split(" "));
 		try {
 			serviceProvider.rating = Float.parseFloat(doc.select("#power").text().replaceAll("", "0"))/20;
 		}catch (Exception e) {}
@@ -438,9 +437,9 @@ public class ServiceProviderTask extends Task {
 			map.put(e.select("div > img").attr("src"), e.select("span").text());
 		}
 
-		serviceProvider.cover_images = serviceProvider.cover_images + "," + BinaryDownloader.download(getUrl(), map);
+		serviceProvider.cover_images.addAll(Arrays.asList(BinaryDownloader.download(getUrl(), map).split(",")));
 
-		serviceProvider.tags = doc.select("body > div.grid > div.main-wrap > div > div > div:nth-child(3) > div.introduce-content > div").text();
+		//serviceProvider.tags = Arrays.asList(doc.select("body > div.grid > div.main-wrap > div > div > div:nth-child(3) > div.introduce-content > div").text().split(" "));
 
 	}
 
@@ -471,9 +470,9 @@ public class ServiceProviderTask extends Task {
 		}
 
 		// 图片下载
-		serviceProvider.cover_images = BinaryDownloader.download(getUrl(), map);
+		serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
 
-		serviceProvider.tags = doc.select("#utopia_widget_15 > div.skill-wrap").text();
+		//serviceProvider.tags = Arrays.asList(doc.select("#utopia_widget_15 > div.skill-wrap").text().split(" "));
 
 	}
 

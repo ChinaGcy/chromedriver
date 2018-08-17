@@ -10,7 +10,7 @@ import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -40,9 +40,9 @@ public class ItijuziScanTaskTest {
 			init_map.put("page", "1");
 
 			//生成holder
-			ChromeTaskHolder holder = ChromeTask.buildHolder(scanTask.getClass(), init_map);
+			//ChromeTaskHolder holder = ChromeTask.buildHolder(scanTask.getClass(), init_map);
 
-			distributor.submit(holder);
+			//distributor.submit(holder);
 
 		} catch (Exception e) {
 			e.printStackTrace();

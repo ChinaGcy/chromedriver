@@ -13,7 +13,5 @@ public class PageTurningTest {
 	@Test
 	public void pageTest() throws ChromeDriverException.IllegalStatusException, MalformedURLException, URISyntaxException, InterruptedException {
 
-
-
 	}
 }

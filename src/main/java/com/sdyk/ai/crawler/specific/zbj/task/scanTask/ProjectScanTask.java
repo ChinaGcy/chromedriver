@@ -7,7 +7,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -89,7 +89,7 @@ public class ProjectScanTask extends ScanTask {
 							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask");
 
 							//生成holder
-							ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+							TaskHolder holder = this.getHolder(clazz, init_map);
 
 							//提交任务
 							ChromeDriverDistributor.getInstance().submit(holder);
@@ -116,7 +116,7 @@ public class ProjectScanTask extends ScanTask {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask");
 
 						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+						TaskHolder holder = this.getHolder(clazz, init_map);
 
 						//提交任务
 						ChromeDriverDistributor.getInstance().submit(holder);

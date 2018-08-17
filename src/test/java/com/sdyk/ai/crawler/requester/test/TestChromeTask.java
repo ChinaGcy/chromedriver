@@ -3,7 +3,6 @@ package one.rewind.io.requester.test;
 import com.google.common.collect.ImmutableMap;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.json.JSON;
 import one.rewind.txt.DateFormatUtil;
@@ -144,7 +143,7 @@ public class TestChromeTask {
 
 				if(st == null) {
 
-					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					//st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
 					st.start();
 					//ChromeTaskScheduler.getInstance().schedule(t.getHolder(this.init_map), crons);
 				}
@@ -184,7 +183,7 @@ public class TestChromeTask {
 
 			this.addDoneCallback((t) -> {
 
-				System.err.println(this.getDomain() + "\t" + System.currentTimeMillis() + "\t" + t.getResponse().getText().length());
+				/*System.err.println(this.getDomain() + "\t" + System.currentTimeMillis() + "\t" + t.getResponse().getText().length());
 
 				int max_page = t.getIntFromInitMap("max_page");
 				int current_page = t.getIntFromInitMap("pn");
@@ -202,7 +201,7 @@ public class TestChromeTask {
 
 					System.err.println(JSON.toPrettyJson(holder));
 					ChromeDriverDistributor.getInstance().submit(holder);
-				}
+				}*/
 
 			});
 		}

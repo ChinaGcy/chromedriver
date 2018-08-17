@@ -6,7 +6,6 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.PostAction;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -56,10 +55,10 @@ public class WorkTaskTest {
 					"com.sdyk.ai.crawler.specific.jfh.task.modelTask.WorkTask");
 
 			//生成holder
-			ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+			//ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 			//提交任务
-			((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+			//((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 		} catch ( Exception e) {
 

@@ -7,8 +7,10 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.ProxyException;
 import org.jsoup.nodes.Document;
 
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -167,7 +169,7 @@ public class CaseTask extends Task {
 
 		caseTask_des = getString("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property",
 					"");
-		ca.tags = caseTask_des;
+		ca.tags = Arrays.asList(caseTask_des.split(""));
 
 		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
 		Matcher matcher_tags = pattern_tags.matcher(caseTask_des);
@@ -186,8 +188,8 @@ public class CaseTask extends Task {
 
 		budgetTPW(doc);
 
-		ca.tags = doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
-				.text();
+		ca.tags = Arrays.asList(doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
+				.text().split(" "));
 
 		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
 		Matcher matcher_tags = pattern_tags.matcher(ca.category);

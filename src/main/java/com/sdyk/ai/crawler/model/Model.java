@@ -4,9 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
-import com.sdyk.ai.crawler.model.witkey.Project;
-import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
-import com.sdyk.ai.crawler.model.witkey.Tenderer;
+import com.sdyk.ai.crawler.model.witkey.*;
 import one.rewind.db.RedissonAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -115,6 +113,20 @@ public abstract class Model {
 
 	/**
 	 *
+	 * @param clazz
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public static Model getById(Class clazz, String id) throws Exception {
+
+		Dao dao = DaoManager.getDao(clazz);
+
+		return (Model) dao.queryForId(id);
+	}
+
+	/**
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -186,11 +198,8 @@ public abstract class Model {
 	 */
 	public void insertES() {
 
-		this.fullfill();
-
-		if(ESTransportClientAdapter.Enable_ES && ESTransportClientAdapter.clazzes.contains(this.getClass())){
-			ESTransportClientAdapter.insertOne(this);
-		}
+		fullfill();
+		ESTransportClientAdapter.insertOne(this);
 	}
 
 	/**
@@ -198,11 +207,8 @@ public abstract class Model {
 	 */
 	public void updateES() {
 
-		this.fullfill();
-
-		if(ESTransportClientAdapter.Enable_ES && ESTransportClientAdapter.clazzes.contains(this.getClass())){
-			ESTransportClientAdapter.updateOne(this);
-		}
+		fullfill();
+		ESTransportClientAdapter.updateOne(this);
 	}
 
 	public void fullfill() {

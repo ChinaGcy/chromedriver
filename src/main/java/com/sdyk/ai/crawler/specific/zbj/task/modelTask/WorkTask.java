@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,8 +99,7 @@ public class WorkTask extends Task {
 			work.tenderer_name = matcher.group("T");
 		}
 		while (matcher_type.find()) {
-			work.tags = "";
-			work.tags = work.tags + matcher_type.group("T");
+			work.tags.add(matcher_type.group("T"));
 		}
 		if (matcher_field.find()) {
 			work.category = matcher_field.group("T");
@@ -138,7 +138,7 @@ public class WorkTask extends Task {
 					.text();
 			work.price = Double.parseDouble(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-amount > em")
 					.text().replaceAll("¥", "").replaceAll(",", ""));
-			work.tags = doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > ul").text();
+			work.tags = Arrays.asList(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > ul").text());
 
 			String description_src = doc.select("body > div.tp-works-bd > div > div.works-bd-content > div")
 					.html();

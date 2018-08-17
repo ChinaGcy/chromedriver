@@ -7,7 +7,6 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
@@ -46,10 +45,10 @@ public class ProjectTaskTest {
 
 	    Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask");
 
-	    ChromeTaskHolder holder = ChromeTask.buildHolder(
-			    clazz, ImmutableMap.of("project_id", "da151689bd68bdb4"));
+	    //ChromeTaskHolder holder = ChromeTask.buildHolder(
+			    //clazz, ImmutableMap.of("project_id", "da151689bd68bdb4"));
 
-	    distributor.submit(holder);
+	   // distributor.submit(holder);
 
 	    Thread.sleep(600000);
     }

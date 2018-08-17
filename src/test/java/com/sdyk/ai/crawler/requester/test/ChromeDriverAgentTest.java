@@ -1,8 +1,11 @@
 package com.sdyk.ai.crawler.requester.test;
 
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
+import one.rewind.io.requester.callback.TaskCallback;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.ChromeAction;
@@ -24,25 +27,21 @@ public class  ChromeDriverAgentTest {
 	@Test
 	public void test() throws Exception {
 
-		ChromeTask t = new ChromeTask("https://www.zbj.com/");
+		ChromeTask t = new TendererTask("https://home.zbj.com/13568685");
 
-		Proxy proxy = new ProxyImpl("scisaga.net", 60103, null, null);
+		//Proxy proxy = new ProxyImpl("scisaga.net", 60103, null, null);
 		//Proxy proxy = new ProxyImpl("tpda.cc", 60202, "sdyk", "sdyk");
 
-		ChromeDriverAgent agent = new ChromeDriverAgent(proxy, ChromeDriverAgent.Flag.MITM);
+		ChromeDriverAgent agent = new ChromeDriverAgent();
 
 		agent.start();
 
-/*		agent.setIdleCallback(()->{
-			System.err.println("IDLE");
-		});*/
-
-		agent.addTerminatedCallback((a)->{
-			System.err.println("TERMINATED");
-		});
-
 		agent.submit(t);
 
+		for (TaskCallback taskCallback : t.doneCallbacks) {
+			taskCallback.run(t);
+		}
+		Thread.sleep(10000000);
 		agent.stop();
 
 	}

@@ -1,6 +1,9 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
+import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.Distributor;
+import com.sdyk.ai.crawler.model.witkey.Tenderer;
+import one.rewind.db.DaoManager;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import org.junit.Before;
@@ -24,8 +27,11 @@ public class TendererTaskTest {
 	 */
 	@Test
 	public void tendererTest() throws Exception {
+		Dao dao = DaoManager.getDao(Tenderer.class);
 
+		Tenderer tenderer = (Tenderer) dao.queryForId("00117af92e06a72ad0c096b492282329");
 
+		tenderer.insertES();
 
 	}
 
