@@ -181,6 +181,8 @@ public class TendererTask extends Task {
 		url_filename.put(imageUrl, "head_portrait");
 		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
 
+		tenderer.category.replace(" ", "");
+
 		boolean status = tenderer.insert();
 
 		// 公司信息补全任务

@@ -143,9 +143,11 @@ public class TendererTask extends Task {
 		map.put(img, "head_portrait");
 		tenderer.head_portrait = BinaryDownloader.download(getUrl(), map);
 
+		tenderer.category.replace(" ", "");
+
 		boolean status = tenderer.insert();
 
-		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务
 		if(st == null) {
@@ -162,7 +164,7 @@ public class TendererTask extends Task {
 			if( !status ){
 				st.degenerate();
 			}
-		}*/
+		}
 
 	}
 

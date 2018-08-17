@@ -172,6 +172,7 @@ public class ServiceProviderTask extends Task {
 		else if(  serviceProvider.name.contains("公司") ){
 			serviceProvider.type = "团队-公司";
 		}
+		serviceProvider.category.replace("", "");
 
 		boolean status = serviceProvider.insert();
 

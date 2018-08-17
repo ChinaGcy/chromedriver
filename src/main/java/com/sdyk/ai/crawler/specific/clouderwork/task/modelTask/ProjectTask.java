@@ -384,6 +384,7 @@ public class ProjectTask extends Task {
 	        }
 	    }
 
+	    project.category.replace(" ", "");
 	    project.insert();
 
 	    if( project.status.contains("已完成") ){

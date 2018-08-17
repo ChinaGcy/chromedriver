@@ -582,6 +582,8 @@ public class ServiceProviderTask extends Task {
 			}
 		}
 
+		serviceProvider.category.replace(" ", "");
+
 		return serviceProvider.insert();
 
 	}

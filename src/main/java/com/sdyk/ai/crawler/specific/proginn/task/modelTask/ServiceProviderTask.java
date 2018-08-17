@@ -427,10 +427,12 @@ public class ServiceProviderTask extends Task {
 			boolean status = false;
 
 			if( serviceProvider.name != null && serviceProvider.name.length() > 1 ){
+
+				serviceProvider.category.replace(" ", "");
 				status = serviceProvider.insert();
 			}
 
-			/*ScheduledChromeTask st = t.getScheduledChromeTask();
+			ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -447,7 +449,7 @@ public class ServiceProviderTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}*/
+			}
 		} catch (Exception e) {
 			logger.error("error for serviceProvider.insert()", e);
 		}

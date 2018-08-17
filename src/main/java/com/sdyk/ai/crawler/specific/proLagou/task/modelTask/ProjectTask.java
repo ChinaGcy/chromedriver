@@ -194,7 +194,7 @@ public class ProjectTask extends Task {
 
 	        project.category = doc.select(
 			        "#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(1) > span:nth-child(3)"
-	        ).text().replace("/", ",");
+	        ).text().replace("/", ",").replace(" ", "");
 
 	        try {
 		        project.insert();

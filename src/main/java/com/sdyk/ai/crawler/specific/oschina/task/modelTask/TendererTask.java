@@ -119,6 +119,8 @@ public class TendererTask extends Task {
 		tenderer.head_portrait  = BinaryDownloader.download(getUrl(), url_filename);
 
 		try{
+
+			tenderer.category.replace(" ", "");
 			boolean status = tenderer.insert();
 
 			ScheduledChromeTask st = t.getScheduledChromeTask();

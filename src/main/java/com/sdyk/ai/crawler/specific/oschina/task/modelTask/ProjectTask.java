@@ -275,6 +275,8 @@ public class ProjectTask extends Task {
 			try{
 
 				if( project.title != null && project.title.length() > 0 ){
+
+					project.category.replace(" ", "");
 					project.insert();
 				}
 

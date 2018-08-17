@@ -237,13 +237,15 @@ public class ProjectTask extends Task {
 
 			try {
 				if( project.title != null && project.title.length() > 1 ){
+
+					project.category.replace(" ", "");
 					project.insert();
 				}
 			} catch (Exception e) {
 				logger.error("error on insert project", e);
 			}
 
-			/*ScheduledChromeTask st = t.getScheduledChromeTask();
+			ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -254,7 +256,7 @@ public class ProjectTask extends Task {
 			// 已完成项目停止定时任务
 			if( project.status.contains("已截稿") ){
 				st.stop();
-			}*/
+			}
 
 		});
 	}

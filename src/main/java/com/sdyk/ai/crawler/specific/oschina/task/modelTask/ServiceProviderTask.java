@@ -339,6 +339,7 @@ public class ServiceProviderTask extends Task {
 
 			try {
 
+				serviceProvider.category.replace(" ", "");
 				boolean status = serviceProvider.insert();
 
 				ScheduledChromeTask st = t.getScheduledChromeTask();

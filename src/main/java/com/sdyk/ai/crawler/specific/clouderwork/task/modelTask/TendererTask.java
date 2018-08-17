@@ -244,6 +244,8 @@ public class TendererTask extends Task {
 			}
 		}
 
+		tenderer.category.replace(" ", "");
+
 		return tenderer.insert();
 	}
 
