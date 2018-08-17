@@ -29,7 +29,7 @@ public class ServiceScanTask extends ScanTask {
 				ServiceScanTask.class,
 				"https://www.clouderwork.com/api/v2/freelancers/search?pagesize=10&pagenum={{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "1", "max_page", "1")
+				ImmutableMap.of("page", "1", "max_page", "")
 		);
 	}
 

@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -45,9 +46,19 @@ public class ProjectTask extends Task {
     	super(url);
 
     	// 设置优先级
-        this.setPriority(Priority.HIGHER);
+        this.setPriority(Priority.HIGH);
 
 	    this.setNoFetchImages();
+
+	    // 检测异常
+	    this.setValidator((a,t) -> {
+
+		    String src = getResponse().getText();
+		    if( src.contains("登陆") && src.contains("没有账号") ){
+
+			    throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+		    }
+	    });
 
         this.addDoneCallback((t) -> {
 

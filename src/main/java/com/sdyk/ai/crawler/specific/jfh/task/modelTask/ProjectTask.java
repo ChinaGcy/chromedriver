@@ -33,15 +33,13 @@ public class ProjectTask extends Task {
 				ImmutableMap.of("project_id", String.class),
 				ImmutableMap.of("project_id", ""),
 				true,
-				Priority.HIGHER
+				Priority.HIGH
 		);
 	}
 
 	public ProjectTask(String url) throws MalformedURLException, URISyntaxException {
 
 		super(url);
-
-		this.setPriority(Priority.HIGHER);
 
 		this.setValidator((a,t) -> {
 

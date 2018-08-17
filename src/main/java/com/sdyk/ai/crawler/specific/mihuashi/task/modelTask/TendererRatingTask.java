@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.model.witkey.TendererRating;
 import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.action.ClickAction;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -44,6 +45,15 @@ public class TendererRatingTask extends Task {
         this.setPriority(Priority.MEDIUM);
 
 		this.setNoFetchImages();
+
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("邮箱登陆") && src.contains("注册新账号") ){
+
+				throw new AccountException.Failed(a.accounts.get("mihuashi.com"));
+			}
+		});
 
 		this.addAction(new ClickAction(ratingPath));
 		this.addAction(new LoadMoreContentAction(moreRatingPath));

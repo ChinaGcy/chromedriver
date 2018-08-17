@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.proginn.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.LocationParser;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
@@ -38,9 +39,19 @@ public class TendererTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGHER);
+		this.setPriority(Priority.HIGH);
 
 		this.setNoFetchImages();
+
+		// 检测异常
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("手机登陆") && src.contains("忘记密码") ){
+
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+		});
 
 		this.addDoneCallback((t) -> {
 

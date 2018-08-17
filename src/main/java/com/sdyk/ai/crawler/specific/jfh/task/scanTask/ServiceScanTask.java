@@ -28,7 +28,7 @@ public class ServiceScanTask extends ScanTask {
 				ServiceScanTask.class,
 				"https://list.jfh.com/shops/?{{page}}",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "", "max_page", "1"),
+				ImmutableMap.of("page", "", "max_page", ""),
 				true,
 				Priority.HIGH
 		);

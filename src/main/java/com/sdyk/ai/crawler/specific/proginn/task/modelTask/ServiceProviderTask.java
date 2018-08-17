@@ -12,6 +12,7 @@ import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
@@ -46,10 +47,21 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGHER);
+		this.setPriority(Priority.HIGH);
 
 		this.setNoFetchImages();
 
+		// 检测异常
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("手机登陆") && src.contains("忘记密码") ){
+
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+		});
+
+		// 页面解析
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();
@@ -374,14 +386,14 @@ public class ServiceProviderTask extends Task {
 			String workUrl = element.select("a.media").attr("href");
 			String like_num = element.select("a.plus_button > em").text();
 
-			String wUrl = "https://www.proginn.com" + workUrl;
+			/*String wUrl = "https://www.proginn.com" + workUrl;
 			long lastRunTime = 0;
 
 			if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(wUrl)) ){
 				lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(wUrl));
 			}
 
-			if( (new Date().getTime() - lastRunTime) > WorkTask.MIN_INTERVAL ){
+			if( (new Date().getTime() - lastRunTime) > WorkTask.MIN_INTERVAL ){*/
 
 				try {
 
@@ -405,7 +417,7 @@ public class ServiceProviderTask extends Task {
 
 					logger.error("error for submit ProjectTask.class", e);
 				}
-			}
+			//}
 		}
 
 		serviceProvider.project_num = workList.size();

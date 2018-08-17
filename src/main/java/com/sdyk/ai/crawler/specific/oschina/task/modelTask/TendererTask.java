@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.oschina.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.LocationParser;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
@@ -36,7 +37,15 @@ public class TendererTask extends Task {
 	public TendererTask(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 
-		this.setPriority(Priority.HIGH);
+		// 检测异常
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("登陆") && src.contains("忘记密码") ){
+
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+		});
 
 		this.addDoneCallback((t) -> {
 
@@ -112,7 +121,7 @@ public class TendererTask extends Task {
 		try{
 			boolean status = tenderer.insert();
 
-			/*ScheduledChromeTask st = t.getScheduledChromeTask();
+			ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -129,7 +138,7 @@ public class TendererTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}*/
+			}
 
 		} catch (Exception e){
 			logger.error("error for tenderer.insert();", e);

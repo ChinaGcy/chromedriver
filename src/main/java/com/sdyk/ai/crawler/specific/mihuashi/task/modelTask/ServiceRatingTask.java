@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.specific.mihuashi.action.LoadMoreContentAction;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.ClickAction;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -51,6 +52,15 @@ public class ServiceRatingTask extends Task {
         this.setPriority(Priority.MEDIUM);
 
 	    this.setNoFetchImages();
+
+	    this.setValidator((a,t) -> {
+
+		    String src = getResponse().getText();
+		    if( src.contains("邮箱登陆") && src.contains("注册新账号") ){
+
+			    throw new AccountException.Failed(a.accounts.get("mihuashi.com"));
+		    }
+	    });
 
 	    this.addAction(new ClickAction( workFilePath ));
 	    this.addAction(new LoadMoreContentAction(morePath));
@@ -138,34 +148,26 @@ public class ServiceRatingTask extends Task {
 
 				String project_id = matcher2.group().replace("/projects/","");
 
-				String pUrl = "https://www.mihuashi.com/projects/" + project_id + "/";
-				long lastRunTime = 0;
-				if( Distributor.URL_VISITS.keySet().contains(StringUtil.MD5(pUrl)) ){
-					lastRunTime = Distributor.URL_VISITS.get( StringUtil.MD5(pUrl));
+				try {
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("project_id", project_id);
+					init_map.put("flage", "0");
+
+					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask");
+
+					//生成holder
+					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+
+					//提交任务
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectTask.class", e);
 				}
 
-				if( (new Date().getTime() - lastRunTime > ProjectTask.MIN_INTERVAL) ){
-
-					try {
-
-						//设置参数
-						Map<String, Object> init_map = new HashMap<>();
-						init_map.put("project_id", project_id);
-						init_map.put("flage", "0");
-
-						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask");
-
-						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-						//提交任务
-						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-					} catch ( Exception e) {
-
-						logger.error("error for submit ProjectTask.class", e);
-					}
-				}
 			}
 
 			serviceProviderRating.insert();

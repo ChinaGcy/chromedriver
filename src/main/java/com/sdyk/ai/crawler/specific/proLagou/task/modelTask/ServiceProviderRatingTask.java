@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.specific.proLagou.task.modelTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -29,11 +30,20 @@ public class ServiceProviderRatingTask extends com.sdyk.ai.crawler.task.Task {
 
 		super(url);
 
-		this.setBuildDom();
-
 		this.setNoFetchImages();
 
 		this.setPriority(Priority.HIGH);
+
+		// 检测异常
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("登陆") && src.contains("没有账号") ){
+
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+		});
+
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();

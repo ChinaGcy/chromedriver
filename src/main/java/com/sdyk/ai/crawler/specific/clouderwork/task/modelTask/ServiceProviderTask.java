@@ -13,6 +13,7 @@ import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -47,9 +48,20 @@ public class ServiceProviderTask extends Task {
 
     	super(url);
 
-    	this.setPriority(Priority.HIGHER);
+    	this.setPriority(Priority.HIGH);
 
 	    this.setNoFetchImages();
+
+	    // 判断是否发生异常
+	    this.setValidator((a, t) -> {
+
+		    String src = getResponse().getText();
+		    if( src.contains("帐号登录")
+				    && src.contains("登录开启云工作") ){
+			    throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+		    }
+
+	    });
 
     	this.addDoneCallback((t) -> {
 
@@ -57,7 +69,7 @@ public class ServiceProviderTask extends Task {
 
 		    boolean status =  crawlerJob(doc);
 
-		    /*ScheduledChromeTask st = t.getScheduledChromeTask();
+		    ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		    // 第一次抓取生成定时任务
 		    if(st == null) {
@@ -75,9 +87,7 @@ public class ServiceProviderTask extends Task {
 			    if( !status ){
 				    st.degenerate();
 			    }
-		    }*/
-
-
+		    }
         });
 
     }
@@ -235,7 +245,7 @@ public class ServiceProviderTask extends Task {
 				}
 			}
 			if( location.contains("项目经验") ){
-				String workExperience = CrawlerAction.getNumbers(all3[1]);
+				String workExperience = CrawlerAction.getNumbers(location);
 				if( workExperience != null &&
 						!"".equals(workExperience)) {
 					serviceProvider.work_experience = Integer.valueOf(workExperience);
@@ -291,7 +301,7 @@ public class ServiceProviderTask extends Task {
 				}
 			}
 			if( location.contains("项目经验") ){
-				String workExperience = CrawlerAction.getNumbers(all3[1]);
+				String workExperience = CrawlerAction.getNumbers(location);
 				if( workExperience != null &&
 						!"".equals(workExperience)) {
 					serviceProvider.work_experience = Integer.valueOf(workExperience);
@@ -569,27 +579,6 @@ public class ServiceProviderTask extends Task {
 
 			} catch (Exception e){
 				logger.error("error for create CompanyInformationTask", e);
-			}
-		}else {
-
-			// 提交天眼查查询任务
-			try {
-
-				//设置参数
-				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("company_id", "");
-
-				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
-
-				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-				//提交任务
-				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-			} catch ( Exception e) {
-
-				logger.error("error for submit TianyanchaTask.class", e);
 			}
 		}
 

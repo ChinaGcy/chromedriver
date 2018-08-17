@@ -11,6 +11,7 @@ import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
@@ -27,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
 
-	public static long MIN_INTERVAL = 0;//12 * 60 * 60 * 1000;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *", "* * */2 * *", "* * */4 * *", "* * */8 * *");
 
@@ -44,9 +45,20 @@ public class TendererTask extends Task {
 
         super(url);
 
-        this.setPriority(Priority.HIGHER);
+        this.setPriority(Priority.HIGH);
 
 	    this.setNoFetchImages();
+
+	    // 判断是否发生异常
+	    this.setValidator((a, t) -> {
+
+		    String src = getResponse().getText();
+		    if( src.contains("帐号登录")
+				    && src.contains("登录开启云工作") ){
+			    throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+		    }
+
+	    });
 
         this.addDoneCallback((t)->{
 
@@ -54,7 +66,7 @@ public class TendererTask extends Task {
 
 	        boolean status = crawlawJob(doc);
 
-	        /*ScheduledChromeTask st = t.getScheduledChromeTask();
+	        ScheduledChromeTask st = t.getScheduledChromeTask();
 
 	        // 第一次抓取生成定时任务
 	        if(st == null) {
@@ -72,7 +84,7 @@ public class TendererTask extends Task {
 		        if( !status ){
 			        st.degenerate();
 		        }
-	        }*/
+	        }
 
         });
 
@@ -212,32 +224,23 @@ public class TendererTask extends Task {
 			String jobId = element.attr("href").replace("/jobs/","");
 
 			// 判断执行间隔
-			String pUrl = "https://www.clouderwork.com/jobs/" + jobId;
 
-			long lastRunTime = 0;
-			if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(pUrl)) ){
-				lastRunTime = Distributor.URL_VISITS.get(one.rewind.txt.StringUtil.MD5(pUrl));
-			}
+			try {
 
-			if( (new Date().getTime() - lastRunTime) > ProjectTask.MIN_INTERVAL ){
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("project_id", jobId);
+				init_map.put("flage", "0");
 
-				try {
+				//生成holder
+				ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map);
 
-					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("project_id", jobId);
-					init_map.put("flage", "0");
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(ProjectTask.class, init_map);
+			} catch ( Exception e) {
 
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit ProjectTask.class", e);
-				}
+				logger.error("error for submit ProjectTask.class", e);
 			}
 		}
 

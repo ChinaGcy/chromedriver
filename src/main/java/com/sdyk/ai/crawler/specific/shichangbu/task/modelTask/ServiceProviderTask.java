@@ -44,20 +44,20 @@ public class ServiceProviderTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGHER);
-
-		/*this.setValidator((a,t) -> {
-
-			String src = getResponse().getText();
-			if( src.contains("登陆") ){
-
-				throw new AccountException.Failed(a.accounts.get("shichangbu.com"));
-
-			}
-
-		});*/
+		this.setPriority(Priority.HIGH);
 
 		this.setNoFetchImages();
+
+		// 检测异常
+		this.setValidator((a,t) -> {
+
+			String src = getResponse().getText();
+			if( src.contains("账号登陆")
+					&& src.contains("第三方登陆")){
+
+				throw new AccountException.Failed(a.accounts.get("shichangbu.com"));
+			}
+		});
 
 		this.addDoneCallback((t) -> {
 
@@ -280,7 +280,7 @@ public class ServiceProviderTask extends Task {
 				status = serviceProvider.insert();
 			}
 
-			/*ScheduledChromeTask st = t.getScheduledChromeTask();
+			ScheduledChromeTask st = t.getScheduledChromeTask();
 
 			// 第一次抓取生成定时任务
 			if(st == null) {
@@ -297,7 +297,7 @@ public class ServiceProviderTask extends Task {
 				if( !status ){
 					st.degenerate();
 				}
-			}*/
+			}
 
 		} catch (Exception e) {
 			logger.error("serviceProvider.insert() error", serviceProvider.toJSON(), e);
