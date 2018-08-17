@@ -20,7 +20,7 @@ public class GetProjectContactTask extends Task {
 				"https://task.zbj.com/{{project_id}}/",
 				ImmutableMap.of("project_id", String.class),
 				ImmutableMap.of("project_id", "0"),
-				false,
+				true,
 				Priority.MEDIUM
 		);
 	}

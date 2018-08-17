@@ -9,8 +9,8 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
+import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
@@ -123,7 +123,7 @@ public class TendererTask extends Task {
 				if(st == null) {
 
 					try {
-						st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+						st = new ScheduledChromeTask(t.getHolder(), crons);
 						st.start();
 					} catch (Exception e) {
 						logger.error("error for creat ScheduledChromeTask", e);
@@ -146,7 +146,7 @@ public class TendererTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) TendererOrderTask.class;
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -166,7 +166,7 @@ public class TendererTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) TendererRatingTask.class;
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);

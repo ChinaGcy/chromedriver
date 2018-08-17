@@ -5,9 +5,11 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 公司融资情况
@@ -21,8 +23,8 @@ public class CompanyFinancing extends Model {
 	public String company_id;
 
 	// 投资方名称
-	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String name;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> name;
 
 	// 轮次
 	@DatabaseField(dataType = DataType.STRING, width = 32)

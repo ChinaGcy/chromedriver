@@ -5,7 +5,6 @@ import com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.junit.Test;
 

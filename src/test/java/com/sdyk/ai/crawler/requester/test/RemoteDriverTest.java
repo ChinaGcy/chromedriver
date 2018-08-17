@@ -93,9 +93,9 @@ public class RemoteDriverTest {
 		for(int i=0; i<100; i++) {
 
 			//TODO 创建Holder与提交任务应在不同行，报错信息会有多个，利于调优
-			ChromeDriverDistributor.getInstance().submit(
-					ChromeTask.buildHolder(TestFailedChromeTask.class, ImmutableMap.of("q", String.class))
-			);
+			/*ChromeDriverDistributor.getInstance().submit(
+					ChromeTask.buildHolder(TestFailedChromeTask.class, ImmutableMap.of("q", String.class))*/
+			//);
 		}
 
 		Thread.sleep(100000000);

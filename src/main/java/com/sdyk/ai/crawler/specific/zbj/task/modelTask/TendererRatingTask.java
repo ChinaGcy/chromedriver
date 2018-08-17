@@ -8,7 +8,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -122,8 +123,8 @@ public class TendererRatingTask extends ScanTask {
 						.text();
 
 		tendererRating.tags =
-				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-tags.clearfix")
-						.text();
+				Arrays.asList(shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-tags.clearfix")
+						.text().split(" "));
 		try {
 			tendererRating.pubdate =
 					DateFormatUtil.parseTime(
@@ -177,7 +178,7 @@ public class TendererRatingTask extends ScanTask {
 				Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) this.getClass();
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				TaskHolder holder = this.getHolder(clazz, init_map);
 
 				//提交任务
 				ChromeDriverDistributor.getInstance().submit(holder);

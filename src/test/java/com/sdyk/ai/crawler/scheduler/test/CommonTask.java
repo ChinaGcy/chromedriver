@@ -5,7 +5,6 @@ import com.sdyk.ai.crawler.Distributor;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -50,9 +49,9 @@ public class CommonTask extends ChromeTask {
 
 			Class clazz_ = Class.forName("com.sdyk.ai.crawler.scheduler.test.CommonTask");
 
-			ChromeTaskHolder holder_ = ChromeTask.buildHolder(clazz_, init_map_ );
+			//ChromeTaskHolder holder_ = ChromeTask.buildHolder(clazz_, init_map_ );
 
-			((Distributor)ChromeDriverDistributor.getInstance()).submit(holder_);
+			//((Distributor)ChromeDriverDistributor.getInstance()).submit(holder_);
 
 
 

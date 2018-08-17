@@ -4,15 +4,16 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import com.sdyk.ai.crawler.model.Model;
-import com.sdyk.ai.crawler.model.witkey.snapshot.ServiceProviderSnapshot;
 import com.sdyk.ai.crawler.model.witkey.snapshot.TendererSnapshot;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 雇主
@@ -106,25 +107,39 @@ public class Tenderer extends Model {
 	public String company_name;
 
 	// 平台认证
-	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String platform_certification;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> platform_certification;
 
 	// 用户积分
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int credit;
 
 	// 附件
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String attachment_ids;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> attachment_ids;
 
 	// 原网站 domain
 	@DatabaseField(dataType = DataType.INTEGER, width = 4)
 	public int domain_id;
 
+	public List<Project> projects = new ArrayList<>();
+
 	public Tenderer() {}
 
 	public Tenderer(String url) {
 		super(url);
+	}
+
+	public void fullfill() {
+
+		try {
+
+			Dao dao = DaoManager.getDao(Project.class);
+			projects.addAll((Collection<? extends Project>) dao.queryBuilder().where().eq("tenderer_id", this.id).query());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

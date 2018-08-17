@@ -1,12 +1,17 @@
 package com.sdyk.ai.crawler.model.witkey;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
+import one.rewind.json.JSON;
+import org.elasticsearch.index.engine.DocumentMissingException;
 
 import java.util.Date;
+import java.util.List;
 
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "resumes")
@@ -47,6 +52,32 @@ public class Resume extends Model {
 
     public Resume(String url) {
         super(url);
+    }
+
+    /**
+     * 插入ES
+     * @return
+     */
+    public boolean insert() {
+
+        super.insert();
+
+        try {
+
+            ServiceProvider serviceProvider = (ServiceProvider) getById(ServiceProvider.class, this.user_id);
+
+            try {
+                serviceProvider.updateES();
+            } catch (DocumentMissingException e) {
+                serviceProvider.insertES();
+            }
+
+            return true;
+        } catch (Exception e) {
+
+            logger.error("Can not find ServiceProvider: {}", this.user_id, e);
+            return false;
+        }
     }
 
 }

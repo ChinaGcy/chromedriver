@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj.task.test;
 
 
+import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.model.TaskInitializer;
 import com.sdyk.ai.crawler.model.WebDirverCount;
 import com.sdyk.ai.crawler.model.company.CompanyInformation;
@@ -10,8 +11,15 @@ import com.sdyk.ai.crawler.model.witkey.snapshot.ProjectSnapshot;
 import com.sdyk.ai.crawler.model.witkey.snapshot.ServiceProviderSnapshot;
 import com.sdyk.ai.crawler.model.witkey.snapshot.TendererSnapshot;
 import com.sdyk.ai.crawler.util.DBUtil;
+import com.sdyk.ai.crawler.util.LocationParser;
+import one.rewind.db.DaoManager;
 import one.rewind.db.Refacter;
+import org.apache.tools.ant.taskdefs.optional.extension.LibFileSet;
 import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 
 public class DBTest {
 
@@ -35,4 +43,32 @@ public class DBTest {
 */
 
 	}
+
+	/**
+	 * 更新插入project
+	 * @throws Exception
+	 */
+	@Test
+	public void projectToNew() throws Exception {
+
+		DBUtil.companyInformationConvert();
+	}
+
+	/**
+	 * 测试多值字段正确性
+	 * @throws Exception
+	 */
+	@Test
+	public void query() throws Exception {
+		Dao dao = DaoManager.getDao(Project.class);
+
+		List<Project> list = dao.queryForAll();
+
+		for (Project project : list) {
+			System.err.println(project.tags.size());
+
+		}
+
+	}
+
 }

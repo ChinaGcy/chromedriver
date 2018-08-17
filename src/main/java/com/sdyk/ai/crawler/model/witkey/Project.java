@@ -1,19 +1,16 @@
 package com.sdyk.ai.crawler.model.witkey;
 
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.es.ESTransportClientAdapter;
 import com.sdyk.ai.crawler.model.Model;
 import com.sdyk.ai.crawler.model.witkey.snapshot.ProjectSnapshot;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import com.sdyk.ai.crawler.util.Range;
 import one.rewind.db.DBName;
-import one.rewind.db.DaoManager;
 
-import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "projects")
@@ -43,9 +40,9 @@ public class Project extends Model{
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String category;
 
-	// 小标题
-	@DatabaseField(dataType = DataType.STRING, width = 256)
-	public String tags;
+	// 标签
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> tags;
 
 	// 项目描述
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
@@ -136,8 +133,8 @@ public class Project extends Model{
 	public String delivery_steps;
 
 	// 附件
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String attachment_ids;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> attachment_ids;
 
 	public Range budget;
 
@@ -147,8 +144,29 @@ public class Project extends Model{
 		super(url);
 	}
 
-	public void fullfill() {
-		this.budget = new Range(this.budget_lb, this.budget_ub, false);
+	public boolean insert() {
+
+		super.insert();
+
+		try {
+
+			Tenderer tenderer = (Tenderer) getById(Tenderer.class, this.tenderer_id);
+			if (tenderer != null) {
+
+				tenderer.fullfill();
+				tenderer.updateES();
+
+				return true;
+			} else {
+
+				logger.info("Tenderer is null");
+				return false;
+			}
+		} catch (Exception e) {
+
+			logger.error("Can not find Tenderer: {}", this.tenderer_id, e);
+			return false;
+		}
 	}
 
 	/**

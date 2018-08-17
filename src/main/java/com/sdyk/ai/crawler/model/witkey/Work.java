@@ -1,12 +1,16 @@
 package com.sdyk.ai.crawler.model.witkey;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
+import one.rewind.db.DaoManager;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 作品描述
@@ -26,8 +30,8 @@ public class Work extends Model {
 	public String tenderer_name;
 
 	// 标签
-	@DatabaseField(dataType = DataType.STRING, width = 128)
-	public String tags;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> tags;
 
 	// 领域
 	@DatabaseField(dataType = DataType.STRING, width = 32)
@@ -66,8 +70,8 @@ public class Work extends Model {
 	public double price;
 
 	// 附件
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String attachment_ids;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> attachment_ids;
 
 	// 发布时间
 	@DatabaseField(dataType = DataType.DATE)
@@ -85,5 +89,27 @@ public class Work extends Model {
 
 	public Work(String url) {
 		super(url);
+	}
+
+	/**
+	 * 插入ES
+	 * @return
+	 */
+	public boolean insert() {
+
+		super.insert();
+
+		try {
+
+			ServiceProvider serviceProvider = (ServiceProvider) getById(ServiceProvider.class, this.user_id);
+			serviceProvider.fullfill();
+			serviceProvider.updateES();
+
+			return true;
+		} catch (Exception e) {
+
+			logger.error("Can not find ServiceProvider: {}", this.user_id, e);
+			return false;
+		}
 	}
 }

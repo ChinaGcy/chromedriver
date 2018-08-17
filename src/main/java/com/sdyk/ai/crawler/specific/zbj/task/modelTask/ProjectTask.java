@@ -10,10 +10,11 @@ import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
+import org.elasticsearch.index.fielddata.ScriptDocValues;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -145,7 +146,7 @@ public class ProjectTask extends Task {
 							Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask");
 
 							//生成holder
-							ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+							TaskHolder holder = this.getHolder(clazz, init_map);
 
 							//提交任务
 							ChromeDriverDistributor.getInstance().submit(holder);
@@ -161,7 +162,7 @@ public class ProjectTask extends Task {
 					// 第一次抓取生成定时任务
 					if(st == null) {
 
-						st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+						st = new ScheduledChromeTask(t.getHolder(), crons);
 						st.start();
 					}
 					// 已完成项目停止定时任务
@@ -386,9 +387,10 @@ public class ProjectTask extends Task {
 			project.category = getString("body > div.main.task-details > div.grid > ul > li:nth-child(2) > a", "");
 
 			Elements elements = doc.select("body > div.main.task-details > div.grid > ul > li");
-			project.tags = "";
+			project.tags = new ArrayList<>();
 			for (int i = 2; i < elements.size(); i++) {
-				project.tags = project.tags + elements.get(i).text();
+				project.tags.add(elements.get(i).text().replace(">", "")
+						.replace(" ", ""));
 			}
 
 			// TODO 需要额外处理图片, 下载
@@ -480,16 +482,16 @@ public class ProjectTask extends Task {
 					"").replace(">", "");
 
 			Elements elements = doc.select("#utopia_widget_2 > li");
-			project.tags = "";
 			for (int i = 2; i < elements.size(); i++) {
 				if (i == elements.size()-1 ) {
-					project.tags = project.tags + elements.get(i).text().replace(">", "");
+					project.tags.add(elements.get(i).text().replace(">", "")
+							.replace(" ", ""));
 				}else {
-					project.tags = project.tags + elements.get(i).text().replace(">", ",");
+					project.tags.add(elements.get(i).text().replace(">", ",").replace(" ", ""));
 				}
 			}
-			if (project.tags.length() == 0) {
-				project.tags = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(3) > b").text();
+			if (project.tags.size() == 0) {
+				project.tags.add(doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(3) > b").text());
 			}
 
 			String description_src = doc.select(".order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")

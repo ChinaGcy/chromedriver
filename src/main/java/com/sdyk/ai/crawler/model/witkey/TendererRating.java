@@ -4,9 +4,11 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 服务商评价
@@ -40,8 +42,8 @@ public class TendererRating extends Model {
 	public Date pubdate;
 
 	// 评价标签内容
-	@DatabaseField(dataType = DataType.STRING, width = 512)
-	public String tags;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> tags;
 
 	// 评价内容
 	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")

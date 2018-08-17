@@ -8,7 +8,6 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import one.rewind.io.requester.callback.TaskCallback;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.junit.Test;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 

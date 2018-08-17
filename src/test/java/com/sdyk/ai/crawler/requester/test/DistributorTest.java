@@ -6,7 +6,6 @@ import one.rewind.db.RedissonAdapter;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.junit.Test;
 import org.redisson.api.RMap;
 
@@ -34,10 +33,10 @@ public class DistributorTest {
 			Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask");
 
 			//生成holder
-			ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+			/*ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
 
 			//提交任务
-			Distributor.getInstance().submit(holder);
+			Distributor.getInstance().submit(holder);*/
 
 		} catch ( Exception e) {
 

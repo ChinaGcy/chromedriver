@@ -6,7 +6,6 @@ import com.sdyk.ai.crawler.model.Domain;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -163,12 +162,12 @@ public class SchedulerTest {
 
 		init_map.put("jobs", "jobs");
 
-		ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
+		/*ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map );
 
 		// 测试代理封禁，有关联账号
-		holder.login_task = true;
+		holder.login_task = true;*/
 
-		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+		//((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 		Thread.sleep(1000000000);
 

@@ -6,10 +6,12 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sdyk.ai.crawler.model.Model;
+import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 
 import java.util.Date;
+import java.util.List;
 
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "company_information")
@@ -60,8 +62,8 @@ public class CompanyInformation extends Model {
 	public String type;
 
 	// 标签
-	@DatabaseField(dataType = DataType.STRING, width = 1024)
-	public String tags;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> tags;
 
 	// logo
 	@DatabaseField(dataType = DataType.STRING, width = 32)
@@ -72,8 +74,8 @@ public class CompanyInformation extends Model {
 	public transient double reg_capital;
 
 	// 竞品公司ID列表，英文半角逗号分割
-	@DatabaseField(dataType = DataType.STRING, columnDefinition = "TEXT")
-	public String competing_company_ids;
+	@DatabaseField(persisterClass = JSONableListPersister.class)
+	public List<String> competing_company_ids;
 
 	// 信息更新时间
 	@DatabaseField(dataType = DataType.DATE)

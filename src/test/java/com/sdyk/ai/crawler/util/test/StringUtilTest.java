@@ -189,4 +189,13 @@ public class StringUtilTest {
 		}
 
 	}
+	@Test
+	public void Test() {
+		List<String> list = new ArrayList();
+
+		list.add("123456");
+		list.add("123456");
+
+		System.err.println(list.toString());
+	}
 }

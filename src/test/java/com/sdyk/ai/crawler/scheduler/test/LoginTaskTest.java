@@ -16,7 +16,6 @@ import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import org.apache.commons.collections.map.HashedMap;
 import org.junit.Test;
 

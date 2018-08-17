@@ -10,7 +10,6 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.Task;
 import org.junit.Test;
 
@@ -43,10 +42,10 @@ public class ProjectScanTaskTest {
 	    Class clazz = Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ProjectScanTask");
 
 	    //生成holder
-	    ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map, null, 1, Task.Priority.HIGH);
+	    //ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map, null, 1, Task.Priority.HIGH);
 
 	    //提交任务
-	    ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+	   // ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 		Thread.sleep(1000000);
 
