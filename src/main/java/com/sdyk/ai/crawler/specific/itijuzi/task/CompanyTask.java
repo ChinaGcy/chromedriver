@@ -71,7 +71,7 @@ public class CompanyTask extends Task {
 		c_info.industry = doc.select("a.one-level-tag").text();
 
 		// 子行业
-		c_info.tags = doc.select("a.two-level-tag").text();
+		c_info.tags = Arrays.asList(doc.select("a.two-level-tag").text(), ",");
 
 		// 地点
 		c_info.location =doc.select("i.icon-address-o + span").text();
@@ -130,7 +130,7 @@ public class CompanyTask extends Task {
 
 		}
 		if(competingId.length() > 2){
-			c_info.competing_company_ids = competingId.substring(0, competingId.length() - 1);
+			c_info.competing_company_ids = Arrays.asList(competingId.substring(0, competingId.length() - 1), ",");
 		}
 
 		// 产品

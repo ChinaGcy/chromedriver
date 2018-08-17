@@ -141,7 +141,7 @@ public class ProjectTask extends Task {
 			}
 		}
 		if( tags.length() > 0 ){
-			project.tags = tags.substring(0, tags.length()-1);
+			project.tags = Arrays.asList(tags.substring(0, tags.length()-1), ",");
 		}
 
 		//描述
@@ -173,7 +173,6 @@ public class ProjectTask extends Task {
 		} catch (Exception e) {
 			logger.error("error for project.insert", e);
 		}
-
 
 	}
 

@@ -95,7 +95,7 @@ public class TendererTask extends Task {
 		Pattern pattern = Pattern.compile("title=\"(?<count>.+?)\">");
 		Matcher matcher = pattern.matcher(certification);
 
-		StringBuffer platformCertification = new StringBuffer();
+		List<String> platformCertification = new ArrayList<>();
 
 		Set<String> certificationSet = new HashSet<>();
 
@@ -106,17 +106,19 @@ public class TendererTask extends Task {
 		}
 
 		for( String s : certificationSet ){
-			platformCertification.append(s);
-			platformCertification.append(",");
+			platformCertification.add(s);
 		}
 
-		tenderer.platform_certification = platformCertification.substring(0, platformCertification.length()-1);
+		tenderer.platform_certification = platformCertification;
 
 		// 头像
 		String imageUrl = doc.getElementsByClass("u-icon").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		tenderer.head_portrait  = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			tenderer.head_portrait  = headList.get(0);
+		}
 
 		try{
 

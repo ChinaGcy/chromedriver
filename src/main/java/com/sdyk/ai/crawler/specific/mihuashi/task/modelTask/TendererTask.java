@@ -179,7 +179,11 @@ public class TendererTask extends Task {
 		String imageUrl = doc.select("img.profile__avatar-image").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = new ArrayList<>();
+		headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			tenderer.head_portrait = headList.get(0);
+		}
 
 		tenderer.category.replace(" ", "");
 

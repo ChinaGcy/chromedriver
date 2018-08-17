@@ -119,10 +119,12 @@ public class TendererTask extends Task {
 		String imageUrl = doc.select("div.avatorBox > img").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		tenderer.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			tenderer.head_portrait = headList.get(0);
+		}
 
 		//招标人描述
-
 		String content = doc.select("#profile > div > div > section > section > div.prjectBox > p.overview-p").text();
 		if( content != null && content.length() > 0 ){
 			tenderer.content = "<p>" + content + "</p>";

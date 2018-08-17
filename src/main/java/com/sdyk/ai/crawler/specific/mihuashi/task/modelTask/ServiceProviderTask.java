@@ -97,7 +97,10 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.domain_id = 4;
 
 		// 平台认证
-		serviceProvider.platform_certification = doc.select("span.enterprise").text();
+		List<String> pList = Arrays.asList(doc.select("span.enterprise").text(), ",");
+		if( pList != null && pList.size() > 0 ){
+			serviceProvider.platform_certification = pList;
+		}
 
 		//介绍
 		Set<String> set = new HashSet<>();
@@ -115,10 +118,11 @@ public class ServiceProviderTask extends Task {
 		}
 
 		// 标签
-		serviceProvider.tags = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__skill-wrapper").text()
+		String tags = doc.select("#users-show > div.container-fluid > div.profile__container > aside > section.profile__skill-wrapper").text()
 				.replace("擅长画风 ", "")
 				.replace("擅长类型 ", "")
 				.replace(" ", ",");
+		serviceProvider.tags = Arrays.asList(tags, ",");
 
 		//项目数
 		String projectNum = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span").text();
@@ -148,7 +152,11 @@ public class ServiceProviderTask extends Task {
 		String imageUrl = doc.select("img.profile__avatar-image").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headLisr = BinaryDownloader.download(getUrl(), url_filename);
+		if( headLisr != null ){
+			serviceProvider.head_portrait = headLisr.get(0);
+		}
+
 
 		//作品图像
 		String allImags = doc.select("div.masonry").toString();

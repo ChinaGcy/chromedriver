@@ -8,6 +8,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.AccountException;
 import org.jsoup.nodes.Document;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -71,7 +72,7 @@ public class WorkTask extends Task {
 		work.category = doc.select("p.sub-title").text().replace("-", ",");
 
 		//标签
-		work.tags = doc.select("p.functions").text();
+		work.tags = Arrays.asList(doc.select("p.functions").text(), ",");
 
 		//标题
 		work.title = doc.select("p.title").text().replace("查看更多作品 >","");

@@ -38,8 +38,6 @@ public class ServiceProviderRatingTask extends Task {
 
 		super(url);
 
-		//this.setPriority(Priority.HIGH);
-
 		this.setValidator((a,t) -> {
 
 			String src = getResponse().getText();

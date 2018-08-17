@@ -17,6 +17,7 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -89,7 +90,7 @@ public class WorkTask extends Task {
 			tagr.append(",");
 		}
 		if( tagr.length() > 1 ){
-			work.tags = tagr.substring(0, tagr.length()-1);
+			work.tags = Arrays.asList(tagr.substring(0, tagr.length()-1), ",");
 		}
 
 		//浏览次数

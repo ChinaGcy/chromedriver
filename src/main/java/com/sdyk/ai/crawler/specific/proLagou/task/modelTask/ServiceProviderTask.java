@@ -86,7 +86,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		Map<String, String> url_filename = new HashMap<>();
 		if( imageUrl != null && imageUrl.length() > 0 ){
 			url_filename.put(imageUrl, "head_portrait");
-			serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+			serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename).get(0);
 		}
 
 
@@ -116,7 +116,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		// 平台认证
-		serviceProvider.platform_certification = doc.select("span.check_status.active").text();
+		serviceProvider.platform_certification = Arrays.asList(doc.select("span.check_status.active").text(), ",");
 
 		//服务质量
 		String serviceQuality = doc.getElementsByClass("center").text();
@@ -187,7 +187,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		if(targ != null && targ.length() > 1){
-			serviceProvider.tags = targ.substring(0, targ.length() - 1);
+			serviceProvider.tags = Arrays.asList(targ.substring(0, targ.length() - 1), ",");
 		}
 
 		//评价数
@@ -213,7 +213,9 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 			String[] arg = title.split("•");
 			if( arg.length > 1 ){
-				work.tags = arg[1].replace("、", "").replace("与", "").replace("及", "");
+				work.tags = Arrays.asList(
+						arg[1].replace("、", ",").replace("与", ",").replace("及", ","),
+						",");
 			}
 
 			work.title = title.split("•")[0];

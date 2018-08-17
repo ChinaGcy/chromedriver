@@ -97,7 +97,10 @@ public class ServiceProviderTask extends Task {
 		String headImg = doc.select("#entLogo").attr("src");
 		Map<String, String> map = new HashMap<>();
 		map.put(headImg, "head_portrait");
-		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), map);
+		List<String> headList = BinaryDownloader.download(getUrl(), map);
+		if( headList != null ){
+			serviceProvider.head_portrait = headList.get(0);
+		}
 
 		//描述
 		serviceProvider.content = StringUtil.cleanContent(doc.select("div.companyProfile").toString().replace("展开", ""), new HashSet<>());
@@ -129,7 +132,7 @@ public class ServiceProviderTask extends Task {
 			tags.append(",");
 		}
 		if( tags.length() > 0 ){
-			serviceProvider.tags = tags.substring(0, tags.length()-1);
+			serviceProvider.tags = Arrays.asList(tags.substring(0, tags.length()-1));
 		}
 
 		Elements jiaMess = doc.select("div.shopPingjiaMess > ul > li");
@@ -169,7 +172,8 @@ public class ServiceProviderTask extends Task {
 		// 认证情况
 		Elements platform_certification = doc.select("i.certificationQIye");
 		if( platform_certification.size() > 0 ){
-			serviceProvider.platform_certification = "企业认证";
+			serviceProvider.platform_certification = new ArrayList<>();
+			serviceProvider.platform_certification.add("企业认证");
 		}
 
 

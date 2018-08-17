@@ -87,7 +87,10 @@ public class ServiceProviderTask extends Task {
 				.attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			serviceProvider.head_portrait = headList.get(0);
+		}
 
 		//介绍
 		String introduction = doc.select("div.introduction").text();
@@ -174,7 +177,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//小标签
-		serviceProvider.tags = doc.select("div.skill-list").text().replace(" ", ",");
+		serviceProvider.tags = Arrays.asList(doc.select("div.skill-list").text(), " ");
 
 		//成功率及评价数
 		String ratioRating = doc.select("#proginn_wo_omment > h3 > div").text();

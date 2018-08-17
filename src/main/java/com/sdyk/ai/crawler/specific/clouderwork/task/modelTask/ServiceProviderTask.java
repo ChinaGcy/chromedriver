@@ -113,7 +113,12 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.domain_id = 2;
 
 		// 平台认证信息
-		serviceProvider.platform_certification = doc.select("img.icon-rz").attr("title");
+		List<String> pList = Arrays.asList(
+				doc.select("img.icon-rz").attr("title").replace(" ", ""),
+				",");
+		if( pList != null && pList.size() > 0 ){
+			serviceProvider.platform_certification = pList;
+		}
 
 		String grade = doc.select("#profile > div > div > section.basic > section > img.icon-lv").attr("src");
 		if( grade != null && grade.length() > 0 ){
@@ -124,10 +129,13 @@ public class ServiceProviderTask extends Task {
 		String imageUrl = doc.select("img.avator").attr("src");
 		Map<String, String> url_filename = new HashMap<>();
 		url_filename.put(imageUrl, "head_portrait");
-		serviceProvider.head_portrait = BinaryDownloader.download(getUrl(), url_filename);
+		List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			serviceProvider.head_portrait = headList.get(0);
+		}
 
 		// 类型
-		String type = serviceProvider.platform_certification;
+		String type = doc.select("img.icon-rz").attr("title");
 		if( type!=null && !"".equals(type) ){
 
 			if( type.contains("企业") ){
@@ -200,6 +208,7 @@ public class ServiceProviderTask extends Task {
 
 		}
 
+		String tagSrc = "";
 		String all =doc.select("#profile > div > div > section.basic > section > div:nth-child(8)").text().replace("擅长领域：","");
 		if( all!=null && !"".equals(all) && all.contains("擅长技能") ){
 			String[] all1 = all.split("擅长技能：");
@@ -226,7 +235,7 @@ public class ServiceProviderTask extends Task {
 				skills = all2[0];
 			}
 			if( skills!=null && !"".equals(skills) ){
-				serviceProvider.tags = skills.replace(" ", ",");
+				tagSrc = skills.replace(" ", ",");
 			}
 			String[] all3 = all2[1].split("工作经验：");
 
@@ -282,7 +291,7 @@ public class ServiceProviderTask extends Task {
 				skills = all2[0];
 			}
 			if( skills!=null && !"".equals(skills) ){
-				serviceProvider.tags = skills.replace(" ", ",");
+				tagSrc = skills.replace(" ", ",");
 			}
 			String[] all3 = all2[1].split("工作经验：");
 
@@ -313,15 +322,16 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.position = doc.select("span.s-title.male").text();
 
 		// 标签数据过滤
-		if( serviceProvider.tags.substring(0, 1).equals(",") ){
-			serviceProvider.tags = serviceProvider.tags.substring(1, serviceProvider.tags.length() - 1);
+		if( tagSrc.substring(0, 1).equals(",") ){
+			tagSrc = tagSrc.substring(1, tagSrc.length() - 1);
 		}
-		if( serviceProvider.tags.contains("工作属性") ){
-			serviceProvider.tags = serviceProvider.tags.split(",工作属性")[0];
+		if( tagSrc.contains("工作属性") ){
+			tagSrc = tagSrc.split(",工作属性")[0];
 		}
-		if( serviceProvider.tags.substring(serviceProvider.tags.length()-2, serviceProvider.tags.length()-1).equals(",") ){
-			serviceProvider.tags = serviceProvider.tags.substring(0, serviceProvider.tags.length()-2);
+		if( tagSrc.substring(tagSrc.length()-2,tagSrc.length()-1).equals(",") ){
+			tagSrc = tagSrc.substring(0, tagSrc.length()-2);
 		}
+		serviceProvider.tags = Arrays.asList(tagSrc, ",");
 
 		//成员数量
 		String memberNum = CrawlerAction.getNumbers(doc.getElementsByClass("members").text());
@@ -465,7 +475,7 @@ public class ServiceProviderTask extends Task {
 
 			work.category = element.select("div.sp-cont > span:nth-child(1)").text();
 
-			work.tags = element.select("span.skill").text();
+			work.tags = Arrays.asList(element.select("span.skill").text(), ",");
 
 			work.external_url = element.select("p.show-link > a").attr("href");
 
@@ -490,7 +500,7 @@ public class ServiceProviderTask extends Task {
 				resume.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid(getUrl()));
 
 				resume.degree_occupation = element.select("div.sp-cont > span:nth-child(1)").text();
-				resume.content = element.select("div.sp-desc.desc").text();
+				resume.content = "<p>" + element.select("div.sp-desc.desc").text() + "</p>";
 				resume.org = sp_title;
 				//resume.dep = element.select("div.sp-cont > span").text();
 

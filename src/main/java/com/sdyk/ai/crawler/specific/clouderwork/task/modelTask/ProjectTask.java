@@ -3,25 +3,20 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
-import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
@@ -141,22 +136,23 @@ public class ProjectTask extends Task {
 
 	    // 标签
 	    Elements elements = doc.select("span.skill");
-	    StringBuffer tags = new StringBuffer();
+		List<String> tags = new ArrayList<>();
 	    for(Element element : elements){
-		    tags.append(element.text());
-		    tags.append(",");
+		    tags.add(element.text());
 	    }
-	    if(tags.length() > 0){
-		    project.tags = tags.substring(0, tags.length()-1);
+	    if(tags.size() > 0){
+		    project.tags = tags;
 	    }
 	    else {
 		    String tags_ = doc.select("div.offer").text();
+
+		    StringBuffer tag = new StringBuffer();
 
 		    Pattern pattern_1 = Pattern.compile(",'(?<t>.+?)'\\)");
 		    Matcher matcher_1 = pattern_1.matcher(tags_);
 
 		    if( matcher_1.find() ){
-			    project.tags = matcher_1.group("t");
+			    tag.append(matcher_1.group("t"));
 		    }
 
 		    Pattern pattern_2 = Pattern.compile("getLevel\\((?<t>.+?),'");
@@ -174,7 +170,14 @@ public class ProjectTask extends Task {
 		    }
 
 		    if( lv.length() > 1 ){
-		    	project.tags = project.tags + "-" + lv;
+		    	tag.append("-");
+		    	tag.append(lv);
+		    }
+
+		    // 判断 tag 是否为 “”
+		    if( tag.length() > 1 ){
+			    project.tags = new ArrayList<>();
+			    project.tags.add(tag.toString());
 		    }
 	    }
 
@@ -378,7 +381,6 @@ public class ProjectTask extends Task {
 				    ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 			    } catch ( Exception e) {
-
 				    logger.error("error for submit TendererTask.class", e);
 			    }
 	        }

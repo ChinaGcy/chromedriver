@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class ProjectTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 12 * 60 * 60 * 1000L;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *");
 
@@ -94,7 +94,10 @@ public class ProjectTask extends Task {
 	        project.status = currentStatus;
 
 	        //招标人
-	        project.tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
+	        String tenderer_name = doc.select("#project_detail > div.project_info.fl > ul:nth-child(2) > li:nth-child(2) > span:nth-child(3)").text();
+			if( tenderer_name != null && tenderer_name.length() > 1 ){
+				project.tenderer_name = tenderer_name;
+			}
 
 	        //发布时间
 	        String pubdata = doc.select("#project_detail > div.project_info.fl > ul:nth-child(3) > li:nth-child(1) > span:nth-child(3)").text();
@@ -108,8 +111,9 @@ public class ProjectTask extends Task {
 	        }
 
 	        //小标签
-	        project.tags = doc.select("#project_detail > div.project_info.fl > div.category_list")
-			        .text().replace(" ", ",");
+	        project.tags = Arrays.asList(
+	        		doc.select("#project_detail > div.project_info.fl > div.category_list").text(),
+			        ",");
 
 	        //已投标人数
 	        String num = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(2) > div.txt > strong").text();
