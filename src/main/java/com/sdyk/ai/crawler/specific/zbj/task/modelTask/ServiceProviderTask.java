@@ -13,7 +13,6 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -91,33 +90,11 @@ public class ServiceProviderTask extends Task {
 						serviceProvider.platform_certification.add("企业");
 					}
 
-					// 定时任务 快照
-					boolean status = serviceProvider.insert();
-					ScheduledChromeTask st = t.getScheduledChromeTask();
-
-					// 第一次抓取生成定时任务
-					if(st == null) {
-
-						try {
-							st = new ScheduledChromeTask(t.getHolder(), crons);
-							st.start();
-						} catch (Exception e) {
-							logger.error("error for creat ScheduledChromeTask", e);
-						}
-
-					}
-					else {
-						if( !status ){
-							st.degenerate();
-						}
-					}
-
+					serviceProvider.insert();
 				} catch (Exception e) {
-
 					logger.error("insert/update error {}", e);
 				}
 
-				// 评论任务
 				try {
 
 					//设置参数
@@ -136,7 +113,6 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for submit ServiceProviderRatingTask.class", e);
 				}
 
-				// case 列表任务
 				try {
 
 					//设置参数
@@ -155,7 +131,7 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for submit CaseScanTask.class", e);
 				}
 
-				// work 列表任务
+
 				try {
 
 					//设置参数
@@ -196,7 +172,7 @@ public class ServiceProviderTask extends Task {
 				String s = doc.select("#j-zbj-header > div.personal-shop-more-info > div > div > div.personal-shop-name > div.personal-shop-desc.J-shop-desc > img")
 						.get(0).attr("src");
 
-					serviceProvider.grade = s.split("/level-")[1].split(".png")[0];
+				serviceProvider.grade = s.split("/level-")[1].split(".png")[0];
 
 			}
 
@@ -235,7 +211,7 @@ public class ServiceProviderTask extends Task {
 			}
 
 			// 图片下载
-			//serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
+			serviceProvider.cover_images = BinaryDownloader.download(getUrl(), map);
 
 		} catch (Exception e) {
 
@@ -342,7 +318,7 @@ public class ServiceProviderTask extends Task {
 		// 服务商档案
 		ZBJSalerinfo();
 
-		}
+	}
 
 	/**
 	 * 服务商信息
@@ -357,7 +333,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		serviceProvider.location = doc.select("#utopia_widget_3 > div.shop-center-tit.clearfix > span.fr.active-address")
-					.text();
+				.text();
 
 		serviceProvider.tags = Arrays.asList(doc.select("#utopia_widget_5 > p.label-box-wrap")
 				.text().split(" "));
@@ -461,7 +437,7 @@ public class ServiceProviderTask extends Task {
 			map.put(e.select("div > img").attr("src"), e.select("span").text());
 		}
 
-		//serviceProvider.cover_images.addAll(Arrays.asList(BinaryDownloader.download(getUrl(), map).split(",")));
+		serviceProvider.cover_images.addAll(BinaryDownloader.download(getUrl(), map));
 
 		//serviceProvider.tags = Arrays.asList(doc.select("body > div.grid > div.main-wrap > div > div > div:nth-child(3) > div.introduce-content > div").text().split(" "));
 
@@ -494,7 +470,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		// 图片下载
-		//serviceProvider.cover_images = Arrays.asList(BinaryDownloader.download(getUrl(), map).split(","));
+		serviceProvider.cover_images =BinaryDownloader.download(getUrl(), map);
 
 		//serviceProvider.tags = Arrays.asList(doc.select("#utopia_widget_15 > div.skill-wrap").text().split(" "));
 
@@ -519,7 +495,7 @@ public class ServiceProviderTask extends Task {
 				serviceProvider.qq = qq;
 			} catch (Exception e) {}
 			try {
-				                                          //body > div.shop-fixed-im.sidebar-show > div.shop-fixed-im-hover.shop-customer.j-shop-fixed-im > div.shop-fix-im-qq > div.time-item
+				//body > div.shop-fixed-im.sidebar-show > div.shop-fixed-im-hover.shop-customer.j-shop-fixed-im > div.shop-fix-im-qq > div.time-item
 				Elements list_phone = doc.select("body > div.shop-fixed-im.sidebar-show > div.shop-fixed-im-hover.shop-customer.j-shop-fixed-im > div.shop-fix-im-qq > div.time-item");
 
 				String cellphone = "";
