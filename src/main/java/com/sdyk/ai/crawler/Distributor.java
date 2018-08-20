@@ -91,6 +91,18 @@ public class Distributor extends ChromeDriverDistributor {
 			taskQueueStat.put(loginTask.getClass().getName(), taskQueueStat.get(loginTask.getClass().getName()) + 1);
 		}
 
+		// 添加task信息
+		if(!AGENT_TASK_MAP.keySet().contains(agent.name)){
+			List<String> taskUrl = new ArrayList<>();
+			taskUrl.add(loginTask.getUrl());
+			AGENT_TASK_MAP.put(agent.name, taskUrl);
+		}
+		else {
+			List<String> taskUrl = AGENT_TASK_MAP.get(agent.name);
+			taskUrl.add(loginTask.getUrl());
+			AGENT_TASK_MAP.put(agent.name, taskUrl);
+		}
+
 	}
 
 	/**
@@ -116,7 +128,6 @@ public class Distributor extends ChromeDriverDistributor {
 
 		// 上次采集时间过滤
 		if(last_visit != 0 && (new Date().getTime() - last_visit) < min_interval) {
-			System.err.println("Collection interval is too short :" + url);
 			logger.error("{} {} fetch interval is less than MIN_INTERVAL {}, discard.", clazz.getName(), url, min_interval);
 			throw new TaskException.LessThanMinIntervalException();
 		}
@@ -184,8 +195,6 @@ public class Distributor extends ChromeDriverDistributor {
 		// 生成指派信息
 		if(agent != null) {
 
-			logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.vars, agent.name);
-
 			if( !URL_VISITS_SET.contains(hash) ){
 
 				// 更新统计信息
@@ -216,6 +225,8 @@ public class Distributor extends ChromeDriverDistributor {
 				info.put("agent", agent.getInfo());
 				info.put("domain", domain);
 				info.put("account", username);
+
+				logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.vars, agent.name);
 
 				return info;
 			}
@@ -253,12 +264,13 @@ public class Distributor extends ChromeDriverDistributor {
 				// todo 现在为循环直至有任务出现，跳出循环，是否有更简单方法。
 				while(task == null && holder == null){
 
-					holder = queues.get(agent).poll(10, TimeUnit.SECONDS);
-
 					if( loginTaskQueues.get(agent) != null && !loginTaskQueues.get(agent).isEmpty() ){
 						task = loginTaskQueues.get(agent).poll();
 					}
 
+					if( task == null ){
+						holder = queues.get(agent).poll(10, TimeUnit.SECONDS);
+					}
 				}
 			}
 
@@ -278,7 +290,10 @@ public class Distributor extends ChromeDriverDistributor {
 				return task;
 			}
 
+			// todo task.holder是否应该在此处赋值
 			task = holder.build();
+			//holder.scheduled_task_id = StringUtil.MD5(holder.class_name + "-" + JSON.toJson(holder.vars));
+			//task.holder = holder;
 
 			TaskHolder holder_ = holder;
 
