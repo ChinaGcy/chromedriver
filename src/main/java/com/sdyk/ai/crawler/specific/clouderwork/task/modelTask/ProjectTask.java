@@ -11,6 +11,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.util.FileUtil;
@@ -48,7 +49,7 @@ public class ProjectTask extends Task {
         // 设置优先级
         this.setPriority(Priority.HIGH);
 
-	    this.setNoFetchImages();
+	    //this.setNoFetchImages();
 
 	    // 判断是否发生异常
 	    this.setValidator((a, t) -> {
@@ -78,7 +79,7 @@ public class ProjectTask extends Task {
 
 	        boolean status = crawler(doc);
 
-        	ScheduledChromeTask st = t.getScheduledChromeTask();
+	        ScheduledChromeTask st = t.getScheduledChromeTask();
 
 	        // 第一次抓取生成定时任务
 	        if(st == null) {
@@ -361,7 +362,7 @@ public class ProjectTask extends Task {
 	    }
 
 	    //采集招标人信息
-	    String flage =  this.getStringFromVars ("flag");
+	    String flage =  this.getStringFromVars ("flage");
 	    if( flage.equals("1") ){
 
 		    if( tendererId!=null && !"".equals(tendererId) ){
@@ -375,7 +376,7 @@ public class ProjectTask extends Task {
 				    Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.TendererTask");
 
 				    //生成holder
-				    TaskHolder holder = this.getHolder(clazz, init_map);
+				    TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 				    //提交任务
 				    ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -386,7 +387,9 @@ public class ProjectTask extends Task {
 	        }
 	    }
 
-	    project.category.replace(" ", "");
+	    if( project.category != null ){
+		    project.category.replace(" ", "");
+	    }
 	    project.insert();
 
 	    if( project.status.contains("已完成") ){

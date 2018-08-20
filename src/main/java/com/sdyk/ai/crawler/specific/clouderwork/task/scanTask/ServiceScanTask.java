@@ -9,6 +9,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 
@@ -85,7 +86,7 @@ public class ServiceScanTask extends ScanTask {
 		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTask");
 
 		            //生成holder
-		            TaskHolder holder = this.getHolder(clazz, init_map);
+		            TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 		            //提交任务
 		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -113,7 +114,7 @@ public class ServiceScanTask extends ScanTask {
 				        init_map.put("max_page", "");
 
 				        //生成holder
-				        TaskHolder holder = this.getHolder(ServiceScanTask.class, init_map);
+				        TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(ServiceScanTask.class, init_map);
 
 				        //提交任务
 				        ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -136,7 +137,7 @@ public class ServiceScanTask extends ScanTask {
 			        init_map.put("page", String.valueOf(i));
 			        init_map.put("max_page", "0");
 
-			        TaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
+			        TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(t.getClass(), init_map);
 
 			        ChromeDriverDistributor.getInstance().submit(holder);
 		        }

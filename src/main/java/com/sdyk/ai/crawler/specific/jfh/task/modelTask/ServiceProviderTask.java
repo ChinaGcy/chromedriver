@@ -14,6 +14,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
@@ -220,7 +221,7 @@ public class ServiceProviderTask extends Task {
 						"com.sdyk.ai.crawler.specific.jfh.task.modelTask.WorkTask");
 
 				//生成holder
-				TaskHolder holder = this.getHolder(clazz, init_map);
+				TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -241,7 +242,7 @@ public class ServiceProviderTask extends Task {
 			Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderRatingTask");
 
 			//生成holder
-			TaskHolder holder = this.getHolder(clazz, init_map);
+			TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 			//提交任务
 			((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -267,7 +268,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -276,8 +277,9 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for create CompanyInformationTask", e);
 				}
 
-				serviceProvider.category.replace(" ", "");
-
+				if( serviceProvider.category != null ){
+					serviceProvider.category.replace(" ", "");
+				}
 				serviceProvider.insert();
 			}
 

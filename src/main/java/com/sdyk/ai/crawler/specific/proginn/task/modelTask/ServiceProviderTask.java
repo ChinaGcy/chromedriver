@@ -14,6 +14,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
@@ -363,7 +364,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.TendererTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -401,7 +402,7 @@ public class ServiceProviderTask extends Task {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
 
 				//生成holder
-				TaskHolder holder = this.getHolder(clazz, init_map);
+				TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -420,7 +421,9 @@ public class ServiceProviderTask extends Task {
 
 			if( serviceProvider.name != null && serviceProvider.name.length() > 1 ){
 
-				serviceProvider.category.replace(" ", "");
+				if( serviceProvider.category != null ){
+					serviceProvider.category.replace(" ", "");
+				}
 				status = serviceProvider.insert();
 			}
 

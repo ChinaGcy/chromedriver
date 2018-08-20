@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -150,7 +151,7 @@ public class ServiceProviderRatingTask extends Task {
 						"com.sdyk.ai.crawler.specific.jfh.task.modelTask.CaseTask");
 
 				//生成holder
-				TaskHolder holder = this.getHolder(clazz, init_map);
+				TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

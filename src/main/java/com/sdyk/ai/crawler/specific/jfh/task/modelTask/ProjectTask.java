@@ -167,7 +167,9 @@ public class ProjectTask extends Task {
 		try{
 			if( project.title != null && project.title.length() > 1 ){
 
-				project.category.replace(" ", "");
+				if( project.category != null ){
+					project.category.replace(" ", "");
+				}
 				project.insert();
 			}
 		} catch (Exception e) {

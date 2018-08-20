@@ -13,9 +13,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
-import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.io.requester.task.ScheduledChromeTask;
+import one.rewind.io.requester.task.*;
 import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -236,7 +234,7 @@ public class TendererTask extends Task {
 				init_map.put("flage", "0");
 
 				//生成holder
-				TaskHolder holder = this.getHolder(ProjectTask.class, init_map);
+				TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(ProjectTask.class, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -247,7 +245,9 @@ public class TendererTask extends Task {
 			}
 		}
 
-		tenderer.category.replace(" ", "");
+		if( tenderer.category != null ){
+			tenderer.category.replace(" ", "");
+		}
 
 		return tenderer.insert();
 	}

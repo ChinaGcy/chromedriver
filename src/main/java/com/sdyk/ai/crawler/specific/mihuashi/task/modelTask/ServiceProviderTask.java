@@ -12,6 +12,7 @@ import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
@@ -180,8 +181,10 @@ public class ServiceProviderTask extends Task {
 		else if(  serviceProvider.name.contains("公司") ){
 			serviceProvider.type = "团队-公司";
 		}
-		serviceProvider.category.replace("", "");
 
+		if( serviceProvider.category != null ){
+			serviceProvider.category.replace("", "");
+		}
 		boolean status = serviceProvider.insert();
 
 		// 公司信息补全任务
@@ -196,7 +199,7 @@ public class ServiceProviderTask extends Task {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 				//生成holder
-				TaskHolder holder = this.getHolder(clazz, init_map);
+				TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

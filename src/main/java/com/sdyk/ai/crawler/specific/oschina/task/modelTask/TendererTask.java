@@ -122,7 +122,10 @@ public class TendererTask extends Task {
 
 		try{
 
-			tenderer.category.replace(" ", "");
+			if( tenderer.category != null ){
+				tenderer.category.replace(" ", "");
+			}
+
 			boolean status = tenderer.insert();
 
 			ScheduledChromeTask st = t.getScheduledChromeTask();

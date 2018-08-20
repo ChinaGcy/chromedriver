@@ -151,7 +151,9 @@ public class TendererTask extends Task {
 			tenderer.head_portrait = headList.get(0);
 		}
 
-		tenderer.category.replace(" ", "");
+		if( tenderer.category != null ){
+			tenderer.category.replace(" ", "");
+		}
 
 		boolean status = tenderer.insert();
 

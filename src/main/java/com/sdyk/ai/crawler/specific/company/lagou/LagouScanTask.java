@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.task.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -90,7 +91,7 @@ public class LagouScanTask extends ScanTask {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.lagou.LagouTask");
 
 				//生成holder
-				TaskHolder holder = this.getHolder(clazz, init_map);
+				TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 				//提交任务
 				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

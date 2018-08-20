@@ -12,6 +12,7 @@ import one.rewind.io.requester.chrome.action.ClickAction;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.txt.StringUtil;
@@ -158,7 +159,7 @@ public class ServiceRatingTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.ProjectTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);

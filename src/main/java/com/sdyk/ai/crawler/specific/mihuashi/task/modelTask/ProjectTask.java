@@ -11,6 +11,7 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
@@ -202,7 +203,7 @@ public class ProjectTask extends Task {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererTask");
 
 						//生成holder
-						TaskHolder holder = this.getHolder(clazz, init_map);
+						TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 						//提交任务
 						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -222,7 +223,7 @@ public class ProjectTask extends Task {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererRatingTask");
 
 						//生成holder
-						TaskHolder holder = this.getHolder(clazz, init_map1);
+						TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map1);
 
 						//提交任务
 						ChromeDriverDistributor.getInstance().submit(holder);
@@ -238,7 +239,9 @@ public class ProjectTask extends Task {
 			try {
 				if( project.title != null && project.title.length() > 1 ){
 
-					project.category.replace(" ", "");
+					if( project.category != null ){
+						project.category.replace(" ", "");
+					}
 					project.insert();
 				}
 			} catch (Exception e) {

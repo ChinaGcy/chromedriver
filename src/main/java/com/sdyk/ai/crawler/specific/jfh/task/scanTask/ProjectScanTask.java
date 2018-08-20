@@ -9,9 +9,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
-import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.io.requester.task.ScheduledChromeTask;
+import one.rewind.io.requester.task.*;
 import one.rewind.io.requester.task.TaskHolder;
 
 import java.io.UnsupportedEncodingException;
@@ -92,7 +90,7 @@ public class ProjectScanTask extends ScanTask {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.modelTask.ProjectTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -120,7 +118,7 @@ public class ProjectScanTask extends ScanTask {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.jfh.task.scanTask.ProjectScanTask");
 
 						//生成holder
-						TaskHolder holder = this.getHolder(clazz, init_map);
+						TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 						//提交任务
 						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
