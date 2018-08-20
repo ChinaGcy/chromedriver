@@ -15,6 +15,8 @@ import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.TaskException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.TaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.json.JSON;
 import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
@@ -95,13 +97,11 @@ public class Distributor extends ChromeDriverDistributor {
 	 * 向队列中添加任务
 	 * 当程序异常退出，需要重构 URL_VISITS
 	 */
-	/*public Map<String, Object> submit(ChromeTaskHolder holder) throws Exception {
+	public Map<String, Object> submit(TaskHolder holder) throws Exception {
 
 		Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(holder.class_name);
 
-		ChromeTask.Builder builder = ChromeTask.Builders.get(clazz);
-
-		String url = ChromeTask.generateURL(builder, holder.init_map);
+		String url = holder.url;
 
 		String hash = StringUtil.MD5(url);
 
@@ -143,7 +143,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 		}
 		// 需要登录采集的任务 或 没有找到加载指定账户的Agent
-		else if(holder.login_task){
+		else if(holder.need_login){
 
 			if(!domain_agent_map.keySet().contains(domain)) {
 				logger.warn("No agent hold {} accounts.", domain);
@@ -184,7 +184,7 @@ public class Distributor extends ChromeDriverDistributor {
 		// 生成指派信息
 		if(agent != null) {
 
-			logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.init_map, agent.name);
+			logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.vars, agent.name);
 
 			if( !URL_VISITS_SET.contains(hash) ){
 
@@ -226,9 +226,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 		throw new ChromeDriverException.NotFoundException();
 
-
-		//return super.submit(holder);
-	}*/
+	}
 
 	/**
 	 * 从阻塞队列中 获取任务
@@ -236,7 +234,7 @@ public class Distributor extends ChromeDriverDistributor {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	/*public ChromeTask distribute(ChromeDriverAgent agent) throws InterruptedException {
+	public ChromeTask distribute(ChromeDriverAgent agent) throws InterruptedException {
 
 		ChromeTask task = null;
 
@@ -244,7 +242,7 @@ public class Distributor extends ChromeDriverDistributor {
 			task = loginTaskQueues.get(agent).poll();
 		}
 
-		ChromeTaskHolder holder = null;
+		TaskHolder holder = null;
 
 		try {
 
@@ -282,7 +280,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 			task = holder.build();
 
-			ChromeTaskHolder holder_ = holder;
+			TaskHolder holder_ = holder;
 
 			String className = task != null ? task.getClass().getName() : holder.class_name;
 
@@ -355,7 +353,7 @@ public class Distributor extends ChromeDriverDistributor {
 			logger.error("Task submit failed. {} ", task != null? task : holder, e);
 			return distribute(agent);
 		}
-	}*/
+	}
 
 	/**
 	 * 创建并返回一个空容器

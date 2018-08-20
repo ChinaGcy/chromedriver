@@ -22,6 +22,7 @@ import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.Task;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
