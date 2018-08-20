@@ -10,7 +10,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -205,7 +205,7 @@ public class ProjectTask extends Task {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.ServiceProviderTask");
 
 						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+						TaskHolder holder = this.getHolder(clazz, init_map);
 
 						//提交任务
 						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -239,7 +239,7 @@ public class ProjectTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.oschina.task.modelTask.TendererTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -261,7 +261,7 @@ public class ProjectTask extends Task {
 				// 第一次抓取生成定时任务
 				if(st == null) {
 
-					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st = new ScheduledChromeTask(t.getHolder(), crons);
 					st.start();
 				}
 			}

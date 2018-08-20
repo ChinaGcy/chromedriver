@@ -8,7 +8,7 @@ import com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -66,7 +66,7 @@ public class ServiceScanTask extends ScanTask {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.ServiceProviderTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -81,7 +81,7 @@ public class ServiceScanTask extends ScanTask {
 			Elements pageList= doc.getElementsByClass("item");
 			String pageLast = pageList.get(pageList.size() - 1).text();
 
-			String maxPageSrc =  String.valueOf(((ChromeTask) t).init_map.get("max_page"));
+			String maxPageSrc =  t.getStringFromVars("max_page");
 
 			// 不含 max_page 参数，则表示可以一直翻页
 			if( maxPageSrc.length() < 1 ){
@@ -99,7 +99,7 @@ public class ServiceScanTask extends ScanTask {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.scanTask.ServiceScanTask");
 
 						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+						TaskHolder holder = this.getHolder(clazz, init_map);
 
 						//提交任务
 						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -113,7 +113,7 @@ public class ServiceScanTask extends ScanTask {
 			}
 			else {
 				int maxPage = Integer.valueOf(maxPageSrc);
-				int current_page = Integer.valueOf(String.valueOf(((ChromeTask) t).init_map.get("page")));
+				int current_page = Integer.valueOf(t.getStringFromVars("page"));
 
 				// 从当前页翻至最大页
 				for(int i = current_page + 1; i <= maxPage; i++) {
@@ -124,7 +124,7 @@ public class ServiceScanTask extends ScanTask {
 
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.scanTask.ServiceScanTask");
 
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//ChromeTaskHolder holder = ((ChromeTask) t).getHolder(((ChromeTask) t).getClass(), init_map);
 

@@ -49,7 +49,7 @@ public class WorkTask extends Task {
 
 			String uId = doc.select("div.nickname > a").attr("href");
 
-			String like_num  = t.getStringFromInitMap("like_num");
+			String like_num  = t.getStringFromVars("like_num");
 
 			crawler(doc, uId, like_num);
 

@@ -13,8 +13,9 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
+import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -252,7 +253,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.modelTask.ServiceProviderRatingTask");
 
 				//生成holder
-				ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+				TaskHolder holder = this.getHolder(clazz, init_map);
 
 				//提交任务
 				ChromeDriverDistributor.getInstance().submit(holder);
@@ -265,13 +266,13 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 		boolean status = serviceProvider.insert();
 
-		/*ScheduledChromeTask st = t.getScheduledChromeTask();
+		ScheduledChromeTask st = t.getScheduledChromeTask();
 
 		// 第一次抓取生成定时任务
 		if(st == null) {
 
 			try {
-				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st = new ScheduledChromeTask(t.getHolder(), crons);
 				st.start();
 			} catch (Exception e) {
 				logger.error("error for creat ScheduledChromeTask", e);
@@ -282,7 +283,7 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 			if( !status ){
 				st.degenerate();
 			}
-		}*/
+		}
 
 	}
 

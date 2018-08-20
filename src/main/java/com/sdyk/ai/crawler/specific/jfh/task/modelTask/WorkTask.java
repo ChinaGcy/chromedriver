@@ -53,7 +53,7 @@ public class WorkTask extends Task {
 
 			Document doc = getResponse().getDoc();
 
-			String uid = t.getStringFromInitMap("uId");
+			String uid = t.getStringFromVars("uId");
 
 			crawler(doc, uid);
 

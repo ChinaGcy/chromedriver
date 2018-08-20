@@ -14,7 +14,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -363,7 +363,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.TendererTask");
 
 					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+					TaskHolder holder = this.getHolder(clazz, init_map);
 
 					//提交任务
 					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -389,38 +389,27 @@ public class ServiceProviderTask extends Task {
 			String workUrl = element.select("a.media").attr("href");
 			String like_num = element.select("a.plus_button > em").text();
 
-			/*String wUrl = "https://www.proginn.com" + workUrl;
-			long lastRunTime = 0;
+			try {
 
-			if( Distributor.URL_VISITS.keySet().contains(one.rewind.txt.StringUtil.MD5(wUrl)) ){
-				lastRunTime = Distributor.URL_VISITS.get( one.rewind.txt.StringUtil.MD5(wUrl));
-			}
-
-			if( (new Date().getTime() - lastRunTime) > WorkTask.MIN_INTERVAL ){*/
-
-				try {
-
-					//设置参数
-					Map<String, Object> init_map = new HashMap<>();
-					init_map.put("work_id", workUrl);
-					//init_map.put("uId", getId());
-					if( like_num != null ){
-						init_map.put("like_num", like_num);
-					}
-
-					Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
-
-					//生成holder
-					ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
-
-					//提交任务
-					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-				} catch ( Exception e) {
-
-					logger.error("error for submit ProjectTask.class", e);
+				//设置参数
+				Map<String, Object> init_map = new HashMap<>();
+				init_map.put("work_id", workUrl);
+				if( like_num != null ){
+					init_map.put("like_num", like_num);
 				}
-			//}
+
+				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proginn.task.modelTask.WorkTask");
+
+				//生成holder
+				TaskHolder holder = this.getHolder(clazz, init_map);
+
+				//提交任务
+				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+			} catch ( Exception e) {
+
+				logger.error("error for submit ProjectTask.class", e);
+			}
 		}
 
 		serviceProvider.project_num = workList.size();
@@ -441,7 +430,7 @@ public class ServiceProviderTask extends Task {
 			if(st == null) {
 
 				try {
-					st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+					st = new ScheduledChromeTask(t.getHolder(), crons);
 					st.start();
 				} catch (Exception e) {
 					logger.error("error for creat ScheduledChromeTask", e);

@@ -1,3 +1,4 @@
+/*
 package com.sdyk.ai.crawler.specific.proLagou.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
@@ -131,26 +132,31 @@ public class ServiceProviderScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
 	}
 
-	/**
+	*/
+/**
 	 * 判断是否为最大页数
 	 *
 	 * @param path
 	 * @param page
 	 * @return
-	 */
+	 *//*
+
 	@Override
 	public boolean pageTurning(String path, int page) {
 		return false;
 	}
 
-	/**
+	*/
+/**
 	 * 获取ScanTask 标识
 	 *
 	 * @return
-	 */
+	 *//*
+
 	@Override
 	public TaskTrace getTaskTrace() {
 		return null;
 	}
 
 }
+*/

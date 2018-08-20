@@ -11,7 +11,7 @@ import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.txt.DateFormatUtil;
 import one.rewind.util.FileUtil;
@@ -188,7 +188,7 @@ public class ProjectTask extends Task {
 				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid(authorUrl));
 
-				String flage = (String) init_map.get("flage");
+				String flage = t.getStringFromVars("flage");
 
 				if( flage.equals("1") ){
 
@@ -202,7 +202,7 @@ public class ProjectTask extends Task {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererTask");
 
 						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+						TaskHolder holder = this.getHolder(clazz, init_map);
 
 						//提交任务
 						((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
@@ -222,7 +222,7 @@ public class ProjectTask extends Task {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.mihuashi.task.modelTask.TendererRatingTask");
 
 						//生成holder
-						ChromeTaskHolder holder = ChromeTask.buildHolder(clazz, init_map1);
+						TaskHolder holder = this.getHolder(clazz, init_map1);
 
 						//提交任务
 						ChromeDriverDistributor.getInstance().submit(holder);
@@ -250,7 +250,7 @@ public class ProjectTask extends Task {
 			// 第一次抓取生成定时任务
 			if(st == null) {
 
-				st = new ScheduledChromeTask(t.getHolder(this.init_map), crons);
+				st = new ScheduledChromeTask(t.getHolder(), crons);
 				st.start();
 			}
 			// 已完成项目停止定时任务
