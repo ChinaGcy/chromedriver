@@ -31,8 +31,7 @@
         "boost": 4
       },
       "tags": {
-        "type":"text",
-        "analyzer": "ik_max_word",
+        "type":"keyword",
         "boost": 2
       },
       "content": {

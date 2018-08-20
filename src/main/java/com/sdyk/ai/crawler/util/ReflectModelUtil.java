@@ -12,7 +12,14 @@ import java.util.Map;
  */
 public class ReflectModelUtil {
 
-    public static Object toObj(Map<String, String> map, Class<?> beanClass) throws Exception {
+    /**
+     *
+     * @param map
+     * @param beanClass
+     * @return
+     * @throws Exception
+     */
+    public static Object toObj(Map<String, Object> map, Class<?> beanClass) throws Exception {
 
         if (map == null || map.size()<=0)
             return null;
@@ -21,7 +28,7 @@ public class ReflectModelUtil {
         //获取关联的所有类，本类以及所有父类
         boolean ret = true;
         Class oo = obj.getClass();
-        List<Class> clazzs = new ArrayList<Class>();
+        List<Class> clazzs = new ArrayList<>();
         while(ret){
             clazzs.add(oo);
             oo = oo.getSuperclass();
@@ -45,6 +52,12 @@ public class ReflectModelUtil {
         return obj;
     }
 
+    /**
+     *
+     * @param obj
+     * @return
+     * @throws Exception
+     */
     public static Map<String, Object> toMap(Object obj) throws Exception {
 
         if(obj == null){

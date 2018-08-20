@@ -4,7 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.sdyk.ai.crawler.old_model.Model;
+import com.sdyk.ai.crawler.model.Model;
 import com.sdyk.ai.crawler.old_model.witkey.snapshot.ServiceProviderSnapshot;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;

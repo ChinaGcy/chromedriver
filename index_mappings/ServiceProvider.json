@@ -44,7 +44,7 @@
         "boost": 4
       },
       "tags":{
-        "type": "text",
+        "type":"text",
         "analyzer": "ik_max_word",
         "boost": 2
       },

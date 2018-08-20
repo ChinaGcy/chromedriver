@@ -15,7 +15,6 @@ import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.TaskException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.ChromeTaskHolder;
 import one.rewind.json.JSON;
 import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
@@ -96,7 +95,7 @@ public class Distributor extends ChromeDriverDistributor {
 	 * 向队列中添加任务
 	 * 当程序异常退出，需要重构 URL_VISITS
 	 */
-	public Map<String, Object> submit(ChromeTaskHolder holder) throws Exception {
+	/*public Map<String, Object> submit(ChromeTaskHolder holder) throws Exception {
 
 		Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(holder.class_name);
 
@@ -229,7 +228,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 
 		//return super.submit(holder);
-	}
+	}*/
 
 	/**
 	 * 从阻塞队列中 获取任务
@@ -237,7 +236,7 @@ public class Distributor extends ChromeDriverDistributor {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public ChromeTask distribute(ChromeDriverAgent agent) throws InterruptedException {
+	/*public ChromeTask distribute(ChromeDriverAgent agent) throws InterruptedException {
 
 		ChromeTask task = null;
 
@@ -356,7 +355,7 @@ public class Distributor extends ChromeDriverDistributor {
 			logger.error("Task submit failed. {} ", task != null? task : holder, e);
 			return distribute(agent);
 		}
-	}
+	}*/
 
 	/**
 	 * 创建并返回一个空容器

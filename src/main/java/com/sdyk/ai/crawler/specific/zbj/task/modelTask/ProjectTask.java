@@ -159,7 +159,7 @@ public class ProjectTask extends Task {
 
 					ScheduledChromeTask st = t.getScheduledChromeTask();
 
-					// 第一次抓取生成定时任务
+					// 第一次抓取生成定时任务 快照
 					if(st == null) {
 
 						st = new ScheduledChromeTask(t.getHolder(), crons);
