@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.model;
 
+import com.google.common.collect.ImmutableMap;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
@@ -36,13 +37,7 @@ public abstract class Model {
 	public static boolean ES_Index = false;
 
 	// 发布更新的项目ID
-	public static RBlockingQueue<String> SdykCrawlerProjectUpdate = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Projects-Update");
-
-	// 发布更新的甲方ID
-	public static RBlockingQueue<String> SdykCrawlerTendererUpdate = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Tenderers-Update");
-
-	// 发布更新的乙方ID
-	public static RBlockingQueue<String> SdykCrawlerServiceUpdate = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-ServiceProviders-Update");
+	public static RBlockingQueue<Map<String, String>> SdykCrawlerModelUpdateQueue = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Model-Update");
 
 	static {
 
@@ -154,9 +149,8 @@ public abstract class Model {
 					oldVersion.update();
 
 					// 向 redis 发布更新数据的ID
-					if( oldVersion.getClass() == Project.class ) SdykCrawlerProjectUpdate.offer(oldVersion.id);
-					else if( oldVersion.getClass() == Tenderer.class ) SdykCrawlerTendererUpdate.offer(oldVersion.id);
-					else if( oldVersion.getClass() == ServiceProvider.class ) SdykCrawlerServiceUpdate.offer(oldVersion.id);
+					Map<String, String> msg = ImmutableMap.of(oldVersion.getClass().getName(), oldVersion.id);
+					SdykCrawlerModelUpdateQueue.offer(msg);
 
 					createSnapshot(oldVersion);
 					oldVersion.updateES();
