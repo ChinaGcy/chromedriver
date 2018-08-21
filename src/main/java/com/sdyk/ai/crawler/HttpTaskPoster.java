@@ -80,7 +80,7 @@ public class HttpTaskPoster {
 
 		params += "class_name=" + class_name;
 
-		params += "&init_map=" + map_json;
+		params += "&vars=" + map_json;
 
 		params += "&step=" + step;
 

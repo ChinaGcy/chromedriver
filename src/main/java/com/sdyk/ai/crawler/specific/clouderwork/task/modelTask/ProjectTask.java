@@ -49,7 +49,7 @@ public class ProjectTask extends Task {
         // 设置优先级
         this.setPriority(Priority.HIGH);
 
-	    //this.setNoFetchImages();
+	    this.setNoFetchImages();
 
 	    // 判断是否发生异常
 	    this.setValidator((a, t) -> {
@@ -390,6 +390,7 @@ public class ProjectTask extends Task {
 	    if( project.category != null ){
 		    project.category.replace(" ", "");
 	    }
+
 	    project.insert();
 
 	    if( project.status.contains("已完成") ){
