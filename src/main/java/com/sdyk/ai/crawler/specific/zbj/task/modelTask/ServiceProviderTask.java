@@ -63,6 +63,8 @@ public class ServiceProviderTask extends Task {
 				String src = getResponse().getText();
 				Document doc = getResponse().getDoc();
 
+				serviceProvider.origin_id = t.getStringFromVars("user_id");
+
 				shareData(doc, src);
 
 				// 判断是哪个页面格式
@@ -165,7 +167,6 @@ public class ServiceProviderTask extends Task {
 
 		//https://shop.zbj.com/15774587/
 		try {
-			serviceProvider.origin_id = this.getUrl().split("/")[3];
 			// 获取等级
 			if (src.contains("<img align=\"absmiddle\" src=\"https://t5.zbjimg.com/t5s/common/img/user-level/level-")) {
 
@@ -270,8 +271,6 @@ public class ServiceProviderTask extends Task {
 
 		// head 店铺主页
 		if (src.contains("关于我们") && doc.title().contains("店铺主页")) {
-
-			serviceProvider.origin_id = this.getUrl().split("/")[3];
 
 			serviceProvider.name = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > h1").text();
 			serviceProvider.grade = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.tag-wrap > div.ability-tag.ability-tag-0.text-tag").text();

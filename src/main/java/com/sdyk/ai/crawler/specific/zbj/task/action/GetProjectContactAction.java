@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.specific.zbj.task.action;
 
-import com.sdyk.ai.crawler.specific.zbj.model.ProjectEval;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.action.Action;
 import one.rewind.io.requester.chrome.action.GeetestAction;

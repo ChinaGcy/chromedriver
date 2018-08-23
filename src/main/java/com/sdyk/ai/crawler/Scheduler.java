@@ -46,7 +46,7 @@ public class Scheduler {
 
 	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
 
-	public static int DefaultDriverCount = 4;
+	public static int DefaultDriverCount = 1;
 
 	public static Map<String, LoginTask> loginTasks = new HashedMap();
 
@@ -76,18 +76,24 @@ public class Scheduler {
 	 */
 	public Scheduler() throws Exception {
 
+		// Setup Web API
 		new Thread(() -> {
 			ServiceWrapper.getInstance();
 		}).start();
 
+		// 重启 容器
 		resetDockerHost();
 
+		// 重置 账号
 		AccountManager.getInstance().setAllAccountFree();
 
+		// 重置 代理
 		resetProxy();
 
+		// 重置 缓存
 		resetRedis();
 
+		// 初始化
 		init();
 
 		Thread.sleep(10000);
@@ -599,20 +605,20 @@ public class Scheduler {
 				if( t.cron == null ){
 
 					if( t.class_name.contains("jfh") ){
-						System.err.println(t.class_name);
+						//System.err.println(t.class_name);
 						// 历史任务
-						HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+						//HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
 					}
 
 				}
 				else {
 
 					// 定时任务
-					t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
+					/*t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
 
 					t.start_time = new Date();
 
-					t.update();
+					t.update();*/
 				}
 
 			} catch (Exception e) {

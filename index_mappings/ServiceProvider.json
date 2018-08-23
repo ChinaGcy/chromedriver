@@ -12,12 +12,12 @@
       },
       "name":{
         "type":"text",
-        "analyzer": "my_analyzer",
+        "analyzer": "ik_max_word",
         "boost": 4
       },
       "company_name":{
         "type":"text",
-        "analyzer": "my_analyzer",
+        "analyzer": "ik_max_word",
         "boost": 4
       },
       "type":{
@@ -157,7 +157,7 @@
           },
           "tenderer_name":{
             "type":"text",
-            "analyzer": "my_analyzer",
+            "analyzer": "ik_max_word",
             "boost": 4
           },
           "tags":{

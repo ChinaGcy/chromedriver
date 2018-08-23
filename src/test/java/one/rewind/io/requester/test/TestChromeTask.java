@@ -166,9 +166,9 @@ public class TestChromeTask {
 		static {
 			registerBuilder(
 					TestChromeTask.T5.class,
-					"https://www.baidu.com/s?word={{q}}&pn={{pn}}",
-					ImmutableMap.of("q", String.class,"pn", Integer.class, "max_page", Integer.class),
-					ImmutableMap.of("q", "ip", "pn", 0, "max_page", 100)
+					"https://www.baidu.com/s?word={{q}}",
+					ImmutableMap.of("q", String.class),
+					ImmutableMap.of("q", "ip")
 			);
 		}
 

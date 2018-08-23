@@ -24,7 +24,7 @@ public class EsTest {
 			ESTransportClientAdapter.deleteIndexAndMapping();
 			ESTransportClientAdapter.createIndexAndMapping();
 
-			//ESTransportClientAdapter.dumpDBtoES();
+			ESTransportClientAdapter.dumpDBtoES();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -88,11 +88,16 @@ public class EsTest {
 
 		//ESTransportClientAdapter.dumpDBtoES();
 
-		Dao dao = DaoManager.getDao(Project.class);
+		Dao dao = DaoManager.getDao(ServiceProvider.class);
 
-		System.err.println(((Model) dao.queryForId("01944b42c68337f67a2ebc5e5ed5303c")).toJSON());
+		ServiceProvider serviceProvider = (ServiceProvider) dao.queryForId("2856d55879e0ef0a3a7e9475f04cbfb7");
 
-		ESTransportClientAdapter.insertOne(((Model) dao.queryForId("01944b42c68337f67a2ebc5e5ed5303c")));
+		System.err.println(serviceProvider.toJSON());
+
+		serviceProvider.insertES();
+
+		//ESTransportClientAdapter.insertOne(((Model) dao.queryForId("092f9aa97713a7eb91f095c988e733de")));
+
 
 		/*List<Model> models = dao.queryForAll();
 

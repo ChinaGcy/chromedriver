@@ -71,7 +71,7 @@
       },
       "tenderer_name": {
         "type":"text",
-        "analyzer": "my_analyzer",
+        "analyzer": "ik_max_word",
         "boost": 4
       },
       "status": {

@@ -38,6 +38,11 @@ public class DBUtil {
 		}
 	}
 
+	/**
+	 * 数据清洗
+	 * 字段属性更改
+	 * @throws Exception
+	 */
 	public static void convertData() throws Exception {
 
 		// old model -> new model
@@ -83,6 +88,14 @@ public class DBUtil {
 						if(map.get(key) != null)
 							newMap.put(key, ((String) map.get(key)).replaceAll(" ", ""));
 					}
+					else if(key.matches("content")) {
+						if(map.get(key) != null)
+							newMap.put(key, ((String) map.get(key)).replaceAll("</aside>", ""));
+					}
+					else if(key.matches("origin_id")) {
+						if(map.get(key) != null)
+							newMap.put(key, ((String) map.get(key)).replaceAll("/", ""));
+					}
 					else if(key.matches("location")) {
 
 						if(map.get(key) != null) {
@@ -102,6 +115,41 @@ public class DBUtil {
 
 			}
 		}
+	}
 
+
+	/**
+	 *
+	 * @throws Exception
+	 */
+	public static void convertData_value() throws Exception {
+
+		Dao dao = DaoManager.getDao(Project.class);
+
+		List<Project> projects =  dao.queryForAll();
+
+		for (Project t : projects) {
+
+			Map<String, Object> map = ReflectModelUtil.toMap(t);
+
+			for(String key : map.keySet()) {
+
+				if (key.matches("origin_id")) {
+
+					if (map.get(key) != null && ((String) map.get(key)).contains("/")) {
+						map.put(key, ((String) map.get(key)).replace("/", ""));
+					}
+				}
+				else if (key.matches("content")) {
+
+					if (map.get(key) != null && ((String) map.get(key)).contains("</aside>")) {
+						map.put(key, ((String) map.get(key)).replace("</aside>", ""));
+					}
+				}
+			}
+
+			Project project = (Project) ReflectModelUtil.toObj(map, Project.class);
+			dao.update(project);
+		}
 	}
 }

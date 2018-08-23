@@ -196,7 +196,7 @@ public class ESTransportClientAdapter {
 
 			for(Model m : models) {
 				logger.info(m.id);
-				insertOne(m);
+				m.insertES();
 			}
 		}
 	}

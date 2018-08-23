@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.specific.zbj.task.test;
+package com.sdyk.ai.crawler;
 
 
 import com.j256.ormlite.dao.Dao;
@@ -66,7 +66,7 @@ public class DBTest {
 	@Test
 	public void convertData() throws Exception {
 
-		DBUtil.convertData();
+		DBUtil.convertData_value();
 
 	}
 

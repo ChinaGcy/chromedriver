@@ -3,11 +3,14 @@ package com.sdyk.ai.crawler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sdyk.ai.crawler.model.TaskInitializer;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
 import one.rewind.io.requester.BasicRequester;
+import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.task.Task;
 import one.rewind.io.server.Msg;
 import one.rewind.json.JSON;
+import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +30,7 @@ import java.util.regex.Pattern;
  * @Author
  * @Date
  */
-public class HttpTaskPoster {
+public class HttpTaskPoster extends HttpTaskSubmitter{
 
 	// logger 日志
 	public static final Logger logger = LogManager.getLogger(ChromeDriverDistributor.class.getName());
@@ -59,6 +62,65 @@ public class HttpTaskPoster {
 	public HttpTaskPoster(String host, int port) {
 		this.host = host;
 		this.port = port;
+	}
+
+	/**
+	 *
+	 * @param clazz
+	 * @param username
+	 * @param map
+	 * @param step
+	 * @param cron
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 */
+	public Msg submit(Class clazz, String username, Map<String, String> map, int step, String... cron) throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+
+		try {
+			clazz.forName(clazz.getName());
+		} catch (ClassNotFoundException e) {
+			logger.error(e);
+		}
+
+		String params = "";
+
+		params += "class_name=" + clazz.getName();
+
+		params += "&vars=" + JSON.toJson(map);
+
+		params += "&step=" + step;
+
+		if (cron != null){
+
+			for(String c : cron) {
+				params += "&cron=" + URLEncoder.encode(c,"utf-8");
+			}
+		}
+
+		if (username != null && username.length() > 0) {
+			params += "&username=" + username;
+		}
+
+		String url = "http://" + host + ":" + port + "/task?" + params;
+
+		Task task = new Task(url);
+		task.setPost();
+		BasicRequester.getInstance().submit(task);
+
+		Type type = new TypeToken<Msg<Map<String, Object>>>(){}.getType();
+
+		//Msg<Map<String, Object>> msg = JSON.fromJson(task.getResponse().getText(), type);
+
+		Msg<Map<String, Object>> msg = new Msg();
+		/*msg.data.put()*/
+
+		System.err.println(task.getResponse().getText());
+
+		logger.info(JSON.toPrettyJson(msg));
+
+		return msg;
 	}
 
 	/**

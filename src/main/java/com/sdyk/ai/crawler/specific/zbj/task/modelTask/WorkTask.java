@@ -39,12 +39,7 @@ public class WorkTask extends Task {
 
 		this.addDoneCallback((t)-> {
 
-			String work_webId = null;
-			Pattern pattern = Pattern.compile("https://shop.zbj.com/works/detail-wid-(?<workWebId>.+?)\\.html");
-			Matcher matcher = pattern.matcher(url);
-			if (matcher.find()) {
-				work_webId = matcher.group("workWebId");
-			}
+			String work_webId = t.getStringFromVars("work_webId");
 
 			try {
 

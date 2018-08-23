@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.task.ScanTask;
+import com.sdyk.ai.crawler.task.Task;
 import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
@@ -134,7 +135,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 		URL_VISITS.put(hash, new Date().getTime());
 
-		String domain = holder.domain;
+		String domain = holder.domain.replace("task.", "");
 		String username = holder.username;
 
 		ChromeDriverAgent agent = null;

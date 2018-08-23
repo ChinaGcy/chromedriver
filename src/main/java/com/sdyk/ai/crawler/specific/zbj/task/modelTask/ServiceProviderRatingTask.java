@@ -41,6 +41,13 @@ public class ServiceProviderRatingTask extends ScanTask {
 
 	// http://shop.zbj.com/evaluation/evallist-uid-7791034-type-1-isLazyload-0-page-1.html
 
+	/**
+	 *
+	 * @param url
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 * @throws ProxyException.Failed
+	 */
 	public ServiceProviderRatingTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 		this.setBuildDom();
@@ -49,14 +56,8 @@ public class ServiceProviderRatingTask extends ScanTask {
 
 			try {
 
-				String user_id = null;
-				int page = 0;
-				Pattern pattern = Pattern.compile("http://shop.zbj.com/evaluation/evallist-uid-(?<userId>.+?)-category-1-isLazyload-0-page-(?<page>.+?).html");
-				Matcher matcher = pattern.matcher(url);
-				if (matcher.find()) {
-					user_id = matcher.group("userId");
-					page = Integer.parseInt(matcher.group("page"));
-				}
+				String user_id = t.getStringFromVars("user_id");
+				int page = Integer.parseInt(t.getStringFromVars("page"));
 
 				Document doc = getResponse().getDoc();
 

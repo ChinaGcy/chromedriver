@@ -47,12 +47,7 @@ public class TendererTask extends Task {
 
 		this.addDoneCallback((t)->{
 
-			String userId = null;
-			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>.+?)\\/$");
-			Matcher matcher = pattern.matcher(url);
-			if (matcher.find()) {
-				userId = matcher.group("userId");
-			}
+			String userId = t.getStringFromVars("tenderer_id");
 
 			try {
 

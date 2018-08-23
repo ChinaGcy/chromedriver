@@ -51,18 +51,8 @@ public class TendererRatingTask extends ScanTask {
 
 		this.addDoneCallback((t) -> {
 
-			// 获取url参数
-			String userId = null;
-			int page = 0;
-
-			Pattern pattern = Pattern.compile("https://home.zbj.com/(?<userId>\\d+)/\\?ep=(?<page>\\d+)");
-
-			Matcher matcher = pattern.matcher(getUrl());
-
-			if (matcher.find()) {
-				userId = matcher.group("userId");
-				page = Integer.parseInt(matcher.group("page"));
-			}
+			String userId = t.getStringFromVars("user_id");
+			int page = Integer.parseInt(t.getStringFromVars("page"));
 
 			try {
 

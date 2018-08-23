@@ -1,10 +1,13 @@
 package com.sdyk.ai.crawler;
 
 import com.sdyk.ai.crawler.route.*;
+import com.sdyk.ai.crawler.specific.zbj.task.modelTask.GetProjectContactTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.route.ChromeTaskRoute;
 import one.rewind.io.server.MsgTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import spark.Request;
 
 import java.security.Provider;
 
@@ -36,7 +39,19 @@ public class ServiceWrapper {
 
 		port(port);
 
+		// TODO 在Scheduler中执行更好
 		ChromeDriverDistributor.instance = new Distributor();
+
+		//
+		ChromeTaskRoute.setFilter((class_name, user) -> {
+
+			if (class_name.equals(GetProjectContactTask.class.getName()) && user == null) {
+
+				throw new Exception("Can not get Phone, username is null");
+			}
+
+		});
+
 
 		before("/*", (q, a) -> logger.info("Received api call"));
 
@@ -115,13 +130,6 @@ public class ServiceWrapper {
 
 		});
 
-		// 获取电话号码
-		path("/zbj", () -> {
-
-			// 根据project_id 获取联系方式
-
-		});
-
 		// 查询地区
 		get("/location/parse", LocationParserRoute.parseLocation, new MsgTransformer());
 
@@ -139,6 +147,6 @@ public class ServiceWrapper {
 
 	public static void main(String[] args) {
 		ServiceWrapper.getInstance();
-		((Distributor)ChromeDriverDistributor.getInstance()).buildHttpApiServer();
+		((Distributor) ChromeDriverDistributor.getInstance()).buildHttpApiServer();
 	}
 }

@@ -82,7 +82,7 @@ public class ProjectTask extends Task {
 
 				project.domain_id = 1;
 
-				project.origin_id = url.split("/")[3];
+				project.origin_id = t.getStringFromVars("project_id");
 
 				//
 				if (src.contains("操作失败请稍后重试") || src.contains("很抱歉，此页面内部错误！")) {
@@ -164,6 +164,8 @@ public class ProjectTask extends Task {
 
 						st = new ScheduledChromeTask(t.getHolder(), crons);
 						st.start();
+
+						this.getScheduledChromeTask();
 					}
 					// 已完成项目停止定时任务
 					if( project.status.contains("完成") || project.status.contains("成功") || project.status.contains("失败")){
