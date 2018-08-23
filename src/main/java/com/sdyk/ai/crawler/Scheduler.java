@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler;
 
-import com.google.gson.Gson;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.Domain;
@@ -12,30 +11,22 @@ import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.task.LoginTask;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
-import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.action.Action;
-import one.rewind.io.requester.chrome.action.ChromeAction;
 import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.io.requester.chrome.action.LoginWithGeetestAction;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
-import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.io.requester.task.Task;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-
 import static com.sdyk.ai.crawler.Scheduler.flag.PerformLoginTasks;
 import static one.rewind.util.FileUtil.readFileByLines;
 
@@ -101,13 +92,13 @@ public class Scheduler {
 
 		Thread.sleep(10000);
 
-		loginShichangbu();
+		loginJFH();
 	}
 
 	/**
 	 * 解放号/拉钩/天眼查 登录操作
 	 */
-	public void loginShichangbu() throws Exception {
+	public void loginJFH() throws Exception {
 
 		// 创建新容器
 		DockerHostManager.getInstance().createDockerContainers(1);
@@ -160,7 +151,7 @@ public class Scheduler {
 				AccountManager.getInstance().getAccountByDomain("tianyancha.com")
 		);
 
-		ChromeDriverDistributor.getInstance().addAgent(agent);
+		((Distributor)ChromeDriverDistributor.getInstance()).addAgent(agent);
 
 		((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
 		((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask1);
@@ -283,7 +274,7 @@ public class Scheduler {
 						ProxyImpl proxy_new = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 						logger.info("getValidProxy : {}", proxy_new);
 
-						((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(
+						((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(
 								addAgent(container_new, proxy, account_new, true), // 创建新agent
 								getLoginTask(account_new) // 获取账号对应登陆任务
 						);
@@ -356,7 +347,7 @@ public class Scheduler {
 								((Distributor)ChromeDriverDistributor.getInstance()).domain_agent_map.get(t.getDomain()).remove(agent_);
 
 								ChromeDriverAgent agent_new =
-										((Distributor) ChromeDriverDistributor.getInstance()).findAgentWithoutDomain(t.getDomain());
+										((Distributor)ChromeDriverDistributor.getInstance()).findAgentWithoutDomain(t.getDomain());
 
 								logger.info("Agent wicount : {} and agent_new : {}",account, agent_new);
 
@@ -364,7 +355,7 @@ public class Scheduler {
 
 									logger.info("Agent Add LoginTask : {} without account : {} on agent_new : {}",getLoginTask(account), account, agent_new);
 
-									((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent_new, getLoginTask(account));
+									((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent_new, getLoginTask(account));
 
 								} else {
 
@@ -374,7 +365,7 @@ public class Scheduler {
 
 									ProxyImpl proxy_new = ProxyManager.getInstance().getValidProxy(AliyunHost.Proxy_Group_Name);
 
-									((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(
+									((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(
 											addAgent(container_new, proxy_new, account, true), // 创建新agent
 											getLoginTask(account)  // 获取账号对应登陆任务
 									);
@@ -386,7 +377,7 @@ public class Scheduler {
 							else {
 
 								ChromeDriverAgent agent_new =
-										((Distributor) ChromeDriverDistributor.getInstance()).findAgentWithoutDomain(t.getDomain());
+										((Distributor)ChromeDriverDistributor.getInstance()).findAgentWithoutDomain(t.getDomain());
 
 								logger.info("Agent without account and agent_new : {}", agent_new);
 
@@ -429,7 +420,7 @@ public class Scheduler {
 		if(Flags.contains(PerformLoginTasks) && needLogin )
 			addPresetLoginTasksToAgent(agent, oldAccount);
 
-		ChromeDriverDistributor.getInstance().addAgent(agent);
+		((Distributor)ChromeDriverDistributor.getInstance()).addAgent(agent);
 
 		return agent;
 	}
@@ -447,7 +438,7 @@ public class Scheduler {
 					.map(d -> d.domain)
 					.forEach(d -> {
 
-						if( !d.contains("oschina") && !d.contains("jfh") ){
+						if( !d.contains("jfh") ){
 
 							Account account = null;
 
@@ -459,7 +450,7 @@ public class Scheduler {
 
 									ChromeTask task = new ChromeTask("https://login.zbj.com/login").addAction(new LoginWithGeetestAction(account));
 
-									((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, task);
+									((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, task);
 
 								}
 								else {
@@ -469,13 +460,11 @@ public class Scheduler {
 
 										LoginTask loginTask = LoginTask.buildFromJson(readFileByLines("login_tasks/" + d + ".json"));
 
-										//LoginTask loginTask = loginTasks.get(d);
-
 										// 设定账户
 										((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
 
 										// 预设值登陆任务
-										((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
+										((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
 
 									} else {
 										return;
@@ -499,18 +488,15 @@ public class Scheduler {
 			((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account_);
 
 			// 预设值登陆任务
-			((Distributor) ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
+			((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
 
 		}
 
 
 	}
 
-
 	// 初始化方法
 	public void init() throws Exception {
-
-		//ChromeDriverDistributor.instance = new Distributor();
 
 		DockerHostManager.getInstance().createDockerContainers(1);
 
@@ -590,8 +576,6 @@ public class Scheduler {
 
 		((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
 
-		loginTask.setPriority(Task.Priority.HIGH);
-
 		return loginTask;
 	}
 
@@ -600,12 +584,11 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		//Scheduler.Flags = new ArrayList<>();
-
 		// Scheduler 初始化
 		Scheduler.getInstance();
 
-		Thread.sleep(10000);
+		// 等待登陆操作完成，否则需要登陆的任务会报 Error create/assign task. one.rewind.io.requester.exception.AccountException$NotFound: null
+		Thread.sleep(60000);
 
 		TaskInitializer.getAll().stream().filter(t -> {
 			return t.enable == true;
@@ -615,8 +598,12 @@ public class Scheduler {
 
 				if( t.cron == null ){
 
-					// 历史任务
-					HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+					if( t.class_name.contains("jfh") ){
+						System.err.println(t.class_name);
+						// 历史任务
+						HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+					}
+
 				}
 				else {
 
