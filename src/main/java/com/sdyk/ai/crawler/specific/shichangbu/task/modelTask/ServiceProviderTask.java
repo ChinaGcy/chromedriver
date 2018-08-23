@@ -279,9 +279,6 @@ public class ServiceProviderTask extends Task {
 					logger.error("error for create CompanyInformationTask", e);
 				}
 
-				if( serviceProvider.category != null ){
-					serviceProvider.category.replace(" ", "");
-				}
 				status = serviceProvider.insert();
 			}
 

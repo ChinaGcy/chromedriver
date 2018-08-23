@@ -186,10 +186,6 @@ public class TendererTask extends Task {
 			tenderer.head_portrait = headList.get(0);
 		}
 
-		if( tenderer.category != null ){
-			tenderer.category.replace(" ", "");
-		}
-
 		boolean status = tenderer.insert();
 
 		// 公司信息补全任务

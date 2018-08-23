@@ -421,9 +421,6 @@ public class ServiceProviderTask extends Task {
 
 			if( serviceProvider.name != null && serviceProvider.name.length() > 1 ){
 
-				if( serviceProvider.category != null ){
-					serviceProvider.category.replace(" ", "");
-				}
 				status = serviceProvider.insert();
 			}
 

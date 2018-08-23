@@ -138,33 +138,27 @@ public class ServiceProviderTask extends Task {
 
 		//岗位，大标签，小标签
 		Elements elements = doc.getElementsByClass("skill-row");
-		String tags = "";
+		StringBuffer tags = new StringBuffer();
 
 		for(Element element : elements) {
 
 			String skillLabel = element.getElementsByClass("skill-label").text();
 			String skillItem = element.getElementsByClass("skill-item").text();
 
+			tags.append(skillItem);
+			tags.append(",");
+
 			//岗位
 			if( skillLabel.contains("岗位") ) {
 				serviceProvider.position = skillItem;
 			}
-			//大标签
-			else if( skillLabel.contains("类型") ){
-				serviceProvider.category = skillItem.replace("、", ",");
-			}
-			//小标签拼接
-			else if( skillLabel.contains("语言") || skillLabel.contains("技能") || skillLabel.contains("中间件")){
-				if( !tags.contains(skillItem) ){
-					tags = tags+ skillItem + ",";
-				}
-			}
-
 		}
 
 		//小标签
 		if( tags.length() > 0 ){
-			serviceProvider.tags = Arrays.asList(tags.substring(0, tags.length()-1).replace("、", ","), ",");
+			serviceProvider.tags = Arrays.asList(
+					tags.substring(0, tags.length()-1).replace("、", ",").replace(" ", ""),
+					",");
 		}
 
 		Elements ratingGrade = doc.getElementsByClass("comment-item");
@@ -234,8 +228,8 @@ public class ServiceProviderTask extends Task {
 				//内容
 				serviceProviderRating.content = e.select("div.desc").text().replaceAll("评价描述：", "");
 
-				/*//标签
-				serviceProviderRating.tags = e.getElementsByClass("tags").text();*/
+				//标签
+				serviceProviderRating.tags = Arrays.asList( e.getElementsByClass("tags").text(), ",");
 
 				//打分
 				Elements star = e.getElementsByClass("el-rate__item");
@@ -343,9 +337,6 @@ public class ServiceProviderTask extends Task {
 
 			try {
 
-				if(serviceProvider.category != null){
-					serviceProvider.category.replace(" ", "");
-				}
 				boolean status = serviceProvider.insert();
 
 				ScheduledChromeTask st = t.getScheduledChromeTask();

@@ -182,9 +182,6 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.type = "团队-公司";
 		}
 
-		if( serviceProvider.category != null ){
-			serviceProvider.category.replace("", "");
-		}
 		boolean status = serviceProvider.insert();
 
 		// 公司信息补全任务

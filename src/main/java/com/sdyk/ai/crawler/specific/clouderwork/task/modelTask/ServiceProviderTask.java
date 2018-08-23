@@ -210,6 +210,7 @@ public class ServiceProviderTask extends Task {
 		}
 
 		String tagSrc = "";
+		String categorySrc = "";
 		String all =doc.select("#profile > div > div > section.basic > section > div:nth-child(8)").text().replace("擅长领域：","");
 		if( all!=null && !"".equals(all) && all.contains("擅长技能") ){
 			String[] all1 = all.split("擅长技能：");
@@ -217,7 +218,7 @@ public class ServiceProviderTask extends Task {
 
 			//擅长领域
 			if( expertise!=null && !"".equals(expertise) ){
-				serviceProvider.category = expertise.replace("、", ",").replace("擅长领域：", "");
+				categorySrc = expertise.replace("、", ",").replace("擅长领域：", "");
 			}
 			String[] all2 = all1[1].split("所在城市：");
 
@@ -271,7 +272,7 @@ public class ServiceProviderTask extends Task {
 
 			//擅长领域
 			if(expertise!=null&&!"".equals(expertise)){
-				serviceProvider.category = expertise.replace("、", ",").replace("擅长领域：", "");
+				categorySrc = expertise.replace("、", ",").replace("擅长领域：", "");
 			}
 			String[] all2 = all1[1].split("所在城市：");
 
@@ -331,6 +332,9 @@ public class ServiceProviderTask extends Task {
 		}
 		if( tagSrc.substring(tagSrc.length()-2,tagSrc.length()-1).equals(",") ){
 			tagSrc = tagSrc.substring(0, tagSrc.length()-2);
+		}
+		if( categorySrc.length() > 1 ){
+			tagSrc = tagSrc + "," + categorySrc;
 		}
 		serviceProvider.tags = Arrays.asList(tagSrc, ",");
 
@@ -593,6 +597,7 @@ public class ServiceProviderTask extends Task {
 			}
 		}
 
+		serviceProvider.category = doc.select("span.s-title.male").text();
 		if( serviceProvider.category != null ){
 			serviceProvider.category.replace(" ", "");
 		}

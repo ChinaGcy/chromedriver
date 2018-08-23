@@ -46,7 +46,7 @@ public class TendererTask extends Task {
 
         this.setPriority(Priority.HIGH);
 
-	    this.setNoFetchImages();
+	    //this.setNoFetchImages();
 
 	    // 判断是否发生异常
 	    this.setValidator((a, t) -> {
@@ -243,10 +243,6 @@ public class TendererTask extends Task {
 
 				logger.error("error for submit ProjectTask.class", e);
 			}
-		}
-
-		if( tenderer.category != null ){
-			tenderer.category.replace(" ", "");
 		}
 
 		return tenderer.insert();
