@@ -250,6 +250,7 @@ public class Distributor extends ChromeDriverDistributor {
 		ChromeTask task = null;
 
 		if( loginTaskQueues.get(agent) != null && !loginTaskQueues.get(agent).isEmpty() ){
+
 			task = loginTaskQueues.get(agent).poll();
 		}
 
@@ -265,6 +266,7 @@ public class Distributor extends ChromeDriverDistributor {
 				while(task == null && holder == null){
 
 					if( loginTaskQueues.get(agent) != null && !loginTaskQueues.get(agent).isEmpty() ){
+
 						task = loginTaskQueues.get(agent).poll();
 					}
 
@@ -290,10 +292,7 @@ public class Distributor extends ChromeDriverDistributor {
 				return task;
 			}
 
-			// todo task.holder是否应该在此处赋值
 			task = holder.build();
-			//holder.scheduled_task_id = StringUtil.MD5(holder.class_name + "-" + JSON.toJson(holder.vars));
-			//task.holder = holder;
 
 			TaskHolder holder_ = holder;
 

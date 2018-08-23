@@ -78,9 +78,7 @@ public class CompanyInformationTask extends Task {
 			companyInfo.name = node.get("name").textValue();
 
 			//工商注册号
-			if( node.get("regNumber") != null && node.get("regNumber").size() > 0 ){
-				companyInfo.reg_number = node.get("regNumber").textValue();
-			}
+			companyInfo.reg_number = node.get("regNumber").textValue();
 
 			//注册成本
 			companyInfo.reg_capital = Double.valueOf(CrawlerAction.getNumbers(node.get("regCapital").textValue()));
@@ -96,11 +94,8 @@ public class CompanyInformationTask extends Task {
 			companyInfo.industry = node.get("industry").textValue();
 
 			//认证时间
-			try {
-				companyInfo.approved_time = DateFormatUtil.parseTime(node.get("approvedTime").textValue());
-			} catch (ParseException e) {
-				logger.error("error for String to Date", e);
-			}
+			long l = Long.valueOf(node.get("approvedTime").textValue());
+			companyInfo.approved_time = new Date(l);
 
 			//logo
 			String logoUrl = node.get("logo").textValue();
