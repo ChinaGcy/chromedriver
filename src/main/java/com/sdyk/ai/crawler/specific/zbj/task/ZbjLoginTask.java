@@ -23,6 +23,6 @@ public class ZbjLoginTask extends Task {
 
 		Account account = AccountManager.getInstance().getAccountsByDomain(domain,null);
 
-		this.addAction(new LoginWithGeetestAction(account));
+		this.addAction(new LoginWithGeetestAction().setAccount(account));
 	}
 }

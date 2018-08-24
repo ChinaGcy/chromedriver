@@ -132,7 +132,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 		URL_VISITS.put(hash, new Date().getTime());
 
-		String domain = holder.domain.replace("task.", "");
+		String domain = holder.domain;
 		String username = holder.username;
 
 		ChromeDriverAgent agent = null;

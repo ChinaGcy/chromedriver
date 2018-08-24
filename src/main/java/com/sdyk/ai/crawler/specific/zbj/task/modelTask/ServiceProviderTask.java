@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Resume;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
@@ -85,7 +84,7 @@ public class ServiceProviderTask extends Task {
 				}
 
 				try {
-
+					serviceProvider.platform_certification = new ArrayList<>();
 					if (!serviceProvider.type.contains("旗舰") && !serviceProvider.type.contains("专业")) {
 						serviceProvider.platform_certification.add(serviceProvider.type);
 					} else {

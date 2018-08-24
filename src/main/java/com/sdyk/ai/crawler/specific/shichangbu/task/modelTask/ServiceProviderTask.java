@@ -2,7 +2,6 @@ package com.sdyk.ai.crawler.specific.shichangbu.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.shichangbu.task.Task;

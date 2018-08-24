@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.requester.test;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.Scheduler;
 import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -26,6 +25,6 @@ public class HttpTaskTest {
 
 		//HttpTaskPoster.getInstance().submit(TestChromeTask.T5.class.getName(), JSON.toJson(ImmutableMap.of("q" ,"ip")));
 
-		HttpTaskSubmitter.getInstance().submit(TestChromeTask.T5.class, ImmutableMap.of("q" ,"ip"));
+		HttpTaskSubmitter.getInstance().submit(TestChromeTask.T5.class.getName(), JSON.toJson(ImmutableMap.of("q" ,"ip")));
 	}
 }

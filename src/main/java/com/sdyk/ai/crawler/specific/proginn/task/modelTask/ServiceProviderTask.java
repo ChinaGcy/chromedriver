@@ -2,7 +2,6 @@ package com.sdyk.ai.crawler.specific.proginn.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Resume;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.model.witkey.ServiceProviderRating;

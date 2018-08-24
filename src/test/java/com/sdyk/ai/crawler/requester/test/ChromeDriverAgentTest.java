@@ -66,7 +66,7 @@ public class  ChromeDriverAgentTest {
 			agent.start();
 
 			ChromeTask task = new ChromeTask("http://www.zbj.com");
-			ChromeAction action = new LoginWithGeetestAction(account);
+			ChromeAction action = new LoginWithGeetestAction().setAccount(account);
 			task.addAction(action);
 			try {
 				agent.submit(task);

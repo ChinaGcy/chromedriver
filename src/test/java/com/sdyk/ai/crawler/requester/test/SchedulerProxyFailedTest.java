@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.requester.test;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.account.AccountManager;

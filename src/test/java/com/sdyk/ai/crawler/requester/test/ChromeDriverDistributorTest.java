@@ -255,7 +255,7 @@ public class ChromeDriverDistributorTest {
 		AccountImpl account_2 = new AccountImpl("zbj.com", "15284809626", "123456");
 
 		ChromeTask task = new ChromeTask("http://www.zbj.com")
-				.addAction(new LoginWithGeetestAction(account_1));
+				.addAction(new LoginWithGeetestAction().setAccount(account_1));
 
 		//
 		agent.submit(task, true);
@@ -265,7 +265,7 @@ public class ChromeDriverDistributorTest {
 			try {
 				ChromeTask task1 = new ChromeTask("http://www.zbj.com")
 						.addAction(new RedirectAction("https://login.zbj.com/login/dologout"))
-						.addAction(new LoginWithGeetestAction(account_2));
+						.addAction(new LoginWithGeetestAction().setAccount(account_2));
 
 
 				a.submit(task1, true);
@@ -419,8 +419,8 @@ public class ChromeDriverDistributorTest {
 
 		String url = "https://www.mihuashi.com/users/Nianless?role=employer";
 
-		//Proxy proxy = new ProxyImpl("10.0.0.56", 49999, null, null);
-		ChromeDriverAgent agent = new ChromeDriverAgent(ChromeDriverAgent.Flag.MITM);
+		Proxy proxy = new ProxyImpl("sdyk.red", 60202, "tfelab", "TfeLAB2@15");
+		ChromeDriverAgent agent = new ChromeDriverAgent(proxy, ChromeDriverAgent.Flag.MITM);
 
 		agent.start();
 

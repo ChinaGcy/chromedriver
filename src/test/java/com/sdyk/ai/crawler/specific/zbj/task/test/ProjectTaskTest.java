@@ -46,7 +46,7 @@ public class ProjectTaskTest {
 			agent.start();
 
 			ChromeTask task = new ChromeTask("https://login.zbj.com/login");
-			ChromeAction action = new LoginWithGeetestAction(account);
+			ChromeAction action = new LoginWithGeetestAction().setAccount(account);
 			task.addAction(action);
 			try {
 				agent.submit(task);

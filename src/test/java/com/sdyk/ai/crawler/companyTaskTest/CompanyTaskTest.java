@@ -10,6 +10,7 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.io.requester.chrome.action.PostAction;
+import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
 import org.junit.Test;
 
@@ -80,9 +81,10 @@ public class CompanyTaskTest {
 
 		AccountManager.getInstance().setAllAccountFree();
 
-		//ChromeDriverDistributor.instance = new Distributor();
+		ChromeDriverDistributor.instance = new Distributor();
+		Proxy proxy = new one.rewind.io.requester.proxy.ProxyImpl("118.190.44.184", 59998, "tfelab", "TfeLAB2@15");
 
-		ProxyImpl proxy = ProxyManager.getInstance().getValidProxy("aliyun-cn-shenzhen-squid");
+		//ProxyImpl proxy = ProxyManager.getInstance().getValidProxy("aliyun-cn-shenzhen-squid");
 
 		ChromeDriverAgent agent = new ChromeDriverAgent(proxy);
 
@@ -91,10 +93,12 @@ public class CompanyTaskTest {
 				AccountManager.getInstance().getAccountByDomain("tianyancha.com")
 		);
 
-		agent.start();
-		agent.submit(loginTask);
+		((Distributor)ChromeDriverDistributor.getInstance()).addAgent(agent);
 
-		//((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
+		/*agent.start();
+		agent.submit(loginTask);*/
+
+		((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
 
 		Thread.sleep(10000000);
 

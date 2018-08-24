@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.proLagou.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.vividsolutions.jts.index.strtree.SIRtree;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;

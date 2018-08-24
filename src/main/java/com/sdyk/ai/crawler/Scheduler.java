@@ -13,6 +13,7 @@ import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.task.LoginTask;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
@@ -487,7 +488,7 @@ public class Scheduler {
 
 		CountDownLatch downLatch = new CountDownLatch(DefaultDriverCount);
 
-		for(int i=0; i<DefaultDriverCount; i++) {
+		for(int i=0; i < DefaultDriverCount; i++) {
 
 			new Thread(()->{
 
@@ -635,16 +636,16 @@ public class Scheduler {
 				if( t.cron == null ){
 
 					// 历史任务
-					HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+					HttpTaskSubmitter.getInstance().submit(t.class_name, t.init_map_json);
 				}
 				else {
 
 					// 定时任务
-					t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
+					//t.scheduled_task_id = HttpTaskSubmitter.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
 
-					t.start_time = new Date();
+					//t.start_time = new Date();
 
-					t.update();
+					//t.update();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

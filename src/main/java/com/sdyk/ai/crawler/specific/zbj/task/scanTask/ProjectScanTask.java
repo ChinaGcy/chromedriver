@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ProjectTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
@@ -117,7 +116,7 @@ public class ProjectScanTask extends ScanTask {
 						Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.ProjectScanTask");
 
 						//生成holder
-						TaskHolder holder = this.getHolder(clazz, init_map);
+						TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 						//提交任务
 						ChromeDriverDistributor.getInstance().submit(holder);
