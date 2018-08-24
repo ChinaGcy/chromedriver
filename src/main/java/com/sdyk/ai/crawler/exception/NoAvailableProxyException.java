@@ -1,4 +1,4 @@
-package com.sdyk.ai.crawler.proxy.exception;
+package com.sdyk.ai.crawler.exception;
 
 public class NoAvailableProxyException extends Exception {
 }

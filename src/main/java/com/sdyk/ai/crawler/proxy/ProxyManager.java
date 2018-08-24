@@ -4,8 +4,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.sdyk.ai.crawler.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.model.Domain;
-import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import one.rewind.db.DaoManager;
 import one.rewind.db.PooledDataSource;
@@ -21,10 +21,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -117,6 +114,27 @@ public class ProxyManager {
 		Dao<ProxyImpl, String> dao = DaoManager.getDao(ProxyImpl.class);
 
 		QueryBuilder<ProxyImpl, String> queryBuilder = dao.queryBuilder();
+
+		long available_proxy_count = queryBuilder.where()
+				.eq("group", group)
+				.and().eq("enable", true)
+				.and().eq("status", Proxy.Status.Free).countOf();
+
+		if(available_proxy_count < 3) {
+
+			if(group.equals(AliyunHost.Proxy_Group_Name)) {
+				new Thread(
+					() -> {
+						try {
+							AliyunHost.batchBuild(2);
+						} catch (InterruptedException e) {
+							logger.error("Error build AliyunHost.", e);
+						}
+					}
+				).start();
+			}
+		}
+
 		ProxyImpl proxy = queryBuilder.limit(1L).orderBy("use_cnt", true)
 				.where().eq("group", group)
 				.and().eq("enable", true)
@@ -126,22 +144,9 @@ public class ProxyManager {
 
 		if (proxy == null) {
 
-			// 如果是获取AliyunHost对应的Proxy，可用Proxy数量不足，创建2个AliyunHost
-			if(group.equals(AliyunHost.Proxy_Group_Name)) {
-
-				try {
-					AliyunHost.batchBuild(2);
-				} catch (InterruptedException e) {
-					logger.error("Error build AliyunHost.", e);
-				}
-
-				return getValidProxy(group);
-			}
-
-			return null;
+			throw new NoAvailableProxyException();
 
 		} else {
-			proxy.use_cnt ++;
 			proxy.status = Proxy.Status.Busy;
 			proxy.update();
 			return proxy;

@@ -37,7 +37,7 @@ public abstract class Model {
 	public static boolean ES_Index = false;
 
 	// 发布更新的项目ID
-	public static RBlockingQueue<Map<String, String>> SdykCrawlerModelUpdateQueue = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Model-Update");
+	public static RBlockingQueue<Map<String, String>> SdykCrawlerModelUpdateQueue = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Model-Updates");
 
 	static {
 
@@ -149,7 +149,7 @@ public abstract class Model {
 					oldVersion.update();
 
 					// 向 redis 发布更新数据的ID
-					Map<String, String> msg = ImmutableMap.of(oldVersion.getClass().getName(), oldVersion.id);
+					Map<String, String> msg = ImmutableMap.of(oldVersion.getClass().getSimpleName(), oldVersion.id);
 					SdykCrawlerModelUpdateQueue.offer(msg);
 
 					createSnapshot(oldVersion);

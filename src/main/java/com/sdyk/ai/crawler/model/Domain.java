@@ -27,6 +27,10 @@ public class Domain {
 	@DatabaseField(dataType = DataType.STRING, width = 32)
 	public String domain_name;
 
+	// enable
+	@DatabaseField(dataType = DataType.BOOLEAN, canBeNull = false, defaultValue = "true")
+	public boolean enable;
+
 	// insert
 	@DatabaseField(dataType = DataType.DATE)
 	public Date insert_time = new Date();
@@ -42,7 +46,7 @@ public class Domain {
 		try {
 
 			Dao dao = DaoManager.getDao(Domain.class);
-			return dao.queryForAll();
+			return dao.queryForEq("enable",1);
 
 		} catch (Exception e) {
 			e.printStackTrace();
