@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.TaskTrace;
@@ -48,19 +49,14 @@ public class Distributor extends ChromeDriverDistributor {
 		logger.info("Replace {} with {}.", ChromeDriverDistributor.class.getName(), Distributor.class.getName());
 	}
 
-	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> loginTaskQueues = new ConcurrentHashMap();
-
 	/**
-	 * 定义白名单
-	 * TODO 为什么不需要定义？
+	 * 定义黑名单
 	 */
-	/*public static List<String> WHITE_URLS = Arrays.asList(
-			"http://www.zbj.com",
-			"https://passport.clouderwork.com/signin",
-			"https://www.mihuashi.com/login",
-			"https://passport.lagou.com/pro/login.html",
-			"http://www.shichangbu.com/member.php?mod=logging&action=login"
-	);*/
+	public static Map<String, String> BLACK_DOMAIN_PROXYGROUP = ImmutableMap.of(
+			"tianyancha.com" , "aliyun-cn-shenzhen-squid"
+	);
+
+	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> loginTaskQueues = new ConcurrentHashMap();
 
 	/**
 	 * 任务队列中，每种类型任务的实时数量统计
@@ -79,6 +75,7 @@ public class Distributor extends ChromeDriverDistributor {
 	 * @param loginTask
 	 */
 	public void submitLoginTask(ChromeDriverAgent agent, ChromeTask loginTask) {
+
 		if(!loginTaskQueues.containsKey(agent)) {
 			loginTaskQueues.put(agent, new LinkedList<>());
 		}
@@ -176,21 +173,7 @@ public class Distributor extends ChromeDriverDistributor {
 		else {
 
 			// todo Collectors.toList() 返回值为0
-			agent = queues.keySet().stream()
-				.filter( a -> {
-					return !ProxyManager.getInstance().isProxyBannedByDomain(a.proxy, holder.domain) &&
-							!a.accounts.keySet().contains("tianyancha.com") &&
-							!a.accounts.keySet().contains("lagou.com");
-				})
-				.map(a -> {
-					int queue_size = queues.get(a).size();
-					return Maps.immutableEntry(a, queue_size);
-				})
-				.sorted(Map.Entry.<ChromeDriverAgent, Integer>comparingByValue())
-				.limit(1)
-				.map(Map.Entry::getKey)
-				.collect(Collectors.toList())
-				.get(0);
+
 		}
 
 		// 生成指派信息
@@ -226,6 +209,7 @@ public class Distributor extends ChromeDriverDistributor {
 				info.put("agent", agent.getInfo());
 				info.put("domain", domain);
 				info.put("account", username);
+				info.put("id", holder.id);
 
 				logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.vars, agent.name);
 
@@ -385,11 +369,13 @@ public class Distributor extends ChromeDriverDistributor {
 	}
 
 	/**
-	 * 判断是否有可用于特定domain的agent
+	 * 找到一个Agent
+	 * 从没访问过domain
+	 * 且对应的代理 可以访问 domain
 	 * @param domain
 	 * @return
 	 */
-	public ChromeDriverAgent findAgentWithoutDomain(String domain) throws Exception {
+	public ChromeDriverAgent findAgentCouldAccessDomain(String domain) throws Exception {
 
 		for( ChromeDriverAgent agent : queues.keySet() ){
 
