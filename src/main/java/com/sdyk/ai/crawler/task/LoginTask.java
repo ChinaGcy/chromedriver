@@ -43,11 +43,11 @@ public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 	 * 将任务转换成json数据
 	 * @return
 	 */
-	public String toJSON() {
+	public static String toJSON(LoginTask loginTask) {
 
 		List<Map> actions = new ArrayList<>();
 
-		this.getActions().stream().forEach( a-> {
+		loginTask.getActions().stream().forEach( a-> {
 
 			LinkedHashMap action_map = new LinkedHashMap();
 
@@ -59,7 +59,7 @@ public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 		});
 
 		LinkedHashMap task_map = new LinkedHashMap();
-		task_map.put("url", getUrl());
+		task_map.put("url", loginTask.getUrl());
 		task_map.put("actions", actions);
 
 		return JSON.toPrettyJson(task_map);
