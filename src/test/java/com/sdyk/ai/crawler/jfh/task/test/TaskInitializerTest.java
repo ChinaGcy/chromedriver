@@ -1,6 +1,5 @@
 package com.sdyk.ai.crawler.jfh.task.test;
 
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskInitializer;
 import org.junit.Test;
 

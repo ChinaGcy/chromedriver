@@ -1,9 +1,9 @@
 package com.sdyk.ai.crawler.requester.test;
 
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.Scheduler;
 import one.rewind.io.requester.BasicRequester;
+import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
@@ -28,7 +28,7 @@ public class HttpPostTest {
 		String class_name = "com.sdyk.ai.crawler.specific.clouderwork.task.scanTask.ProjectScanTask";
 		String init_map_json = "{\"page\":\"2\",\"max_page\":\"\"}";
 
-		HttpTaskPoster.getInstance().submit(class_name, init_map_json);
+		HttpTaskSubmitter.getInstance().submit(class_name, init_map_json);
 
 		Thread.sleep(1000000);
 	}

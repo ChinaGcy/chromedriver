@@ -1,13 +1,13 @@
 package com.sdyk.ai.crawler.loginTaskTest;
 
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.model.Domain;
 import com.sdyk.ai.crawler.model.LoginTaskWrapper;
 import com.sdyk.ai.crawler.model.TaskInitializer;
 import com.sdyk.ai.crawler.task.LoginTask;
+import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -91,7 +91,7 @@ public class LoginTaskTest {
 				if( t.cron == null ){
 
 					// 历史任务
-					HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+					HttpTaskSubmitter.getInstance().submit(t.class_name, t.init_map_json);
 				}
 
 			} catch (Exception e) {
