@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @DBName(value = "sdyk_raw")
-@DatabaseTable(tableName = "task_initializers")
+@DatabaseTable(tableName = "task_initializer")
 public class TaskInitializer {
 
 	// id
