@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.ServiceWrapper;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.zbj.task.action.GetProjectContactAction;
@@ -10,6 +9,7 @@ import one.rewind.db.RedissonAdapter;
 import one.rewind.io.requester.task.ChromeTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jsoup.nodes.Document;
 import org.redisson.api.RBlockingQueue;
 
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class GetProjectContactTask extends ChromeTask {
 		this.addAction(new GetProjectContactAction());
 
 		// D 监听异步请求
-		this.setResponseFilter((res, contents, messageInfo) -> {
+		/*this.setResponseFilter((res, contents, messageInfo) -> {
 
 			// D1 通过返回数据获取手机号
 			if(messageInfo.getOriginalUrl().contains("getANumByTask")) {
@@ -64,17 +64,21 @@ public class GetProjectContactTask extends ChromeTask {
 					logger.info("NOT Find Cellphone");
 				}
 			}
-		});
+		});*/
 
 		this.addDoneCallback((t) -> {
 
 			try {
 
+				Document doc = this.getResponse().getDoc();
+
+				String phone = doc.select("").text();
+
 				String project_id = t.getStringFromVars("project_id");
 
 				project = DaoManager.getDao(Project.class).queryForId(project_id);
 
-				project.cellphone = getResponse().getVar("cellphone");
+				project.cellphone = phone;
 
 				ServiceWrapper.logger.info("project {} update {}.",
 						project.id, project.update());
@@ -89,8 +93,8 @@ public class GetProjectContactTask extends ChromeTask {
 				SdykCrawlerProjectPhoneUpdates.add(map);
 
 			} catch (Exception e) {
-
 				Map map = new HashMap();
+
 				map.put("status", "0");
 				map.put("project_id", t.getStringFromVars("project_id"));
 				map.put("id", this.id);

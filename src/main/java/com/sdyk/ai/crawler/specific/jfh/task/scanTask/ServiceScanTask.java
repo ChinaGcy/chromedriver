@@ -2,7 +2,6 @@ package com.sdyk.ai.crawler.specific.jfh.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.task.Task;

@@ -11,10 +11,7 @@ import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @DBName(value = "sdyk_raw")
 @DatabaseTable(tableName = "service_providers")
@@ -222,6 +219,9 @@ public class ServiceProvider extends Model {
 	public void fullfill() {
 
 		try {
+
+			String[] categories = this.category.split(",");
+			this.tags.addAll(Arrays.asList(categories));
 
 			Dao dao_case = DaoManager.getDao(Case.class);
 			Dao dao_work = DaoManager.getDao(Work.class);

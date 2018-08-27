@@ -6,6 +6,7 @@ import one.rewind.io.requester.chrome.action.GeetestAction;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 public class GetProjectContactAction extends Action {
 
@@ -150,8 +151,8 @@ public class GetProjectContactAction extends Action {
 		// G 点击关闭 body > div.pupzhenshi-phones > div > div.pup-close
 		/*agent.getDriver().findElement(By.cssSelector("body > div.pupzhenshi-phones > div > div.pup-close")).click();*/
 
-		/*// 继续跟进
-		chromeDriverAgent.getDriver().findElement(By.cssSelector("#taskTabs > div > div > ul > li.oc-node-item.oc-node-now > div > div > div > button.oc-btn-dark.j-follow-up-countdown.already-contact-btn")).click();
+		// 继续跟进
+		agent.getDriver().findElement(By.cssSelector("#taskTabs > div > div > ul > li.oc-node-item.oc-node-now > div > div > div > button.oc-btn-dark.j-follow-up-countdown.already-contact-btn")).click();
 
 		try {
 			Thread.sleep(5000);
@@ -160,16 +161,16 @@ public class GetProjectContactAction extends Action {
 		}
 
 		// 下拉栏选择
-		Select select = new Select(chromeDriverAgent.getDriver()
+		Select select = new Select(agent.getDriver()
 				.findElement(By.cssSelector("#aide-form-type1 > div > dl > dt > select")));
 		select.selectByIndex(1);
 
 		// 单选框
-		chromeDriverAgent.getDriver().findElement(By.cssSelector("#aide-form-type1 > div > dl > dd:nth-child(5) > span:nth-child(2) > label")).click();
-		chromeDriverAgent.getDriver().findElement(By.cssSelector("#aide-form-type1 > div > dl > dd:nth-child(7) > span:nth-child(2) > label")).click();
+		agent.getDriver().findElement(By.cssSelector("#aide-form-type1 > div > dl > dd:nth-child(5) > span:nth-child(2) > label")).click();
+		agent.getDriver().findElement(By.cssSelector("#aide-form-type1 > div > dl > dd:nth-child(7) > span:nth-child(2) > label")).click();
 
 		// 确定
-		chromeDriverAgent.getDriver().findElement(By.cssSelector("body > div.arale-dialog-1_3_0 > div.ui-dialog.rd-dialog-ui > div > div.ui-dialog-container > div.ui-dialog-operation > div.ui-dialog-confirm > a")).click();*/
+		agent.getDriver().findElement(By.cssSelector("body > div.arale-dialog-1_3_0 > div.ui-dialog.rd-dialog-ui > div > div.ui-dialog-container > div.ui-dialog-operation > div.ui-dialog-confirm > a")).click();
 		return true;
 	}
 

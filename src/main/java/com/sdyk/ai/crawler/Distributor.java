@@ -125,7 +125,7 @@ public class Distributor extends ChromeDriverDistributor {
 
 		URL_VISITS.put(hash, new Date().getTime());
 
-		String domain = holder.domain.replace("task.", "");
+		String domain = holder.domain;
 		String username = holder.username;
 
 		ChromeDriverAgent agent = null;
@@ -219,6 +219,7 @@ public class Distributor extends ChromeDriverDistributor {
 				info.put("domain", domain);
 				info.put("account", username);
 				info.put("id", holder.id);
+				info.put("schedulerID", holder.generateScheduledChromeTaskId());
 
 				logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.vars, agent.name);
 

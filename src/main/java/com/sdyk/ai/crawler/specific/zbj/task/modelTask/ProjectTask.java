@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-import com.sdyk.ai.crawler.HttpTaskPoster;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
@@ -385,8 +384,9 @@ public class ProjectTask extends Task {
 
 			project.origin_from = getString("#j-receiptcon > a", "");
 
-			// body > div.main.task-details > div.grid > ul
-			project.category = getString("body > div.main.task-details > div.grid > ul > li:nth-child(2) > a", "");
+			// category 主标签
+			project.category = getString("body > div.main.task-details > div.grid > ul > li:nth-child(2) > a", "")
+					.replace(">", "");
 
 			Elements elements = doc.select("body > div.main.task-details > div.grid > ul > li");
 			project.tags = new ArrayList<>();

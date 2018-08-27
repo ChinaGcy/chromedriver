@@ -14,12 +14,14 @@ import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.task.LoginTask;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.server.Msg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sun.management.resources.agent;
@@ -542,12 +544,14 @@ public class Scheduler {
 				if( t.cron == null ){
 
 					// 历史任务
-					HttpTaskPoster.getInstance().submit(t.class_name, t.init_map_json);
+					HttpTaskSubmitter.getInstance().submit(t.class_name, t.init_map_json);
 				}
 				else {
 
 					// 定时任务
-					t.scheduled_task_id = HttpTaskPoster.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
+					Msg msg = HttpTaskSubmitter.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
+
+					// todo 获取 schedulerID
 
 					t.start_time = new Date();
 
