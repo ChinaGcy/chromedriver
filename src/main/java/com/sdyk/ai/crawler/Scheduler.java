@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.exception.NoAvailableAccountException;
@@ -13,6 +14,7 @@ import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.task.LoginTask;
+import com.sun.javafx.collections.MappingChange;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.account.Account;
@@ -59,16 +61,16 @@ public class Scheduler {
 	// 定义启动agent个数
 	public static int DefaultDriverCount = DriverCount_ProxyAliyun + DriverCount_ProxyOwn;
 
-
 	// 定义每组proxy使用个数
 	public static Map<String, Integer> DefaultDriverCount_ProxyGroup = ImmutableMap.of(
 			AliyunHost.Proxy_Group_Name , DriverCount_ProxyAliyun ,
-			"Own", DriverCount_ProxyOwn
+			"own", DriverCount_ProxyOwn
 	);
 
 	// 定义黑名单
 	public static Map<String, List<String>> BLACK_DOMAIN_PROXYGROUP = ImmutableMap.of(
-			AliyunHost.Proxy_Group_Name , Arrays.asList("tianyancha.com")
+			AliyunHost.Proxy_Group_Name , Arrays.asList("tianyancha.com"),
+			"own", new ArrayList<>()
 	);
 
 	public static Scheduler instance;
@@ -363,22 +365,57 @@ public class Scheduler {
 	/**
 	 * 为agent添加登陆任务
 	 * @param agent
+	 */
+	public void addPresetLoginTasksToAgent(ChromeDriverAgent agent) {
+
+		// 1. 获取需要登陆的domain，
+		Domain.getAll().stream().map(d -> d.domain).forEach(d -> {
+
+			// 2. 判断 agent 是否可加载该 domain 的 account
+			if( !ProxyManager.getInstance().isProxyBannedByDomain(agent.proxy, d) ){
+
+				// 3. 获取 account
+				try {
+					// 3.1 获取有特定功能的account
+					Account account = AccountManager.getInstance().getAccountsByDomain(d, "selected");
+
+					// 3.2 无特殊功能account 获取一般account
+					if( account == null ){
+						account = AccountManager.getInstance().getAccountByDomain(d);
+					}
+
+					// 3.3 为agent添加登陆任务
+					if( account != null ){
+
+						addLoginTaskToAgent(agent, account);
+					}
+
+				} catch (Exception e) {
+					logger.error("error for get account");
+				}
+			}
+		});
+	}
+
+	/**
+	 * 为 agent 添加 一个账号的登陆任务
+	 * @param agent
 	 * @param account
 	 */
-	public void addPresetLoginTasksToAgent(ChromeDriverAgent agent, Account account) {
+	public void addLoginTaskToAgent(ChromeDriverAgent agent, Account account) {
 
-		// 获取登陆任务
 		try {
-
+			// 1. 从数据库反序列化登陆任务
 			LoginTask loginTask = LoginTaskWrapper.getLoginTaskByDomain(account.getDomain());
 
-			// 设定账户
+			// 2. 为登陆任务设置账户
 			((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
 
-			// 提交登陆任务
+			// 3. 提交登陆任务
 			((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
+
 		} catch (Exception e) {
-			logger.error("error for get LoginTask from database");
+			e.printStackTrace();
 		}
 	}
 
@@ -438,8 +475,12 @@ public class Scheduler {
 						ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
 
 						// C. Agent
-						// todo 设置agent需要登陆的 domain 或 特殊 account
-						addAgent(container, proxy);
+						ChromeDriverAgent agent = addAgent(container, proxy);
+
+						// D. 设置 agent 初始登陆操作
+						if( Flags.size() > 0 ){
+							addPresetLoginTasksToAgent(agent);
+						}
 
 						downLatch.countDown();
 
@@ -454,52 +495,9 @@ public class Scheduler {
 		downLatch.await();
 
 		logger.info("ChromeDriverAgents initialized.");
-
-		// todo 执行登陆操作
-		// 1. 获取需要登陆的domain
-		Domain.getAll().stream().map(d -> d.domain).forEach(d -> {
-
-			// 2. 获取可用agent
-			List<ChromeDriverAgent> agents = ((Distributor)ChromeDriverDistributor.getInstance()).queues.keySet().stream()
-					.filter( a -> {
-						return !a.accounts.keySet().contains(d);
-					})
-					.map(a -> {
-						int accounts_size = a.accounts.size();
-						return Maps.immutableEntry(a, accounts_size);
-					})
-					.sorted(Map.Entry.<ChromeDriverAgent, Integer>comparingByValue())
-					.limit(1)
-					.map(Map.Entry::getKey)
-					.collect(Collectors.toList());
-
-			if( agents != null && agents.size() > 0 ){
-				ChromeDriverAgent agent = agents.get(0);
-
-				// 3. 获取 account
-				try {
-					// 3.1 获取有特定功能的account
-					Account account = AccountManager.getInstance().getAccountsByDomain(d, "selected");
-
-					// 3.2 无特殊功能account 获取一般account
-					if( account == null ){
-						account = AccountManager.getInstance().getAccountByDomain(d);
-					}
-
-					// 3.3 为agent添加登陆任务
-					if( account != null ){
-						addPresetLoginTasksToAgent(agent, account);
-					}
-
-				} catch (Exception e) {
-					logger.error("error for get account");
-				}
-			}
-
-		});
-
-
 	}
+
+
 
 	/**
 	 * 生成 account 登陆任务
@@ -532,7 +530,6 @@ public class Scheduler {
 		// Scheduler 初始化
 		Scheduler.getInstance();
 
-		// 等待登陆操作完成，否则需要登陆的任务会报 Error create/assign task. one.rewind.io.requester.exception.AccountException$NotFound: null
 		Thread.sleep(60000);
 
 		TaskInitializer.getAll().stream().filter(t -> {
@@ -551,7 +548,10 @@ public class Scheduler {
 					// 定时任务
 					Msg msg = HttpTaskSubmitter.getInstance().submit(t.class_name, null, t.init_map_json, 0, t.cron);
 
-					// todo 获取 schedulerID
+					Gson gson = new Gson();
+					Map<String, String> map = gson.fromJson(msg.data.toString(), Map.class);
+
+					t.scheduled_task_id = map.get("id");
 
 					t.start_time = new Date();
 
@@ -560,8 +560,6 @@ public class Scheduler {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 		});
-
 	}
 }

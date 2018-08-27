@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
+import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.task.ScanTask;
 import com.sdyk.ai.crawler.task.Task;
 import com.sdyk.ai.crawler.util.StatManager;
@@ -219,7 +220,6 @@ public class Distributor extends ChromeDriverDistributor {
 				info.put("domain", domain);
 				info.put("account", username);
 				info.put("id", holder.id);
-				info.put("schedulerID", holder.generateScheduledChromeTaskId());
 
 				logger.info("Assign {} {} {} {} to agent:{}.", holder.class_name, domain, username!=null?username:"", holder.vars, agent.name);
 
