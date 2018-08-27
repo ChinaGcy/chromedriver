@@ -49,13 +49,6 @@ public class Distributor extends ChromeDriverDistributor {
 		logger.info("Replace {} with {}.", ChromeDriverDistributor.class.getName(), Distributor.class.getName());
 	}
 
-	/**
-	 * 定义黑名单
-	 */
-	public static Map<String, String> BLACK_DOMAIN_PROXYGROUP = ImmutableMap.of(
-			"tianyancha.com" , "aliyun-cn-shenzhen-squid"
-	);
-
 	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> loginTaskQueues = new ConcurrentHashMap();
 
 	/**
@@ -142,10 +135,12 @@ public class Distributor extends ChromeDriverDistributor {
 
 			String account_key = domain + "-" + username;
 
+			// 特定账号使用特定proxy在初始化时已设置好
 			agent = domain_account_agent_map.get(account_key);
 
 			if(agent == null) {
 
+				// 应调用Scheduler中方法创建agent
 				logger.warn("No agent hold account {}.", account_key);
 				throw new AccountException.NotFound();
 			}
@@ -154,6 +149,7 @@ public class Distributor extends ChromeDriverDistributor {
 		// 需要登录采集的任务 或 没有找到加载指定账户的Agent
 		else if(holder.need_login){
 
+			// 特定网站使用特定proxy在初始化时已设置好
 			if(!domain_agent_map.keySet().contains(domain)) {
 				logger.warn("No agent hold {} accounts.", domain);
 				throw new AccountException.NotFound();
@@ -172,7 +168,20 @@ public class Distributor extends ChromeDriverDistributor {
 		// 一般任务
 		else {
 
-			// todo Collectors.toList() 返回值为0
+			agent = queues.keySet().stream()
+					.filter( a -> {
+						// 封禁标识可以代替白名单功能，在初始化阶段设置完成。
+						return !ProxyManager.getInstance().isProxyBannedByDomain(a.proxy, holder.domain);
+					})
+					.map(a -> {
+						int queue_size = queues.get(a).size();
+						return Maps.immutableEntry(a, queue_size);
+					})
+					.sorted(Map.Entry.<ChromeDriverAgent, Integer>comparingByValue())
+					.limit(1)
+					.map(Map.Entry::getKey)
+					.collect(Collectors.toList())
+					.get(0);
 
 		}
 
