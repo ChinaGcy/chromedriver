@@ -4,8 +4,11 @@ import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.field.SqlType;
 import com.j256.ormlite.field.types.StringType;
 import com.sdyk.ai.crawler.task.LoginTask;
+import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.json.JSON;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class JSONableLoginTaskPersister extends StringType {
@@ -25,13 +28,18 @@ public class JSONableLoginTaskPersister extends StringType {
 
 		LoginTask loginTask = (LoginTask) javaObject;
 
-		return loginTask != null ? JSON.toJson(loginTask) : null;
+		return loginTask != null ? LoginTask.toJSON(loginTask) : null;
 	}
 
 	@Override
 	public Object sqlArgToJava(FieldType fieldType, Object sqlArg, int columnPos) {
 
-		LoginTask loginTask = JSON.fromJson((String)sqlArg, LoginTask.class);
+		LoginTask loginTask = null;
+		try {
+			loginTask = LoginTask.buildFromJson((String) sqlArg);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return sqlArg != null ? loginTask : null;
 	}
 }
