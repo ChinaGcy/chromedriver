@@ -336,7 +336,8 @@ public class ServiceProviderTask extends Task {
 		if( categorySrc.length() > 1 ){
 			tagSrc = tagSrc + "," + categorySrc;
 		}
-		serviceProvider.tags = Arrays.asList(tagSrc, ",");
+		serviceProvider.tags = new ArrayList<>();
+		serviceProvider.tags.addAll(Arrays.asList(tagSrc.split(",")));
 
 		//成员数量
 		String memberNum = CrawlerAction.getNumbers(doc.getElementsByClass("members").text());

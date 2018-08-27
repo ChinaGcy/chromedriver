@@ -91,9 +91,9 @@ public class ServiceProviderTask extends Task {
 		serviceProvider.type = "团队-公司";
 
 		//标签
-		serviceProvider.tags = Arrays.asList(
-				doc.getElementsByClass("se-fws-header-labs").text().replace(" ",","),
-				",");
+		serviceProvider.tags = new ArrayList<>();
+		serviceProvider.tags.addAll(Arrays.asList(
+				doc.getElementsByClass("se-fws-header-labs").text().replace(" ",",").split(",")));
 
 		//成员数量
 		String src = doc.toString();

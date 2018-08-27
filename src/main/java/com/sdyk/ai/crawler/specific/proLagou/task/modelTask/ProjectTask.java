@@ -19,10 +19,7 @@ import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProjectTask extends Task {
 
@@ -111,9 +108,9 @@ public class ProjectTask extends Task {
 	        }
 
 	        //小标签
-	        project.tags = Arrays.asList(
-	        		doc.select("#project_detail > div.project_info.fl > div.category_list").text(),
-			        ",");
+	        project.tags = new ArrayList<>();
+	        project.tags.addAll(Arrays.asList(
+	        		doc.select("#project_detail > div.project_info.fl > div.category_list").text().split(",")));
 
 	        //已投标人数
 	        String num = doc.select("#project_detail > div.project_panel.fr > div.bottom_data > div:nth-child(2) > div.txt > strong").text();

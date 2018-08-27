@@ -156,9 +156,9 @@ public class ServiceProviderTask extends Task {
 
 		//小标签
 		if( tags.length() > 0 ){
-			serviceProvider.tags = Arrays.asList(
-					tags.substring(0, tags.length()-1).replace("、", ",").replace(" ", ""),
-					",");
+			serviceProvider.tags = new ArrayList<>();
+			serviceProvider.tags.addAll(Arrays.asList(
+					tags.substring(0, tags.length()-1).replace("、", ",").replace(" ", "").split(",")));
 		}
 
 		Elements ratingGrade = doc.getElementsByClass("comment-item");
@@ -229,7 +229,8 @@ public class ServiceProviderTask extends Task {
 				serviceProviderRating.content = e.select("div.desc").text().replaceAll("评价描述：", "");
 
 				//标签
-				serviceProviderRating.tags = Arrays.asList( e.getElementsByClass("tags").text(), ",");
+				serviceProviderRating.tags = new ArrayList<>();
+				serviceProviderRating.tags.addAll(Arrays.asList( e.getElementsByClass("tags").text().split(",")));
 
 				//打分
 				Elements star = e.getElementsByClass("el-rate__item");
@@ -272,7 +273,8 @@ public class ServiceProviderTask extends Task {
 				}
 				//小标签
 				else if ( count.contains("应用技术：") ) {
-					work.tags = Arrays.asList(count.replace("应用技术：","").replace("、", ","), ",");
+					work.tags = new ArrayList<>();
+					work.tags.addAll(Arrays.asList(count.replace("应用技术：","").replace("、", ",").split(",")));
 				}
 				//简介
 				else if ( count.contains("项目简介：") ) {

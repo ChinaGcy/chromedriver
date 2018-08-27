@@ -141,7 +141,8 @@ public class ProjectTask extends Task {
 			}
 		}
 		if( tags.length() > 0 ){
-			project.tags = Arrays.asList(tags.substring(0, tags.length()-1), ",");
+			project.tags = new ArrayList<>();
+			project.tags.addAll(Arrays.asList(tags.substring(0, tags.length()-1).split(",")));
 		}
 
 		//描述

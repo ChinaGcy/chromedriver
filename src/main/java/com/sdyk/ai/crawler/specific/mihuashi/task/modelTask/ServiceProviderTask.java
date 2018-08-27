@@ -123,7 +123,8 @@ public class ServiceProviderTask extends Task {
 				.replace("擅长画风 ", "")
 				.replace("擅长类型 ", "")
 				.replace(" ", ",");
-		serviceProvider.tags = Arrays.asList(tags, ",");
+		serviceProvider.tags = new ArrayList<>();
+		serviceProvider.tags.addAll(Arrays.asList(tags.split(",")));
 
 		//项目数
 		String projectNum = doc.select("#users-show > div.container-fluid > div.profile__container > main > header > ul > li.active > a > span").text();

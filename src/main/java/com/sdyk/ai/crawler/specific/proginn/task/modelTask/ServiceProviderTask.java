@@ -177,7 +177,8 @@ public class ServiceProviderTask extends Task {
 		}
 
 		//小标签
-		serviceProvider.tags = Arrays.asList(doc.select("div.skill-list").text(), " ");
+		serviceProvider.tags = new ArrayList<>();
+		serviceProvider.tags.addAll(Arrays.asList(doc.select("div.skill-list").text().split(" ")));
 
 		//成功率及评价数
 		String ratioRating = doc.select("#proginn_wo_omment > h3 > div").text();

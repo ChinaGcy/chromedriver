@@ -132,7 +132,8 @@ public class ServiceProviderTask extends Task {
 			tags.append(",");
 		}
 		if( tags.length() > 0 ){
-			serviceProvider.tags = Arrays.asList(tags.substring(0, tags.length()-1));
+			serviceProvider.tags = new ArrayList<>();
+			serviceProvider.tags.addAll(Arrays.asList(tags.substring(0, tags.length()-1).split(",")));
 		}
 
 		Elements jiaMess = doc.select("div.shopPingjiaMess > ul > li");

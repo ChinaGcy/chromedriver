@@ -187,7 +187,8 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 		}
 
 		if(targ != null && targ.length() > 1){
-			serviceProvider.tags = Arrays.asList(targ.substring(0, targ.length() - 1), ",");
+			serviceProvider.tags = new ArrayList<>();
+			serviceProvider.tags.addAll(Arrays.asList(targ.substring(0, targ.length() - 1).split(",")));
 		}
 
 		//评价数
@@ -213,9 +214,9 @@ public class ServiceProviderTask extends com.sdyk.ai.crawler.task.Task {
 
 			String[] arg = title.split("•");
 			if( arg.length > 1 ){
-				work.tags = Arrays.asList(
-						arg[1].replace("、", ",").replace("与", ",").replace("及", ","),
-						",");
+				work.tags = new ArrayList<>();
+				work.tags.addAll(Arrays.asList(
+						arg[1].replace("、", ",").replace("与", ",").replace("及", ",").split(",")));
 			}
 
 			work.title = title.split("•")[0];
