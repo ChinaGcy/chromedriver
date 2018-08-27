@@ -124,10 +124,6 @@ public class ServiceWrapper {
 
 			// agent-taskNum 统计
 			get("/agentTaskNum", SystemRoute.getAgentTaskNum, new ModelMsgTransformer());
-
-			// agent-taskInformation 统计
-			get("/agentTaskInformation", SystemRoute.getAgentTaskInformation, new ModelMsgTransformer());
-
 		});
 
 		// 查询地区

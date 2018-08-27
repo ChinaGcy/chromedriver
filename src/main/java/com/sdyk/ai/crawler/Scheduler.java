@@ -527,6 +527,8 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) throws Exception {
 
+		//Scheduler.Flags = new ArrayList<>();
+
 		// Scheduler 初始化
 		Scheduler.getInstance();
 
@@ -561,5 +563,8 @@ public class Scheduler {
 				e.printStackTrace();
 			}
 		});
+
+		// 每 10 分钟 执行一次百度任务
+		((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
 	}
 }

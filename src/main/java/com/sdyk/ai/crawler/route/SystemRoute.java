@@ -145,17 +145,4 @@ public class SystemRoute {
 
 	};
 
-	/**
-	 * agent-taskNum 统计
-	 */
-	public static Route getAgentTaskInformation = (Request request, Response response ) -> {
-
-		try{
-			return new Msg<Map<String, List<String>>>(Msg.SUCCESS, Distributor.AGENT_TASK_MAP);
-		} catch (Exception e) {
-			return new Msg<>(Msg.KERNEL_FAILURE);
-		}
-
-	};
-
 }
