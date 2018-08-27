@@ -54,7 +54,7 @@ public class Scheduler {
 
 	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
 
-	public static int DriverCount_ProxyAliyun = 1;
+	public static int DriverCount_ProxyAliyun = 2;
 
 	public static int DriverCount_ProxyOwn = 1;
 
@@ -527,7 +527,7 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		//Scheduler.Flags = new ArrayList<>();
+		Scheduler.Flags = new ArrayList<>();
 
 		// Scheduler 初始化
 		Scheduler.getInstance();

@@ -51,8 +51,6 @@ public class Distributor extends ChromeDriverDistributor {
 
 	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> loginTaskQueues = new ConcurrentHashMap();
 
-	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> keepAliveTaskQueues = new ConcurrentHashMap();
-
 	static {
 		logger.info("Replace {} with {}.", ChromeDriverDistributor.class.getName(), Distributor.class.getName());
 	}
@@ -78,23 +76,33 @@ public class Distributor extends ChromeDriverDistributor {
 			public void run() {
 				queues.keySet().forEach(a -> {
 
-					if( !keepAliveTaskQueues.keySet().contains(a) ) keepAliveTaskQueues.put(a, new LinkedList<>());
+					if( queues.get(a).size() == 0 ){
 
-					try {
+						try {
 
-						if( keepAliveTaskQueues.get(a).size() < 1 ) {
+							//设置参数
+							Map<String, Object> init_map = new HashMap<>();
+							init_map.put("q", "");
 
-							keepAliveTaskQueues.get(a).add(new ChromeTask("https://www.baidu.com/"));
+							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.task.KeepAliveTask");
 
-							if( !taskQueueStat.keySet().contains(ChromeTask.class.getName()) ) taskQueueStat.put(ChromeTask.class.getName(), 1);
-							else taskQueueStat.put(ChromeTask.class.getName(), taskQueueStat.get(ChromeTask.class.getName()) + 1 );
+							//生成holder
+							TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
+
+							//提交任务
+							((Distributor)ChromeDriverDistributor.getInstance()).submit(holder, a);
+
+							if( !taskQueueStat.keySet().contains(clazz.getName()) ) taskQueueStat.put(clazz.getName(), 1);
+							else taskQueueStat.put(clazz.getName(), taskQueueStat.get(clazz.getName()) + 1 );
+
+						} catch ( Exception e) {
+							logger.error("error for submit TendererTask.class", e);
 						}
-					} catch (Exception e) {
-						logger.error("error for add keepAlivedTask", e);
-					}
+
+					};
 				});
 			}
-		},10 * 60 * 1000 , 10 * 60 * 1000);
+		},1 * 60 * 1000 , 1 * 60 * 1000);
 	}
 
 	/**
@@ -277,11 +285,6 @@ public class Distributor extends ChromeDriverDistributor {
 					// 判断是否有抓取任务
 					if( task == null ){
 						holder = queues.get(agent).poll(10, TimeUnit.SECONDS);
-					}
-
-					// 获取 keepAliveTAsk
-					if( holder == null && keepAliveTaskQueues.get(agent) != null && !keepAliveTaskQueues.get(agent).isEmpty() ){
-						task = keepAliveTaskQueues.get(agent).poll();
 					}
 				}
 			}
