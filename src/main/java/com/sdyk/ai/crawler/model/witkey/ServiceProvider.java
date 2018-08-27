@@ -220,8 +220,25 @@ public class ServiceProvider extends Model {
 
 		try {
 
-			String[] categories = this.category.split(",");
-			this.tags.addAll(Arrays.asList(categories));
+			if (this.category != null && this.category.length() > 0) {
+
+				String[] categories = this.category.split(",");
+
+				if (tags == null && tags.size() > 0) {
+					tags = new ArrayList<>();
+
+				} else {
+					// 去重
+					for (String category : categories) {
+						boolean b = tags.contains(category);
+						if (b) {
+							tags.remove(category);
+						}
+					}
+				}
+				// 添加
+				this.tags.addAll(Arrays.asList(categories));
+			}
 
 			Dao dao_case = DaoManager.getDao(Case.class);
 			Dao dao_work = DaoManager.getDao(Work.class);

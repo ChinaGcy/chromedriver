@@ -1,5 +1,6 @@
 package com.sdyk.ai.crawler.loginTaskTest;
 
+import com.j256.ormlite.dao.Dao;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.Scheduler;
 import com.sdyk.ai.crawler.account.AccountManager;
@@ -7,6 +8,7 @@ import com.sdyk.ai.crawler.model.Domain;
 import com.sdyk.ai.crawler.model.LoginTaskWrapper;
 import com.sdyk.ai.crawler.model.TaskInitializer;
 import com.sdyk.ai.crawler.task.LoginTask;
+import one.rewind.db.DaoManager;
 import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
@@ -191,5 +193,28 @@ public class LoginTaskTest {
 				});
 
 		Thread.sleep(1000000);
+	}
+
+	@Test
+	public void testZBJLoginTest() throws Exception {
+
+		ChromeDriverDistributor.instance = new Distributor();
+
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+		((Distributor)ChromeDriverDistributor.getInstance()).addAgent(agent);
+
+		/*LoginTaskWrapper taskloging = new LoginTaskWrapper();
+		LoginTask task = taskloging.getLoginTaskByDomain("zbj.com");*/
+
+		Dao dao = DaoManager.getDao(LoginTaskWrapper.class);
+		LoginTaskWrapper loginTaskWrapper = (LoginTaskWrapper) dao.queryForId("48");
+
+		Account account = new AccountImpl("zbj.com", "15284812217", "123456");
+		((LoginAction)loginTaskWrapper.login_task.getActions().get(loginTaskWrapper.login_task.getActions().size()-1)).setAccount(account);
+
+		((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTaskWrapper.login_task);
+
+		Thread.sleep(100000000);
+
 	}
 }

@@ -114,11 +114,6 @@
             "analyzer": "ik_max_word",
             "boost": 4
           },
-          "tags": {
-            "type":"text",
-            "analyzer": "ik_max_word",
-            "boost": 2
-          },
           "content": {
             "type":"text",
             "analyzer": "ik_max_word",

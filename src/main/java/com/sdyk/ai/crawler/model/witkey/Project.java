@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.util.JSONableListPersister;
 import com.sdyk.ai.crawler.util.Range;
 import one.rewind.db.DBName;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -147,9 +148,25 @@ public class Project extends Model{
 
 	public void fullfill() {
 
-		String[] categories = this.category.split(",");
+		if (this.category != null && this.category.length() > 0) {
 
-		this.tags.addAll(Arrays.asList(categories));
+			String[] categories = this.category.split(",");
+
+			if (this.tags == null) {
+				this.tags = new ArrayList<>();
+			}
+			else {
+				// 去重
+				for (String category : categories) {
+					boolean b = tags.contains(category);
+					if (b) {
+						tags.remove(category);
+					}
+				}
+			}
+
+			this.tags.addAll(Arrays.asList(categories));
+		}
 	}
 
 	public boolean insert() {
