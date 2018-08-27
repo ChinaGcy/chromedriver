@@ -45,7 +45,7 @@ public class BasicRequesterTest {
 	@Test
 	public void testSwitchProxy() throws Exception {
 
-		for(int i=0; i<1; i++) {
+		for(int i=0; i<2; i++) {
 
 			Thread thread = new Thread(() -> {
 

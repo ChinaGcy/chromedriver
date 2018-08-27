@@ -1,8 +1,10 @@
 package com.sdyk.ai.crawler.requester.test;
 
+import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderTask;
 import com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask;
 import net.lightbody.bmp.BrowserMobProxyServer;
+import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.account.Account;
 import one.rewind.io.requester.account.AccountImpl;
 import one.rewind.io.requester.callback.TaskCallback;
@@ -66,7 +68,7 @@ public class  ChromeDriverAgentTest {
 			agent.start();
 
 			ChromeTask task = new ChromeTask("http://www.zbj.com");
-			ChromeAction action = new LoginWithGeetestAction(account);
+			ChromeAction action = new LoginWithGeetestAction();
 			task.addAction(action);
 			try {
 				agent.submit(task);
@@ -141,5 +143,28 @@ public class  ChromeDriverAgentTest {
 		Thread.sleep(10000);
 
 		agent.stop();
+	}
+
+	@Test
+	public void newCommandTimeoutTest() throws Exception {
+
+		// 获取新容器
+		DockerHostManager.getInstance().delAllDockerContainers();
+		DockerHostManager.getInstance().createDockerContainers(1);
+		ChromeDriverDockerContainer container = DockerHostManager.getInstance().getFreeContainer();
+
+		ChromeDriverAgent agent = new ChromeDriverAgent(container.getRemoteAddress(), container);
+		agent.start();
+
+		ChromeTask task = new ChromeTask("https://www.baidu.com");
+		agent.submit(task);
+
+		for( int i = 1 ; i > 0 ; i++){
+			Thread.sleep(60 * 1000);
+			System.out.println(i + " m");
+		}
+
+		Thread.sleep( 60 * 60 * 1000);
+
 	}
 }

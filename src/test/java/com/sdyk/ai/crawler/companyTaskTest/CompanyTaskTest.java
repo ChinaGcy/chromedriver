@@ -4,13 +4,16 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
-import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.task.LoginTask;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.io.requester.chrome.action.PostAction;
+import one.rewind.io.requester.proxy.Proxy;
+import one.rewind.io.requester.proxy.ProxyImpl;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
+import one.rewind.io.requester.task.TaskHolder;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -46,10 +49,10 @@ public class CompanyTaskTest {
 		Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.CompanyInformationTask");
 
 		//生成holder
-		//TaskHolder holder = ChromeTask.buildHolder(clazz, init_map);
+		TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 		//提交任务
-		//((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+		((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
 
 		Thread.sleep(1000000);
 
@@ -80,19 +83,25 @@ public class CompanyTaskTest {
 
 		AccountManager.getInstance().setAllAccountFree();
 
-		//ChromeDriverDistributor.instance = new Distributor();
+		ChromeDriverDistributor.instance = new Distributor();
 
-		ProxyImpl proxy = ProxyManager.getInstance().getValidProxy("aliyun-cn-shenzhen-squid");
+		Proxy proxy = new ProxyImpl("118.190.44.184", 59998, "tfelab", "TfeLAB2@15");
 
-		ChromeDriverAgent agent = new ChromeDriverAgent(proxy);
+		//ProxyImpl proxy1 = new ProxyImpl( "sdyk.red", 60202, "tfelab", "TfeLAB2@15");
+
+		//ProxyImpl proxy = ProxyManager.getInstance().getValidProxy("aliyun-cn-shenzhen-squid");
+
+		//System.out.println(proxy.host);
+
+		ChromeDriverAgent agent = new ChromeDriverAgent(proxy, ChromeDriverAgent.Flag.MITM);
 
 		LoginTask loginTask = LoginTask.buildFromJson(readFileByLines("login_tasks/tianyancha.com.json"));
 		((LoginAction)loginTask.getActions().get(loginTask.getActions().size() - 1)).setAccount(
 				AccountManager.getInstance().getAccountByDomain("tianyancha.com")
 		);
 
-		agent.start();
-		agent.submit(loginTask);
+		((Distributor)ChromeDriverDistributor.getInstance()).addAgent(agent);
+		((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
 
 		//((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTask);
 

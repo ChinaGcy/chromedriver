@@ -7,6 +7,8 @@ import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
+import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
@@ -27,7 +29,7 @@ public class ProjectTaskTest {
 	    // 驻场    https://www.clouderwork.com/jobs/0231ba693af8ea5b
 	    // 非驻场  https://www.clouderwork.com/jobs/5322791db8d612b6
 
-	    ProjectTask projectTask = new ProjectTask("https://www.clouderwork.com/jobs/06c1e2b17b221a85");
+	    ProjectTask projectTask = new ProjectTask("https://www.clouderwork.com/jobs/76770878e803b545");
 
 	    agent.submit(projectTask);
 
@@ -45,10 +47,10 @@ public class ProjectTaskTest {
 
 	    Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask");
 
-	    //ChromeTaskHolder holder = ChromeTask.buildHolder(
-			    //clazz, ImmutableMap.of("project_id", "da151689bd68bdb4"));
+	    TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(
+			    clazz, ImmutableMap.of("project_id", "76770878e803b545"));
 
-	   // distributor.submit(holder);
+	    distributor.submit(holder);
 
 	    Thread.sleep(600000);
     }

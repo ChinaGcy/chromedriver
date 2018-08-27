@@ -2,6 +2,7 @@ package com.sdyk.ai.crawler;
 
 
 import com.j256.ormlite.dao.Dao;
+import com.sdyk.ai.crawler.model.LoginTaskWrapper;
 import com.sdyk.ai.crawler.model.TaskInitializer;
 import com.sdyk.ai.crawler.model.WebDirverCount;
 import com.sdyk.ai.crawler.model.company.CompanyInformation;
@@ -31,8 +32,8 @@ public class DBTest {
 	@Test
 	public void Con() throws Exception {
 
-		//Refacter.dropTable(Project.class);
-		Refacter.createTable(CompanyInformation.class);
+		//Refacter.dropTable(LoginTaskWrapper.class);
+		Refacter.createTable(LoginTaskWrapper.class);
 		/*try {
 
 			DockerHostImpl host = new DockerHostImpl("10.0.0.62", 22, "root");

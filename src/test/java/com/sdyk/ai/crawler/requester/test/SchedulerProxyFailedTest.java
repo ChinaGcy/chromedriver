@@ -9,7 +9,7 @@ import com.sdyk.ai.crawler.account.model.AccountImpl;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
-import com.sdyk.ai.crawler.proxy.exception.NoAvailableProxyException;
+import com.sdyk.ai.crawler.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ServiceScanTask;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;

@@ -10,6 +10,8 @@ import one.rewind.db.DaoManager;
 import one.rewind.db.RedissonAdapter;
 import org.redisson.api.RBlockingQueue;
 
+import java.util.Map;
+
 public class Test {
 
 	@org.junit.Test
@@ -62,6 +64,37 @@ public class Test {
 		new Thread(() -> {
 			BlockingQueue b = new BlockingQueue();
 			b.test();
+		}).start();
+
+
+		Thread.sleep(100000000);
+
+	}
+
+	@org.junit.Test
+	public void testMapQueue() throws InterruptedException {
+
+		RBlockingQueue<Map<String, String>> blockingQueue = RedissonAdapter.redisson.getBlockingQueue("Sdyk-Crawler-Model-Update");
+
+		new Thread(() ->{
+
+			System.out.println("start");
+			while( true ){
+				try {
+					System.out.println(blockingQueue.take());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}).start();
+
+		Thread.sleep(3000);
+
+		new Thread(() -> {
+
+			//blockingQueue.offer()
+
 		}).start();
 
 

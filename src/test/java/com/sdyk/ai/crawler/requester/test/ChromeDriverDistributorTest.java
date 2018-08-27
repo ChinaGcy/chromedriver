@@ -255,7 +255,7 @@ public class ChromeDriverDistributorTest {
 		AccountImpl account_2 = new AccountImpl("zbj.com", "15284809626", "123456");
 
 		ChromeTask task = new ChromeTask("http://www.zbj.com")
-				.addAction(new LoginWithGeetestAction(account_1));
+				.addAction(new LoginWithGeetestAction());
 
 		//
 		agent.submit(task, true);
@@ -265,7 +265,7 @@ public class ChromeDriverDistributorTest {
 			try {
 				ChromeTask task1 = new ChromeTask("http://www.zbj.com")
 						.addAction(new RedirectAction("https://login.zbj.com/login/dologout"))
-						.addAction(new LoginWithGeetestAction(account_2));
+						.addAction(new LoginWithGeetestAction());
 
 
 				a.submit(task1, true);

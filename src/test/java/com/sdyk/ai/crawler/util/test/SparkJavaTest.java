@@ -52,7 +52,7 @@ public class SparkJavaTest {
 
 		ChromeTask task = new ProjectTask("https://www.zbj.com");
 
-		task.addAction(new LoginWithGeetestAction(account));
+		task.addAction(new LoginWithGeetestAction().setAccount(account));
 
 		// 不使用代理
 		ChromeDriverAgent agent = new ChromeDriverAgent();
