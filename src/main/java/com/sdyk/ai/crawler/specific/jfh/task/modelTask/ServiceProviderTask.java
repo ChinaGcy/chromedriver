@@ -36,9 +36,7 @@ public class ServiceProviderTask extends Task {
 				ServiceProviderTask.class,
 				"http://shop.jfh.com/{{user_id}}/bu",
 				ImmutableMap.of("user_id", String.class),
-				ImmutableMap.of("user_id", ""),
-				true,
-				Priority.HIGH
+				ImmutableMap.of("user_id", "")
 		);
 	}
 
@@ -57,7 +55,9 @@ public class ServiceProviderTask extends Task {
 
 		});
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
+
+		this.setPriority(Priority.HIGH);
 
 		this.addDoneCallback((t) -> {
 

@@ -40,7 +40,7 @@ public class CompanyInformationTask extends Task {
 
 		this.setPriority(Priority.HIGHEST);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

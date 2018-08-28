@@ -22,9 +22,7 @@ public class CaseTask extends Task {
 				CaseTask.class,
 				"http://shop.jfh.com/{{user_id}}",
 				ImmutableMap.of("user_id", String.class),
-				ImmutableMap.of("user_id", ""),
-				true,
-				Priority.LOW
+				ImmutableMap.of("user_id", "")
 		);
 	}
 
@@ -43,7 +41,9 @@ public class CaseTask extends Task {
 
 		});
 
-		//this.setNoFetchImages();
+		this.setPriority(Priority.LOW);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

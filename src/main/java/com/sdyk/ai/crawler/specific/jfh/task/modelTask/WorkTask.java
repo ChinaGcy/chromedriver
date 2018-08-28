@@ -26,9 +26,7 @@ public class WorkTask extends Task {
 				WorkTask.class,
 				"https://www.jfh.com/jfhrm/buinfo/showbucaseinfo?uuidSecret={{uuidSecret}}",
 				ImmutableMap.of("uuidSecret", String.class, "uId", String.class),
-				ImmutableMap.of("uuidSecret", "MTQxODM7NDQ", "uId", ""),
-				true,
-				Priority.MEDIUM
+				ImmutableMap.of("uuidSecret", "MTQxODM7NDQ", "uId", "")
 		);
 	}
 
@@ -47,7 +45,9 @@ public class WorkTask extends Task {
 
 		});
 
-		//this.setNoFetchImages();
+		this.setPriority(Priority.MEDIUM);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

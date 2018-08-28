@@ -31,9 +31,7 @@ public class ProjectTask extends Task {
 				ProjectTask.class,
 				"https://www.jfh.com/jfportal/orders/jf{{project_id}}",
 				ImmutableMap.of("project_id", String.class),
-				ImmutableMap.of("project_id", ""),
-				true,
-				Priority.HIGH
+				ImmutableMap.of("project_id", "")
 		);
 	}
 
@@ -52,7 +50,9 @@ public class ProjectTask extends Task {
 
 		});
 
-		//this.setNoFetchImages();
+		this.setPriority(Priority.HIGH);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

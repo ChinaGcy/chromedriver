@@ -32,9 +32,7 @@ public class ProjectScanTask extends ScanTask {
 						+"orderConfig=1&" + "orderType=&" + "pageNo={{page}}&" + "putTime=&" + "searchName=&"
 						+"serviceTypeKey=&" + "webSign=&" + "webSite=&" + "workStyleCode=",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
-				ImmutableMap.of("page", "", "max_page", ""),
-				true,
-				Priority.HIGH
+				ImmutableMap.of("page", "", "max_page", "")
 		);
 	}
 
@@ -56,7 +54,7 @@ public class ProjectScanTask extends ScanTask {
 		});
 
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.setParam("page", url.split("pageNo=")[1].split("&putTime")[0]);
 

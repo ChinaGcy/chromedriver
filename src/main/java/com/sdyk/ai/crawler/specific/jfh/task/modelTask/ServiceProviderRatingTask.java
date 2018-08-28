@@ -29,9 +29,7 @@ public class ServiceProviderRatingTask extends Task {
 				ServiceProviderRatingTask.class,
 				"http://shop.jfh.com/{{user_id}}",
 				ImmutableMap.of("user_id", String.class),
-				ImmutableMap.of("user_id", ""),
-				true,
-				Priority.MEDIUM
+				ImmutableMap.of("user_id", "")
 		);
 	}
 
@@ -50,7 +48,9 @@ public class ServiceProviderRatingTask extends Task {
 
 		});
 
-		//this.setNoFetchImages();
+		this.setPriority(Priority.MEDIUM);
+
+		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
