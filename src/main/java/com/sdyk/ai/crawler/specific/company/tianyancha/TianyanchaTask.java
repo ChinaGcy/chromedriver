@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.task.Task;
 import com.sdyk.ai.crawler.util.LocationParser;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.ClickAction;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskFactory;
@@ -48,11 +49,21 @@ public class TianyanchaTask extends Task {
 
 		super(url);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.setPriority(Priority.HIGHEST);
 
 		this.addAction( new ClickAction("div.summary > span.link-click", 2000));
+
+		this.setValidator((a, t)->{
+
+			String src = getResponse().getText();
+			if( src.contains("登陆") && src.contains("注册") ){
+
+				throw new AccountException.Failed(a.accounts.get("tianyancha.com"));
+			}
+
+		});
 
 		this.addDoneCallback((t) -> {
 
@@ -115,28 +126,6 @@ public class TianyanchaTask extends Task {
 				}
 			}
 		}
-
-		//人员信息
-		/*Elements staffList = doc.select("#_container_teamMember > div.card > div.card-team");
-		int i =0;
-		for(Element element : staffList){
-			i++;
-			CompanyStaff companyStaff = new CompanyStaff(getUrl() + "?starf=" + i);
-
-			companyStaff.company_id = companyInformation.id;
-
-			companyStaff.name = element.select("div.team-name").text();
-
-			companyStaff.content = element.select("div.team-right > ul > li").toString();
-
-			companyStaff.position = element.select("div.team-title").text();
-
-			try {
-				companyStaff.insert();
-			} catch ( Exception e ) {
-				logger.error("error for companyStaff.insert", e);
-			}
-		}*/
 
 		//融资情况
 		Elements financingList = doc.select("#_container_rongzi > table > tbody > tr");
@@ -229,27 +218,6 @@ public class TianyanchaTask extends Task {
 
 			logger.error("error for submit ItjuziScanTAsk.class", e);
 		}*/
-
-		// 提交天眼查查询任务
-		try {
-
-			Thread.sleep(15000);
-			//设置参数
-			Map<String, Object> init_map = new HashMap<>();
-			init_map.put("company_id", "");
-
-			Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
-
-			//生成holder
-			TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
-
-			//提交任务
-			((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-		} catch ( Exception e) {
-
-			logger.error("error for submit TianyanchaTask.class", e);
-		}
 
 	}
 

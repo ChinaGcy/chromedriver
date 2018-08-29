@@ -59,6 +59,10 @@ public class TendererTask extends Task {
 
 			    throw new AccountException.Failed(a.accounts.get("mihuashi.com"));
 		    }
+		    else if( src.contains("欢迎回来")
+				    || (src.contains("登陆")  && src.contains("注册")) ){
+			    throw new AccountException.Failed(a.accounts.get("mihuashi.com"));
+		    }
 	    });
 
 	    this.addAction(new LoadMoreContentAction(moreProjectPath));

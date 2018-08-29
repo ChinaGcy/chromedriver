@@ -118,7 +118,7 @@ public class ProjectTask extends Task {
 
 
 	    //项目描述
-	    project.content = StringUtil.cleanContent(doc.select("#project-detail > div > div.main-detail > section > div").html(),
+	    project.content = StringUtil.cleanContent(doc.select("section.pro-detail").html(),
 			    new HashSet<>());
 
 	    //项目状态

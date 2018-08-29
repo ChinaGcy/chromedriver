@@ -5,6 +5,7 @@ import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.company.CompanyStaff;
 import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskFactory;
@@ -41,7 +42,17 @@ public class TianyanchaStaffTask extends Task {
 
 		this.setPriority(Priority.HIGHEST);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
+
+		this.setValidator((a, t)->{
+
+			String src = getResponse().getText();
+			if( src.contains("登陆/注册") ){
+
+				throw new AccountException.Failed(a.accounts.get("tianyancha.com"));
+			}
+
+		});
 
 		this.addDoneCallback((t) -> {
 

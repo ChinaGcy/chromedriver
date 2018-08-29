@@ -55,6 +55,8 @@ public class ServiceProviderTask extends Task {
 		this.setValidator((a,t) -> {
 
 			String src = getResponse().getText();
+
+			// 访问被打到登陆页
 			if( src.contains("手机登陆") && src.contains("忘记密码") ){
 
 				throw new AccountException.Failed(a.accounts.get(t.getDomain()));

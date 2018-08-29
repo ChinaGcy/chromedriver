@@ -48,7 +48,7 @@ public class LagouScanTask extends ScanTask {
 
 		super(url);
 
-		//this.setNoFetchImages();
+		this.setNoFetchImages();
 
 		this.setPriority(Priority.HIGHEST);
 

@@ -173,27 +173,5 @@ public class CompanyInformationTask extends Task {
 			}
 
 		}
-		else {
-			// 提交天眼查查询任务
-			try {
-
-				//设置参数
-				Map<String, Object> init_map = new HashMap<>();
-				init_map.put("company_id", "");
-
-				Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.company.tianyancha.TianyanchaTask");
-
-				//生成holder
-				TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
-
-				//提交任务
-				((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
-
-			} catch ( Exception e) {
-
-				logger.error("error for submit TianyanchaTask.class", e);
-			}
-		}
-
 	}
 }

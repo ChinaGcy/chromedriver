@@ -76,7 +76,7 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 		            Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.proLagou.task.modelTask.ProjectTask");
 
 		            //生成holder
-		            TaskHolder holder = this.getHolder(clazz, init_map);
+		            TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 		            //提交任务
 		            ((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
