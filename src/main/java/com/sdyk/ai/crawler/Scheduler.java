@@ -54,7 +54,7 @@ public class Scheduler {
 
 	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
 
-	public static int DriverCount_ProxyAliyun = 2;
+	public static int DriverCount_ProxyAliyun = 0;
 
 	public static int DriverCount_ProxyOwn = 1;
 
@@ -371,6 +371,7 @@ public class Scheduler {
 		// 1. 获取需要登陆的domain，
 		Domain.getAll().stream().map(d -> d.domain).forEach(d -> {
 
+			logger.info(d);
 			// 2. 判断 agent 是否可加载该 domain 的 account
 			if( !ProxyManager.getInstance().isProxyBannedByDomain(agent.proxy, d) ){
 
@@ -384,6 +385,7 @@ public class Scheduler {
 						account = AccountManager.getInstance().getAccountByDomain(d);
 					}
 
+					logger.info(account.toJSON());
 					// 3.3 为agent添加登陆任务
 					if( account != null ){
 
@@ -407,6 +409,7 @@ public class Scheduler {
 		try {
 			// 1. 从数据库反序列化登陆任务
 			LoginTask loginTask = LoginTaskWrapper.getLoginTaskByDomain(account.getDomain());
+			logger.info(loginTask.toJSON());
 
 			// 2. 为登陆任务设置账户
 			((LoginAction)loginTask.getActions().get(loginTask.getActions().size()-1)).setAccount(account);
@@ -527,8 +530,6 @@ public class Scheduler {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		Scheduler.Flags = new ArrayList<>();
-
 		// Scheduler 初始化
 		Scheduler.getInstance();
 
@@ -538,7 +539,7 @@ public class Scheduler {
 			return t.enable == true;
 		}).forEach( t ->{
 
-			try {
+			/*try {
 
 				if( t.cron == null ){
 
@@ -561,10 +562,10 @@ public class Scheduler {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
+			}*/
 		});
 
 		// 每 10 分钟 执行一次百度任务
-		((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
+		//((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
 	}
 }

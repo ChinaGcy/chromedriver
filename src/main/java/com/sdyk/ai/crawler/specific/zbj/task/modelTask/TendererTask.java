@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.DateFormatUtil;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ScheduledChromeTask;
@@ -44,6 +45,17 @@ public class TendererTask extends Task {
 
 		super(url);
 		this.setBuildDom();
+
+		// 判断是否发生异常
+		this.setValidator((a, t) -> {
+
+			String src = getResponse().getText();
+			if (src.contains("请登录") && src.contains("活跃度")) {
+
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+
+		});
 
 		this.addDoneCallback((t)->{
 

@@ -72,13 +72,17 @@ public class GetProjectContactTask extends ChromeTask {
 
 				Document doc = this.getResponse().getDoc();
 
-				String phone = doc.select("").text();
+				String phone = doc.select("body > div.pup-servicedry-phone > div > div.pup-top-privacy-phone-box > span").text();
 
 				String project_id = t.getStringFromVars("project_id");
 
 				project = DaoManager.getDao(Project.class).queryForId(project_id);
 
 				project.cellphone = phone;
+
+				if (phone == null && phone.length() <= 0) {
+					throw new Exception("无法获取电话号码");
+				}
 
 				ServiceWrapper.logger.info("project {} update {}.",
 						project.id, project.update());
@@ -93,6 +97,7 @@ public class GetProjectContactTask extends ChromeTask {
 				SdykCrawlerProjectPhoneUpdates.add(map);
 
 			} catch (Exception e) {
+
 				Map map = new HashMap();
 
 				map.put("status", "0");

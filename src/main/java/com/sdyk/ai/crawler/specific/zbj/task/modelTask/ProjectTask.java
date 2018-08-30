@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
+import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ScheduledChromeTask;
@@ -63,6 +64,17 @@ public class ProjectTask extends Task {
 		this.setBuildDom();
 
 		this.addAction(new RefreshAction());
+
+		// 判断是否发生异常
+		this.setValidator((a, t) -> {
+
+			String src = getResponse().getText();
+			if (src.contains(",请登录") && src.contains("参与此项目的服务商")) {
+
+				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
+			}
+
+		});
 
 		this.addDoneCallback((t) -> {
 

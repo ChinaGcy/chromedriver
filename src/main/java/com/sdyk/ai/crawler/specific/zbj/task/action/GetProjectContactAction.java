@@ -129,14 +129,17 @@ public class GetProjectContactAction extends Action {
 			logger.error(e);
 		}
 
-		// C 取得投标花费（猪币）
-		// body > div:nth-child(21) > div.ui-dialog.newbid-bid-dialog > div > div.ui-dialog-container > div.ui-dialog-message > p > span
-		double cost = Double.parseDouble(agent.getDriver()
-				.findElement(By.cssSelector(spendMsgCssPath))
-				.getText());
+		try {
+			// C 取得投标花费（猪币）
+			// body > div:nth-child(21) > div.ui-dialog.newbid-bid-dialog > div > div.ui-dialog-container > div.ui-dialog-message > p > span
+			double cost = Double.parseDouble(agent.getDriver()
+					.findElement(By.cssSelector(spendMsgCssPath))
+					.getText());
 
-		logger.info("cost : {}", cost);
-
+			logger.info("cost : {}", cost);
+		} catch (NoSuchElementException e) {
+			return false;
+		}
 		// D 确认投标
 		agent.getElementWait(confirmBidCssPath).click();
 
@@ -148,11 +151,20 @@ public class GetProjectContactAction extends Action {
 			logger.error(e);
 		}
 
+		// 获取联系方式
+		agent.getDriver().findElement(By.cssSelector("body > div.pupzhenshi-phones > div > div.task-my-phone-btn > div.clickxiaohao")).click();
+
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		// G 点击关闭 body > div.pupzhenshi-phones > div > div.pup-close
 		/*agent.getDriver().findElement(By.cssSelector("body > div.pupzhenshi-phones > div > div.pup-close")).click();*/
 
 		// 继续跟进
-		agent.getDriver().findElement(By.cssSelector("#taskTabs > div > div > ul > li.oc-node-item.oc-node-now > div > div > div > button.oc-btn-dark.j-follow-up-countdown.already-contact-btn")).click();
+		/*agent.getDriver().findElement(By.cssSelector("#taskTabs > div > div > ul > li.oc-node-item.oc-node-now > div > div > div > button.oc-btn-dark.j-follow-up-countdown.already-contact-btn")).click();
 
 		try {
 			Thread.sleep(5000);
@@ -171,6 +183,7 @@ public class GetProjectContactAction extends Action {
 
 		// 确定
 		agent.getDriver().findElement(By.cssSelector("body > div.arale-dialog-1_3_0 > div.ui-dialog.rd-dialog-ui > div > div.ui-dialog-container > div.ui-dialog-operation > div.ui-dialog-confirm > a")).click();
+		*/
 		return true;
 	}
 
