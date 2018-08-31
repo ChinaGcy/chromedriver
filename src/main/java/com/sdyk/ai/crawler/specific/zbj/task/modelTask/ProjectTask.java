@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.BasicRequester;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
@@ -392,7 +393,10 @@ public class ProjectTask extends Task {
 			finishProject(src, doc);
 
 			project.title = getString("#ed-tit > div.tctitle.clearfix > h1", "");
-			project.location = getString("#j-receiptcon > span.ads", "");
+			LocationParser parser = LocationParser.getInstance();
+			project.location = parser
+					.matchLocation(getString("#j-receiptcon > span.ads", ""))
+					.get(0).toString();
 
 			project.origin_from = getString("#j-receiptcon > a", "");
 

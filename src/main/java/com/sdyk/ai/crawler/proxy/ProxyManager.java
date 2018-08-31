@@ -120,7 +120,7 @@ public class ProxyManager {
 				.and().eq("enable", true)
 				.and().eq("status", Proxy.Status.Free).countOf();
 
-		if(available_proxy_count < 3) {
+		if(available_proxy_count < 1) {
 
 			if(group.equals(AliyunHost.Proxy_Group_Name)) {
 				new Thread(
@@ -135,7 +135,7 @@ public class ProxyManager {
 			}
 		}
 
-		ProxyImpl proxy = queryBuilder.limit(1L).orderBy("use_cnt", true)
+		ProxyImpl proxy = dao.queryBuilder().limit(1L).orderBy("use_cnt", true)
 				.where().eq("group", group)
 				.and().eq("enable", true)
 				.and().eq("status", Proxy.Status.Free)

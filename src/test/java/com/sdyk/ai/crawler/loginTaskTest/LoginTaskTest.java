@@ -198,13 +198,10 @@ public class LoginTaskTest {
 	@Test
 	public void testZBJLoginTest() throws Exception {
 
-		ChromeDriverDistributor.instance = new Distributor();
+		/*ChromeDriverDistributor.instance = new Distributor();
 
 		ChromeDriverAgent agent = new ChromeDriverAgent();
 		((Distributor)ChromeDriverDistributor.getInstance()).addAgent(agent);
-
-		/*LoginTaskWrapper taskloging = new LoginTaskWrapper();
-		LoginTask task = taskloging.getLoginTaskByDomain("zbj.com");*/
 
 		Dao dao = DaoManager.getDao(LoginTaskWrapper.class);
 		LoginTaskWrapper loginTaskWrapper = (LoginTaskWrapper) dao.queryForId("48");
@@ -214,7 +211,12 @@ public class LoginTaskTest {
 
 		((Distributor)ChromeDriverDistributor.getInstance()).submitLoginTask(agent, loginTaskWrapper.login_task);
 
-		Thread.sleep(100000000);
+		Thread.sleep(100000000);*/
 
+		ChromeDriverAgent agent = new ChromeDriverAgent();
+
+		Account account = AccountManager.getInstance().getAccountById("1");
+		Scheduler.getInstance().addLoginTaskToAgent(agent, account);
+		Thread.sleep(100000000);
 	}
 }

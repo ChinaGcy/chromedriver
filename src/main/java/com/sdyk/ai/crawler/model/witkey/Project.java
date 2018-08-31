@@ -166,6 +166,7 @@ public class Project extends Model{
 			}
 
 			this.tags.addAll(Arrays.asList(categories));
+
 		}
 	}
 

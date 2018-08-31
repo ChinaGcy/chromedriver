@@ -6,6 +6,7 @@ import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.DateFormatUtil;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
@@ -90,6 +91,10 @@ public class ServiceProviderTask extends Task {
 
 					serviceProvider.domain_id = 1;
 
+					LocationParser parser = LocationParser.getInstance();
+					if (serviceProvider.location != null && serviceProvider.location.length() > 0) {
+						serviceProvider.location = parser.matchLocation(serviceProvider.location).get(0).toString();
+					}
 					serviceProvider.insert();
 				} catch (Exception e) {
 					logger.error("insert/update error {}", e);

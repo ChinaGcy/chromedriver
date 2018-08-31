@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.DateFormatUtil;
+import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
@@ -121,6 +122,12 @@ public class TendererTask extends Task {
 				// 定时任务
 				tenderer.domain_id = 1;
 
+				LocationParser parser = LocationParser.getInstance();
+				if (tenderer.location != null && tenderer.location.length() > 0) {
+					tenderer.location = parser
+							.matchLocation(tenderer.location)
+							.get(0).toString();
+				}
 				boolean status = tenderer.insert();
 				ScheduledChromeTask st = t.getScheduledChromeTask();
 

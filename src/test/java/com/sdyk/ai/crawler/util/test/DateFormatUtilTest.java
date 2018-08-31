@@ -14,8 +14,8 @@ public class DateFormatUtilTest {
 	public void time() throws ParseException {
 
 		String s = "2个月前来过";
-		String s1 = "";
-		Date ss = DateFormatUtil.parseTime(s);
+		String s1 = "2018-02-06";
+		Date ss = DateFormatUtil.parseTime(s1);
 
 		//Date date = new Date();
 
