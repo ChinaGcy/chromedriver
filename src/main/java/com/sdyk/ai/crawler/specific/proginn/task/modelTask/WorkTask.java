@@ -31,8 +31,6 @@ public class WorkTask extends Task {
 
 		this.setPriority(Priority.MEDIUM);
 
-		this.setNoFetchImages();
-
 		// 检测异常
 		this.setValidator((a,t) -> {
 

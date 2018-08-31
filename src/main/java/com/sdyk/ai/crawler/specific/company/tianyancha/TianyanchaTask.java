@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.company.CompanyFinancing;
 import com.sdyk.ai.crawler.model.company.CompanyInformation;
-import com.sdyk.ai.crawler.model.company.CompanyStaff;
 import com.sdyk.ai.crawler.task.Task;
 import com.sdyk.ai.crawler.util.LocationParser;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
@@ -48,10 +47,6 @@ public class TianyanchaTask extends Task {
 	public TianyanchaTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-
-		this.setNoFetchImages();
-
-		this.setPriority(Priority.HIGHEST);
 
 		this.addAction( new ClickAction("div.summary > span.link-click", 2000));
 

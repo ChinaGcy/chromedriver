@@ -50,8 +50,6 @@ public class TendererTask extends Task {
 
         this.setPriority(Priority.HIGH);
 
-	    this.setNoFetchImages();
-
 	    this.setValidator((a,t) -> {
 
 		    String src = getResponse().getText();

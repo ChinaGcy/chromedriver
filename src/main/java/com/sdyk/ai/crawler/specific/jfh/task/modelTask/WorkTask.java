@@ -5,7 +5,6 @@ import com.sdyk.ai.crawler.model.witkey.Work;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
 import com.sdyk.ai.crawler.specific.jfh.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
-import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.AccountException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,7 +13,6 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 public class WorkTask extends Task {
@@ -46,8 +44,6 @@ public class WorkTask extends Task {
 		});
 
 		this.setPriority(Priority.MEDIUM);
-
-		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 

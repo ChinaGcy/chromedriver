@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Resume;
 import com.sdyk.ai.crawler.model.witkey.ServiceProvider;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask;
-import com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.DateFormatUtil;
 import com.sdyk.ai.crawler.util.StringUtil;
@@ -17,7 +15,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -90,6 +87,8 @@ public class ServiceProviderTask extends Task {
 					} else {
 						serviceProvider.platform_certification.add("企业");
 					}
+
+					serviceProvider.domain_id = 1;
 
 					serviceProvider.insert();
 				} catch (Exception e) {

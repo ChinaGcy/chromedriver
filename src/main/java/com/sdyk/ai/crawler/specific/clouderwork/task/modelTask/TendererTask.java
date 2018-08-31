@@ -2,26 +2,28 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
+import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.model.witkey.TendererRating;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
-import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
-import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
-import one.rewind.io.requester.task.*;
+import one.rewind.io.requester.task.ChromeTaskFactory;
+import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class TendererTask extends Task {
@@ -44,8 +46,6 @@ public class TendererTask extends Task {
         super(url);
 
         this.setPriority(Priority.HIGH);
-
-	    //this.setNoFetchImages();
 
 	    // 判断是否发生异常
 	    this.setValidator((a, t) -> {

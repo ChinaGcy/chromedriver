@@ -3,20 +3,20 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ServiceProviderTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.io.requester.task.ScheduledChromeTask;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,8 +44,6 @@ public class ServiceScanTask extends ScanTask {
         super(url);
 
         this.setPriority(Priority.HIGHER);
-
-	    this.setNoFetchImages();
 
         this.setParam("page", url.split("pagenum=")[1]);
 

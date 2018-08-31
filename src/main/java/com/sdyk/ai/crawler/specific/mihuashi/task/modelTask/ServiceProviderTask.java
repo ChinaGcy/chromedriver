@@ -45,8 +45,6 @@ public class ServiceProviderTask extends Task {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
-
 		this.setValidator((a,t) -> {
 
 			String src = getResponse().getText();

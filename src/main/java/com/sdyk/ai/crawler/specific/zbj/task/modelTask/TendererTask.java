@@ -1,7 +1,6 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
-
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.util.DateFormatUtil;
@@ -16,10 +15,7 @@ import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 雇主详情
@@ -123,6 +119,8 @@ public class TendererTask extends Task {
 						one.rewind.txt.StringUtil.uuid("https:" + head1));
 
 				// 定时任务
+				tenderer.domain_id = 1;
+
 				boolean status = tenderer.insert();
 				ScheduledChromeTask st = t.getScheduledChromeTask();
 

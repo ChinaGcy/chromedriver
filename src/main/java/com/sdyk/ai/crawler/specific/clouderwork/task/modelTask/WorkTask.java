@@ -6,13 +6,12 @@ import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.exception.AccountException;
-import one.rewind.io.requester.task.ChromeTask;
 import org.jsoup.nodes.Document;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -34,8 +33,6 @@ public class WorkTask extends Task {
 		super(url);
 
 		this.setPriority(Priority.MEDIUM);
-
-		this.setNoFetchImages();
 
 		// 判断是否发生异常
 		this.setValidator((a, t) -> {

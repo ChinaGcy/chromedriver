@@ -48,10 +48,6 @@ public class LagouScanTask extends ScanTask {
 
 		super(url);
 
-		this.setNoFetchImages();
-
-		this.setPriority(Priority.HIGHEST);
-
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();

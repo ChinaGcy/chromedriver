@@ -50,8 +50,6 @@ public class ServiceProviderRatingTask extends Task {
 
 		this.setPriority(Priority.MEDIUM);
 
-		this.setNoFetchImages();
-
 		this.addDoneCallback((t) -> {
 
 			String src = getResponse().getText();

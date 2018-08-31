@@ -41,8 +41,6 @@ public class ServiceScanTask extends ScanTask {
 
 		this.setPriority(Priority.HIGH);
 
-		this.setNoFetchImages();
-
 		// 检测异常
 		this.setValidator((a,t) -> {
 

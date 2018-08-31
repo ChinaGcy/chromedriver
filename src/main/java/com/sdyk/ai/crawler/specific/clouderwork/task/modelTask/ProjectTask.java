@@ -3,21 +3,21 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
+import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.clouderwork.task.Task;
 import com.sdyk.ai.crawler.specific.clouderwork.util.CrawlerAction;
-import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskFactory;
-import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.requester.task.ScheduledChromeTask;
-import one.rewind.util.FileUtil;
+import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
@@ -49,8 +49,6 @@ public class ProjectTask extends Task {
         // 设置优先级
         this.setPriority(Priority.HIGH);
 
-	    this.setNoFetchImages();
-
 	    // 判断是否发生异常
 	    this.setValidator((a, t) -> {
 
@@ -68,9 +66,6 @@ public class ProjectTask extends Task {
 	        // 获取页面信息
 	        Document doc = getResponse().getDoc();
 	        String src = getResponse().getText();
-
-	        // 下载页面
-	        FileUtil.writeBytesToFile(src.getBytes(), "project.html");
 
 	        // 判断页面是否正确
 	        if (src.contains("失败")||src.contains("错误")) {

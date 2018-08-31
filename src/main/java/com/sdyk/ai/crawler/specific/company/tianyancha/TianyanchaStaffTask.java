@@ -40,10 +40,6 @@ public class TianyanchaStaffTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGHEST);
-
-		this.setNoFetchImages();
-
 		this.setValidator((a, t)->{
 
 			String src = getResponse().getText();

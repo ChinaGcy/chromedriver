@@ -3,24 +3,19 @@ package com.sdyk.ai.crawler.specific.clouderwork.task.scanTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.ProjectTask;
-import com.sdyk.ai.crawler.specific.clouderwork.task.modelTask.WorkTask;
-import net.bytebuddy.implementation.bytecode.Throw;
-import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
-import one.rewind.io.requester.task.*;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.txt.DateFormatUtil;
-import one.rewind.txt.URLUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,8 +39,6 @@ public class ProjectScanTask extends ScanTask {
 		super(url);
 
 		this.setParam("page", url.split("pagenum=")[1]);
-
-	    this.setNoFetchImages();
 
         this.setPriority(Priority.HIGHER);
 

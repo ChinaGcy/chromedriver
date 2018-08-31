@@ -37,8 +37,6 @@ public class CaseTask extends Task {
 
 		this.setPriority(Priority.LOW);
 
-		this.setNoFetchImages();
-
 		// 检测异常
 		this.setValidator((a,t) -> {
 

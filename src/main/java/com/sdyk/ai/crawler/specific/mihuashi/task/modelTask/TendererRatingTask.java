@@ -44,8 +44,6 @@ public class TendererRatingTask extends Task {
 
         this.setPriority(Priority.MEDIUM);
 
-		this.setNoFetchImages();
-
 		this.setValidator((a,t) -> {
 
 			String src = getResponse().getText();

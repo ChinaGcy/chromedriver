@@ -43,8 +43,6 @@ public class CaseTask extends Task {
 
 		this.setPriority(Priority.LOW);
 
-		this.setNoFetchImages();
-
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();

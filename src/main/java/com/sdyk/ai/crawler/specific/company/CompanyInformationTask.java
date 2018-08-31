@@ -13,13 +13,15 @@ import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CompanyInformationTask extends Task {
 
@@ -39,8 +41,6 @@ public class CompanyInformationTask extends Task {
 		super(url);
 
 		this.setPriority(Priority.HIGHEST);
-
-		this.setNoFetchImages();
 
 		this.addDoneCallback((t) -> {
 
@@ -94,8 +94,11 @@ public class CompanyInformationTask extends Task {
 			companyInfo.industry = node.get("industry").textValue();
 
 			//认证时间
-			long l = Long.valueOf(node.get("approvedTime").textValue());
-			companyInfo.approved_time = new Date(l);
+			String approvedTimeSrc = node.get("approvedTime").textValue();
+			if( approvedTimeSrc != null ){
+				long l = Long.valueOf(approvedTimeSrc);
+				companyInfo.approved_time = new Date(l);
+			}
 
 			//logo
 			String logoUrl = node.get("logo").textValue();

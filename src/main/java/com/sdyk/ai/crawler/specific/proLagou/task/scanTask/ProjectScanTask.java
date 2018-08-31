@@ -39,8 +39,6 @@ public class ProjectScanTask extends com.sdyk.ai.crawler.task.ScanTask {
 
         this.setPriority(Priority.HIGH);
 
-	    this.setNoFetchImages();
-
         this.setParam("page", url.split("project/")[1]);
 
         this.setValidator((a,t) -> {

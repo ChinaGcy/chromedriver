@@ -32,10 +32,6 @@ public class LagouTask extends Task {
 
 		super(url);
 
-		this.setPriority(Priority.HIGHEST);
-
-		this.setNoFetchImages();
-
 		this.addDoneCallback((t) -> {
 
 			Document doc = getResponse().getDoc();

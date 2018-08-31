@@ -3,19 +3,17 @@ package com.sdyk.ai.crawler.specific.jfh.task.scanTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.TaskTrace;
-import com.sdyk.ai.crawler.specific.jfh.task.modelTask.ServiceProviderTask;
-import com.sdyk.ai.crawler.task.Task;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
-import one.rewind.io.requester.chrome.ChromeTaskScheduler;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
-import one.rewind.io.requester.task.*;
+import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
-import org.jsoup.nodes.Document;
-import java.io.UnsupportedEncodingException;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServiceScanTask extends ScanTask {
 
@@ -46,8 +44,6 @@ public class ServiceScanTask extends ScanTask {
 			}
 
 		});
-
-		this.setNoFetchImages();
 
 		this.setParam("page", url.split("shops/\\?")[1]);
 

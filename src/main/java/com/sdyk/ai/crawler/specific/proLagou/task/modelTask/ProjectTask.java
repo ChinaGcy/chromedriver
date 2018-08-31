@@ -45,8 +45,6 @@ public class ProjectTask extends Task {
     	// 设置优先级
         this.setPriority(Priority.HIGH);
 
-	    this.setNoFetchImages();
-
 	    // 检测异常
 	    this.setValidator((a,t) -> {
 
