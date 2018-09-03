@@ -171,6 +171,8 @@ public class ProjectTask extends Task {
 
 						if (tenderer_webId != null && tenderer_webId.length() > 0) {
 
+							tenderer_webId = tenderer_webId.replace("\"", "");
+
 							//设置参数
 							Map<String, Object> init_map = ImmutableMap.of("tenderer_id", tenderer_webId);
 
