@@ -34,7 +34,7 @@ public class ProjectTask extends Task {
 
 	public static long MIN_INTERVAL = 60 * 60 * 1000L;
 
-	//public static List<String> crons = Arrays.asList("* * */1 * *");
+	public static List<String> crons = Arrays.asList("* * */1 * *");
 
 	static {
 		registerBuilder(
@@ -143,7 +143,7 @@ public class ProjectTask extends Task {
 					}
 
 					// TODO 调用需求评分接口
-					/*try {
+					try {
 
 						String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
 						ChromeTask chromeTask = new ChromeTask(Project_url);
@@ -151,7 +151,7 @@ public class ProjectTask extends Task {
 						BasicRequester.getInstance().submit(t);
 					} catch (Exception e) {
 						logger.error("Error calculate project rating. ", e);
-					}*/
+					}
 
 					try {
 
@@ -174,10 +174,10 @@ public class ProjectTask extends Task {
 						logger.error("error for submit TendererTask.class", e);
 					}
 
-					//ScheduledChromeTask st = t.getScheduledChromeTask();
+					ScheduledChromeTask st = t.getScheduledChromeTask();
 
 					// 第一次抓取生成定时任务 快照
-					/*if(st == null) {
+					if(st == null) {
 
 						st = new ScheduledChromeTask(t.getHolder(), crons);
 						st.start();
@@ -186,7 +186,7 @@ public class ProjectTask extends Task {
 					// 已完成项目停止定时任务
 					if(project.status == null && (project.status.contains("完成") || project.status.contains("成功") || project.status.contains("失败"))){
 						st.stop();
-					}*/
+					}
 				}
 
 			} catch (Exception e) {
@@ -474,11 +474,6 @@ public class ProjectTask extends Task {
 
 			// 获取招标人id
 			return getTendererIdName(doc, src);
-			/*try {
-				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
-			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract channel: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
-			}*/
 
 		} catch (Exception e) {
 			logger.error("Error handle page category 1, {}, ", getUrl(), e);
@@ -504,7 +499,6 @@ public class ProjectTask extends Task {
 					"").replace(">", "");
 
 			Elements elements = doc.select("#utopia_widget_2 > li");
-			System.err.println(elements.text());
 			for (int i = 1; i < elements.size(); i++) {
 				project.tags.add(elements.get(i).text().replace(">", "")
 						.replace(" ", ""));
