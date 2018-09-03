@@ -1,20 +1,18 @@
 package com.sdyk.ai.crawler;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.sdyk.ai.crawler.account.AccountManager;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.exception.NoAvailableAccountException;
+import com.sdyk.ai.crawler.exception.NoAvailableProxyException;
 import com.sdyk.ai.crawler.model.Domain;
 import com.sdyk.ai.crawler.model.LoginTaskWrapper;
 import com.sdyk.ai.crawler.model.TaskInitializer;
-import com.sdyk.ai.crawler.exception.NoAvailableProxyException;
-import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.proxy.AliyunHost;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
+import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.task.LoginTask;
-import com.sun.javafx.collections.MappingChange;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.account.Account;
@@ -26,17 +24,14 @@ import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.server.Msg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.management.resources.agent;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 
 import static com.sdyk.ai.crawler.Scheduler.flag.PerformLoginTasks;
-import static one.rewind.util.FileUtil.readFileByLines;
 
 /**
  * Agent 初始化
@@ -54,9 +49,9 @@ public class Scheduler {
 
 	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
 
-	public static int DriverCount_ProxyAliyun = 0;
+	public static int DriverCount_ProxyAliyun = 2;
 
-	public static int DriverCount_ProxyOwn = 1;
+	public static int DriverCount_ProxyOwn = 3;
 
 	// 定义启动agent个数
 	public static int DefaultDriverCount = DriverCount_ProxyAliyun + DriverCount_ProxyOwn;
@@ -190,7 +185,7 @@ public class Scheduler {
 			try {
 
 				// 设置账户状态
-				account_.status = Account.Status.Broken;
+				account_.status = Account.Status.Free;
 
 				// 更新账户状态
 				account_.update();
@@ -539,7 +534,7 @@ public class Scheduler {
 			return t.enable == true;
 		}).forEach( t ->{
 
-			/*try {
+			try {
 
 				if( t.cron == null ){
 
@@ -562,7 +557,7 @@ public class Scheduler {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-			}*/
+			}
 		});
 
 		// 每 10 分钟 执行一次百度任务

@@ -1,14 +1,13 @@
 package com.sdyk.ai.crawler;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
+import com.sdyk.ai.crawler.model.Binary;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
-import com.sdyk.ai.crawler.proxy.model.ProxyImpl;
 import com.sdyk.ai.crawler.task.ScanTask;
-import com.sdyk.ai.crawler.task.Task;
 import com.sdyk.ai.crawler.util.StatManager;
+import one.rewind.db.FastDFSAdapter;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
@@ -16,28 +15,18 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ChromeDriverException;
 import one.rewind.io.requester.exception.TaskException;
-import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.io.requester.task.TaskHolder;
-import one.rewind.json.JSON;
 import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.json.Json;
 import org.redisson.api.RMap;
-import sun.management.resources.agent;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Distributor extends ChromeDriverDistributor {
 
@@ -102,7 +91,7 @@ public class Distributor extends ChromeDriverDistributor {
 					};
 				});
 			}
-		},1 * 60 * 1000 , 1 * 60 * 1000);
+		},10 * 60 * 1000 , 10 * 60 * 1000);
 	}
 
 	/**
@@ -316,6 +305,27 @@ public class Distributor extends ChromeDriverDistributor {
 				taskQueueStat.put(className, taskQueueStat.get(className) - 1);
 				String hash = StringUtil.MD5(t.getUrl());
 				URL_VISITS_SET.remove(hash);
+
+				String fileName = t.getResponse().getDoc().title();
+
+				// 下载 src
+				if( t.getSaveSrc() ){
+					try {
+						// 创建 binary 对象
+						Binary binary = new Binary(t.getUrl());
+						binary.file_name = fileName;
+
+						// 上传文件
+						String[] sArray = FastDFSAdapter.getInstance().upload_file(t.getResponse().getSrc(), null, null);
+						binary.fdfs_group = sArray[0];
+						binary.fdfs_filepath = sArray[1];
+
+						binary.insert();
+					} catch (Exception e) {
+						logger.error("error for downSrc", e);
+					}
+				}
+
 			});
 
 			// 对于ScanTask 记录TaskTrace
@@ -341,7 +351,7 @@ public class Distributor extends ChromeDriverDistributor {
 				if(t.needRetry()) {
 
 					// 重试逻辑
-					if( t.getRetryCount() < 3 ) {
+					if( t.getRetryCount() < 1 ) {
 
 						t.addRetryCount();
 						if(holder_ != null) {
@@ -417,4 +427,5 @@ public class Distributor extends ChromeDriverDistributor {
 
 		return null;
 	}
+
 }
