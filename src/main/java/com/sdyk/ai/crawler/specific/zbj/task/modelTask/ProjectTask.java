@@ -18,6 +18,7 @@ import one.rewind.util.FileUtil;
 import org.elasticsearch.index.fielddata.ScriptDocValues;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.redisson.executor.ScheduledTasksService;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -92,6 +93,8 @@ public class ProjectTask extends Task {
 				// 初始化 必须传入url 生成主键id
 				project = new Project(url);
 
+				project.tags = new ArrayList<>();
+
 				project.domain_id = 1;
 
 				project.origin_id = t.getStringFromVars("project_id");
@@ -109,7 +112,7 @@ public class ProjectTask extends Task {
 				//#headerNavWrap > div:nth-child(1) > div > a
 				if (pageAccessible(src)) {
 					String header;
-					header = doc.select("#j-zbj-header-bd-wrap > div > div.bd-logo.clearfix > a > h1").text();
+					header = doc.select("#j-zbj-header-bd-wrap > div > div.bd-logo.clearfix > h1 > a").text();
 
 					//#j-zbj-header-bd-wrap > div > div.bd-logo.clearfix > a > h1
 					if (header == null || header.equals("")) {
@@ -122,6 +125,7 @@ public class ProjectTask extends Task {
 						logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
 						try {
 							tenderer_webId = procTypeA(doc, src, header);
+
 							project.insert();
 						} catch (Exception e) {
 							logger.error("insert error for project", e);
@@ -131,6 +135,7 @@ public class ProjectTask extends Task {
 					else if (pageType(header) == PageType.ReqDetail) {
 						try {
 							tenderer_webId = procTypeB(doc, header);
+
 							project.insert();
 						} catch (Exception e) {
 							logger.error("insert error for project", e);
@@ -138,7 +143,7 @@ public class ProjectTask extends Task {
 					}
 
 					// TODO 调用需求评分接口
-					/*try {
+					try {
 
 						String Project_url = "http://10.0.0.63:51001/project/eval/" + project.id;
 						ChromeTask chromeTask = new ChromeTask(Project_url);
@@ -146,7 +151,7 @@ public class ProjectTask extends Task {
 						BasicRequester.getInstance().submit(t);
 					} catch (Exception e) {
 						logger.error("Error calculate project rating. ", e);
-					}*/
+					}
 
 					try {
 
@@ -176,11 +181,10 @@ public class ProjectTask extends Task {
 
 						st = new ScheduledChromeTask(t.getHolder(), crons);
 						st.start();
-
 						this.getScheduledChromeTask();
 					}
 					// 已完成项目停止定时任务
-					if( project.status.contains("完成") || project.status.contains("成功") || project.status.contains("失败")){
+					if(project.status == null && (project.status.contains("完成") || project.status.contains("成功") || project.status.contains("失败"))){
 						st.stop();
 					}
 				}
@@ -267,7 +271,7 @@ public class ProjectTask extends Task {
 	public void projectStateTwo(Document doc) {
 
 		// 项目状态
-		// A 当前状态
+		// A 当前状态 div.timeline > div > div > ul > li.current > p:nth-child(3)
 		String status = doc.select(".timeline > div > div > ul > li.current > p:nth-child(3)")
 					.text();
 		// B 结束状态
@@ -470,11 +474,6 @@ public class ProjectTask extends Task {
 
 			// 获取招标人id
 			return getTendererIdName(doc, src);
-			/*try {
-				tasks.add(new TendererTask("https://home.zbj.com/" + project.tenderer_id));
-			} catch (MalformedURLException | URISyntaxException e) {
-				logger.error("Error extract channel: {}, ", "http://home.zbj.com/" + project.tenderer_id, e);
-			}*/
 
 		} catch (Exception e) {
 			logger.error("Error handle page category 1, {}, ", getUrl(), e);
@@ -500,13 +499,9 @@ public class ProjectTask extends Task {
 					"").replace(">", "");
 
 			Elements elements = doc.select("#utopia_widget_2 > li");
-			for (int i = 2; i < elements.size(); i++) {
-				if (i == elements.size()-1 ) {
-					project.tags.add(elements.get(i).text().replace(">", "")
-							.replace(" ", ""));
-				}else {
-					project.tags.add(elements.get(i).text().replace(">", ",").replace(" ", ""));
-				}
+			for (int i = 1; i < elements.size(); i++) {
+				project.tags.add(elements.get(i).text().replace(">", "")
+						.replace(" ", ""));
 			}
 			if (project.tags.size() == 0) {
 				project.tags.add(doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(3) > b").text());

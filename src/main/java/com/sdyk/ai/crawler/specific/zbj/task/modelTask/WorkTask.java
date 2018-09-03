@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +47,8 @@ public class WorkTask extends Task {
 				Document doc = getResponse().getDoc();
 
 				work = new Work(getUrl());
+
+				work.tags = new ArrayList<>();
 
 				work.user_id = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid(

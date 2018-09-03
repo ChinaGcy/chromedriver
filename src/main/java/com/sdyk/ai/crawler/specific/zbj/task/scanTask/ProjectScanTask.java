@@ -31,8 +31,8 @@ public class ProjectScanTask extends ScanTask {
 		registerBuilder(
 				ProjectScanTask.class,
 				"https://task.zbj.com/page{{page}}.html",
-				ImmutableMap.of("page", String.class),
-				ImmutableMap.of("page", "1"),
+				ImmutableMap.of("page", String.class, "max_page", String.class),
+				ImmutableMap.of("page", "1", "max_page", "2"),
 				false,
 				Priority.MEDIUM
 		);
@@ -49,7 +49,6 @@ public class ProjectScanTask extends ScanTask {
 	public ProjectScanTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 
 		super(url);
-
 
 		// 设置优先级
 		this.setPriority(Priority.HIGH);

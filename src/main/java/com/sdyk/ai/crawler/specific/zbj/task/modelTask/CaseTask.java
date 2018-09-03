@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +50,8 @@ public class CaseTask extends Task {
 
 				if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
 					ca = new Case(getUrl());
+
+					ca.tags = new ArrayList<>();
 
 					ca.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid("https://shop.zbj.com/" + getUrl().split("/")[3] + "/"));
 
