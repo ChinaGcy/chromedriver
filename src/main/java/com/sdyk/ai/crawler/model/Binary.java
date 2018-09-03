@@ -32,6 +32,14 @@ public class Binary extends com.sdyk.ai.crawler.model.Model {
 	@DatabaseField(dataType = DataType.DOUBLE)
 	public transient double file_size;
 
+	// FDFS 组信息
+	@DatabaseField(dataType = DataType.STRING, width = 128)
+	public String fdfs_group;
+
+	// FDFS 路径信息
+	@DatabaseField(dataType = DataType.STRING, width = 1024)
+	public String fdfs_filepath;
+
 	public Binary () {}
 
 	public Binary(String url) {
