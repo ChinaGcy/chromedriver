@@ -146,6 +146,9 @@ public class Project extends Model{
 		super(url);
 	}
 
+	/**
+	 * 插入ES前的操作
+	 */
 	public void fullfill() {
 
 		if (this.category != null && this.category.length() > 0) {
@@ -170,6 +173,27 @@ public class Project extends Model{
 		}
 	}
 
+	/**
+	 * 添加tags
+	 * @param tag
+	 * @return
+	 */
+	public Project addTag(String... tag) {
+
+		if (tags == null) {
+			tags = new ArrayList<>();
+		}
+
+		for (String tag_ : tag) {
+			tags.add(tag_);
+		}
+		return this;
+	}
+
+	/**
+	 * 插入数据库
+	 * @return
+	 */
 	public boolean insert() {
 
 		super.insert();

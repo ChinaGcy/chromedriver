@@ -254,6 +254,23 @@ public class ServiceProvider extends Model {
 	}
 
 	/**
+	 * 添加tags
+	 * @param tag
+	 * @return
+	 */
+	public ServiceProvider addTag(String... tag) {
+
+		if (tags == null) {
+			tags = new ArrayList<>();
+		}
+
+		for (String tag_ : tag) {
+			tags.add(tag_);
+		}
+		return this;
+	}
+
+	/**
 	 *
 	 * @param oldVersion
 	 * @throws Exception

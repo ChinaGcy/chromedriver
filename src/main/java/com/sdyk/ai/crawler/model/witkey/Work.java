@@ -9,6 +9,7 @@ import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 import one.rewind.db.DaoManager;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -111,5 +112,22 @@ public class Work extends Model {
 			logger.error("Can not find ServiceProvider: {}", this.user_id, e);
 			return false;
 		}
+	}
+
+	/**
+	 * 添加tags
+	 * @param tag
+	 * @return
+	 */
+	public Work addTag(String... tag) {
+
+		if (tags == null) {
+			tags = new ArrayList<>();
+		}
+
+		for (String tag_ : tag) {
+			tags.add(tag_);
+		}
+		return this;
 	}
 }

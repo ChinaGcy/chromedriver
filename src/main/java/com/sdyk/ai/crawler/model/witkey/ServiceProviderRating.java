@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.model.Model;
 import com.sdyk.ai.crawler.util.JSONableListPersister;
 import one.rewind.db.DBName;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,5 +59,22 @@ public class ServiceProviderRating extends Model {
 
 	public ServiceProviderRating(String url) {
 		super(url);
+	}
+
+	/**
+	 * 添加tags
+	 * @param tag
+	 * @return
+	 */
+	public ServiceProviderRating addTag(String... tag) {
+
+		if (tags == null) {
+			tags = new ArrayList<>();
+		}
+
+		for (String tag_ : tag) {
+			tags.add(tag_);
+		}
+		return this;
 	}
 }
