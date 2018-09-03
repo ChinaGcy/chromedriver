@@ -184,7 +184,11 @@ public class ProjectTask extends Task {
 						this.getScheduledChromeTask();
 					}
 					// 已完成项目停止定时任务
-					if(project.status == null && (project.status.contains("完成") || project.status.contains("成功") || project.status.contains("失败"))){
+					if(project.status == null
+							&& (project.status.contains("完成")
+							|| project.status.contains("成功")
+							|| project.status.contains("失败")
+							|| project.status.contains("截止"))){
 						st.stop();
 					}
 				}

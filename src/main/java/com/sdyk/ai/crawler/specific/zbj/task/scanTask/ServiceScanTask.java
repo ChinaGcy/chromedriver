@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj.task.scanTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
@@ -31,8 +32,8 @@ public class ServiceScanTask extends ScanTask {
 		registerBuilder(
 				ServiceScanTask.class,
 				"https://www.zbj.com/home/pk{{page}}.html",
-				ImmutableMap.of("page", String.class),
-				ImmutableMap.of("page", "1"),
+				ImmutableMap.of("page", String.class, "max_page", String.class),
+				ImmutableMap.of("page", "1", "max_page", ""),
 				false,
 				Priority.MEDIUM
 		);
@@ -131,6 +132,52 @@ public class ServiceScanTask extends ScanTask {
 			} catch (Exception e) {
 				logger.error(e);
 			}
+
+
+			String maxPageSrc = t.getStringFromVars("max_page");
+
+			// 不含 max_page 参数，则表示可以一直翻页
+			if( maxPageSrc.length() < 1 ){
+
+				try {
+
+					int next = page + 1;
+
+					//设置参数
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("page", String.valueOf(next));
+					init_map.put("max_page", "");
+
+					//生成holder
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(ProjectScanTask.class, init_map);
+
+					//提交任务
+					((Distributor)ChromeDriverDistributor.getInstance()).submit(holder);
+
+				} catch ( Exception e) {
+
+					logger.error("error for submit ProjectScanTask.class", e);
+				}
+
+			}
+			// 含有 max_page 参数，若max_page小于当前页则不进行翻页
+			else {
+
+				int maxPage = Integer.valueOf(maxPageSrc);
+				int current_page = Integer.valueOf(t.getStringFromVars("page"));
+
+				for(int i = current_page + 1; i <= maxPage; i++) {
+
+					Map<String, Object> init_map = new HashMap<>();
+					init_map.put("page", String.valueOf(i));
+					init_map.put("max_page", "0");
+
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(t.getClass(), init_map);
+
+					ChromeDriverDistributor.getInstance().submit(holder);
+				}
+			}
+
 		});
 	}
 	@Override
