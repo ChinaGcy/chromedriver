@@ -15,6 +15,7 @@ import org.openqa.selenium.NoSuchElementException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +75,8 @@ public class ServiceProviderRatingTask extends ScanTask {
 
 					// 防止每个评论的url一样导致id相同
 					serviceProviderRating = new ServiceProviderRating(getUrl() + "--number:" + i);
+
+					serviceProviderRating.tags = new ArrayList<>();
 
 					// 每个评价
 					ratingData(doc, i, user_id);

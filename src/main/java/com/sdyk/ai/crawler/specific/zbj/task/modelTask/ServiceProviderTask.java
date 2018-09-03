@@ -62,6 +62,8 @@ public class ServiceProviderTask extends Task {
 
 				serviceProvider.origin_id = t.getStringFromVars("user_id");
 
+				serviceProvider.tags = new ArrayList<>();
+
 				shareData(doc, src);
 
 				// 判断是哪个页面格式

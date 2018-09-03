@@ -17,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +66,8 @@ public class TendererRatingTask extends ScanTask {
 					for (int i = 1; i <= doc.select("#evaluation > div > div.panel-content > ul >li").size(); i++) {
 
 						tendererRating = new TendererRating(getUrl() + "&" + i);
+
+						tendererRating.tags = new ArrayList<>();
 
 						tendererRating.user_id = one.rewind.txt.StringUtil.byteArrayToHex(
 								one.rewind.txt.StringUtil.uuid(
