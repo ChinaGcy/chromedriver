@@ -1,6 +1,7 @@
 package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 
 import com.google.common.collect.ImmutableMap;
+import com.sdyk.ai.crawler.Distributor;
 import com.sdyk.ai.crawler.model.witkey.Project;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
 import com.sdyk.ai.crawler.specific.zbj.task.action.RefreshAction;
@@ -11,6 +12,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
@@ -105,6 +107,8 @@ public class ProjectTask extends Task {
 					return;
 				}
 
+				ScheduledChromeTask st = t.getScheduledChromeTask();
+
 				// TODO 猪八戒页面更新
 				// 补充示例页面 channel: http://task.zbj.com/12919315/，http://task.zbj.com/9790967/
 
@@ -125,8 +129,13 @@ public class ProjectTask extends Task {
 						logger.trace("Model: {}, Type: {}, URL: {}", Project.class.getSimpleName(), PageType.OrderDetail.name(), getUrl());
 						try {
 							tenderer_webId = procTypeA(doc, src, header);
-
-							project.insert();
+							// 重试
+							if(project.title != null && project.title.length() > 0) {
+								project.insert();
+							} else {
+								Distributor.getInstance().submit(this.getHolder());
+								return;
+							}
 						} catch (Exception e) {
 							logger.error("insert error for project", e);
 						}
@@ -136,6 +145,13 @@ public class ProjectTask extends Task {
 						try {
 							tenderer_webId = procTypeB(doc, header);
 
+							// 重试
+							if(project.title != null && project.title.length() > 0) {
+								project.insert();
+							} else {
+								Distributor.getInstance().submit(this.getHolder());
+								return;
+							}
 							project.insert();
 						} catch (Exception e) {
 							logger.error("insert error for project", e);
@@ -163,7 +179,7 @@ public class ProjectTask extends Task {
 							Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererTask");
 
 							//生成holder
-							TaskHolder holder = this.getHolder(clazz, init_map);
+							TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 							//提交任务
 							ChromeDriverDistributor.getInstance().submit(holder);
@@ -174,8 +190,6 @@ public class ProjectTask extends Task {
 						logger.error("error for submit TendererTask.class", e);
 					}
 
-					ScheduledChromeTask st = t.getScheduledChromeTask();
-
 					// 第一次抓取生成定时任务 快照
 					if(st == null) {
 
@@ -184,12 +198,19 @@ public class ProjectTask extends Task {
 						this.getScheduledChromeTask();
 					}
 					// 已完成项目停止定时任务
-					if(project.status == null
-							&& (project.status.contains("完成")
+					if( project.status != null && project.status.length() > 0 && (project.status.contains("完成")
 							|| project.status.contains("成功")
 							|| project.status.contains("失败")
 							|| project.status.contains("截止"))){
 						st.stop();
+					}
+				} else {
+					project = new Project(url);
+
+					project = (Project) project.query();
+					if (project != null) {
+						st.stop();
+
 					}
 				}
 
@@ -281,14 +302,15 @@ public class ProjectTask extends Task {
 		// B 结束状态
 		String status1 = doc.select(".timeline > div > div > ul > li.current > p:nth-child(2)")
 				.text();
-		Elements elements = doc.select(".timeline > div > div > ul > li");
 
 		String time = doc.select(".timeline > div > div > ul > li.current > div.clock.absolute-1").attr("data-difftime");
 
 		// 已经完成
 		if (status == null || status.equals("")) {
-			project.status = elements.get(elements.size()-1).select(" p:nth-child(2)").text() + " - "
-					+ getString(".main-content > div.header-banner > i", "");;
+			project.status = getString(".main-content > div.header-banner > i", "");
+			if (project.status.contains("投标中")) {
+				project.status = "服务商参与 - 投标中";
+			}
 			project.due_time = null;
 		// 未完成
 		} else {

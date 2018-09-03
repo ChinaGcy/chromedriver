@@ -10,6 +10,7 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.ScheduledChromeTask;
 import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.nodes.Document;
@@ -155,10 +156,9 @@ public class TendererTask extends Task {
 					Map<String, Object> init_map = new HashMap<>();
 					ImmutableMap.of("user_id", userId, "page", "1");
 
-					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) TendererOrderTask.class;
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(ProjectTask.class, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -178,8 +178,7 @@ public class TendererTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) TendererRatingTask.class;
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
-
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
 

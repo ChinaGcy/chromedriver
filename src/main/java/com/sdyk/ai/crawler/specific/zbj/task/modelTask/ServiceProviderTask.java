@@ -11,6 +11,7 @@ import com.sdyk.ai.crawler.util.StringUtil;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -110,7 +111,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.ServiceProviderRatingTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -128,7 +129,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.CaseScanTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -147,7 +148,7 @@ public class ServiceProviderTask extends Task {
 					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.scanTask.WorkScanTask");
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);

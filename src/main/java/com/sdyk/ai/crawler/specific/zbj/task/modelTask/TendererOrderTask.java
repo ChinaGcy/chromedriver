@@ -7,6 +7,7 @@ import com.sdyk.ai.crawler.specific.zbj.task.scanTask.ScanTask;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.ProxyException;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.txt.DateFormatUtil;
 import org.jsoup.nodes.Document;
@@ -67,7 +68,7 @@ public class TendererOrderTask extends ScanTask {
 					Class<? extends ChromeTask> clazz = this.getClass();
 
 					//生成holder
-					TaskHolder holder = this.getHolder(clazz, init_map);
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);

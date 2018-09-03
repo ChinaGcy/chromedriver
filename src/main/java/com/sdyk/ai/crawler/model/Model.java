@@ -189,6 +189,22 @@ public abstract class Model {
 
 	/**
 	 *
+	 * @return
+	 */
+	public Model query() {
+
+		Dao dao = daoMap.get(this.getClass().getSimpleName());
+
+		try {
+			return (Model) dao.queryForId(this.id);
+		} catch (SQLException e) {
+			logger.error("Query error {}", e);
+			return null;
+		}
+	}
+
+	/**
+	 *
 	 */
 	public void insertES() {
 
