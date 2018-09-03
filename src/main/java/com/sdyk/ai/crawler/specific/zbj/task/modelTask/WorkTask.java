@@ -48,8 +48,6 @@ public class WorkTask extends Task {
 
 				work = new Work(getUrl());
 
-				work.tags = new ArrayList<>();
-
 				work.user_id = one.rewind.txt.StringUtil.byteArrayToHex(
 						one.rewind.txt.StringUtil.uuid(
 								"https://shop.zbj.com/"+ work_webId +"/"));
@@ -97,7 +95,7 @@ public class WorkTask extends Task {
 			work.tenderer_name = matcher.group("T");
 		}
 		while (matcher_type.find()) {
-			work.tags.add(matcher_type.group("T"));
+			work.addTag(matcher_type.group("T"));
 		}
 		if (matcher_field.find()) {
 			work.category = matcher_field.group("T");
@@ -136,7 +134,7 @@ public class WorkTask extends Task {
 					.text();
 			work.price = Double.parseDouble(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > div.works-info > p.works-info-amount > em")
 					.text().replaceAll("¥", "").replaceAll(",", ""));
-			work.tags = Arrays.asList(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > ul").text());
+			work.addTag(doc.select("body > div.tp-works-hd > div > div.tp-works-hd-left > ul").text().split(" "));
 
 			String description_src = doc.select("body > div.tp-works-bd > div > div.works-bd-content > div")
 					.html();

@@ -95,8 +95,6 @@ public class ProjectTask extends Task {
 				// 初始化 必须传入url 生成主键id
 				project = new Project(url);
 
-				project.tags = new ArrayList<>();
-
 				project.domain_id = 1;
 
 				project.origin_id = t.getStringFromVars("project_id");
@@ -435,7 +433,6 @@ public class ProjectTask extends Task {
 					.replace(">", "");
 
 			Elements elements = doc.select("body > div.main.task-details > div.grid > ul > li");
-			project.tags = new ArrayList<>();
 			for (int i = 2; i < elements.size(); i++) {
 				project.tags.add(elements.get(i).text().replace(">", "")
 						.replace(" ", ""));
@@ -525,12 +522,16 @@ public class ProjectTask extends Task {
 					"").replace(">", "");
 
 			Elements elements = doc.select("#utopia_widget_2 > li");
+
 			for (int i = 1; i < elements.size(); i++) {
-				project.tags.add(elements.get(i).text().replace(">", "")
+				project.addTag(elements.get(i).text().replace(">", "")
 						.replace(" ", ""));
 			}
-			if (project.tags.size() == 0) {
-				project.tags.add(doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(3) > b").text());
+
+			String tag = doc.select("#trade-content > div.page-info-content.clearfix > div.main-content > div.order-header-block.new-bid.header-block-with-banner > div.wrapper.header-block-div > p.task-describe > span:nth-child(3) > b")
+					.text();
+			if (project.tags == null && tag != null) {
+				project.addTag(tag);
 			}
 
 			String description_src = doc.select(".order-header-block.new-bid.header-block-with-banner > div.task-detail.wrapper > div.task-detail-content.content")

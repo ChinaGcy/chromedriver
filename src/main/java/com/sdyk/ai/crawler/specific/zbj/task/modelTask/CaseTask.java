@@ -51,8 +51,6 @@ public class CaseTask extends Task {
 				if (!src.contains("此服务审核未通过") && !src.contains("此服务已被官方下架")) {
 					ca = new Case(getUrl());
 
-					ca.tags = new ArrayList<>();
-
 					ca.user_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid("https://shop.zbj.com/" + getUrl().split("/")[3] + "/"));
 
 					if (!getUrl().contains("https://shop.tianpeng.com")) {
@@ -171,10 +169,15 @@ public class CaseTask extends Task {
 		String caseTask_des = "";
 
 		caseTask_des = getString("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property",
-					"");
-		ca.tags = Arrays.asList(caseTask_des.split(""));
+					" ");
+		ca.addTag(caseTask_des.replaceAll(".{2}场景.{2}?：" +
+				"|.{2}行业.{2}?：" +
+				"|.{2}类型.{2}?：" +
+				"|.{2}风格.{2}?：" +
+				"|.{2}用途.{2}?：", "")
+				.split(" "));
 
-		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
+		Pattern pattern_tags = Pattern.compile(".{2}?行业.{2}?：(?<T>.+?)\\s+");
 		Matcher matcher_tags = pattern_tags.matcher(caseTask_des);
 		if (matcher_tags.find()) {
 			ca.category = matcher_tags.group("T");
@@ -191,10 +194,17 @@ public class CaseTask extends Task {
 
 		budgetTPW(doc);
 
-		ca.tags = Arrays.asList(doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
-				.text().split(" "));
+		String caseTask_des = doc.select("#j-service-tab > div.service-tab-content.ui-switchable-content > div.service-tab-item.service-detail.ui-switchable-panel > ul.service-property")
+				.text();
 
-		Pattern pattern_tags = Pattern.compile(".*行业.*：(?<T>.+?)\\s+");
+		ca.addTag(caseTask_des.replaceAll(".{2}?场景.{2}?：" +
+				"|.{2}?行业.{2}?：" +
+				"|.{2}?类型.{2}?：" +
+				"|.{2}?风格.{2}?：" +
+				"|.{2}?用途.{2}?：", "")
+				.split(" "));
+
+		Pattern pattern_tags = Pattern.compile(".{2}?行业.{2}?：(?<T>.+?)\\s+");
 		Matcher matcher_tags = pattern_tags.matcher(ca.category);
 		if (matcher_tags.find()) {
 			ca.category = matcher_tags.group("T");

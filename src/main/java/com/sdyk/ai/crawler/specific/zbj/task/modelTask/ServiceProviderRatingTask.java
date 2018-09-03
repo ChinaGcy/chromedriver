@@ -77,8 +77,6 @@ public class ServiceProviderRatingTask extends ScanTask {
 					// 防止每个评论的url一样导致id相同
 					serviceProviderRating = new ServiceProviderRating(getUrl() + "--number:" + i);
 
-					serviceProviderRating.tags = new ArrayList<>();
-
 					// 每个评价
 					ratingData(doc, i, user_id);
 
@@ -153,7 +151,9 @@ public class ServiceProviderRatingTask extends ScanTask {
 		String tags = doc.select("#userlist > div.moly-poc.user-fols.ml20.mr20 > dl:nth-child(" + i + ") > dd:nth-child(2) > p.yingx")
 				.text();
 		if (tags != null && !tags.equals("")) {
-			serviceProviderRating.tags = Arrays.asList(tags.split("印象：")[1]);
+			serviceProviderRating.addTag(tags
+					.replace("印象：", "")
+					.split(" "));
 
 		}
 		try {

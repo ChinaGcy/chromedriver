@@ -63,8 +63,6 @@ public class ServiceProviderTask extends Task {
 
 				serviceProvider.origin_id = t.getStringFromVars("user_id");
 
-				serviceProvider.tags = new ArrayList<>();
-
 				shareData(doc, src);
 
 				// 判断是哪个页面格式
@@ -283,7 +281,7 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.type = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.tag-wrap > div.personal-tag.text-tag").text();
 			serviceProvider.content = doc.select("#utopia_widget_4 > div.right-wrap.fr.tag-content > div.about-wrap > div.no-about").text();
 			serviceProvider.location = doc.select("#utopia_widget_4 > div.left-wrap.fl > div.address-wrap").text();
-			serviceProvider.tags = Arrays.asList(doc.select("#utopia_widget_15 > div.skill-wrap").text().split(","));
+			serviceProvider.addTag(doc.select("#utopia_widget_15 > div.skill-wrap").text().split(" "));
 			serviceProvider.rating_num = Integer.parseInt(doc.select("#utopia_widget_18 > div.left-card-title").text().split("（")[1].split("）")[0]);
 
 			String s = doc.select("#head-img").html();

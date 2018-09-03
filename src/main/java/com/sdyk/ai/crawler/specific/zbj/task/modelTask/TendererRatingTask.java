@@ -68,8 +68,6 @@ public class TendererRatingTask extends ScanTask {
 
 						tendererRating = new TendererRating(getUrl() + "&" + i);
 
-						tendererRating.tags = new ArrayList<>();
-
 						tendererRating.user_id = one.rewind.txt.StringUtil.byteArrayToHex(
 								one.rewind.txt.StringUtil.uuid(
 										getUrl().split("\\?")[0]));
@@ -115,8 +113,8 @@ public class TendererRatingTask extends ScanTask {
 				shareData(doc, "#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-text > p")
 						.text();
 
-		tendererRating.tags =
-				Arrays.asList(shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-tags.clearfix")
+		tendererRating.addTag(
+				shareData(doc,"#evaluation > div > div.panel-content > ul > li:nth-child("+ i +") > div.evaluation-item-row.evaluation-item-tags.clearfix")
 						.text().split(" "));
 		try {
 			tendererRating.pubdate =
