@@ -14,16 +14,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.NoSuchElementException;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 雇主评价
@@ -36,7 +31,7 @@ public class TendererRatingTask extends ScanTask {
 		registerBuilder(
 				TendererRatingTask.class,
 				"https://home.zbj.com/{{user_id}}/?ep={{page}}",
-				ImmutableMap.of("user_id", String.class, "", String.class),
+				ImmutableMap.of("user_id", String.class, "page", String.class),
 				ImmutableMap.of("user_id", "0","page","0"),
 				false,
 				Priority.MEDIUM

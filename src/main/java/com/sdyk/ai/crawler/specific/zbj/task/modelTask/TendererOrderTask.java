@@ -29,7 +29,7 @@ public class TendererOrderTask extends ScanTask {
 		registerBuilder(
 				TendererOrderTask.class,
 				"https://home.zbj.com/{{user_id}}/?op={{page}}",
-				ImmutableMap.of("user_id", String.class, "", String.class),
+				ImmutableMap.of("user_id", String.class, "page", String.class),
 				ImmutableMap.of("user_id", "0","page","0"),
 				false,
 				Priority.MEDIUM

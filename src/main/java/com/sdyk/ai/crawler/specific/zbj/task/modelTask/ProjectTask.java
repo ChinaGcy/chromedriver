@@ -20,6 +20,7 @@ import one.rewind.util.FileUtil;
 import org.elasticsearch.index.fielddata.ScriptDocValues;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.redisson.executor.ScheduledTasksService;
 
 import java.net.MalformedURLException;
@@ -72,8 +73,8 @@ public class ProjectTask extends Task {
 		// 判断是否发生异常
 		this.setValidator((a, t) -> {
 
-			String src = getResponse().getText();
-			if (src.contains("请登录") && src.contains("参与此项目的服务商") && src.contains("查看更多类似项目报价")) {
+			Document doc = getResponse().getDoc();
+			if (doc.select("#utopia_widget_9 > div.essential-information.clearfix > div > div > div > p.description").text().contains("发布了该项目，并找到了满意的")) {
 				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
 			}
 
@@ -169,8 +170,6 @@ public class ProjectTask extends Task {
 					try {
 
 						if (tenderer_webId != null && tenderer_webId.length() > 0) {
-
-							tenderer_webId = tenderer_webId.replace("\"", "");
 
 							//设置参数
 							Map<String, Object> init_map = ImmutableMap.of("tenderer_id", tenderer_webId);
@@ -592,11 +591,13 @@ public class ProjectTask extends Task {
 			Pattern pattern_id = Pattern.compile("\"buyerId\":.+?,");
 			Matcher matcher_id = pattern_id.matcher(src);
 			if (matcher_id.find()) {
+
 				String webId = matcher_id.group()
 						.replace("\"buyerId\":", "")
-						.replace(",", "");
-				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(
-						one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + webId));
+						.replace(",", "")
+						.replace("\"", "");
+
+				project.tenderer_id = one.rewind.txt.StringUtil.byteArrayToHex(one.rewind.txt.StringUtil.uuid("https://home.zbj.com/" + webId));
 
 				return webId;
 			}

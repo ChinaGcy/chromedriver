@@ -48,9 +48,8 @@ public class TendererTask extends Task {
 		// 判断是否发生异常
 		this.setValidator((a, t) -> {
 
-			String src = getResponse().getText();
-			if (src.contains("请登录") && src.contains("活跃度")) {
-
+			Document doc = getResponse().getDoc();
+			if (!doc.title().contains("猪八戒雇主主页")) {
 				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
 			}
 
@@ -156,7 +155,8 @@ public class TendererTask extends Task {
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
 					ImmutableMap.of("user_id", userId, "page", "1");
-					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(TendererOrderTask.class.getName());
+
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererOrderTask");
 
 					//生成holder
 					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
