@@ -46,7 +46,7 @@ public class ProjectTask extends Task {
 				ImmutableMap.of("project_id", String.class),
 				ImmutableMap.of("project_id", "0"),
 				false,
-				Priority.MEDIUM
+				Priority.HIGHEST
 		);
 	}
 

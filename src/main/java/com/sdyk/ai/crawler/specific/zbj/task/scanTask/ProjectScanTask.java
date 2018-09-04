@@ -31,11 +31,11 @@ public class ProjectScanTask extends ScanTask {
 		// TODO 全部抓取是否需要在url中添加分类 channel
 		registerBuilder(
 				ProjectScanTask.class,
-				"https://task.zbj.com/page{{page}}.html",
+				"https://task.zbj.com/page{{page}}.html?so=2",
 				ImmutableMap.of("page", String.class, "max_page", String.class),
 				ImmutableMap.of("page", "1", "max_page", ""),
 				false,
-				Priority.MEDIUM
+				Priority.HIGH
 		);
 	}
 

@@ -35,7 +35,7 @@ public class ServiceScanTask extends ScanTask {
 				ImmutableMap.of("page", String.class, "max_page", String.class),
 				ImmutableMap.of("page", "1", "max_page", ""),
 				false,
-				Priority.MEDIUM
+				Priority.HIGH
 		);
 	}
 
