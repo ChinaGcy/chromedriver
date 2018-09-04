@@ -3,6 +3,7 @@ package com.sdyk.ai.crawler.specific.zbj.task.modelTask;
 import com.google.common.collect.ImmutableMap;
 import com.sdyk.ai.crawler.model.witkey.Tenderer;
 import com.sdyk.ai.crawler.specific.zbj.task.Task;
+import com.sdyk.ai.crawler.util.BinaryDownloader;
 import com.sdyk.ai.crawler.util.DateFormatUtil;
 import com.sdyk.ai.crawler.util.LocationParser;
 import com.sdyk.ai.crawler.util.StringUtil;
@@ -112,13 +113,13 @@ public class TendererTask extends Task {
 								.replaceAll(",", ""));
 
 				// 获取头像
-				String head = doc.select("#utopia_widget_1 > div > div.avatar")
-						.html();
-				Set<String> head_img = new HashSet<>();
-				String head1 = StringUtil.cleanContent(head, head_img);
-				this.download(head);
-				tenderer.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
-						one.rewind.txt.StringUtil.uuid("https:" + head1));
+				String head = doc.select("#utopia_widget_1 > div > div.avatar > img").attr("src");
+				Map<String, String> url_filename = new HashMap<>();
+				url_filename.put(head, "head_portrait");
+				List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+				if( headList != null ){
+					tenderer.head_portrait = headList.get(0);
+				}
 
 				// 定时任务
 				tenderer.domain_id = 1;
@@ -176,7 +177,7 @@ public class TendererTask extends Task {
 
 					ImmutableMap.of("user_id", userId, "page", "1");
 
-					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(TendererRatingTask.class.getName());
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.specific.zbj.task.modelTask.TendererRatingTask");
 
 					//生成holder
 					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);

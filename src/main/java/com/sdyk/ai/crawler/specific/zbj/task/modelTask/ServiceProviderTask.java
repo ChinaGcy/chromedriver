@@ -284,10 +284,13 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.addTag(doc.select("#utopia_widget_15 > div.skill-wrap").text().split(" "));
 			serviceProvider.rating_num = Integer.parseInt(doc.select("#utopia_widget_18 > div.left-card-title").text().split("（")[1].split("）")[0]);
 
-			String s = doc.select("#head-img").html();
-			Set<String> url = new HashSet<>();
-			StringUtil.cleanContent(s, url);
-			serviceProvider.head_portrait = BinaryDownloader.download(s, url, getUrl());
+			String s = doc.select("#head-img").attr("src");
+			Map<String, String> url_filename = new HashMap<>();
+			url_filename.put(s, "head_portrait");
+			List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+			if( headList != null ){
+				serviceProvider.head_portrait = headList.get(0);
+			}
 
 			serviceProvider.insert();
 
@@ -358,15 +361,14 @@ public class ServiceProviderTask extends Task {
 			serviceProvider.rcmd_num = Integer.parseInt(recommendation.split("\\(")[1].split("\\)")[0]);
 		} catch (Exception e) {}
 
-		// 获取头像
+		// 获取头像 #utopia_widget_2 > div > a > img
 		String head = doc.select("#utopia_widget_2 > div > a > img").attr("src");
-		if (!head.contains("http:") || !head.contains("https:")) {
-			head = "https:" + head;
+		Map<String, String> url_filename = new HashMap<>();
+		url_filename.put(head, "head_portrait");
+		List<String> headList = BinaryDownloader.download(getUrl(), url_filename);
+		if( headList != null ){
+			serviceProvider.head_portrait = headList.get(0);
 		}
-
-		this.download(head);
-		serviceProvider.head_portrait = one.rewind.txt.StringUtil.byteArrayToHex(
-				one.rewind.txt.StringUtil.uuid(head));;
 	}
 
 	/**
