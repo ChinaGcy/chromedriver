@@ -155,10 +155,10 @@ public class TendererTask extends Task {
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
 					ImmutableMap.of("user_id", userId, "page", "1");
-
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(TendererOrderTask.class.getName());
 
 					//生成holder
-					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(ProjectTask.class, init_map);
+					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
 
 					//提交任务
 					ChromeDriverDistributor.getInstance().submit(holder);
@@ -173,9 +173,10 @@ public class TendererTask extends Task {
 
 					//设置参数
 					Map<String, Object> init_map = new HashMap<>();
+
 					ImmutableMap.of("user_id", userId, "page", "1");
 
-					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) TendererRatingTask.class;
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(TendererRatingTask.class.getName());
 
 					//生成holder
 					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);

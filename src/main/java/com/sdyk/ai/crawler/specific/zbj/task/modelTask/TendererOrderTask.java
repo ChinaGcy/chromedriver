@@ -65,7 +65,7 @@ public class TendererOrderTask extends ScanTask {
 					Map<String, Object> init_map = new HashMap<>();
 					ImmutableMap.of("user_id", userId, "page", String.valueOf(++page));
 
-					Class<? extends ChromeTask> clazz = this.getClass();
+					Class<? extends ChromeTask> clazz = (Class<? extends ChromeTask>) Class.forName(this.getClass().getName());
 
 					//生成holder
 					TaskHolder holder = ChromeTaskFactory.getInstance().newHolder(clazz, init_map);

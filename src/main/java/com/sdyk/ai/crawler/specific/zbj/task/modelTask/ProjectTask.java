@@ -73,8 +73,7 @@ public class ProjectTask extends Task {
 		this.setValidator((a, t) -> {
 
 			String src = getResponse().getText();
-			if (src.contains(",请登录") && src.contains("参与此项目的服务商")) {
-
+			if (src.contains("anonymous,请登录") && src.contains("参与此项目的服务商")) {
 				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
 			}
 
