@@ -38,6 +38,9 @@ public class ServiceProviderRatingTask extends ScanTask {
 		);
 	}
 
+	String userId_;
+	String page_;
+
 	ServiceProviderRating serviceProviderRating;
 
 	// http://shop.zbj.com/evaluation/evallist-uid-7791034-type-1-isLazyload-0-page-1.html
@@ -57,8 +60,16 @@ public class ServiceProviderRatingTask extends ScanTask {
 
 			try {
 
-				String user_id = t.getStringFromVars("user_id");
-				int page = Integer.parseInt(t.getStringFromVars("page"));
+				int page = 0;
+				String user_id = "";
+				Pattern pattern_url = Pattern.compile("http://shop.zbj.com/evaluation/evallist-uid-(?<userid>\\d+)-category-1-isLazyload-0-page-(?<page>\\d+).html");
+				Matcher matcher_url = pattern_url.matcher(url);
+				if (matcher_url.find()) {
+					page = Integer.parseInt(matcher_url.group("page"));
+					user_id = matcher_url.group("page");
+				}
+				userId_ = user_id;
+				page_ = String.valueOf(page);
 
 				Document doc = getResponse().getDoc();
 
@@ -166,7 +177,7 @@ public class ServiceProviderRatingTask extends ScanTask {
 
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+		return new TaskTrace(this.getClass(), userId_, page_);
 	}
 
 }

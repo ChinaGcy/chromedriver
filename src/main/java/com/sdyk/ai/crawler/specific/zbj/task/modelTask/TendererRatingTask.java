@@ -19,6 +19,8 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 雇主评价
@@ -39,6 +41,8 @@ public class TendererRatingTask extends ScanTask {
 	}
 
 	TendererRating tendererRating;
+	String userId_;
+	String page_;
 
 	public TendererRatingTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
@@ -47,8 +51,16 @@ public class TendererRatingTask extends ScanTask {
 
 		this.addDoneCallback((t) -> {
 
-			String userId = t.getStringFromVars("user_id");
-			int page = Integer.parseInt(t.getStringFromVars("page"));
+			int page = 0;
+			String userId = "";
+			Pattern pattern_url = Pattern.compile("https://home.zbj.com/(?<userid>\\d+)/\\?ep=(?<page>\\d+)");
+			Matcher matcher_url = pattern_url.matcher(url);
+			if (matcher_url.find()) {
+				page = Integer.parseInt(matcher_url.group("page"));
+				userId = matcher_url.group("page");
+			}
+			userId_ = userId;
+			page_ = String.valueOf(page);
 
 			try {
 
@@ -179,6 +191,6 @@ public class TendererRatingTask extends ScanTask {
 
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+		return new TaskTrace(this.getClass(), userId_, page_);
 	}
 }

@@ -36,6 +36,9 @@ public class TendererOrderTask extends ScanTask {
 		);
 	}
 
+	String userId_;
+	String page_;
+
 	public TendererOrderTask(String url) throws MalformedURLException, URISyntaxException, ProxyException.Failed {
 		super(url);
 
@@ -43,8 +46,17 @@ public class TendererOrderTask extends ScanTask {
 
 		this.addDoneCallback((t) -> {
 
-			String userId = t.getStringFromVars("user_id");
-			int page = Integer.parseInt(t.getStringFromVars("page"));
+			int page = 0;
+			String userId = "";
+			Pattern pattern_url = Pattern.compile("https://home.zbj.com/(?<userid>\\d+)/\\?op=(?<page>\\d+)");
+			Matcher matcher_url = pattern_url.matcher(url);
+			if (matcher_url.find()) {
+				page = Integer.parseInt(matcher_url.group("page"));
+				userId = matcher_url.group("page");
+			}
+			userId_ = userId;
+			page_ = String.valueOf(page);
+
 
 			Document doc = getResponse().getDoc();
 
@@ -183,6 +195,6 @@ public class TendererOrderTask extends ScanTask {
 	@Override
 	public TaskTrace getTaskTrace() {
 
-		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+		return new TaskTrace(this.getClass(), userId_, page_);
 	}
 }
