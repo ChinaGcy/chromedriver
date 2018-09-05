@@ -57,7 +57,7 @@ public class TendererRatingTask extends ScanTask {
 			Matcher matcher_url = pattern_url.matcher(url);
 			if (matcher_url.find()) {
 				page = Integer.parseInt(matcher_url.group("page"));
-				userId = matcher_url.group("page");
+				userId = matcher_url.group("userid");
 			}
 			userId_ = userId;
 			page_ = String.valueOf(page);

@@ -74,7 +74,12 @@ public class ProjectTask extends Task {
 		this.setValidator((a, t) -> {
 
 			Document doc = getResponse().getDoc();
-			if (doc.select("#utopia_widget_9 > div.essential-information.clearfix > div > div > div > p.description").text().contains("发布了该项目，并找到了满意的")) {
+			if (doc.select(
+					"#utopia_widget_9 > div.essential-information.clearfix > div > div > div > p.description")
+                    .text()
+                    .contains("发布了该项目，并找到了满意的")
+                    && doc.text().contains("anonymous,请登录")) {
+
 				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
 			}
 

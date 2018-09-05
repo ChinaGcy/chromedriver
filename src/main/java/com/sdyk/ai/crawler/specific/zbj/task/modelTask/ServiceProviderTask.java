@@ -38,7 +38,7 @@ public class ServiceProviderTask extends Task {
 				ImmutableMap.of("user_id", String.class),
 				ImmutableMap.of("user_id", "0"),
 				false,
-				Priority.MEDIUM
+				Priority.HIGH
 		);
 	}
 
