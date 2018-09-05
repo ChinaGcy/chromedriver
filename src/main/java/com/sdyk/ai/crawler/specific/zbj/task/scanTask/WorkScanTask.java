@@ -41,6 +41,7 @@ public class WorkScanTask extends ScanTask {
 	}
 
 	String user_id;
+	String page_;
 
 	public static List<String> list = new ArrayList<>();
 
@@ -65,6 +66,7 @@ public class WorkScanTask extends ScanTask {
 
 			user_id = userId;
 
+			page_ = String.valueOf(page);
 			String src = getResponse().getText();
 
 			if (src.contains(" 暂无项目案例")) {
@@ -108,7 +110,7 @@ public class WorkScanTask extends ScanTask {
 
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), this.getParamString("userId"), this.getParamString("page"));
+		return new TaskTrace(this.getClass(), user_id, page_);
 	}
 
 	/**

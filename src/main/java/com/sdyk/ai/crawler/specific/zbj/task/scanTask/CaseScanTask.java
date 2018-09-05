@@ -42,6 +42,7 @@ public class CaseScanTask extends ScanTask {
 	public static List<String> list = new ArrayList<>();
 
 	String user_Id;
+	String page_;
 
 	/**
 	 *
@@ -67,6 +68,7 @@ public class CaseScanTask extends ScanTask {
 				page = Integer.parseInt(matcher_url.group("page"));
 			}
 
+			page_ = String.valueOf(page);
 			user_Id = userId;
 			try {
 
@@ -116,7 +118,7 @@ public class CaseScanTask extends ScanTask {
 
 	@Override
 	public TaskTrace getTaskTrace() {
-		return new TaskTrace(this.getClass(), user_Id, this.getParamString("page"));
+		return new TaskTrace(this.getClass(), user_Id, page_);
 	}
 
 	/**
