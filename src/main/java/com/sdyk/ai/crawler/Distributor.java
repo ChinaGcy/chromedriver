@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RMap;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -56,42 +57,47 @@ public class Distributor extends ChromeDriverDistributor {
 		super();
 	}
 
+    public Map<String, String> AHENT_TASKID = new HashMap<>();
+
 	/**
 	 * 定时任务，使浏览器不会因空闲30分钟而自动关掉.
 	 */
-	public void keepAlive(){
+	public void keepAlive() {
 
 		timer.schedule(new TimerTask() {
 			public void run() {
 				queues.keySet().forEach(a -> {
 
-					if( queues.get(a).size() == 0 ){
+                    try {
+                        File writename = new File("data/keepAlive.txt"); // 相对路径，如果没有则要建立一个新的output。txt文件
+                        BufferedWriter out = new BufferedWriter(new FileWriter(writename));
+                        out.write(  new Date() + " : " + a.name + " -> " + a.taskId + "\r\n" ); // \r\n即为换行
+                        out.flush(); // 把缓存区内容压入文件
+                        out.close(); // 最后记得关闭文件
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-						try {
+                    if( !AHENT_TASKID.containsKey(a.name) ){
+                        AHENT_TASKID.put(a.name, a.taskId);
+                    }
+                    else {
 
-							//设置参数
-							Map<String, Object> init_map = new HashMap<>();
-							init_map.put("q", "");
-
-							Class<? extends ChromeTask> clazz =  (Class<? extends ChromeTask>) Class.forName("com.sdyk.ai.crawler.task.KeepAliveTask");
-
-							//生成holder
-							TaskHolder holder =  ChromeTaskFactory.getInstance().newHolder(clazz, init_map);
-
-							//提交任务
-							((Distributor)ChromeDriverDistributor.getInstance()).submit(holder, a);
-
-							if( !taskQueueStat.keySet().contains(clazz.getName()) ) taskQueueStat.put(clazz.getName(), 1);
-							else taskQueueStat.put(clazz.getName(), taskQueueStat.get(clazz.getName()) + 1 );
-
-						} catch ( Exception e) {
-							logger.error("error for submit TendererTask.class", e);
-						}
-
-					};
+                        if( AHENT_TASKID.get(a.name).equals(a.taskId) ){
+                            a.status = ChromeDriverAgent.Status.IDLE;
+                            try {
+                                a.submit(((Distributor)ChromeDriverDistributor.getInstance()).distribute(a));
+                            } catch (Exception e) {
+                                logger.error("error for keepAlive");
+                            }
+                        }
+                        else{
+                            AHENT_TASKID.put(a.name, a.taskId);
+                        }
+                    }
 				});
 			}
-		},10 * 60 * 1000 , 10 * 60 * 1000);
+		},6 * 60 * 1000 , 3 * 60 * 1000);
 	}
 
 	/**
@@ -137,8 +143,16 @@ public class Distributor extends ChromeDriverDistributor {
 
 		// 上次采集时间过滤
 		if(last_visit != 0 && (new Date().getTime() - last_visit) < min_interval) {
-			logger.error("{} {} fetch interval is less than MIN_INTERVAL {}, discard.", clazz.getName(), url, min_interval);
-			throw new TaskException.LessThanMinIntervalException();
+			//logger.error("{} {} fetch interval is less than MIN_INTERVAL {}, discard.", clazz.getName(), url, min_interval);
+			//throw new TaskException.LessThanMinIntervalException();
+            Map<String, Object> info = new HashMap<>();
+            info.put("localIp", LOCAL_IP);
+            info.put("agent", null);
+            info.put("domain", null);
+            info.put("account", null);
+            info.put("id", holder.id);
+            info.put("status", "error for LessThanMinIntervalException");
+            return info;
 		}
 
 		URL_VISITS.put(hash, new Date().getTime());
@@ -309,22 +323,26 @@ public class Distributor extends ChromeDriverDistributor {
 				String fileName = t.getResponse().getDoc().title();
 
 				// 下载 src
-				if( t.getSaveSrc() ){
+				/*if( t.getSaveSrc() ){
 					try {
 						// 创建 binary 对象
 						Binary binary = new Binary(t.getUrl());
-						binary.file_name = fileName;
+						// todo 页面已经存储,此时如何上传页面信息
+						if( Binary.getBinaryById(binary.id) == null ){
 
-						// 上传文件
-						String[] sArray = FastDFSAdapter.getInstance().upload_file(t.getResponse().getSrc(), null, null);
-						binary.fdfs_group = sArray[0];
-						binary.fdfs_filepath = sArray[1];
+                            binary.file_name = fileName;
 
-						binary.insert();
+                            // 上传文件
+                            String[] sArray = FastDFSAdapter.getInstance().upload_file(t.getResponse().getSrc(), null, null);
+                            binary.fdfs_group = sArray[0];
+                            binary.fdfs_filepath = sArray[1];
+
+                            binary.insert();
+                        }
 					} catch (Exception e) {
 						logger.error("error for downSrc", e);
 					}
-				}
+				}*/
 
 			});
 

@@ -185,7 +185,7 @@ public class Scheduler {
 			try {
 
 				// 设置账户状态
-				account_.status = Account.Status.Free;
+				account_.status = Account.Status.Broken;
 
 				// 更新账户状态
 				account_.update();
@@ -561,6 +561,6 @@ public class Scheduler {
 		});
 
 		// 每 10 分钟 执行一次百度任务
-		//((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
+		((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
 	}
 }
