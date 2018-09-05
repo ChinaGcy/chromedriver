@@ -57,31 +57,25 @@ public class Distributor extends ChromeDriverDistributor {
 		super();
 	}
 
-    public Map<String, String> AHENT_TASKID = new HashMap<>();
+    //public Map<String, String> AHENT_TASKID = new HashMap<>();
 
 	/**
 	 * 定时任务，使浏览器不会因空闲30分钟而自动关掉.
 	 */
-	public void keepAlive() {
+	/*public void keepAlive() {
 
 		timer.schedule(new TimerTask() {
 			public void run() {
 				queues.keySet().forEach(a -> {
 
-                    try {
-                        File writename = new File("data/keepAlive.txt"); // 相对路径，如果没有则要建立一个新的output。txt文件
-                        BufferedWriter out = new BufferedWriter(new FileWriter(writename));
-                        out.write(  new Date() + " : " + a.name + " -> " + a.taskId + "\r\n" ); // \r\n即为换行
-                        out.flush(); // 把缓存区内容压入文件
-                        out.close(); // 最后记得关闭文件
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
                     if( !AHENT_TASKID.containsKey(a.name) ){
                         AHENT_TASKID.put(a.name, a.taskId);
                     }
                     else {
+
+                        System.out.println("-------------------------------------------");
+                        System.out.println("old taskId is : " + AHENT_TASKID.get(a.name));
+                        System.out.println("new taskId is : " + a.taskId);
 
                         if( AHENT_TASKID.get(a.name).equals(a.taskId) ){
                             a.status = ChromeDriverAgent.Status.IDLE;
@@ -97,8 +91,8 @@ public class Distributor extends ChromeDriverDistributor {
                     }
 				});
 			}
-		},6 * 60 * 1000 , 3 * 60 * 1000);
-	}
+		},6 * 60 * 1000 , 2 * 60 * 1000);
+	}*/
 
 	/**
 	 * 提交登陆任务

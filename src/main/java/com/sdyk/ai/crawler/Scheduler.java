@@ -561,6 +561,6 @@ public class Scheduler {
 		});
 
 		// 每 10 分钟 执行一次百度任务
-		((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
+		//((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
 	}
 }
