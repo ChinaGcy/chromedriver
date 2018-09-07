@@ -66,6 +66,11 @@ public class WorkScanTask extends ScanTask {
 
 			user_id = userId;
 
+			if( user_id == null ){
+				user_id = "work";
+			}
+
+
 			page_ = String.valueOf(page);
 			String src = getResponse().getText();
 

@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class ProjectTask extends Task {
 
-	public static long MIN_INTERVAL = 60 * 60 * 1000L;
+	public static long MIN_INTERVAL = 0L; //60 * 60 * 1000L;
 
 	public static List<String> crons = Arrays.asList("* * */1 * *");
 
@@ -78,7 +78,7 @@ public class ProjectTask extends Task {
 					"#utopia_widget_9 > div.essential-information.clearfix > div > div > div > p.description")
                     .text()
                     .contains("发布了该项目，并找到了满意的")
-                    && doc.text().contains("anonymous,请登录")) {
+                    && doc.text().contains("请登录")) {  //anonymous,
 
 				throw new AccountException.Failed(a.accounts.get(t.getDomain()));
 			}

@@ -59,9 +59,9 @@ public class CaseScanTask extends ScanTask {
 		// http://shop.zbj.com/17788555/servicelist-p1.html
 		this.addDoneCallback((t) -> {
 
-			String userId = null;
+			String userId = "case";
 			int page = 0;
-			Pattern pattern_url = Pattern.compile("https://shop.zbj.com/(?<userId>.+?)\\/servicelist-p(?<page>.+?).html");
+			Pattern pattern_url = Pattern.compile("https://shop.zbj.com/(?<userId>.+?)/servicelist-p(?<page>.+?).html");
 			Matcher matcher_url = pattern_url.matcher(url);
 			if (matcher_url.find()) {
 				userId = matcher_url.group("userId");
