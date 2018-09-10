@@ -29,12 +29,6 @@ public class LoginTask extends ChromeTask implements JSONable<LoginTask> {
 
 		this.setValidator((a, t) -> {
 
-			/*String text = t.getResponse().getText();
-
-			if( (text.contains("ip") || text.contains("IP")) && text.contains("封禁") ){
-				throw new ProxyException.Failed(a.proxy);
-			}*/
-
 		});
 
 	}
