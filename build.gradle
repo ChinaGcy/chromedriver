@@ -11,7 +11,7 @@ apply plugin: 'maven-publish'
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-mainClassName = 'com.sdyk.ai.crawler.specific.zbj.Scheduler'
+mainClassName = 'com.sdyk.ai.crawler.Scheduler'
 
 applicationDefaultJvmArgs = ["-Xms200m", "-Xmx4000m", "-Dsun.net.inetaddr.ttl=-1", "-Djava.net.preferIPv4Stack=true", "-Dlog4j.configurationFile=log4j2.xml", "-Dfile.encoding=UTF8", "-Djdk.http.auth.tunneling.disabledSchemes=\"\"", "-Djava.library.path=/opt/opencv-3.4.1/build/lib"]
 
@@ -24,7 +24,7 @@ buildscript {
     }
 }
 
-repositories {
+/*repositories {
 
     jcenter()
     maven {
@@ -42,6 +42,33 @@ repositories {
     }
     flatDir {
         dirs 'lib'
+    }
+}*/
+
+repositories {
+    maven {
+        url "http://10.0.0.62:8081/repository/sdyk_crawler_snapshot/"
+        credentials {
+            username 'admin'
+            password 'admin123'
+        }
+    }
+    flatDir {
+        dirs 'lib'
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'http://10.0.0.62:8081/repository/sdyk_crawler/') {
+                authentication(userName: 'admin', password: 'admin123')
+            }
+            repository(url: 'http://10.0.0.62:8081/repository/sdyk_crawler_snapshot/') {
+                authentication(userName: 'admin', password: 'admin123')
+            }
+
+        }
     }
 }
 
@@ -81,7 +108,7 @@ artifactory {
 
 dependencies {
 
-    compile 'one.rewind:common:1.1.35-SNAPSHOT'
+    compile 'one.rewind:common:1.1.40-SNAPSHOT'
 
     //compile name: 'opencv-341'
 
@@ -123,7 +150,7 @@ task copyFiles(group: 'tetra') << {
         into 'src/main/dist'
     }
     copy {
-        from 'gcy-docker.pem'
+        from 'gcy-docker.pem.pem'
         into 'src/main/dist'
     }
     copy {
@@ -133,6 +160,10 @@ task copyFiles(group: 'tetra') << {
     copy {
         from 'lib'
         into 'src/main/dist'
+    }
+    copy {
+        from fileTree('data')
+        into 'src/main/dist/data'
     }
 }
 
