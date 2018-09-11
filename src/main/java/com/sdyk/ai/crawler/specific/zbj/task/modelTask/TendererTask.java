@@ -19,6 +19,8 @@ import org.jsoup.nodes.Document;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 雇主详情
@@ -57,8 +59,12 @@ public class TendererTask extends Task {
 
 		this.addDoneCallback((t)->{
 
-			String userId = t.getStringFromVars("tenderer_id");
-
+			String userId = null;
+			Pattern pattern_url = Pattern.compile("https://home.zbj.com/(?<userId>.+?)");
+			Matcher matcher_url = pattern_url.matcher(url);
+			if (matcher_url.find()) {
+				userId = matcher_url.group("userId");
+			}
 			try {
 
 				Document doc = getResponse().getDoc();

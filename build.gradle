@@ -40,6 +40,13 @@ buildscript {
             password "develop"
         }
     }
+    maven {
+        url "http://10.0.0.62:8081/repository/sdyk_crawler_snapshot/"
+        credentials {
+            username 'admin'
+            password 'admin123'
+        }
+    }
     flatDir {
         dirs 'lib'
     }
@@ -68,6 +75,19 @@ uploadArchives {
                 authentication(userName: 'admin', password: 'admin123')
             }
 
+        }
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'http://10.0.0.62:8081/repository/sdyk_crawler/') {
+                authentication(userName: 'admin', password: 'admin123')
+            }
+            repository(url: 'http://10.0.0.62:8081/repository/sdyk_crawler_snapshot/') {
+                authentication(userName: 'admin', password: 'admin123')
+            }
         }
     }
 }
