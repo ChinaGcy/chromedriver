@@ -1,7 +1,7 @@
 package com.sdyk.ai.crawler.util;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.nodes.Document;
 import one.rewind.txt.NumberFormatUtil;
 

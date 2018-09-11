@@ -54,7 +54,7 @@ public class Scheduler {
 
 	public static int DriverCount_ProxyAliyun = 3;
 
-	public static int DriverCount_ProxyOwn = 3;
+	public static int DriverCount_ProxyOwn = 0;
 
 	// 定义启动agent个数
 	public static int DefaultDriverCount = DriverCount_ProxyAliyun + DriverCount_ProxyOwn;
@@ -528,23 +528,6 @@ public class Scheduler {
 		return loginTask;
 	}
 
-	/**
-	 * 定时任务，每30分钟将数据库中账户状态为 Broken 设置为 Free.
-	 */
-	public void setBrokenAccountToFree() {
-
-		timer.schedule(new TimerTask() {
-			public void run() {
-
-				try {
-					AccountManager.getInstance().setBrokenAccountToFree();
-				} catch (Exception e) {
-					logger.error("error for AccountManager.getInstance().setBrokenAccountToFree()", e);
-				}
-			}
-		},30 * 60 * 1000 ,  30 * 60 * 1000);
-	}
-
 
 	/**
 	 * 主方法
@@ -587,7 +570,5 @@ public class Scheduler {
 			}
 		});
 
-		// 调用定时任务监测账号
-		Scheduler.getInstance().setBrokenAccountToFree();
 	}
 }

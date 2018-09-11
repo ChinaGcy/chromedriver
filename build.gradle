@@ -24,7 +24,7 @@ buildscript {
     }
 }
 
-/*repositories {
+repositories {
 
     jcenter()
     maven {
@@ -50,7 +50,7 @@ buildscript {
     flatDir {
         dirs 'lib'
     }
-}*/
+}
 
 repositories {
     maven {
@@ -148,7 +148,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.aliyun/aliyun-java-sdk-ecs
     compile group: 'com.aliyun', name: 'aliyun-java-sdk-ecs', version: '4.5.0'
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
     runtime 'mysql:mysql-connector-java:5.1.37'
 }
 
