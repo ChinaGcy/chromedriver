@@ -21,7 +21,10 @@ import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.chrome.action.LoginAction;
 import one.rewind.io.requester.proxy.Proxy;
 import one.rewind.io.requester.task.ChromeTask;
+import one.rewind.io.requester.task.ChromeTaskFactory;
+import one.rewind.io.requester.task.TaskHolder;
 import one.rewind.io.server.Msg;
+import one.rewind.json.JSON;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,7 +52,7 @@ public class Scheduler {
 
 	public static List<flag> Flags = Arrays.asList(PerformLoginTasks);
 
-	public static int DriverCount_ProxyAliyun = 2;
+	public static int DriverCount_ProxyAliyun = 3;
 
 	public static int DriverCount_ProxyOwn = 3;
 
@@ -67,6 +70,9 @@ public class Scheduler {
 			AliyunHost.Proxy_Group_Name , Arrays.asList("tianyancha.com"),
 			"own", new ArrayList<>()
 	);
+
+	// 定义定时器
+	public static Timer timer = new Timer();
 
 	public static Scheduler instance;
 
@@ -138,11 +144,11 @@ public class Scheduler {
 
 		int currentFreeProxy = ProxyManager.getInstance().getValidProxyNum();
 
-		if(currentFreeProxy < DriverCount_ProxyAliyun ) {
+		if(currentFreeProxy < DefaultDriverCount ) {
 
-			int proxyNumToCreate = DriverCount_ProxyAliyun - currentFreeProxy;
+			int proxyNumToCreate = DefaultDriverCount - currentFreeProxy;
 
-			AliyunHost.batchBuild(proxyNumToCreate);
+			//AliyunHost.batchBuild(proxyNumToCreate);
 
 		}
 
@@ -179,6 +185,8 @@ public class Scheduler {
 		 * A 账号异常回调
  		 */
 		agent.addAccountFailedCallback((agent_, account_)->{
+
+		    System.out.println(JSON.toPrettyJson(agent_.accounts));
 
 			String domain = account_.getDomain();
 
@@ -521,6 +529,24 @@ public class Scheduler {
 	}
 
 	/**
+	 * 定时任务，每30分钟将数据库中账户状态为 Broken 设置为 Free.
+	 */
+	public void setBrokenAccountToFree() {
+
+		timer.schedule(new TimerTask() {
+			public void run() {
+
+				try {
+					AccountManager.getInstance().setBrokenAccountToFree();
+				} catch (Exception e) {
+					logger.error("error for AccountManager.getInstance().setBrokenAccountToFree()", e);
+				}
+			}
+		},30 * 60 * 1000 ,  30 * 60 * 1000);
+	}
+
+
+	/**
 	 * 主方法
 	 */
 	public static void main(String[] args) throws Exception {
@@ -528,8 +554,9 @@ public class Scheduler {
 		// Scheduler 初始化
 		Scheduler.getInstance();
 
-		Thread.sleep(60000);
+		Thread.sleep( 60 * 1000);
 
+		// 执行爬取任务
 		TaskInitializer.getAll().stream().filter(t -> {
 			return t.enable == true;
 		}).forEach( t ->{
@@ -560,7 +587,7 @@ public class Scheduler {
 			}
 		});
 
-		// 每 10 分钟 执行一次百度任务
-		//((Distributor)ChromeDriverDistributor.getInstance()).keepAlive();
+		// 调用定时任务监测账号
+		Scheduler.getInstance().setBrokenAccountToFree();
 	}
 }

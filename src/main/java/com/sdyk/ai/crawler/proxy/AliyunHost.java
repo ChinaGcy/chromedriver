@@ -34,7 +34,7 @@ public class AliyunHost {
 	public static String key;
 	public static String secret;
 	public static String regionId;
-	public static String portId;
+	public static String Security_Group_Id;
 
 	public static DefaultProfile profile;
 	public static IAcsClient client;
@@ -51,7 +51,7 @@ public class AliyunHost {
 		key = config.getString("key");
 		secret = config.getString("secret");
 		regionId = config.getString("regionId");
-		portId = config.getString("portId");
+		Security_Group_Id = config.getString("securityGroupId");
 
 		Proxy_Group_Name = "aliyun-" + regionId + "-squid";
 
@@ -129,7 +129,7 @@ public class AliyunHost {
 		createInstance.setInstanceType("ecs.xn4.small");
 
 		// 安全组 用于开放端口
-		createInstance.setSecurityGroupId(portId);
+		createInstance.setSecurityGroupId(Security_Group_Id);
 
 		// 主机名 密码
 		createInstance.setHostName("aliyun-zbj");

@@ -18,6 +18,7 @@ public abstract class Task extends ChromeTask {
 	public Task(String url) throws MalformedURLException, URISyntaxException {
 		super(url);
 		setBuildDom();
+		this.setNoFetchImages();
 	}
 
 

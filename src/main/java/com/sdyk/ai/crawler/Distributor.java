@@ -1,8 +1,10 @@
 package com.sdyk.ai.crawler;
 
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.sdyk.ai.crawler.docker.DockerHostManager;
 import com.sdyk.ai.crawler.model.Binary;
+import com.sdyk.ai.crawler.model.TaskInitializer;
 import com.sdyk.ai.crawler.model.TaskTrace;
 import com.sdyk.ai.crawler.proxy.ProxyManager;
 import com.sdyk.ai.crawler.task.ScanTask;
@@ -10,6 +12,7 @@ import com.sdyk.ai.crawler.util.StatManager;
 import one.rewind.db.FastDFSAdapter;
 import one.rewind.db.RedissonAdapter;
 import one.rewind.io.docker.model.ChromeDriverDockerContainer;
+import one.rewind.io.requester.HttpTaskSubmitter;
 import one.rewind.io.requester.chrome.ChromeDriverAgent;
 import one.rewind.io.requester.chrome.ChromeDriverDistributor;
 import one.rewind.io.requester.exception.AccountException;
@@ -18,14 +21,18 @@ import one.rewind.io.requester.exception.TaskException;
 import one.rewind.io.requester.task.ChromeTask;
 import one.rewind.io.requester.task.ChromeTaskFactory;
 import one.rewind.io.requester.task.TaskHolder;
+import one.rewind.io.server.Msg;
 import one.rewind.txt.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.redisson.api.RMap;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -34,10 +41,6 @@ public class Distributor extends ChromeDriverDistributor {
 	public static final Logger logger = LogManager.getLogger(ChromeDriverDistributor.class.getName());
 
 	public static RMap<String, Long> URL_VISITS = RedissonAdapter.redisson.getMap("URL-Visits");
-
-	public static Set<String> URL_VISITS_SET = new HashSet<>();
-
-	public static Timer timer = new Timer();
 
 	public ConcurrentHashMap<ChromeDriverAgent, Queue<ChromeTask>> loginTaskQueues = new ConcurrentHashMap();
 
@@ -51,48 +54,16 @@ public class Distributor extends ChromeDriverDistributor {
 	public static ConcurrentHashMap<String, Integer> taskQueueStat = new ConcurrentHashMap<>();
 
 	/**
+	 * 记录队列中已有任务
+	 */
+	public static Set<String> URL_VISITS_SET = new HashSet<>();
+
+	/**
 	 * 构造方法
 	 */
 	public Distributor() {
 		super();
 	}
-
-    //public Map<String, String> AHENT_TASKID = new HashMap<>();
-
-	/**
-	 * 定时任务，使浏览器不会因空闲30分钟而自动关掉.
-	 */
-	/*public void keepAlive() {
-
-		timer.schedule(new TimerTask() {
-			public void run() {
-				queues.keySet().forEach(a -> {
-
-                    if( !AHENT_TASKID.containsKey(a.name) ){
-                        AHENT_TASKID.put(a.name, a.taskId);
-                    }
-                    else {
-
-                        System.out.println("-------------------------------------------");
-                        System.out.println("old taskId is : " + AHENT_TASKID.get(a.name));
-                        System.out.println("new taskId is : " + a.taskId);
-
-                        if( AHENT_TASKID.get(a.name).equals(a.taskId) ){
-                            a.status = ChromeDriverAgent.Status.IDLE;
-                            try {
-                                a.submit(((Distributor)ChromeDriverDistributor.getInstance()).distribute(a));
-                            } catch (Exception e) {
-                                logger.error("error for keepAlive");
-                            }
-                        }
-                        else{
-                            AHENT_TASKID.put(a.name, a.taskId);
-                        }
-                    }
-				});
-			}
-		},6 * 60 * 1000 , 2 * 60 * 1000);
-	}*/
 
 	/**
 	 * 提交登陆任务
@@ -214,7 +185,8 @@ public class Distributor extends ChromeDriverDistributor {
 		// 生成指派信息
 		if(agent != null) {
 
-			if( !URL_VISITS_SET.contains(hash) ){
+			// 若任务队列中不包含此任务
+			if( URL_VISITS_SET.add(hash) ){
 
 				// 更新统计信息
 				if(!taskQueueStat.keySet().contains(holder.class_name)) {
@@ -225,7 +197,6 @@ public class Distributor extends ChromeDriverDistributor {
 
 				// 添加任务
 				queues.get(agent).put(holder);
-				URL_VISITS_SET.add(hash);
 
 				Map<String, Object> info = new HashMap<>();
 				info.put("localIp", LOCAL_IP);
@@ -255,7 +226,7 @@ public class Distributor extends ChromeDriverDistributor {
 	 */
 	public ChromeTask distribute(ChromeDriverAgent agent) throws InterruptedException {
 
-		ChromeTask task = null;
+        ChromeTask task = null;
 
 		if( loginTaskQueues.get(agent) != null && !loginTaskQueues.get(agent).isEmpty() ){
 
@@ -314,7 +285,7 @@ public class Distributor extends ChromeDriverDistributor {
 				String hash = StringUtil.MD5(t.getUrl());
 				URL_VISITS_SET.remove(hash);
 
-				String fileName = t.getResponse().getDoc().title();
+				//String fileName = t.getResponse().getDoc().title();
 
 				// 下载 src
 				/*if( t.getSaveSrc() ){
