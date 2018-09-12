@@ -34,13 +34,6 @@ repositories {
         url "https://jitpack.io"
     }
     maven {
-        url "http://10.0.0.56:8081/artifactory/libs-snapshot-local/"
-        credentials {
-            username "dev"
-            password "develop"
-        }
-    }
-    maven {
         url "http://10.0.0.62:8081/repository/sdyk_crawler_snapshot/"
         credentials {
             username 'admin'
@@ -79,49 +72,10 @@ uploadArchives {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: 'http://10.0.0.62:8081/repository/sdyk_crawler/') {
-                authentication(userName: 'admin', password: 'admin123')
-            }
-            repository(url: 'http://10.0.0.62:8081/repository/sdyk_crawler_snapshot/') {
-                authentication(userName: 'admin', password: 'admin123')
-            }
-        }
-    }
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-        }
-    }
-}
-
-artifactory {
-
-    contextUrl = 'http://10.0.0.56:8081/artifactory'
-    publish {
-        repository {
-            repoKey = 'libs-snapshot-local'
-            username = artifactory_username
-            password = artifactory_password
-        }
-        snapshotRepository {
-            repoKey = 'libs-snapshot-local'
-            username = artifactory_username
-            password = artifactory_password
-        }
-        defaults {
-
-            publications('mavenJava')
-
-            publishArtifacts = true
-
-            properties = ['qa.level': 'basic', 'q.os': 'linux', 'dev.team': 'core']
-            publishPom = true
         }
     }
 }
